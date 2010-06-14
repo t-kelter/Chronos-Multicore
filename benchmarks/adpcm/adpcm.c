@@ -837,8 +837,7 @@ int main()
     /* Since the number of times we loop in my_sin depends on the argument we
        add the fact: xxmain_0:[]: */
     for(i = 0 ; i < SIZE ; i++) {
-              //test_data[i] = (int)j*my_cos(f*PI*i); 
-              test_data[i] = 1; 
+              test_data[i] = (int)j*my_cos(f*PI*i); 
     }
 
 
