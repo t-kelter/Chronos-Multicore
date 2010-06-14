@@ -332,7 +332,7 @@ all: $(PROGS)
 
 
 clean: 
-	rm *.o; rm ss_smt; rm sysprobe
+	$(RM) *.o ss_smt sysprobe
 
 ss_smt$(EEXT):	sysprobe$(EEXT) ss_smt.$(OEXT) cache.$(OEXT) bpred.$(OEXT) resource.$(OEXT) ptrace.$(OEXT) $(OBJS) libexo.$(LEXT)
 	$(CC) -o ss_smt$(EEXT) $(CFLAGS) ss_smt.$(OEXT) cache.$(OEXT) bpred.$(OEXT) resource.$(OEXT) ptrace.$(OEXT) $(OBJS) libexo.$(LEXT) $(MLIBS)
