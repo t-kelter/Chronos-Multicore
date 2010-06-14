@@ -20,3 +20,10 @@ best regards
  \  LI Xianfeng                          \
  /  http://www.comp.nus.edu.sg/~lixianfe /
 +---------------------------------------+
+
+
+
+Original file content 
+
+If encounter segmentation fault,
+try changing the parameters in cfg.h and common.h
