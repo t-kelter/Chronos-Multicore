@@ -1,0 +1,136 @@
+start_addr
+00400140 <__start> lw        $16,0($29)
+00400148 <__start+0x8> lui       $28,4097
+00400150 <__start+0x10> addiu     $28,$28,-32032
+00400158 <__start+0x18> addiu     $17,$29,4
+00400160 <__start+0x20> addiu     $3,$17,4
+00400168 <__start+0x28> sll       $2,$16,0x2
+00400170 <__start+0x30> addu      $3,$3,$2
+00400178 <__start+0x38> addu      $18,$0,$3
+00400180 <__start+0x40> sw        $18,-32620($28)
+00400188 <__start+0x48> addiu     $29,$29,-24
+00400190 <__start+0x50> addu      $4,$0,$16
+00400198 <__start+0x58> addu      $5,$0,$17
+004001a0 <__start+0x60> addu      $6,$0,$18
+004001a8 <__start+0x68> jal       00400a10 <__libc_init> 
+004001b0 <__start+0x70> sw        $0,-32624($28)
+004001b8 <__start+0x78> addu      $4,$0,$16
+004001c0 <__start+0x80> addu      $5,$0,$17
+004001c8 <__start+0x88> addu      $6,$0,$18
+004001d0 <__start+0x90> jal       00400230 <main> 
+004001d8 <__start+0x98> addu      $4,$0,$2
+004001e0 <__start+0xa0> jal       00400a40 <exit> 
+004001e8 <__start+0xa8> nop       
+    ...
+fabs():
+ludcmp.c:74
+004001f0 <fabs> mtc1      $0,$f0
+004001f8 <fabs+0x8> mtc1      $0,$f1
+00400200 <fabs+0x10> c.le.d    $f0,$f12
+00400208 <fabs+0x18> bc1f      00400220
+ludcmp.c:75
+00400210 <fabs+0x20> mov.d     $f0,$f12
+00400218 <fabs+0x28> j         00400228
+ludcmp.c:77
+00400220 <fabs+0x30> neg.d     $f0,$f12
+ludcmp.c:79
+00400228 <fabs+0x38> jr        $31
+main():
+ludcmp.c:83
+00400230 <main> addiu     $29,$29,-24
+ludcmp.c:85
+00400238 <main+0x8> addiu     $4,$0,5
+ludcmp.c:88
+00400240 <main+0x10> l.d       $f6,-32768($28)
+ludcmp.c:90
+00400248 <main+0x18> addu      $6,$0,$0
+00400250 <main+0x20> addu      $9,$0,$0
+00400258 <main+0x28> l.d       $f4,-32760($28)
+00400260 <main+0x30> lui       $8,4096
+00400268 <main+0x38> addiu     $8,$8,960
+00400270 <main+0x40> lui       $7,4096
+00400278 <main+0x48> addiu     $7,$7,1760
+ludcmp.c:83
+00400280 <main+0x50> sw        $31,16($29)
+ludcmp.c:91
+00400288 <main+0x58> mtc1      $0,$f2
+00400290 <main+0x60> mtc1      $0,$f3
+ludcmp.c:92
+00400298 <main+0x68> addu      $5,$0,$0
+004002a0 <main+0x70> bne       $9,$0,00400320
+004002a8 <main+0x78> addu      $3,$0,$7
+ludcmp.c:93
+004002b0 <main+0x80> addiu     $2,$5,2
+004002b8 <main+0x88> addu      $2,$6,$2
+004002c0 <main+0x90> mtc1      $2,$f0
+004002c8 <main+0x98> cvt.d.w   $f0,$f0
+004002d0 <main+0xa0> s.d       $f0,0($3)
+ludcmp.c:94
+004002d8 <main+0xa8> bne       $6,$5,004002f0
+ludcmp.c:95
+004002e0 <main+0xb0> mul.d     $f0,$f0,$f4
+004002e8 <main+0xb8> s.d       $f0,0($3)
+ludcmp.c:96
+004002f0 <main+0xc0> l.d       $f0,0($3)
+004002f8 <main+0xc8> add.d     $f2,$f2,$f0
+ludcmp.c:92
+00400300 <main+0xd0> addiu     $5,$5,1
+00400308 <main+0xd8> slt       $2,$4,$5
+00400310 <main+0xe0> addiu     $3,$3,8
+00400318 <main+0xe8> beq       $2,$0,004002b0
+ludcmp.c:98
+00400320 <main+0xf0> s.d       $f2,0($8)
+ludcmp.c:90
+00400328 <main+0xf8> addiu     $8,$8,8
+00400330 <main+0x100> addiu     $7,$7,400
+00400338 <main+0x108> addiu     $6,$6,1
+00400340 <main+0x110> slt       $2,$4,$6
+00400348 <main+0x118> beq       $2,$0,00400288
+ludcmp.c:101
+00400350 <main+0x120> dmfc1     $6,$f6
+00400358 <main+0x128> jal       00400380 <ludcmp> 
+ludcmp.c:103
+00400360 <main+0x130> addu      $2,$0,$0
+ludcmp.c:105
+00400368 <main+0x138> lw        $31,16($29)
+00400370 <main+0x140> addiu     $29,$29,24
+00400378 <main+0x148> jr        $31
+ludcmp():
+ludcmp.c:109
+00400380 <ludcmp> addiu     $29,$29,-888
+00400388 <ludcmp+0x8> sw        $17,852($29)
+00400390 <ludcmp+0x10> addu      $17,$0,$4
+00400398 <ludcmp+0x18> s.d       $f20,880($29)
+004003a0 <ludcmp+0x20> dmtc1     $6,$f20
+ludcmp.c:114
+004003a8 <ludcmp+0x28> slti      $2,$17,100
+ludcmp.c:109
+004003b0 <ludcmp+0x30> sw        $31,872($29)
+004003b8 <ludcmp+0x38> sw        $21,868($29)
+004003c0 <ludcmp+0x40> sw        $20,864($29)
+004003c8 <ludcmp+0x48> sw        $19,860($29)
+004003d0 <ludcmp+0x50> sw        $18,856($29)
+004003d8 <ludcmp+0x58> sw        $16,848($29)
+ludcmp.c:114
+004003e0 <ludcmp+0x60> beq       $2,$0,00400408
+004003e8 <ludcmp+0x68> mtc1      $0,$f0
+004003f0 <ludcmp+0x70> mtc1      $0,$f1
+004003f8 <ludcmp+0x78> c.le.d    $f20,$f0
+00400400 <ludcmp+0x80> bc1f      00400428
+ludcmp.c:115
+00400408 <ludcmp+0x88> addiu     $2,$0,999
+00400410 <ludcmp+0x90> j         004009b8
+ludcmp.c:118
+00400418 <ludcmp+0x98> addiu     $2,$0,1
+00400420 <ludcmp+0xa0> j         004009b8
+ludcmp.c:116
+00400428 <ludcmp+0xa8> addu      $16,$0,$0
+00400430 <ludcmp+0xb0> blez      $17,004006c0
+00400438 <ludcmp+0xb8> lui       $20,4096
+00400440 <ludcmp+0xc0> addiu     $20,$20,1760
+00400448 <ludcmp+0xc8> addiu     $19,$20,400
+00400450 <ludcmp+0xd0> addu      $18,$0,$20
+00400458 <ludcmp+0xd8> addu      $21,$0,$0
+ludcmp.c:117
+00400460 <ludcmp+0xe0> l.d       $f12,0($18)
+00400468 <ludcmp+0xe8> jal       004001f0

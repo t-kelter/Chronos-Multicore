@@ -1,0 +1,340 @@
+start_addr
+00400140 <__start> lw        $16,0($29)
+00400148 <__start+0x8> lui       $28,4097
+00400150 <__start+0x10> addiu     $28,$28,-32032
+00400158 <__start+0x18> addiu     $17,$29,4
+00400160 <__start+0x20> addiu     $3,$17,4
+00400168 <__start+0x28> sll       $2,$16,0x2
+00400170 <__start+0x30> addu      $3,$3,$2
+00400178 <__start+0x38> addu      $18,$0,$3
+00400180 <__start+0x40> sw        $18,-32572($28)
+00400188 <__start+0x48> addiu     $29,$29,-24
+00400190 <__start+0x50> addu      $4,$0,$16
+00400198 <__start+0x58> addu      $5,$0,$17
+004001a0 <__start+0x60> addu      $6,$0,$18
+004001a8 <__start+0x68> jal       004008e0 <__libc_init> 
+004001b0 <__start+0x70> sw        $0,-32576($28)
+004001b8 <__start+0x78> addu      $4,$0,$16
+004001c0 <__start+0x80> addu      $5,$0,$17
+004001c8 <__start+0x88> addu      $6,$0,$18
+004001d0 <__start+0x90> jal       004004d0 <main> 
+004001d8 <__start+0x98> addu      $4,$0,$2
+004001e0 <__start+0xa0> jal       00400910 <exit> 
+004001e8 <__start+0xa8> nop       
+    ...
+fabs():
+fft1k.c:64
+004001f0 <fabs> mtc1      $0,$f0
+004001f8 <fabs+0x8> c.le.s    $f0,$f12
+00400200 <fabs+0x10> bc1f      00400218
+00400208 <fabs+0x18> mov.s     $f0,$f12
+00400210 <fabs+0x20> j         00400220
+fft1k.c:65
+00400218 <fabs+0x28> neg.s     $f0,$f12
+fft1k.c:67
+00400220 <fabs+0x30> jr        $31
+sin():
+fft1k.c:78
+00400228 <sin> l.d       $f2,-32760($28)
+fft1k.c:72
+00400230 <sin+0x8> addiu     $29,$29,-64
+00400238 <sin+0x10> s.d       $f22,32($29)
+00400240 <sin+0x18> cvt.s.d   $f22,$f12
+fft1k.c:78
+00400248 <sin+0x20> cvt.d.s   $f0,$f22
+fft1k.c:72
+00400250 <sin+0x28> sw        $16,16($29)
+fft1k.c:76
+00400258 <sin+0x30> addiu     $16,$0,1
+fft1k.c:72
+00400260 <sin+0x38> sw        $31,20($29)
+00400268 <sin+0x40> s.d       $f28,56($29)
+00400270 <sin+0x48> s.d       $f26,48($29)
+00400278 <sin+0x50> s.d       $f24,40($29)
+fft1k.c:78
+00400280 <sin+0x58> c.lt.d    $f2,$f0
+fft1k.c:72
+00400288 <sin+0x60> s.d       $f20,24($29)
+fft1k.c:78
+00400290 <sin+0x68> bc1f      004002c0
+fft1k.c:79
+00400298 <sin+0x70> sub.d     $f0,$f0,$f2
+004002a0 <sin+0x78> cvt.s.d   $f22,$f0
+004002a8 <sin+0x80> cvt.d.s   $f0,$f22
+004002b0 <sin+0x88> c.lt.d    $f2,$f0
+004002b8 <sin+0x90> bc1t      00400298
+fft1k.c:80
+004002c0 <sin+0x98> l.d       $f2,-32752($28)
+004002c8 <sin+0xa0> cvt.d.s   $f0,$f22
+004002d0 <sin+0xa8> c.lt.d    $f0,$f2
+004002d8 <sin+0xb0> bc1f      00400310
+004002e0 <sin+0xb8> l.d       $f4,-32760($28)
+fft1k.c:81
+004002e8 <sin+0xc0> add.d     $f0,$f0,$f4
+004002f0 <sin+0xc8> cvt.s.d   $f22,$f0
+004002f8 <sin+0xd0> cvt.d.s   $f0,$f22
+00400300 <sin+0xd8> c.lt.d    $f0,$f2
+00400308 <sin+0xe0> bc1t      004002e8
+fft1k.c:82
+00400310 <sin+0xe8> mov.s     $f24,$f22
+fft1k.c:83
+00400318 <sin+0xf0> mtc1      $16,$f0
+00400320 <sin+0xf8> cvt.d.w   $f0,$f0
+00400328 <sin+0x100> l.d       $f6,-32744($28)
+00400330 <sin+0x108> add.d     $f0,$f0,$f0
+00400338 <sin+0x110> mul.s     $f2,$f24,$f24
+00400340 <sin+0x118> add.d     $f4,$f0,$f6
+00400348 <sin+0x120> mul.d     $f0,$f0,$f4
+00400350 <sin+0x128> neg.s     $f2,$f2
+00400358 <sin+0x130> mul.s     $f2,$f24,$f2
+00400360 <sin+0x138> cvt.d.s   $f2,$f2
+00400368 <sin+0x140> div.d     $f2,$f2,$f0
+fft1k.c:86
+00400370 <sin+0x148> addiu     $16,$16,1
+fft1k.c:87
+00400378 <sin+0x150> l.d       $f28,-32736($28)
+00400380 <sin+0x158> mov.d     $f26,$f6
+fft1k.c:83
+00400388 <sin+0x160> cvt.s.d   $f20,$f2
+fft1k.c:85
+00400390 <sin+0x168> add.s     $f24,$f24,$f20
+fft1k.c:87
+00400398 <sin+0x170> mov.s     $f12,$f20
+004003a0 <sin+0x178> jal       004001f0 <fabs> 
+004003a8 <sin+0x180> cvt.d.s   $f0,$f0
+004003b0 <sin+0x188> c.le.d    $f28,$f0
+004003b8 <sin+0x190> bc1f      00400430
+fft1k.c:88
+004003c0 <sin+0x198> mtc1      $16,$f2
+004003c8 <sin+0x1a0> cvt.d.w   $f2,$f2
+004003d0 <sin+0x1a8> add.d     $f2,$f2,$f2
+004003d8 <sin+0x1b0> mul.s     $f0,$f22,$f22
+004003e0 <sin+0x1b8> add.d     $f4,$f2,$f26
+004003e8 <sin+0x1c0> mul.d     $f2,$f2,$f4
+004003f0 <sin+0x1c8> neg.s     $f0,$f0
+004003f8 <sin+0x1d0> mul.s     $f0,$f20,$f0
+00400400 <sin+0x1d8> cvt.d.s   $f0,$f0
+00400408 <sin+0x1e0> div.d     $f0,$f0,$f2
+00400410 <sin+0x1e8> cvt.s.d   $f20,$f0
+fft1k.c:90
+00400418 <sin+0x1f0> add.s     $f24,$f24,$f20
+fft1k.c:91
+00400420 <sin+0x1f8> addiu     $16,$16,1
+fft1k.c:92
+00400428 <sin+0x200> j         00400398
+fft1k.c:94
+00400430 <sin+0x208> mov.s     $f0,$f24
+fft1k.c:95
+00400438 <sin+0x210> lw        $31,20($29)
+00400440 <sin+0x218> lw        $16,16($29)
+00400448 <sin+0x220> l.d       $f28,56($29)
+00400450 <sin+0x228> l.d       $f26,48($29)
+00400458 <sin+0x230> l.d       $f24,40($29)
+00400460 <sin+0x238> l.d       $f22,32($29)
+00400468 <sin+0x240> l.d       $f20,24($29)
+00400470 <sin+0x248> addiu     $29,$29,64
+00400478 <sin+0x250> jr        $31
+cos():
+fft1k.c:102
+00400480 <cos> l.d       $f0,-32728($28)
+fft1k.c:99
+00400488 <cos+0x8> cvt.s.d   $f12,$f12
+fft1k.c:102
+00400490 <cos+0x10> cvt.d.s   $f12,$f12
+00400498 <cos+0x18> sub.d     $f12,$f0,$f12
+fft1k.c:99
+004004a0 <cos+0x20> addiu     $29,$29,-24
+004004a8 <cos+0x28> sw        $31,16($29)
+fft1k.c:102
+004004b0 <cos+0x30> jal       00400228 <sin> 
+fft1k.c:103
+004004b8 <cos+0x38> lw        $31,16($29)
+004004c0 <cos+0x40> addiu     $29,$29,24
+004004c8 <cos+0x48> jr        $31
+main():
+fft1k.c:111
+004004d0 <main> lw        $4,-32768($28)
+fft1k.c:108
+004004d8 <main+0x8> addiu     $29,$29,-24
+004004e0 <main+0x10> sw        $31,16($29)
+fft1k.c:111
+004004e8 <main+0x18> jal       00400790 <init_w> 
+fft1k.c:113
+004004f0 <main+0x20> l.s       $f0,-32720($28)
+fft1k.c:114
+004004f8 <main+0x28> lw        $4,-32768($28)
+fft1k.c:113
+00400500 <main+0x30> lui       $1,4096
+00400508 <main+0x38> s.s       $f0,1008($1)
+fft1k.c:114
+00400510 <main+0x40> jal       00400530 <fft_c> 
+fft1k.c:115
+00400518 <main+0x48> lw        $31,16($29)
+00400520 <main+0x50> addiu     $29,$29,24
+00400528 <main+0x58> jr        $31
+fft_c():
+fft1k.c:118
+00400530 <fft_c> addiu     $29,$29,-32
+00400538 <fft_c+0x8> addu      $12,$0,$4
+fft1k.c:126
+00400540 <fft_c+0x10> addiu     $13,$0,1
+fft1k.c:127
+00400548 <fft_c+0x18> srl       $2,$12,0x1f
+00400550 <fft_c+0x20> addu      $2,$12,$2
+00400558 <fft_c+0x28> sra       $8,$2,0x1
+00400560 <fft_c+0x30> blez      $8,00400780
+00400568 <fft_c+0x38> lui       $15,4096
+00400570 <fft_c+0x40> addiu     $15,$15,1008
+fft1k.c:128
+00400578 <fft_c+0x48> lui       $10,4096
+00400580 <fft_c+0x50> addiu     $10,$10,9200
+fft1k.c:129
+00400588 <fft_c+0x58> addu      $7,$0,$0
+00400590 <fft_c+0x60> blez      $8,00400758
+00400598 <fft_c+0x68> sll       $14,$8,0x3
+004005a0 <fft_c+0x70> sll       $11,$8,0x1
+fft1k.c:130
+004005a8 <fft_c+0x78> lw        $2,0($10)
+004005b0 <fft_c+0x80> lw        $3,4($10)
+004005b8 <fft_c+0x88> sw        $2,0($29)
+004005c0 <fft_c+0x90> sw        $3,4($29)
+fft1k.c:131
+004005c8 <fft_c+0x98> addu      $9,$0,$7
+004005d0 <fft_c+0xa0> slt       $2,$7,$12
+004005d8 <fft_c+0xa8> beq       $2,$0,00400730
+004005e0 <fft_c+0xb0> sll       $2,$7,0x3
+004005e8 <fft_c+0xb8> addu      $6,$2,$15
+fft1k.c:133
+004005f0 <fft_c+0xc0> addu      $2,$6,$14
+fft1k.c:134
+004005f8 <fft_c+0xc8> l.s       $f2,0($6)
+00400600 <fft_c+0xd0> l.s       $f0,0($2)
+00400608 <fft_c+0xd8> add.s     $f2,$f2,$f0
+00400610 <fft_c+0xe0> s.s       $f2,8($29)
+fft1k.c:135
+00400618 <fft_c+0xe8> l.s       $f2,4($6)
+00400620 <fft_c+0xf0> l.s       $f0,4($2)
+00400628 <fft_c+0xf8> add.s     $f2,$f2,$f0
+00400630 <fft_c+0x100> s.s       $f2,12($29)
+fft1k.c:136
+00400638 <fft_c+0x108> l.s       $f2,0($6)
+00400640 <fft_c+0x110> l.s       $f0,0($2)
+00400648 <fft_c+0x118> sub.s     $f2,$f2,$f0
+fft1k.c:138
+00400650 <fft_c+0x120> l.s       $f6,0($29)
+fft1k.c:136
+00400658 <fft_c+0x128> s.s       $f2,16($29)
+fft1k.c:137
+00400660 <fft_c+0x130> l.s       $f4,4($6)
+00400668 <fft_c+0x138> l.s       $f0,4($2)
+fft1k.c:138
+00400670 <fft_c+0x140> mul.s     $f2,$f2,$f6
+fft1k.c:137
+00400678 <fft_c+0x148> sub.s     $f4,$f4,$f0
+fft1k.c:138
+00400680 <fft_c+0x150> l.s       $f0,4($29)
+00400688 <fft_c+0x158> mul.s     $f0,$f4,$f0
+00400690 <fft_c+0x160> sub.s     $f2,$f2,$f0
+fft1k.c:137
+00400698 <fft_c+0x168> s.s       $f4,20($29)
+fft1k.c:138
+004006a0 <fft_c+0x170> s.s       $f2,0($2)
+fft1k.c:139
+004006a8 <fft_c+0x178> l.s       $f4,16($29)
+004006b0 <fft_c+0x180> l.s       $f0,4($29)
+004006b8 <fft_c+0x188> mul.s     $f4,$f4,$f0
+004006c0 <fft_c+0x190> l.s       $f2,20($29)
+004006c8 <fft_c+0x198> l.s       $f0,0($29)
+004006d0 <fft_c+0x1a0> mul.s     $f2,$f2,$f0
+004006d8 <fft_c+0x1a8> add.s     $f4,$f4,$f2
+fft1k.c:131
+004006e0 <fft_c+0x1b0> addu      $9,$9,$11
+fft1k.c:139
+004006e8 <fft_c+0x1b8> s.s       $f4,4($2)
+fft1k.c:140
+004006f0 <fft_c+0x1c0> lw        $2,8($29)
+004006f8 <fft_c+0x1c8> lw        $3,12($29)
+00400700 <fft_c+0x1d0> sw        $2,0($6)
+00400708 <fft_c+0x1d8> sw        $3,4($6)
+fft1k.c:131
+00400710 <fft_c+0x1e0> sll       $2,$11,0x3
+00400718 <fft_c+0x1e8> addu      $6,$6,$2
+00400720 <fft_c+0x1f0> slt       $2,$9,$12
+00400728 <fft_c+0x1f8> bne       $2,$0,004005f0
+fft1k.c:142
+00400730 <fft_c+0x200> sll       $2,$13,0x3
+00400738 <fft_c+0x208> addu      $10,$10,$2
+fft1k.c:129
+00400740 <fft_c+0x210> addiu     $7,$7,1
+00400748 <fft_c+0x218> slt       $2,$7,$8
+00400750 <fft_c+0x220> bne       $2,$0,004005a8
+fft1k.c:144
+00400758 <fft_c+0x228> sll       $13,$13,0x1
+fft1k.c:127
+00400760 <fft_c+0x230> srl       $2,$8,0x1f
+00400768 <fft_c+0x238> addu      $2,$8,$2
+00400770 <fft_c+0x240> sra       $8,$2,0x1
+00400778 <fft_c+0x248> bgtz      $8,00400578
+fft1k.c:146
+00400780 <fft_c+0x250> addiu     $29,$29,32
+00400788 <fft_c+0x258> jr        $31
+init_w():
+fft1k.c:150
+00400790 <init_w> l.d       $f0,-32712($28)
+fft1k.c:148
+00400798 <init_w+0x8> addiu     $29,$29,-56
+004007a0 <init_w+0x10> sw        $18,32($29)
+004007a8 <init_w+0x18> addu      $18,$0,$4
+fft1k.c:150
+004007b0 <init_w+0x20> mtc1      $18,$f2
+004007b8 <init_w+0x28> cvt.d.w   $f2,$f2
+004007c0 <init_w+0x30> div.d     $f0,$f0,$f2
+fft1k.c:148
+004007c8 <init_w+0x38> sw        $17,28($29)
+fft1k.c:151
+004007d0 <init_w+0x40> addu      $17,$0,$0
+fft1k.c:148
+004007d8 <init_w+0x48> sw        $31,36($29)
+004007e0 <init_w+0x50> sw        $16,24($29)
+004007e8 <init_w+0x58> s.d       $f22,48($29)
+004007f0 <init_w+0x60> s.d       $f20,40($29)
+fft1k.c:150
+004007f8 <init_w+0x68> cvt.s.d   $f22,$f0
+fft1k.c:151
+00400800 <init_w+0x70> blez      $18,004008a0
+00400808 <init_w+0x78> addu      $16,$0,$0
+fft1k.c:152
+00400810 <init_w+0x80> mtc1      $17,$f20
+00400818 <init_w+0x88> cvt.s.w   $f20,$f20
+00400820 <init_w+0x90> mul.s     $f20,$f20,$f22
+fft1k.c:151
+00400828 <init_w+0x98> addiu     $17,$17,1
+fft1k.c:152
+00400830 <init_w+0xa0> cvt.d.s   $f20,$f20
+00400838 <init_w+0xa8> mov.d     $f12,$f20
+00400840 <init_w+0xb0> jal       00400480 <cos> 
+fft1k.c:153
+00400848 <init_w+0xb8> mov.d     $f12,$f20
+fft1k.c:152
+00400850 <init_w+0xc0> lui       $1,4096
+00400858 <init_w+0xc8> addu      $1,$1,$16
+00400860 <init_w+0xd0> s.s       $f0,9200($1)
+fft1k.c:153
+00400868 <init_w+0xd8> jal       00400228 <sin> 
+00400870 <init_w+0xe0> lui       $1,4096
+00400878 <init_w+0xe8> addu      $1,$1,$16
+00400880 <init_w+0xf0> s.s       $f0,9204($1)
+fft1k.c:151
+00400888 <init_w+0xf8> addiu     $16,$16,8
+00400890 <init_w+0x100> slt       $2,$17,$18
+00400898 <init_w+0x108> bne       $2,$0,00400810
+fft1k.c:155
+004008a0 <init_w+0x110> lw        $31,36($29)
+004008a8 <init_w+0x118> lw        $18,32($29)
+004008b0 <init_w+0x120> lw        $17,28($29)
+004008b8 <init_w+0x128> lw        $16,24($29)
+004008c0 <init_w+0x130> l.d       $f22,48($29)
+004008c8 <init_w+0x138> l.d       $f20,40($29)
+004008d0 <init_w+0x140> addiu     $29,$29,56
+004008d8 <init_w+0x148> jr        $31
+end_addr

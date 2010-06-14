@@ -1,0 +1,274 @@
+
+../benchmarks/simple_matmult/simple_matmult:     file format ss-coff-little
+
+Disassembly of section .text:
+00400140 <__start> lw $16,0($29)
+00400148 <__start+0x8> lui $28,4097
+00400150 <__start+0x10> addiu $28,$28,-32032
+00400158 <__start+0x18> addiu $17,$29,4
+00400160 <__start+0x20> addiu $3,$17,4
+00400168 <__start+0x28> sll $2,$16,0x2
+00400170 <__start+0x30> addu $3,$3,$2
+00400178 <__start+0x38> addu $18,$0,$3
+00400180 <__start+0x40> sw $18,-32636($28)
+00400188 <__start+0x48> addiu $29,$29,-24
+00400190 <__start+0x50> addu $4,$0,$16
+00400198 <__start+0x58> addu $5,$0,$17
+004001a0 <__start+0x60> addu $6,$0,$18
+004001a8 <__start+0x68> jal 004007e0 <__libc_init>
+004001b0 <__start+0x70> sw $0,-32640($28)
+004001b8 <__start+0x78> addu $4,$0,$16
+004001c0 <__start+0x80> addu $5,$0,$17
+004001c8 <__start+0x88> addu $6,$0,$18
+004001d0 <__start+0x90> jal 004001f0 <main>
+004001d8 <__start+0x98> addu $4,$0,$2
+004001e0 <__start+0xa0> jal 00400810 <exit>
+004001e8 <__start+0xa8> nop 
+main():
+../benchmarks/simple_matmult/simple_matmult.c:20
+        }
+    }
+} */
+
+int main() {
+004001f0 <main> addiu $29,$29,-24
+004001f8 <main+0x8> sw $30,16($29)
+00400200 <main+0x10> addu $30,$0,$29
+../benchmarks/simple_matmult/simple_matmult.c:23
+    int i,j,k;
+    
+    for (i=0;i<N;i++) {
+00400208 <main+0x18> nop 
+00400210 <main+0x20> sw $0,0($30)
+00400218 <main+0x28> lw $2,0($30)
+00400220 <main+0x30> slti $3,$2,32
+00400228 <main+0x38> bne $3,$0,00400238 <main+0x48>
+00400230 <main+0x40> j 00400330 <main+0x140>
+../benchmarks/simple_matmult/simple_matmult.c:24
+        for (j=0;j<N;j++) {
+00400238 <main+0x48> sw $0,4($30)
+00400240 <main+0x50> lw $2,4($30)
+00400248 <main+0x58> slti $3,$2,32
+00400250 <main+0x60> bne $3,$0,00400260 <main+0x70>
+00400258 <main+0x68> j 00400308 <main+0x118>
+../benchmarks/simple_matmult/simple_matmult.c:25
+            A[i][j] = i*N+j;
+00400260 <main+0x70> lw $2,0($30)
+00400268 <main+0x78> addu $3,$0,$2
+00400270 <main+0x80> sll $2,$3,0x7
+00400278 <main+0x88> lui $3,4096
+00400280 <main+0x90> addiu $3,$3,944
+00400288 <main+0x98> addu $2,$2,$3
+00400290 <main+0xa0> lw $3,4($30)
+00400298 <main+0xa8> addu $4,$0,$3
+004002a0 <main+0xb0> sll $3,$4,0x2
+004002a8 <main+0xb8> addu $2,$3,$2
+004002b0 <main+0xc0> lw $3,0($30)
+004002b8 <main+0xc8> addu $4,$0,$3
+004002c0 <main+0xd0> sll $3,$4,0x5
+004002c8 <main+0xd8> lw $4,4($30)
+004002d0 <main+0xe0> addu $3,$3,$4
+004002d8 <main+0xe8> sw $3,0($2)
+../benchmarks/simple_matmult/simple_matmult.c:24
+004002e0 <main+0xf0> lw $3,4($30)
+004002e8 <main+0xf8> addiu $2,$3,1
+004002f0 <main+0x100> addu $3,$0,$2
+004002f8 <main+0x108> sw $3,4($30)
+00400300 <main+0x110> j 00400240 <main+0x50>
+../benchmarks/simple_matmult/simple_matmult.c:23
+00400308 <main+0x118> lw $3,0($30)
+00400310 <main+0x120> addiu $2,$3,1
+00400318 <main+0x128> addu $3,$0,$2
+00400320 <main+0x130> sw $3,0($30)
+00400328 <main+0x138> j 00400218 <main+0x28>
+../benchmarks/simple_matmult/simple_matmult.c:28
+        }
+    }
+    for (i=0;i<N;i++) {
+00400330 <main+0x140> sw $0,0($30)
+00400338 <main+0x148> lw $2,0($30)
+00400340 <main+0x150> slti $3,$2,32
+00400348 <main+0x158> bne $3,$0,00400358 <main+0x168>
+00400350 <main+0x160> j 00400450 <main+0x260>
+../benchmarks/simple_matmult/simple_matmult.c:29
+        for (j=0;j<N;j++) {
+00400358 <main+0x168> sw $0,4($30)
+00400360 <main+0x170> lw $2,4($30)
+00400368 <main+0x178> slti $3,$2,32
+00400370 <main+0x180> bne $3,$0,00400380 <main+0x190>
+00400378 <main+0x188> j 00400428 <main+0x238>
+../benchmarks/simple_matmult/simple_matmult.c:30
+            B[i][j] = j*N+i;
+00400380 <main+0x190> lw $2,0($30)
+00400388 <main+0x198> addu $3,$0,$2
+00400390 <main+0x1a0> sll $2,$3,0x7
+00400398 <main+0x1a8> lui $3,4096
+004003a0 <main+0x1b0> addiu $3,$3,5040
+004003a8 <main+0x1b8> addu $2,$2,$3
+004003b0 <main+0x1c0> lw $3,4($30)
+004003b8 <main+0x1c8> addu $4,$0,$3
+004003c0 <main+0x1d0> sll $3,$4,0x2
+004003c8 <main+0x1d8> addu $2,$3,$2
+004003d0 <main+0x1e0> lw $3,4($30)
+004003d8 <main+0x1e8> addu $4,$0,$3
+004003e0 <main+0x1f0> sll $3,$4,0x5
+004003e8 <main+0x1f8> lw $4,0($30)
+004003f0 <main+0x200> addu $3,$3,$4
+004003f8 <main+0x208> sw $3,0($2)
+../benchmarks/simple_matmult/simple_matmult.c:29
+00400400 <main+0x210> lw $3,4($30)
+00400408 <main+0x218> addiu $2,$3,1
+00400410 <main+0x220> addu $3,$0,$2
+00400418 <main+0x228> sw $3,4($30)
+00400420 <main+0x230> j 00400360 <main+0x170>
+../benchmarks/simple_matmult/simple_matmult.c:28
+00400428 <main+0x238> lw $3,0($30)
+00400430 <main+0x240> addiu $2,$3,1
+00400438 <main+0x248> addu $3,$0,$2
+00400440 <main+0x250> sw $3,0($30)
+00400448 <main+0x258> j 00400338 <main+0x148>
+../benchmarks/simple_matmult/simple_matmult.c:33
+        }
+    }
+    for (i=0;i<N;i++) {
+00400450 <main+0x260> sw $0,0($30)
+00400458 <main+0x268> lw $2,0($30)
+00400460 <main+0x270> slti $3,$2,32
+00400468 <main+0x278> bne $3,$0,00400478 <main+0x288>
+00400470 <main+0x280> j 00400548 <main+0x358>
+../benchmarks/simple_matmult/simple_matmult.c:34
+        for (j=0;j<N;j++) {
+00400478 <main+0x288> sw $0,4($30)
+00400480 <main+0x290> lw $2,4($30)
+00400488 <main+0x298> slti $3,$2,32
+00400490 <main+0x2a0> bne $3,$0,004004a0 <main+0x2b0>
+00400498 <main+0x2a8> j 00400520 <main+0x330>
+../benchmarks/simple_matmult/simple_matmult.c:35
+            C[i][j] = 0;
+004004a0 <main+0x2b0> lw $2,0($30)
+004004a8 <main+0x2b8> addu $3,$0,$2
+004004b0 <main+0x2c0> sll $2,$3,0x7
+004004b8 <main+0x2c8> lui $3,4096
+004004c0 <main+0x2d0> addiu $3,$3,9136
+004004c8 <main+0x2d8> addu $2,$2,$3
+004004d0 <main+0x2e0> lw $3,4($30)
+004004d8 <main+0x2e8> addu $4,$0,$3
+004004e0 <main+0x2f0> sll $3,$4,0x2
+004004e8 <main+0x2f8> addu $2,$3,$2
+004004f0 <main+0x300> sw $0,0($2)
+../benchmarks/simple_matmult/simple_matmult.c:34
+004004f8 <main+0x308> lw $3,4($30)
+00400500 <main+0x310> addiu $2,$3,1
+00400508 <main+0x318> addu $3,$0,$2
+00400510 <main+0x320> sw $3,4($30)
+00400518 <main+0x328> j 00400480 <main+0x290>
+../benchmarks/simple_matmult/simple_matmult.c:33
+00400520 <main+0x330> lw $3,0($30)
+00400528 <main+0x338> addiu $2,$3,1
+00400530 <main+0x340> addu $3,$0,$2
+00400538 <main+0x348> sw $3,0($30)
+00400540 <main+0x350> j 00400458 <main+0x268>
+../benchmarks/simple_matmult/simple_matmult.c:38
+        }
+    }
+    for (i=0; i<N; i++) {
+00400548 <main+0x358> sw $0,0($30)
+00400550 <main+0x360> lw $2,0($30)
+00400558 <main+0x368> slti $3,$2,32
+00400560 <main+0x370> bne $3,$0,00400570 <main+0x380>
+00400568 <main+0x378> j 004007b0 <main+0x5c0>
+../benchmarks/simple_matmult/simple_matmult.c:39
+        for (j=0; j<N; j++) {
+00400570 <main+0x380> sw $0,4($30)
+00400578 <main+0x388> lw $2,4($30)
+00400580 <main+0x390> slti $3,$2,32
+00400588 <main+0x398> bne $3,$0,00400598 <main+0x3a8>
+00400590 <main+0x3a0> j 00400788 <main+0x598>
+../benchmarks/simple_matmult/simple_matmult.c:40
+            for (k=0; k<N; k++) {
+00400598 <main+0x3a8> sw $0,8($30)
+004005a0 <main+0x3b0> lw $2,8($30)
+004005a8 <main+0x3b8> slti $3,$2,32
+004005b0 <main+0x3c0> bne $3,$0,004005c0 <main+0x3d0>
+004005b8 <main+0x3c8> j 00400760 <main+0x570>
+../benchmarks/simple_matmult/simple_matmult.c:41
+                C[i][j] += A[i][k]*B[k][j];
+004005c0 <main+0x3d0> lw $2,0($30)
+004005c8 <main+0x3d8> addu $3,$0,$2
+004005d0 <main+0x3e0> sll $2,$3,0x7
+004005d8 <main+0x3e8> lui $3,4096
+004005e0 <main+0x3f0> addiu $3,$3,9136
+004005e8 <main+0x3f8> addu $2,$2,$3
+004005f0 <main+0x400> lw $3,4($30)
+004005f8 <main+0x408> addu $4,$0,$3
+00400600 <main+0x410> sll $3,$4,0x2
+00400608 <main+0x418> addu $2,$3,$2
+00400610 <main+0x420> lw $3,0($30)
+00400618 <main+0x428> addu $4,$0,$3
+00400620 <main+0x430> sll $3,$4,0x7
+00400628 <main+0x438> lui $4,4096
+00400630 <main+0x440> addiu $4,$4,9136
+00400638 <main+0x448> addu $3,$3,$4
+00400640 <main+0x450> lw $4,4($30)
+00400648 <main+0x458> addu $5,$0,$4
+00400650 <main+0x460> sll $4,$5,0x2
+00400658 <main+0x468> addu $3,$4,$3
+00400660 <main+0x470> lw $4,0($30)
+00400668 <main+0x478> addu $5,$0,$4
+00400670 <main+0x480> sll $4,$5,0x7
+00400678 <main+0x488> lui $5,4096
+00400680 <main+0x490> addiu $5,$5,944
+00400688 <main+0x498> addu $4,$4,$5
+00400690 <main+0x4a0> lw $5,8($30)
+00400698 <main+0x4a8> addu $6,$0,$5
+004006a0 <main+0x4b0> sll $5,$6,0x2
+004006a8 <main+0x4b8> addu $4,$5,$4
+004006b0 <main+0x4c0> lw $5,8($30)
+004006b8 <main+0x4c8> addu $6,$0,$5
+004006c0 <main+0x4d0> sll $5,$6,0x7
+004006c8 <main+0x4d8> lui $6,4096
+004006d0 <main+0x4e0> addiu $6,$6,5040
+004006d8 <main+0x4e8> addu $5,$5,$6
+004006e0 <main+0x4f0> lw $6,4($30)
+004006e8 <main+0x4f8> addu $7,$0,$6
+004006f0 <main+0x500> sll $6,$7,0x2
+004006f8 <main+0x508> addu $5,$6,$5
+00400700 <main+0x510> lw $4,0($4)
+00400708 <main+0x518> lw $5,0($5)
+00400710 <main+0x520> mult $4,$5
+00400718 <main+0x528> mflo $4
+00400720 <main+0x530> lw $3,0($3)
+00400728 <main+0x538> addu $4,$3,$4
+00400730 <main+0x540> sw $4,0($2)
+../benchmarks/simple_matmult/simple_matmult.c:40
+00400738 <main+0x548> lw $3,8($30)
+00400740 <main+0x550> addiu $2,$3,1
+00400748 <main+0x558> addu $3,$0,$2
+00400750 <main+0x560> sw $3,8($30)
+00400758 <main+0x568> j 004005a0 <main+0x3b0>
+../benchmarks/simple_matmult/simple_matmult.c:39
+00400760 <main+0x570> lw $3,4($30)
+00400768 <main+0x578> addiu $2,$3,1
+00400770 <main+0x580> addu $3,$0,$2
+00400778 <main+0x588> sw $3,4($30)
+00400780 <main+0x590> j 00400578 <main+0x388>
+../benchmarks/simple_matmult/simple_matmult.c:38
+00400788 <main+0x598> lw $3,0($30)
+00400790 <main+0x5a0> addiu $2,$3,1
+00400798 <main+0x5a8> addu $3,$0,$2
+004007a0 <main+0x5b0> sw $3,0($30)
+004007a8 <main+0x5b8> j 00400550 <main+0x360>
+../benchmarks/simple_matmult/simple_matmult.c:46
+            }
+        }
+    }
+    
+	 return 0;
+004007b0 <main+0x5c0> addu $2,$0,$0
+004007b8 <main+0x5c8> j 004007c0 <main+0x5d0>
+../benchmarks/simple_matmult/simple_matmult.c:47
+}
+004007c0 <main+0x5d0> addu $29,$0,$30
+004007c8 <main+0x5d8> lw $30,16($29)
+004007d0 <main+0x5e0> addiu $29,$29,24
+004007d8 <main+0x5e8> jr $31

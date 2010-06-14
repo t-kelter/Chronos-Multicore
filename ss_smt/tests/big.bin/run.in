@@ -1,0 +1,6 @@
+anagram ../in/words < ../in/input.txt
+test-fmath
+test-llong
+test-lswlr
+test-math  
+test-printf

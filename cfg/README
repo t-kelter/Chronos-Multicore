@@ -1,0 +1,22 @@
+Hi Vivy
+
+I have put the tar ball in /tmp on abhikhosts.
+It includes the source code and serveral benchmarks.
+Steps for making it work:
+1. untar it into a directory, say, foo
+2. type "make" to compile it
+3. suppose your want the cfg of a benchmark -- matsum,
+   just type: "run.sh matsum"
+   it will produce the cfg of it.
+   the source code and object code is in directory
+   benchmark/matsum.
+
+For more details, let's discuss it in person.
+
+best regards
+ -- Xianfeng
+
++---------------------------------------+
+ \  LI Xianfeng                          \
+ /  http://www.comp.nus.edu.sg/~lixianfe /
++---------------------------------------+

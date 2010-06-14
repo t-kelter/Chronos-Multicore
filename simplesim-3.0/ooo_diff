@@ -1,0 +1,546 @@
+Files bpred.c and /home/lixianfe/SimpleScalar/simplesim-3.0/bpred.c differ
+Files main.c and /home/lixianfe/SimpleScalar/simplesim-3.0/main.c differ
+Files misc.c and /home/lixianfe/SimpleScalar/simplesim-3.0/misc.c differ
+Files sim-outorder.c and /home/lixianfe/SimpleScalar/simplesim-3.0/sim-outorder.c differ
+Files symbol.c and /home/lixianfe/SimpleScalar/simplesim-3.0/symbol.c differ
+76,150d75
+< 
+< // LXF: to obtain the execution time of basic blocks
+< 
+< /*
+< #define NUM_BB	    19
+< md_addr_t   bb_addr[NUM_BB] = {
+<     0x4001f0,
+<     0x400218,
+<     0x400230,
+<     0x400238,
+<     0x400358,
+<     0x400380,
+<     0x400390,
+<     0x400398,
+<     0x4006b8,
+<     0x4009d8,
+<     0x400cf8,
+<     0x400d20,
+<     0x400d48,
+<     0x400d58,
+<     0x400d60,
+<     0x401080,
+<     0x4013a0,
+<     0x4016c0,
+<     0x401700
+< };
+< 
+< int last_cm_time = 0;
+< int last_bb_addr;
+< int do_dump_ruu = 0;
+< 
+< int
+< adjust_bb_addr()
+< {
+<     int	    i;
+< 
+<     for (i = 0; i < NUM_BB; i++)
+< 	bb_addr[i] -= sizeof(md_inst_t);
+<     last_bb_addr = bb_addr[0];
+< }
+< 
+< 
+< int
+< find_bb_addr(md_addr_t addr)
+< {
+<     int	    first = 0, last = NUM_BB - 1, mid;
+<     
+<     while (first <= last) {
+< 	mid = (first + last) / 2;
+< 	if (bb_addr[mid] == addr)
+< 	    return mid;
+< 	else if (bb_addr[mid] > addr)
+< 	    last = mid - 1;
+< 	else
+< 	    first = mid + 1;
+<     }
+<     return - 1;
+< }
+< 
+< */
+< 
+< 
+< 
+< 
+< extern md_addr_t    start_addr, end_addr;
+< extern int	    effect_cycles;
+< extern int          effect_icache_misses;
+< // if an instr. I in [start_addr, end_addr) enters the pipeline,
+< // fetch_effect = 1, else fetch_effect = 0
+< // if an instr. I' in [start_addr, end_addr) leaves the pipeline,
+< // commit_effect = 1, else commit_effect = 0
+< // if both are 0, means no instr. in [start_addr, end_addr) is in the pipeline, i.e.,
+< // only library code are in the pipeline. In this case, don't count effect_cycles
+< int		    effect_fetch = 0; effect_commit = 0;
+< 
+199c124
+<   { /* l1size */1, /* l2size */4, /* hist */2, /* xor */FALSE};
+---
+>   { /* l1size */1, /* l2size */1024, /* hist */8, /* xor */FALSE};
+268c193
+<   { /* lat to first chunk */10, /* lat between remaining chunks */2 };
+---
+>   { /* lat to first chunk */18, /* lat between remaining chunks */2 };
+331,380d255
+<     1,
+<     0,
+<     {
+<       { IntALU, 1, 1 }
+<     }
+<   },
+<   {
+<     "integer-MULT/DIV",
+<     1,
+<     0,
+<     {
+<       { IntMULT, 4, 4 },
+<       { IntDIV, 4, 4 }
+<     }
+<   },
+<   {
+<     "memory-port",
+<     2,
+<     0,
+<     {
+<       { RdPort, 1, 1 },
+<       { WrPort, 1, 1 }
+<     }
+<   },
+<   {
+<     "FP-adder",
+<     1,
+<     0,
+<     {
+<       { FloatADD, 2, 2 },
+<       { FloatCMP, 2, 2 },
+<       { FloatCVT, 2, 2 }
+<     }
+<   },
+<   {
+<     "FP-MULT/DIV",
+<     1,
+<     0,
+<     {
+<       { FloatMULT, 12, 12 },
+<       { FloatDIV, 12, 12 },
+<       { FloatSQRT, 12, 12 }
+<     }
+<   },
+< };
+< 
+< /* LXF: original
+< struct res_desc fu_config[] = {
+<   {
+<     "integer-ALU",
+426d300
+< */
+525,545d398
+< 
+< 
+< // by LXF: dump branch predictor states
+< void
+< dump_bpred()
+< {
+<     int		i, size, shiftreg;
+<     unsigned	char    *l2table;
+< 
+<     if (pred == NULL)
+< 	return;
+< 
+<     size = pred->dirpred.twolev->config.two.l2size;
+<     shiftreg = *pred->dirpred.twolev->config.two.shiftregs;
+<     l2table = pred->dirpred.twolev->config.two.l2table;
+<     printf("BHR[%d]:", shiftreg);
+<     for (i = 0; i < size; i++)
+< 	printf("  %d", l2table[i]);
+<     printf("\n");
+< }
+< 
+773c626
+< 	      &ruu_branch_penalty, /* default */0,
+---
+> 	      &ruu_branch_penalty, /* default */3,
+801c654
+<                  &pred_type, /* default */"2lev",
+---
+>                  &pred_type, /* default */"bimod",
+843c696
+< 	      &ruu_decode_width, /* default */1,
+---
+> 	      &ruu_decode_width, /* default */4,
+850c703
+< 	      &ruu_issue_width, /* default */8,
+---
+> 	      &ruu_issue_width, /* default */4,
+866c719
+< 	      &ruu_commit_width, /* default */1,
+---
+> 	      &ruu_commit_width, /* default */4,
+873c726
+< 	      &RUU_size, /* default */8,
+---
+> 	      &RUU_size, /* default */16,
+887c740
+< 		 &cache_dl1_opt, "none",
+---
+> 		 &cache_dl1_opt, "dl1:128:32:4:l",
+912c765
+< 		 &cache_dl2_opt, "none",
+---
+> 		 &cache_dl2_opt, "ul2:1024:64:4:l",
+922c775
+< 		 &cache_il1_opt, "il1:16:64:1:l",
+---
+> 		 &cache_il1_opt, "il1:512:32:1:l",
+946c799
+< 		 &cache_il2_opt, "none",
+---
+> 		 &cache_il2_opt, "dl2",
+969c822
+< 	      &mem_bus_width, /* default */64,
+---
+> 	      &mem_bus_width, /* default */8,
+976c829
+< 		 &itlb_opt, "none", /* print */TRUE, NULL);
+---
+> 		 &itlb_opt, "itlb:16:4096:4:l", /* print */TRUE, NULL);
+980c833
+< 		 &dtlb_opt, "none", /* print */TRUE, NULL);
+---
+> 		 &dtlb_opt, "dtlb:32:4096:4:l", /* print */TRUE, NULL);
+1038d890
+< /* commented by LXF
+1041d892
+< */
+1128c979
+<     bpred_spec_update = spec_ID;
+---
+>     bpred_spec_update = spec_CT;
+1133,1134d983
+<   else if (!mystricmp(bpred_spec_opt, "CM"))
+<     bpred_spec_update = spec_CT;
+2288d2136
+< //int bb_entry;
+2292c2140
+<   {
+---
+>     {
+2295,2310d2142
+<       // LXF
+<       if ((rs->PC >= start_addr) && (rs->PC < end_addr)) {
+< 	  effect_commit = 1;
+< 	  /*
+< 	  bb_entry = find_bb_addr(rs->PC);
+< 	  if (bb_entry >= 0) {
+< 	      fprintf(stderr, "[%x - %x]: %d\n", last_bb_addr, rs->PC,
+< 		      effect_cycles - last_cm_time);
+< 	      last_bb_addr = rs->PC;
+< 	      last_cm_time = effect_cycles;
+< 	  }
+< 	  */
+<       } else
+< 	  effect_commit = 0;
+< 
+< 
+2312c2144
+<       {
+---
+> 	{
+2315c2147
+<       }
+---
+> 	}
+2322c2154
+<       {
+---
+> 	{
+2325c2157
+< 	      panic("RUU out of sync with LSQ");
+---
+> 	    panic("RUU out of sync with LSQ");
+2329c2161
+< 	  {
+---
+> 	    {
+2332c2164
+< 	  }
+---
+> 	    }
+2335,2336c2167,2168
+< 		  == (F_MEM|F_STORE))
+< 	  {
+---
+> 	      == (F_MEM|F_STORE))
+> 	    {
+2344c2176
+< 	      {
+---
+> 		{
+2347c2179
+< 		      panic("functional unit already in use");
+---
+> 		    panic("functional unit already in use");
+2354c2186
+< 		  {
+---
+> 		    {
+2357,2358c2189,2190
+< 			  cache_access(cache_dl1, Write, (LSQ[LSQ_head].addr&~3),
+< 				  NULL, 4, sim_cycle, NULL, NULL);
+---
+> 			cache_access(cache_dl1, Write, (LSQ[LSQ_head].addr&~3),
+> 				     NULL, 4, sim_cycle, NULL, NULL);
+2360,2361c2192,2193
+< 			  events |= PEV_CACHEMISS;
+< 		  }
+---
+> 			events |= PEV_CACHEMISS;
+> 		    }
+2365c2197
+< 		  {
+---
+> 		    {
+2368,2369c2200,2201
+< 			  cache_access(dtlb, Read, (LSQ[LSQ_head].addr & ~3),
+< 				  NULL, 4, sim_cycle, NULL, NULL);
+---
+> 			cache_access(dtlb, Read, (LSQ[LSQ_head].addr & ~3),
+> 				     NULL, 4, sim_cycle, NULL, NULL);
+2371,2373c2203,2205
+< 			  events |= PEV_TLBMISS;
+< 		  }
+< 	      }
+---
+> 			events |= PEV_TLBMISS;
+> 		    }
+> 		}
+2375c2207
+< 	      {
+---
+> 		{
+2378,2379c2210,2211
+< 	      }
+< 	  }
+---
+> 		}
+> 	    }
+2383,2384c2215,2216
+< 	  sim_slip += (sim_cycle - LSQ[LSQ_head].slip);
+< 
+---
+>           sim_slip += (sim_cycle - LSQ[LSQ_head].slip);
+>    
+2392c2224
+<       }
+---
+> 	}
+2394d2225
+<       /* commented by LXF
+2396,2413c2227,2229
+< 	      && bpred_spec_update == spec_CT
+< 	      && (MD_OP_FLAGS(rs->op) & F_CTRL))
+<       {
+<       */
+<       // only allow conditional branches update the branch predictor
+<       if (pred
+< 	      && (bpred_spec_update == spec_CT)
+< 	      && ((MD_OP_FLAGS(rs->op) & (F_CTRL|F_COND)) == (F_CTRL|F_COND)))
+<       {
+< 	  // by LXF: important change to original code:
+< 	  // the BHT entry rs->dir_update obtained at decode time is not correct,
+< 	  // because the BHR might have been changed since then, thus we should
+< 	  // obtain the BHT entry according to current BHR
+< 	  if (pred->class == BPred2Level) {
+< 	      int my_shiftreg = *pred->dirpred.twolev->config.two.shiftregs;
+< 	      rs->dir_update.pdir1 
+< 		  = &pred->dirpred.twolev->config.two.l2table[my_shiftreg];
+< 	  }
+---
+> 	  && bpred_spec_update == spec_CT
+> 	  && (MD_OP_FLAGS(rs->op) & F_CTRL))
+> 	{
+2415,2424c2231,2240
+< 		  /* branch address */rs->PC,
+< 		  /* actual target address */rs->next_PC,
+< 		  /* taken? */rs->next_PC != (rs->PC +
+< 		      sizeof(md_inst_t)),
+< 		  /* pred taken? */rs->pred_PC != (rs->PC +
+< 		      sizeof(md_inst_t)),
+< 		  /* correct pred? */rs->pred_PC == rs->next_PC,
+< 		  /* opcode */rs->op,
+< 		  /* dir predictor update pointer */&rs->dir_update);
+<       }
+---
+> 		       /* branch address */rs->PC,
+> 		       /* actual target address */rs->next_PC,
+>                        /* taken? */rs->next_PC != (rs->PC +
+>                                                    sizeof(md_inst_t)),
+>                        /* pred taken? */rs->pred_PC != (rs->PC +
+>                                                         sizeof(md_inst_t)),
+>                        /* correct pred? */rs->pred_PC == rs->next_PC,
+>                        /* opcode */rs->op,
+>                        /* dir predictor update pointer */&rs->dir_update);
+> 	}
+2431c2247
+<       {
+---
+> 	{
+2434c2250
+< 	  md_print_insn(RUU[RUU_head].IR, RUU[RUU_head].PC, stderr);
+---
+>  	  md_print_insn(RUU[RUU_head].IR, RUU[RUU_head].PC, stderr);
+2436c2252
+< 	      myfprintf(stderr, "  mem: 0x%08p", RUU[RUU_head].addr);
+---
+> 	    myfprintf(stderr, "  mem: 0x%08p", RUU[RUU_head].addr);
+2439c2255
+<       }
+---
+> 	}
+2453c2269
+<       {
+---
+> 	{
+2455,2457c2271,2273
+< 	      panic ("retired instruction has odeps\n");
+<       }
+<   }
+---
+> 	    panic ("retired instruction has odeps\n");
+>         }
+>     }
+3535c3351,3389
+< #include "decode_cfg.h"
+---
+> /*
+>  * configure the instruction decode engine
+>  */
+> 
+> #define DNA			(0)
+> 
+> #if defined(TARGET_PISA)
+> 
+> /* general register dependence decoders */
+> #define DGPR(N)			(N)
+> #define DGPR_D(N)		((N) &~1)
+> 
+> /* floating point register dependence decoders */
+> #define DFPR_L(N)		(((N)+32)&~1)
+> #define DFPR_F(N)		(((N)+32)&~1)
+> #define DFPR_D(N)		(((N)+32)&~1)
+> 
+> /* miscellaneous register dependence decoders */
+> #define DHI			(0+32+32)
+> #define DLO			(1+32+32)
+> #define DFCC			(2+32+32)
+> #define DTMP			(3+32+32)
+> 
+> #elif defined(TARGET_ALPHA)
+> 
+> /* general register dependence decoders, $r31 maps to DNA (0) */
+> #define DGPR(N)			(31 - (N)) /* was: (((N) == 31) ? DNA : (N)) */
+> 
+> /* floating point register dependence decoders */
+> #define DFPR(N)			(((N) == 31) ? DNA : ((N)+32))
+> 
+> /* miscellaneous register dependence decoders */
+> #define DFPCR			(0+32+32)
+> #define DUNIQ			(1+32+32)
+> #define DTMP			(2+32+32)
+> 
+> #else
+> #error No ISA target defined...
+> #endif
+3895,3907d3748
+< 
+<       /* decode the inst */
+<       MD_SET_OPCODE(op, inst);
+< 
+<       // by LXF, SimpleScalar allows spec exec. in a pending spec exec, but our
+<       // estimation only allows one level of spec, so we need to stall the pipeline
+<       // from decoding and issuing exec. beyond a cond. branch inside a spec
+<       if (spec_mode 
+< 	  && !pred_perfect
+< 	  && ((MD_OP_FLAGS(op) & (F_CTRL | F_COND)) == (F_CTRL | F_COND))) {
+< 	break;
+<       }
+< 
+3913a3755,3757
+>       /* decode the inst */
+>       MD_SET_OPCODE(op, inst);
+> 
+4040,4043c3884
+< 
+< 	  // by LXF: dont' let unconditional branches stall the fetcher
+< 	  if (pred_perfect
+< 	     || ((MD_OP_FLAGS(op) & (F_CTRL|F_UNCOND)) == (F_CTRL|F_UNCOND))) {
+---
+> 	  if (pred_perfect)
+4045,4047d3885
+< 	  } else {
+< 	    ruu_fetch_issue_delay = ruu_branch_penalty;
+< 	  }
+4052a3891,3893
+> 	  if (!pred_perfect)
+> 	    ruu_fetch_issue_delay = ruu_branch_penalty;
+> 
+4367d4207
+<   effect_fetch = 0;
+4397c4237
+< 	      if (lat > cache_il1_lat) {
+---
+> 	      if (lat > cache_il1_lat)
+4399,4405d4238
+<                 md_addr_t addr; 
+<                 addr = IACOMPRESS(fetch_regs_PC);
+<                 if ((addr >= start_addr) && (addr < end_addr)) {
+< 		  //printf("icache miss[%d]:%x\n", effect_icache_misses, addr);
+<                   effect_icache_misses++;
+< 		}
+<               }
+4451,4456c4284
+< 	  if (MD_OP_FLAGS(op) & F_CTRL) {
+< 	    // by LXF: this is incorrect: to determine the BHT entry to be
+< 	    // updated at this time is not accurate, because by the commit time of
+< 	    // this inst, the BHR might be different from the BHR at this
+< 	    // moment; however, the inst should do update according to the
+< 	    // commit-time BHR instead of the decode-time BHR
+---
+> 	  if (MD_OP_FLAGS(op) & F_CTRL)
+4466c4294
+< 	  } else
+---
+> 	  else
+4497,4499d4324
+<       if ((fetch_regs_PC >= start_addr) && (fetch_regs_PC < end_addr))
+< 	effect_fetch = 1;
+< 
+4603,4604d4427
+< int	wcet_sim_cycle = 0;
+< //adjust_bb_addr();
+4613,4614d4435
+<   sym_loadsyms(ld_prog_fname, TRUE);
+< 
+4726,4734d4546
+< 
+<       // LXF
+<       /*
+<       if (do_dump_ruu) {
+< 	  printf("CYCLE: %d\n", sim_cycle);
+< 	  ruu_dump(stdout);
+<       }
+<       */
+< 
+4790,4795d4601
+<       // by LXF
+<       //if (regs.regs_PC >= start_addr && regs.regs_PC < end_addr)
+<       //if (effect_fetch || effect_commit)
+<       if (effect_commit)
+< 	  effect_cycles++;
+< 

@@ -1,0 +1,3885 @@
+Cache access at = 0x400140 at sim cycle 0
+****Bus delay encountered = 0****
+****Total bus delay so far = 0****
+Instruction access is in library code
+Cache access at = 0x400140 at sim cycle 0
+****Bus delay encountered = 0****
+****Total bus delay so far = 0****
+Instruction access is in library code
+Cache access at = 0x400160 at sim cycle 34
+****Bus delay encountered = 0****
+****Total bus delay so far = 0****
+Instruction access is in library code
+Cache access at = 0x400160 at sim cycle 34
+****Bus delay encountered = 0****
+****Total bus delay so far = 0****
+Instruction access is in library code
+Cache access at = 0x400180 at sim cycle 68
+****Bus delay encountered = 32****
+****Total bus delay so far = 0****
+Instruction access is in library code
+Cache access at = 0x400180 at sim cycle 68
+****Bus delay encountered = 32****
+****Total bus delay so far = 0****
+Instruction access is in library code
+Cache access at = 0x4001a0 at sim cycle 166
+****Bus delay encountered = 34****
+****Total bus delay so far = 0****
+Instruction access is in library code
+Cache access at = 0x4001a0 at sim cycle 166
+****Bus delay encountered = 34****
+****Total bus delay so far = 0****
+Instruction access is in library code
+Cache access at = 0x400300 at sim cycle 266
+****Bus delay encountered = 34****
+****Total bus delay so far = 34****
+Cache access at = 0x400300 at sim cycle 266
+****Bus delay encountered = 34****
+****Total bus delay so far = 68****
+Cache access at = 0x4004d0 at sim cycle 368
+****Bus delay encountered = 32****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x4004c0 at sim cycle 368
+****Bus delay encountered = 32****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x4004e0 at sim cycle 464
+****Bus delay encountered = 36****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x4004e0 at sim cycle 464
+****Bus delay encountered = 36****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400500 at sim cycle 570
+****Bus delay encountered = 30****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400500 at sim cycle 570
+****Bus delay encountered = 30****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x4007e0 at sim cycle 663
+****Bus delay encountered = 37****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x4007e0 at sim cycle 663
+****Bus delay encountered = 37****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400800 at sim cycle 771
+****Bus delay encountered = 29****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400800 at sim cycle 771
+****Bus delay encountered = 29****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400828 at sim cycle 862
+****Bus delay encountered = 38****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400820 at sim cycle 862
+****Bus delay encountered = 38****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401a60 at sim cycle 971
+****Bus delay encountered = 29****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401a60 at sim cycle 971
+****Bus delay encountered = 29****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401ab0 at sim cycle 1063
+****Bus delay encountered = 37****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401aa0 at sim cycle 1063
+****Bus delay encountered = 37****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401ac0 at sim cycle 1169
+****Bus delay encountered = 31****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401ac0 at sim cycle 1169
+****Bus delay encountered = 31****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401ae0 at sim cycle 1265
+****Bus delay encountered = 35****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401ae0 at sim cycle 1265
+****Bus delay encountered = 35****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401b00 at sim cycle 1369
+****Bus delay encountered = 31****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401b00 at sim cycle 1369
+****Bus delay encountered = 31****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401b20 at sim cycle 1465
+****Bus delay encountered = 35****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401b20 at sim cycle 1465
+****Bus delay encountered = 35****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401b40 at sim cycle 1569
+****Bus delay encountered = 31****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401b40 at sim cycle 1569
+****Bus delay encountered = 31****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401b60 at sim cycle 1665
+****Bus delay encountered = 35****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401b60 at sim cycle 1665
+****Bus delay encountered = 35****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401b80 at sim cycle 1769
+****Bus delay encountered = 31****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401b80 at sim cycle 1769
+****Bus delay encountered = 31****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401ba0 at sim cycle 1865
+****Bus delay encountered = 35****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401ba0 at sim cycle 1865
+****Bus delay encountered = 35****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401bf0 at sim cycle 1966
+****Bus delay encountered = 34****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401be0 at sim cycle 1966
+****Bus delay encountered = 34****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400840 at sim cycle 2066
+****Bus delay encountered = 34****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400840 at sim cycle 2066
+****Bus delay encountered = 34****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401a80 at sim cycle 2174
+****Bus delay encountered = 26****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401a80 at sim cycle 2174
+****Bus delay encountered = 26****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401bc0 at sim cycle 2451
+****Bus delay encountered = 49****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x401bc0 at sim cycle 2451
+****Bus delay encountered = 49****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400860 at sim cycle 2586
+****Bus delay encountered = 14****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400860 at sim cycle 2586
+****Bus delay encountered = 14****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400880 at sim cycle 2648
+****Bus delay encountered = 0****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400880 at sim cycle 2648
+****Bus delay encountered = 0****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400518 at sim cycle 2680
+****Bus delay encountered = 20****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400530 at sim cycle 2707
+****Bus delay encountered = 0****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400520 at sim cycle 2707
+****Bus delay encountered = 0****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400540 at sim cycle 2739
+****Bus delay encountered = 0****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400540 at sim cycle 2739
+****Bus delay encountered = 0****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400560 at sim cycle 2773
+****Bus delay encountered = 27****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400560 at sim cycle 2773
+****Bus delay encountered = 27****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400318 at sim cycle 2775
+****Bus delay encountered = 25****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400320 at sim cycle 2807
+****Bus delay encountered = 0****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x400320 at sim cycle 2807
+****Bus delay encountered = 0****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x4001b0 at sim cycle 2839
+****Bus delay encountered = 0****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x4001c0 at sim cycle 2847
+****Bus delay encountered = 0****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x4001c0 at sim cycle 2847
+****Bus delay encountered = 0****
+****Total bus delay so far = 68****
+Instruction access is in library code
+Cache access at = 0x4001f0 at sim cycle 2880
+****Bus delay encountered = 20****
+****Total bus delay so far = 88****
+Cache access at = 0x4001e0 at sim cycle 2880
+****Bus delay encountered = 20****
+****Total bus delay so far = 88****
+Instruction access is in library code
+Cache access at = 0x400200 at sim cycle 2952
+****Bus delay encountered = 48****
+****Total bus delay so far = 136****
+Cache access at = 0x400200 at sim cycle 2952
+****Bus delay encountered = 48****
+****Total bus delay so far = 184****
+Cache access at = 0x400220 at sim cycle 3082
+****Bus delay encountered = 18****
+****Total bus delay so far = 202****
+Cache access at = 0x400220 at sim cycle 3082
+****Bus delay encountered = 18****
+****Total bus delay so far = 220****
+Cache access at = 0x400240 at sim cycle 3151
+****Bus delay encountered = 49****
+****Total bus delay so far = 269****
+Cache access at = 0x400240 at sim cycle 3151
+****Bus delay encountered = 49****
+****Total bus delay so far = 318****
+Cache access at = 0x400260 at sim cycle 3283
+****Bus delay encountered = 17****
+****Total bus delay so far = 335****
+Cache access at = 0x400260 at sim cycle 3283
+****Bus delay encountered = 17****
+****Total bus delay so far = 352****
+Cache access at = 0x400280 at sim cycle 3351
+****Bus delay encountered = 49****
+****Total bus delay so far = 401****
+Cache access at = 0x400280 at sim cycle 3351
+****Bus delay encountered = 49****
+****Total bus delay so far = 450****
+Cache access at = 0x4002a0 at sim cycle 3483
+****Bus delay encountered = 17****
+****Total bus delay so far = 467****
+Cache access at = 0x4002a0 at sim cycle 3483
+****Bus delay encountered = 17****
+****Total bus delay so far = 484****
+Cache access at = 0x4002c0 at sim cycle 3551
+****Bus delay encountered = 49****
+****Total bus delay so far = 533****
+Cache access at = 0x4002c0 at sim cycle 3551
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Cache access at = 0x4002e0 at sim cycle 3710
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Cache access at = 0x4002e0 at sim cycle 3710
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Cache access at = 0x400340 at sim cycle 6667
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400340 at sim cycle 6667
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400360 at sim cycle 6767
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400360 at sim cycle 6767
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400380 at sim cycle 6867
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400380 at sim cycle 6867
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4003a0 at sim cycle 6967
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4003a0 at sim cycle 6967
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400460 at sim cycle 7066
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400460 at sim cycle 7066
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400770 at sim cycle 7168
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400760 at sim cycle 7168
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400780 at sim cycle 7264
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400780 at sim cycle 7264
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017c0 at sim cycle 7368
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017c0 at sim cycle 7368
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017e0 at sim cycle 7466
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017e0 at sim cycle 7466
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401800 at sim cycle 7568
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401800 at sim cycle 7568
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401820 at sim cycle 7666
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401820 at sim cycle 7666
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401848 at sim cycle 7768
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401840 at sim cycle 7768
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401860 at sim cycle 7865
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401860 at sim cycle 7865
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401888 at sim cycle 7977
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401880 at sim cycle 7977
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018a0 at sim cycle 8056
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018a0 at sim cycle 8056
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018c0 at sim cycle 8176
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018c0 at sim cycle 8176
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018f8 at sim cycle 8257
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018e0 at sim cycle 8257
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401900 at sim cycle 8374
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401900 at sim cycle 8374
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401948 at sim cycle 8458
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401940 at sim cycle 8458
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401978 at sim cycle 8575
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401960 at sim cycle 8575
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401980 at sim cycle 8656
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401980 at sim cycle 8656
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019a8 at sim cycle 8775
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019a0 at sim cycle 8775
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019c0 at sim cycle 8858
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019c0 at sim cycle 8858
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019e8 at sim cycle 8975
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019e0 at sim cycle 8975
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043d8 at sim cycle 9058
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043c0 at sim cycle 9058
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043e0 at sim cycle 9173
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043e0 at sim cycle 9173
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404400 at sim cycle 9261
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404400 at sim cycle 9261
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404420 at sim cycle 9373
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404420 at sim cycle 9373
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c50 at sim cycle 9374
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c40 at sim cycle 9374
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c60 at sim cycle 9458
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c60 at sim cycle 9458
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c80 at sim cycle 9576
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c80 at sim cycle 9576
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401cc8 at sim cycle 9658
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401cc0 at sim cycle 9658
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401ce0 at sim cycle 9775
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401ce0 at sim cycle 9775
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d00 at sim cycle 9859
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d00 at sim cycle 9859
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d20 at sim cycle 9975
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d20 at sim cycle 9975
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d40 at sim cycle 10076
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d40 at sim cycle 10076
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d60 at sim cycle 10158
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d60 at sim cycle 10158
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d80 at sim cycle 10290
+****Bus delay encountered = 10****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d80 at sim cycle 10290
+****Bus delay encountered = 10****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401da8 at sim cycle 10341
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401da0 at sim cycle 10341
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404440 at sim cycle 10377
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404440 at sim cycle 10377
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a00 at sim cycle 10455
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a00 at sim cycle 10455
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a20 at sim cycle 10579
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a20 at sim cycle 10579
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401868 at sim cycle 10655
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401828 at sim cycle 10709
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401848 at sim cycle 10718
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401840 at sim cycle 10718
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017c0 at sim cycle 10753
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017c0 at sim cycle 10753
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017e0 at sim cycle 10881
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017e0 at sim cycle 10881
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401800 at sim cycle 10953
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401800 at sim cycle 10953
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401888 at sim cycle 10954
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018a0 at sim cycle 11009
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018c0 at sim cycle 11017
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018c0 at sim cycle 11017
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018f8 at sim cycle 11050
+****Bus delay encountered = 50****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018e0 at sim cycle 11050
+****Bus delay encountered = 50****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401900 at sim cycle 11181
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401900 at sim cycle 11181
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401920 at sim cycle 11253
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401920 at sim cycle 11253
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403910 at sim cycle 11378
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403900 at sim cycle 11378
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403920 at sim cycle 11454
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403920 at sim cycle 11454
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403940 at sim cycle 11580
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403940 at sim cycle 11580
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403960 at sim cycle 11654
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403960 at sim cycle 11654
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403980 at sim cycle 11780
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403980 at sim cycle 11780
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039a0 at sim cycle 11852
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039a0 at sim cycle 11852
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039c0 at sim cycle 11982
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039c0 at sim cycle 11982
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039f0 at sim cycle 12050
+****Bus delay encountered = 50****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039e0 at sim cycle 12050
+****Bus delay encountered = 50****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a00 at sim cycle 12182
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a00 at sim cycle 12182
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a48 at sim cycle 12251
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a40 at sim cycle 12251
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a60 at sim cycle 12382
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a60 at sim cycle 12382
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a80 at sim cycle 12452
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a80 at sim cycle 12452
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403aa0 at sim cycle 12582
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403aa0 at sim cycle 12582
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403ac0 at sim cycle 12652
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403ac0 at sim cycle 12652
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403ae0 at sim cycle 12782
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403ae0 at sim cycle 12782
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405370 at sim cycle 12852
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405360 at sim cycle 12852
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405380 at sim cycle 12980
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405380 at sim cycle 12980
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4053a0 at sim cycle 13054
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4053a0 at sim cycle 13054
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4053c0 at sim cycle 13180
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4053c0 at sim cycle 13180
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4056a0 at sim cycle 13254
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4056a0 at sim cycle 13254
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4056c0 at sim cycle 13380
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4056c0 at sim cycle 13380
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4053e0 at sim cycle 13451
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4053e0 at sim cycle 13451
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405400 at sim cycle 13583
+****Bus delay encountered = 17****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405400 at sim cycle 13583
+****Bus delay encountered = 17****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405428 at sim cycle 13648
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405420 at sim cycle 13648
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405440 at sim cycle 13681
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405440 at sim cycle 13681
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4056e0 at sim cycle 13752
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4056e0 at sim cycle 13752
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405700 at sim cycle 13882
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405700 at sim cycle 13882
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405750 at sim cycle 13951
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405740 at sim cycle 13951
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405760 at sim cycle 14081
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405760 at sim cycle 14081
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405720 at sim cycle 14154
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405720 at sim cycle 14154
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405460 at sim cycle 14285
+****Bus delay encountered = 15****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405460 at sim cycle 14285
+****Bus delay encountered = 15****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405480 at sim cycle 14349
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405480 at sim cycle 14349
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4054a0 at sim cycle 14383
+****Bus delay encountered = 17****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4054a0 at sim cycle 14383
+****Bus delay encountered = 17****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403af8 at sim cycle 14448
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b00 at sim cycle 14455
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b00 at sim cycle 14455
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b20 at sim cycle 14579
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b20 at sim cycle 14579
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b40 at sim cycle 14655
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b40 at sim cycle 14655
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b60 at sim cycle 14777
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b60 at sim cycle 14777
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b80 at sim cycle 14857
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b80 at sim cycle 14857
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e38 at sim cycle 14858
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e20 at sim cycle 14858
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e40 at sim cycle 14973
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e40 at sim cycle 14973
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e60 at sim cycle 15061
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e60 at sim cycle 15061
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e80 at sim cycle 15173
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e80 at sim cycle 15173
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400ea0 at sim cycle 15259
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400ea0 at sim cycle 15259
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400890 at sim cycle 15373
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400880 at sim cycle 15373
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4008a0 at sim cycle 15459
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4008a0 at sim cycle 15459
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4008c0 at sim cycle 15575
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4008c0 at sim cycle 15575
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c00 at sim cycle 15658
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c00 at sim cycle 15658
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404a90 at sim cycle 15776
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404a80 at sim cycle 15776
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404aa0 at sim cycle 15856
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404aa0 at sim cycle 15856
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404ac0 at sim cycle 15977
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404ac0 at sim cycle 15977
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405630 at sim cycle 16057
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405620 at sim cycle 16057
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405640 at sim cycle 16175
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405640 at sim cycle 16175
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405660 at sim cycle 16258
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405660 at sim cycle 16258
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405680 at sim cycle 16376
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405680 at sim cycle 16376
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404ae0 at sim cycle 16378
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404ae0 at sim cycle 16378
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404b00 at sim cycle 16456
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404b00 at sim cycle 16456
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c20 at sim cycle 16579
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c20 at sim cycle 16579
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c40 at sim cycle 16655
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c40 at sim cycle 16655
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4008e0 at sim cycle 16779
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4008e0 at sim cycle 16779
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400900 at sim cycle 16855
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400900 at sim cycle 16855
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404b00 at sim cycle 17009
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400910 at sim cycle 17027
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400920 at sim cycle 17035
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400920 at sim cycle 17035
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400940 at sim cycle 17068
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400940 at sim cycle 17068
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400960 at sim cycle 17166
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400960 at sim cycle 17166
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c60 at sim cycle 17268
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c60 at sim cycle 17268
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c80 at sim cycle 17366
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c80 at sim cycle 17366
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401cc8 at sim cycle 17468
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401cc0 at sim cycle 17468
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401ce0 at sim cycle 17565
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401ce0 at sim cycle 17565
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d00 at sim cycle 17669
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d00 at sim cycle 17669
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d20 at sim cycle 17765
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d20 at sim cycle 17765
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d40 at sim cycle 17886
+****Bus delay encountered = 14****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d40 at sim cycle 17886
+****Bus delay encountered = 14****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d60 at sim cycle 25530
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d60 at sim cycle 25530
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d80 at sim cycle 25561
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d80 at sim cycle 25561
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401da8 at sim cycle 25670
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401da0 at sim cycle 25670
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400970 at sim cycle 25762
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400980 at sim cycle 25808
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400980 at sim cycle 25808
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4009a0 at sim cycle 25842
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4009a0 at sim cycle 25842
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4009c0 at sim cycle 25876
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4009c0 at sim cycle 25876
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4009e0 at sim cycle 25958
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4009e0 at sim cycle 25958
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400a00 at sim cycle 26076
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400a00 at sim cycle 26076
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400eb0 at sim cycle 26158
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400ea0 at sim cycle 26158
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400ec0 at sim cycle 26274
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400ec0 at sim cycle 26274
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400ee0 at sim cycle 26359
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400ee0 at sim cycle 26359
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400f00 at sim cycle 26475
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400f00 at sim cycle 26475
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400f20 at sim cycle 26583
+****Bus delay encountered = 17****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400f20 at sim cycle 26583
+****Bus delay encountered = 17****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400f40 at sim cycle 26651
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400f40 at sim cycle 26651
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401090 at sim cycle 26652
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401080 at sim cycle 26652
+****Bus delay encountered = 48****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e38 at sim cycle 26780
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e20 at sim cycle 26780
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e40 at sim cycle 26851
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e40 at sim cycle 26851
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e60 at sim cycle 26983
+****Bus delay encountered = 17****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e60 at sim cycle 26983
+****Bus delay encountered = 17****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e80 at sim cycle 27051
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e80 at sim cycle 27051
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401270 at sim cycle 27187
+****Bus delay encountered = 13****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401260 at sim cycle 27187
+****Bus delay encountered = 13****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401280 at sim cycle 27245
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401280 at sim cycle 27245
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4012a0 at sim cycle 27279
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4012a0 at sim cycle 27279
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4012c0 at sim cycle 27355
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4012c0 at sim cycle 27355
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4012e0 at sim cycle 27479
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4012e0 at sim cycle 27479
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401300 at sim cycle 27555
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401300 at sim cycle 27555
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401320 at sim cycle 27679
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401320 at sim cycle 27679
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401340 at sim cycle 27755
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401340 at sim cycle 27755
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401420 at sim cycle 27756
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401420 at sim cycle 27756
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400a18 at sim cycle 27876
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400a20 at sim cycle 27907
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400a20 at sim cycle 27907
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400a40 at sim cycle 27941
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400a40 at sim cycle 27941
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400a60 at sim cycle 27975
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400a60 at sim cycle 27975
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c00 at sim cycle 28056
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c00 at sim cycle 28056
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404a90 at sim cycle 28178
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404a80 at sim cycle 28178
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404aa0 at sim cycle 28254
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404aa0 at sim cycle 28254
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404ac0 at sim cycle 28379
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404ac0 at sim cycle 28379
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405630 at sim cycle 28455
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405620 at sim cycle 28455
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405640 at sim cycle 28577
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405640 at sim cycle 28577
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405660 at sim cycle 28656
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405660 at sim cycle 28656
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405680 at sim cycle 28778
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405680 at sim cycle 28778
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404ae0 at sim cycle 28780
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404ae0 at sim cycle 28780
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404b00 at sim cycle 28854
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404b00 at sim cycle 28854
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c20 at sim cycle 28981
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c20 at sim cycle 28981
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c40 at sim cycle 29053
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c40 at sim cycle 29053
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400aa8 at sim cycle 29182
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400aa0 at sim cycle 29182
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400ac0 at sim cycle 29251
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400ac0 at sim cycle 29251
+****Bus delay encountered = 49****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400ae0 at sim cycle 29381
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400ae0 at sim cycle 29381
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400b00 at sim cycle 29453
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400b00 at sim cycle 29453
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400b20 at sim cycle 29533
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400b20 at sim cycle 29533
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400db0 at sim cycle 29565
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400da0 at sim cycle 29565
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400dc0 at sim cycle 29667
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400dc0 at sim cycle 29667
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400de0 at sim cycle 29766
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400de0 at sim cycle 29766
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e00 at sim cycle 29868
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e00 at sim cycle 29868
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e20 at sim cycle 29966
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400e20 at sim cycle 29966
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401430 at sim cycle 30068
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401420 at sim cycle 30068
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401440 at sim cycle 30164
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401440 at sim cycle 30164
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401460 at sim cycle 30270
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401460 at sim cycle 30270
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401480 at sim cycle 30364
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401480 at sim cycle 30364
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4014a0 at sim cycle 30470
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4014a0 at sim cycle 30470
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4014c0 at sim cycle 30564
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4014c0 at sim cycle 30564
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4014e0 at sim cycle 30670
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4014e0 at sim cycle 30670
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401778 at sim cycle 30761
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401760 at sim cycle 30761
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401780 at sim cycle 30870
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401780 at sim cycle 30870
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017a0 at sim cycle 30964
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017a0 at sim cycle 30964
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4010a0 at sim cycle 31070
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4010a0 at sim cycle 31070
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4010c0 at sim cycle 31164
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4010c0 at sim cycle 31164
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4010e0 at sim cycle 31270
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4010e0 at sim cycle 31270
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401100 at sim cycle 31364
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401100 at sim cycle 31364
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401120 at sim cycle 31470
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401120 at sim cycle 31470
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401140 at sim cycle 31564
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401140 at sim cycle 31564
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401160 at sim cycle 31670
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401160 at sim cycle 31670
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401180 at sim cycle 31781
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401180 at sim cycle 31781
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4011a0 at sim cycle 31833
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4011a0 at sim cycle 31833
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4011c0 at sim cycle 31867
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4011c0 at sim cycle 31867
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4011e0 at sim cycle 31967
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4011e0 at sim cycle 31967
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401200 at sim cycle 32067
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401200 at sim cycle 32067
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401220 at sim cycle 32167
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401220 at sim cycle 32167
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401240 at sim cycle 32267
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401240 at sim cycle 32267
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401260 at sim cycle 32367
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401260 at sim cycle 32367
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401770 at sim cycle 32466
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017a0 at sim cycle 32512
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b80 at sim cycle 32522
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b80 at sim cycle 32522
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403bc0 at sim cycle 32555
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403bc0 at sim cycle 32555
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403be0 at sim cycle 32679
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403be0 at sim cycle 32679
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c00 at sim cycle 32731
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c00 at sim cycle 32731
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c20 at sim cycle 32765
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c20 at sim cycle 32765
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c40 at sim cycle 32869
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c40 at sim cycle 32869
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c68 at sim cycle 32872
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c60 at sim cycle 32872
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d30 at sim cycle 32959
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d20 at sim cycle 32959
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d40 at sim cycle 33073
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d40 at sim cycle 33073
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d68 at sim cycle 33158
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d60 at sim cycle 33158
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d80 at sim cycle 33274
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d80 at sim cycle 33274
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402cf8 at sim cycle 33360
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402ce0 at sim cycle 33360
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d00 at sim cycle 33471
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d00 at sim cycle 33471
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d20 at sim cycle 33563
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d20 at sim cycle 33563
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d40 at sim cycle 33671
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d40 at sim cycle 33671
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d60 at sim cycle 33763
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d60 at sim cycle 33763
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d80 at sim cycle 33871
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d80 at sim cycle 33871
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402da0 at sim cycle 33963
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402da0 at sim cycle 33963
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402dc0 at sim cycle 34071
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402dc0 at sim cycle 34071
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402f88 at sim cycle 34163
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402f80 at sim cycle 34163
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402fa0 at sim cycle 34270
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402fa0 at sim cycle 34270
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402fc0 at sim cycle 34364
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402fc0 at sim cycle 34364
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403030 at sim cycle 34469
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403020 at sim cycle 34469
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403040 at sim cycle 34563
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403040 at sim cycle 34563
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403080 at sim cycle 34669
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403080 at sim cycle 34669
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030a0 at sim cycle 34765
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030a0 at sim cycle 34765
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030c0 at sim cycle 34869
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030c0 at sim cycle 34869
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030e0 at sim cycle 34965
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030e0 at sim cycle 34965
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4033d0 at sim cycle 34966
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4033c0 at sim cycle 34966
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4033e0 at sim cycle 35066
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4033e0 at sim cycle 35066
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403400 at sim cycle 35168
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403400 at sim cycle 35168
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403428 at sim cycle 35266
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403420 at sim cycle 35266
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403440 at sim cycle 35367
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403440 at sim cycle 35367
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403460 at sim cycle 35467
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403460 at sim cycle 35467
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403480 at sim cycle 35567
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403480 at sim cycle 35567
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d98 at sim cycle 35569
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d80 at sim cycle 35569
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403da0 at sim cycle 35662
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403da0 at sim cycle 35662
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403dc0 at sim cycle 35772
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403dc0 at sim cycle 35772
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403de0 at sim cycle 35862
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403de0 at sim cycle 35862
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e08 at sim cycle 35971
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e00 at sim cycle 35971
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e20 at sim cycle 36062
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e20 at sim cycle 36062
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e40 at sim cycle 36172
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e40 at sim cycle 36172
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401928 at sim cycle 36259
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401920 at sim cycle 36259
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401948 at sim cycle 36373
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401940 at sim cycle 36373
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401960 at sim cycle 36460
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401960 at sim cycle 36460
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402830 at sim cycle 36573
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402820 at sim cycle 36573
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402840 at sim cycle 36659
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402840 at sim cycle 36659
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402878 at sim cycle 36775
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402860 at sim cycle 36775
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402880 at sim cycle 36856
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402880 at sim cycle 36856
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4028b0 at sim cycle 36975
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4028a0 at sim cycle 36975
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401f80 at sim cycle 37056
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401f80 at sim cycle 37056
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401fa0 at sim cycle 37178
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401fa0 at sim cycle 37178
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401fc0 at sim cycle 37256
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401fc0 at sim cycle 37256
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401fe0 at sim cycle 37377
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401fe0 at sim cycle 37377
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402000 at sim cycle 37457
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402000 at sim cycle 37457
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402020 at sim cycle 37577
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402020 at sim cycle 37577
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4024f0 at sim cycle 37578
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4024e0 at sim cycle 37578
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402500 at sim cycle 37654
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402500 at sim cycle 37654
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402520 at sim cycle 37780
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402520 at sim cycle 37780
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402540 at sim cycle 37854
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402540 at sim cycle 37854
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402560 at sim cycle 37980
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402560 at sim cycle 37980
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402580 at sim cycle 38054
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402580 at sim cycle 38054
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4025a0 at sim cycle 38180
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4025a0 at sim cycle 38180
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4025c0 at sim cycle 38254
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4025c0 at sim cycle 38254
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4025e0 at sim cycle 38380
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4025e0 at sim cycle 38380
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402600 at sim cycle 38463
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402600 at sim cycle 38463
+****Bus delay encountered = 37****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402620 at sim cycle 38569
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402620 at sim cycle 38569
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402640 at sim cycle 38665
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402640 at sim cycle 38665
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402660 at sim cycle 38769
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402660 at sim cycle 38769
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402680 at sim cycle 38865
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402680 at sim cycle 38865
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4026a0 at sim cycle 38969
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4026a0 at sim cycle 38969
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4026c0 at sim cycle 39065
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4026c0 at sim cycle 39065
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4026e0 at sim cycle 39169
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4026e0 at sim cycle 39169
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402830 at sim cycle 39264
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402840 at sim cycle 39308
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402878 at sim cycle 39318
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402880 at sim cycle 39325
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4028b0 at sim cycle 39332
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401f80 at sim cycle 39339
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401fa0 at sim cycle 39349
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401fc0 at sim cycle 39359
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401fe0 at sim cycle 39409
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402000 at sim cycle 39419
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402020 at sim cycle 39429
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402040 at sim cycle 39439
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402040 at sim cycle 39439
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402060 at sim cycle 39473
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402060 at sim cycle 39473
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402080 at sim cycle 39561
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402080 at sim cycle 39561
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4020a0 at sim cycle 39673
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4020a0 at sim cycle 39673
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4020e8 at sim cycle 39674
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4020e0 at sim cycle 39674
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402100 at sim cycle 39759
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402100 at sim cycle 39759
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402120 at sim cycle 39875
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402120 at sim cycle 39875
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402140 at sim cycle 39932
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402140 at sim cycle 39932
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402160 at sim cycle 39966
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402160 at sim cycle 39966
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402180 at sim cycle 40068
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402180 at sim cycle 40068
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4021e0 at sim cycle 40166
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4021e0 at sim cycle 40166
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402200 at sim cycle 40268
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402200 at sim cycle 40268
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402220 at sim cycle 40366
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402220 at sim cycle 40366
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402240 at sim cycle 40468
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402240 at sim cycle 40468
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402260 at sim cycle 40566
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402260 at sim cycle 40566
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402280 at sim cycle 40668
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402280 at sim cycle 40668
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4022a0 at sim cycle 40766
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4022a0 at sim cycle 40766
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4022c0 at sim cycle 40868
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4022c0 at sim cycle 40868
+****Bus delay encountered = 32****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402370 at sim cycle 40870
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402360 at sim cycle 40870
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402380 at sim cycle 40962
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402380 at sim cycle 40962
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4024e0 at sim cycle 41072
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4024e0 at sim cycle 41072
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4027f8 at sim cycle 41161
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4027e0 at sim cycle 41161
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402800 at sim cycle 41270
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402800 at sim cycle 41270
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402820 at sim cycle 41364
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4028b8 at sim cycle 41408
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4028c0 at sim cycle 41415
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4028c0 at sim cycle 41415
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4026f0 at sim cycle 41447
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4026e0 at sim cycle 41447
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402840 at sim cycle 41489
+****Bus delay encountered = 11****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401978 at sim cycle 41494
+****Bus delay encountered = 6****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401960 at sim cycle 41494
+****Bus delay encountered = 6****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401980 at sim cycle 41537
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401980 at sim cycle 41537
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4045f0 at sim cycle 41571
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4045e0 at sim cycle 41571
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404600 at sim cycle 41661
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404600 at sim cycle 41661
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405580 at sim cycle 41770
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405580 at sim cycle 41770
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4055a0 at sim cycle 41864
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4055a0 at sim cycle 41864
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404620 at sim cycle 41970
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404620 at sim cycle 41970
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019a0 at sim cycle 41972
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019a0 at sim cycle 41972
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019f0 at sim cycle 42059
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019e0 at sim cycle 42059
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043d8 at sim cycle 42173
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043c0 at sim cycle 42173
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043e0 at sim cycle 42258
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043e0 at sim cycle 42258
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404400 at sim cycle 42376
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404400 at sim cycle 42376
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404420 at sim cycle 42458
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404420 at sim cycle 42458
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c50 at sim cycle 42459
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c40 at sim cycle 42459
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c60 at sim cycle 42573
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c60 at sim cycle 42573
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c80 at sim cycle 42661
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c80 at sim cycle 42661
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401cc8 at sim cycle 42773
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401cc0 at sim cycle 42773
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401ce0 at sim cycle 42860
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401ce0 at sim cycle 42860
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d00 at sim cycle 42974
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d00 at sim cycle 42974
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d20 at sim cycle 43060
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d20 at sim cycle 43060
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d40 at sim cycle 43191
+****Bus delay encountered = 9****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d40 at sim cycle 43191
+****Bus delay encountered = 9****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d60 at sim cycle 43243
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d60 at sim cycle 43243
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d80 at sim cycle 43291
+****Bus delay encountered = 9****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d80 at sim cycle 43291
+****Bus delay encountered = 9****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401da8 at sim cycle 43340
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401da0 at sim cycle 43340
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404440 at sim cycle 43376
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404440 at sim cycle 43376
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a00 at sim cycle 43456
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a00 at sim cycle 43456
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a20 at sim cycle 43578
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a20 at sim cycle 43578
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401868 at sim cycle 43656
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401860 at sim cycle 43656
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401828 at sim cycle 43777
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401820 at sim cycle 43777
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401848 at sim cycle 43856
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401840 at sim cycle 43856
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017c0 at sim cycle 43979
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017c0 at sim cycle 43979
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017e0 at sim cycle 44055
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4017e0 at sim cycle 44055
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401800 at sim cycle 44179
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401800 at sim cycle 44179
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401888 at sim cycle 44180
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401880 at sim cycle 44180
+****Bus delay encountered = 20****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018a0 at sim cycle 44253
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018a0 at sim cycle 44253
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018c0 at sim cycle 44379
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018c0 at sim cycle 44379
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018f8 at sim cycle 44454
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4018e0 at sim cycle 44454
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401900 at sim cycle 44577
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401900 at sim cycle 44577
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401920 at sim cycle 44657
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401920 at sim cycle 44657
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403910 at sim cycle 44774
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403900 at sim cycle 44774
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403920 at sim cycle 44858
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403920 at sim cycle 44858
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403940 at sim cycle 44976
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403940 at sim cycle 44976
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403960 at sim cycle 45058
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403960 at sim cycle 45058
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403980 at sim cycle 45176
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403980 at sim cycle 45176
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039a0 at sim cycle 45256
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039a0 at sim cycle 45256
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039c0 at sim cycle 45378
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039c0 at sim cycle 45378
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039f0 at sim cycle 45454
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4039e0 at sim cycle 45454
+****Bus delay encountered = 46****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a00 at sim cycle 45578
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a00 at sim cycle 45578
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a48 at sim cycle 45655
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a40 at sim cycle 45655
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a60 at sim cycle 45778
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a60 at sim cycle 45778
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a80 at sim cycle 45856
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403a80 at sim cycle 45856
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403aa0 at sim cycle 45978
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403aa0 at sim cycle 45978
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403ac0 at sim cycle 46056
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403ac0 at sim cycle 46056
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403ae0 at sim cycle 46178
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403ae0 at sim cycle 46178
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405370 at sim cycle 46256
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405360 at sim cycle 46256
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405380 at sim cycle 46376
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405380 at sim cycle 46376
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4053a0 at sim cycle 46458
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4053a0 at sim cycle 46458
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4053c0 at sim cycle 46576
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4053c0 at sim cycle 46576
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405480 at sim cycle 46655
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405480 at sim cycle 46655
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4054a0 at sim cycle 46779
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4054a0 at sim cycle 46779
+****Bus delay encountered = 21****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b00 at sim cycle 46853
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b00 at sim cycle 46853
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b20 at sim cycle 46981
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403b20 at sim cycle 46981
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403bf8 at sim cycle 47053
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403be0 at sim cycle 47053
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c00 at sim cycle 47178
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c00 at sim cycle 47178
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c20 at sim cycle 47256
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c20 at sim cycle 47256
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c40 at sim cycle 47378
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c40 at sim cycle 47378
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c68 at sim cycle 47381
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403c60 at sim cycle 47381
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d30 at sim cycle 47450
+****Bus delay encountered = 50****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d20 at sim cycle 47450
+****Bus delay encountered = 50****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d40 at sim cycle 47582
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d40 at sim cycle 47582
+****Bus delay encountered = 18****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d68 at sim cycle 47649
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d60 at sim cycle 47649
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d80 at sim cycle 47681
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d80 at sim cycle 47681
+****Bus delay encountered = 19****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402cf8 at sim cycle 47753
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402ce0 at sim cycle 47753
+****Bus delay encountered = 47****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d00 at sim cycle 47878
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d00 at sim cycle 47878
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d20 at sim cycle 47956
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d20 at sim cycle 47956
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d40 at sim cycle 48078
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d40 at sim cycle 48078
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d60 at sim cycle 48156
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d60 at sim cycle 48156
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d80 at sim cycle 48278
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402d80 at sim cycle 48278
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402da0 at sim cycle 48356
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402da0 at sim cycle 48356
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402dc0 at sim cycle 48478
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402dc0 at sim cycle 48478
+****Bus delay encountered = 22****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402f88 at sim cycle 48556
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x402f80 at sim cycle 48556
+****Bus delay encountered = 44****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403030 at sim cycle 48677
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403020 at sim cycle 48677
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403040 at sim cycle 48755
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403040 at sim cycle 48755
+****Bus delay encountered = 45****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403080 at sim cycle 48877
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403080 at sim cycle 48877
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030a0 at sim cycle 48957
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030a0 at sim cycle 48957
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030c0 at sim cycle 49077
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030c0 at sim cycle 49077
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030e0 at sim cycle 49157
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4030e0 at sim cycle 49157
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4033d0 at sim cycle 49158
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4033c0 at sim cycle 49158
+****Bus delay encountered = 42****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4033e0 at sim cycle 49274
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4033e0 at sim cycle 49274
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403400 at sim cycle 49360
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403400 at sim cycle 49360
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403428 at sim cycle 49474
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403420 at sim cycle 49474
+****Bus delay encountered = 26****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403440 at sim cycle 49559
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403440 at sim cycle 49559
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403460 at sim cycle 49675
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403460 at sim cycle 49675
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403480 at sim cycle 49759
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403480 at sim cycle 49759
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d98 at sim cycle 49761
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403d80 at sim cycle 49761
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403da0 at sim cycle 49870
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403da0 at sim cycle 49870
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403dd8 at sim cycle 49962
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403dc0 at sim cycle 49962
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403de0 at sim cycle 50069
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403de0 at sim cycle 50069
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e08 at sim cycle 50164
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e00 at sim cycle 50164
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e20 at sim cycle 50269
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e20 at sim cycle 50269
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e40 at sim cycle 50365
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x403e40 at sim cycle 50365
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401928 at sim cycle 50466
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401920 at sim cycle 50466
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401948 at sim cycle 50566
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401940 at sim cycle 50566
+****Bus delay encountered = 34****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401978 at sim cycle 50667
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401960 at sim cycle 50667
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401980 at sim cycle 50764
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401980 at sim cycle 50764
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4045f0 at sim cycle 50870
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4045e0 at sim cycle 50870
+****Bus delay encountered = 30****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404600 at sim cycle 50962
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404600 at sim cycle 50962
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405580 at sim cycle 51069
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x405580 at sim cycle 51069
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4055a0 at sim cycle 51165
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4055a0 at sim cycle 51165
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404620 at sim cycle 51269
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404620 at sim cycle 51269
+****Bus delay encountered = 31****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019a0 at sim cycle 51271
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019a0 at sim cycle 51271
+****Bus delay encountered = 29****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019f0 at sim cycle 51360
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4019e0 at sim cycle 51360
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043d8 at sim cycle 51472
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043c0 at sim cycle 51472
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043e0 at sim cycle 51559
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4043e0 at sim cycle 51559
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404400 at sim cycle 51675
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404400 at sim cycle 51675
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404420 at sim cycle 51759
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404420 at sim cycle 51759
+****Bus delay encountered = 41****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c50 at sim cycle 51760
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c40 at sim cycle 51760
+****Bus delay encountered = 40****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c60 at sim cycle 51872
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c60 at sim cycle 51872
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c80 at sim cycle 51962
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401c80 at sim cycle 51962
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401cc8 at sim cycle 52072
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401cc0 at sim cycle 52072
+****Bus delay encountered = 28****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401ce0 at sim cycle 52161
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401ce0 at sim cycle 52161
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d00 at sim cycle 52273
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d00 at sim cycle 52273
+****Bus delay encountered = 27****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d20 at sim cycle 52361
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d20 at sim cycle 52361
+****Bus delay encountered = 39****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d40 at sim cycle 52490
+****Bus delay encountered = 10****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d40 at sim cycle 52490
+****Bus delay encountered = 10****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d60 at sim cycle 52544
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d60 at sim cycle 52544
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d80 at sim cycle 52592
+****Bus delay encountered = 8****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401d80 at sim cycle 52592
+****Bus delay encountered = 8****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401da8 at sim cycle 52639
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401da0 at sim cycle 52639
+****Bus delay encountered = 0****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404440 at sim cycle 52675
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x404440 at sim cycle 52675
+****Bus delay encountered = 25****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a00 at sim cycle 52757
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a00 at sim cycle 52757
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a20 at sim cycle 52877
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a20 at sim cycle 52877
+****Bus delay encountered = 23****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401868 at sim cycle 52957
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401860 at sim cycle 52957
+****Bus delay encountered = 43****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401880 at sim cycle 53076
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401880 at sim cycle 53076
+****Bus delay encountered = 24****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a40 at sim cycle 53162
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x401a40 at sim cycle 53162
+****Bus delay encountered = 38****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400790 at sim cycle 53165
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400780 at sim cycle 53165
+****Bus delay encountered = 35****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4007a0 at sim cycle 53267
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4007a0 at sim cycle 53267
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400478 at sim cycle 53364
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400460 at sim cycle 53364
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400480 at sim cycle 53467
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x400480 at sim cycle 53467
+****Bus delay encountered = 33****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4007c0 at sim cycle 53564
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code
+Cache access at = 0x4007c0 at sim cycle 53564
+****Bus delay encountered = 36****
+****Total bus delay so far = 582****
+Instruction access is in library code

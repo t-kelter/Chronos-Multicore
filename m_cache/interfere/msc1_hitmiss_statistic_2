@@ -1,0 +1,44 @@
+/home/sudiptac/sudiptac/mWork/benchmarks/simple/simple
+Only L1
+
+WCET:
+HIT    MISS    NC
+0  0     0 
+
+0
+
+With L2
+
+WCET:
+HIT  MISS   						NC  HIT_L2  MISS_L2     NC_L2
+0  0     0     0  0     0 
+
+893938
+
+BCET:
+HIT MISS    NC  HIT_L2 							MISS_L2     NC_L2
+0  0     0     0  0     0 
+
+878175
+/home/sudiptac/sudiptac/mWork/benchmarks/jfdcint/jfdcint
+Only L1
+
+WCET:
+HIT    MISS    NC
+0  0     0 
+
+0
+
+With L2
+
+WCET:
+HIT  MISS   						NC  HIT_L2  MISS_L2     NC_L2
+0  0     0     0  0     0 
+
+196339
+
+BCET:
+HIT MISS    NC  HIT_L2 							MISS_L2     NC_L2
+0  0     0     0  0     0 
+
+83802

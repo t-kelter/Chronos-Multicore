@@ -1,0 +1,155 @@
+start_addr
+00400140 <__start> lw        $16,0($29)
+00400148 <__start+0x8> lui       $28,4097
+00400150 <__start+0x10> addiu     $28,$28,-32032
+00400158 <__start+0x18> addiu     $17,$29,4
+00400160 <__start+0x20> addiu     $3,$17,4
+00400168 <__start+0x28> sll       $2,$16,0x2
+00400170 <__start+0x30> addu      $3,$3,$2
+00400178 <__start+0x38> addu      $18,$0,$3
+00400180 <__start+0x40> sw        $18,-32636($28)
+00400188 <__start+0x48> addiu     $29,$29,-24
+00400190 <__start+0x50> addu      $4,$0,$16
+00400198 <__start+0x58> addu      $5,$0,$17
+004001a0 <__start+0x60> addu      $6,$0,$18
+004001a8 <__start+0x68> jal       004004f0 <__libc_init> 
+004001b0 <__start+0x70> sw        $0,-32640($28)
+004001b8 <__start+0x78> addu      $4,$0,$16
+004001c0 <__start+0x80> addu      $5,$0,$17
+004001c8 <__start+0x88> addu      $6,$0,$18
+004001d0 <__start+0x90> jal       00400348 <main> 
+004001d8 <__start+0x98> addu      $4,$0,$2
+004001e0 <__start+0xa0> jal       00400520 <exit> 
+004001e8 <__start+0xa8> nop       
+    ...
+matrix_multiplication():
+maxmult_org.c:8
+004001f0 <matrix_multiplication> addiu     $29,$29,-24
+maxmult_org.c:11
+004001f8 <matrix_multiplication+0x8> addu      $12,$0,$0
+00400200 <matrix_multiplication+0x10> blez      $4,00400338
+00400208 <matrix_multiplication+0x18> lui       $24,4096
+00400210 <matrix_multiplication+0x20> addiu     $24,$24,5040
+00400218 <matrix_multiplication+0x28> lui       $14,4096
+00400220 <matrix_multiplication+0x30> addiu     $14,$14,944
+00400228 <matrix_multiplication+0x38> lui       $13,4096
+00400230 <matrix_multiplication+0x40> addiu     $13,$13,9136
+maxmult_org.c:12
+00400238 <matrix_multiplication+0x48> addu      $8,$0,$0
+00400240 <matrix_multiplication+0x50> blez      $4,00400310
+00400248 <matrix_multiplication+0x58> addu      $15,$0,$14
+00400250 <matrix_multiplication+0x60> addu      $10,$0,$13
+maxmult_org.c:13
+00400258 <matrix_multiplication+0x68> addu      $5,$0,$0
+00400260 <matrix_multiplication+0x70> blez      $4,004002f0
+00400268 <matrix_multiplication+0x78> sll       $11,$8,0x2
+00400270 <matrix_multiplication+0x80> addu      $9,$0,$10
+00400278 <matrix_multiplication+0x88> addu      $7,$0,$15
+00400280 <matrix_multiplication+0x90> addu      $6,$0,$24
+maxmult_org.c:14
+00400288 <matrix_multiplication+0x98> addu      $2,$11,$6
+00400290 <matrix_multiplication+0xa0> lw        $3,0($7)
+00400298 <matrix_multiplication+0xa8> lw        $2,0($2)
+004002a0 <matrix_multiplication+0xb0> mult      $3,$2
+maxmult_org.c:13
+004002a8 <matrix_multiplication+0xb8> addiu     $6,$6,128
+maxmult_org.c:14
+004002b0 <matrix_multiplication+0xc0> mflo      $3
+004002b8 <matrix_multiplication+0xc8> lw        $2,0($9)
+maxmult_org.c:13
+004002c0 <matrix_multiplication+0xd0> addiu     $5,$5,1
+004002c8 <matrix_multiplication+0xd8> addiu     $7,$7,4
+maxmult_org.c:14
+004002d0 <matrix_multiplication+0xe0> addu      $2,$2,$3
+004002d8 <matrix_multiplication+0xe8> sw        $2,0($9)
+maxmult_org.c:13
+004002e0 <matrix_multiplication+0xf0> slt       $2,$5,$4
+004002e8 <matrix_multiplication+0xf8> bne       $2,$0,00400288
+maxmult_org.c:12
+004002f0 <matrix_multiplication+0x100> addiu     $10,$10,4
+004002f8 <matrix_multiplication+0x108> addiu     $8,$8,1
+00400300 <matrix_multiplication+0x110> slt       $2,$8,$4
+00400308 <matrix_multiplication+0x118> bne       $2,$0,00400258
+maxmult_org.c:11
+00400310 <matrix_multiplication+0x120> addiu     $14,$14,128
+00400318 <matrix_multiplication+0x128> addiu     $13,$13,128
+00400320 <matrix_multiplication+0x130> addiu     $12,$12,1
+00400328 <matrix_multiplication+0x138> slt       $2,$12,$4
+00400330 <matrix_multiplication+0x140> bne       $2,$0,00400238
+maxmult_org.c:18
+00400338 <matrix_multiplication+0x148> addiu     $29,$29,24
+00400340 <matrix_multiplication+0x150> jr        $31
+main():
+maxmult_org.c:20
+00400348 <main> addiu     $29,$29,-24
+00400350 <main+0x8> sw        $31,16($29)
+maxmult_org.c:23
+00400358 <main+0x10> addu      $5,$0,$0
+00400360 <main+0x18> lui       $6,4096
+00400368 <main+0x20> addiu     $6,$6,944
+maxmult_org.c:24
+00400370 <main+0x28> addiu     $3,$0,31
+00400378 <main+0x30> addiu     $4,$6,124
+00400380 <main+0x38> sll       $2,$5,0x5
+00400388 <main+0x40> addiu     $2,$2,31
+maxmult_org.c:25
+00400390 <main+0x48> sw        $2,0($4)
+maxmult_org.c:24
+00400398 <main+0x50> addiu     $4,$4,-4
+004003a0 <main+0x58> addiu     $2,$2,-1
+004003a8 <main+0x60> addiu     $3,$3,-1
+004003b0 <main+0x68> bgez      $3,00400390
+maxmult_org.c:23
+004003b8 <main+0x70> addiu     $6,$6,128
+004003c0 <main+0x78> addiu     $5,$5,1
+004003c8 <main+0x80> slti      $2,$5,32
+004003d0 <main+0x88> bne       $2,$0,00400370
+maxmult_org.c:28
+004003d8 <main+0x90> addu      $5,$0,$0
+004003e0 <main+0x98> lui       $6,4096
+004003e8 <main+0xa0> addiu     $6,$6,5040
+maxmult_org.c:29
+004003f0 <main+0xa8> addiu     $3,$0,31
+004003f8 <main+0xb0> addiu     $4,$6,124
+00400400 <main+0xb8> addiu     $2,$5,992
+maxmult_org.c:30
+00400408 <main+0xc0> sw        $2,0($4)
+maxmult_org.c:29
+00400410 <main+0xc8> addiu     $4,$4,-4
+00400418 <main+0xd0> addiu     $2,$2,-32
+00400420 <main+0xd8> addiu     $3,$3,-1
+00400428 <main+0xe0> bgez      $3,00400408
+maxmult_org.c:28
+00400430 <main+0xe8> addiu     $6,$6,128
+00400438 <main+0xf0> addiu     $5,$5,1
+00400440 <main+0xf8> slti      $2,$5,32
+00400448 <main+0x100> bne       $2,$0,004003f0
+maxmult_org.c:33
+00400450 <main+0x108> addu      $5,$0,$0
+00400458 <main+0x110> lui       $4,4096
+00400460 <main+0x118> addiu     $4,$4,9136
+maxmult_org.c:34
+00400468 <main+0x120> addiu     $3,$0,31
+00400470 <main+0x128> addiu     $2,$4,124
+maxmult_org.c:35
+00400478 <main+0x130> sw        $0,0($2)
+maxmult_org.c:34
+00400480 <main+0x138> addiu     $2,$2,-4
+00400488 <main+0x140> addiu     $3,$3,-1
+00400490 <main+0x148> bgez      $3,00400478
+maxmult_org.c:33
+00400498 <main+0x150> addiu     $4,$4,128
+004004a0 <main+0x158> addiu     $5,$5,1
+004004a8 <main+0x160> slti      $2,$5,32
+004004b0 <main+0x168> bne       $2,$0,00400468
+maxmult_org.c:38
+004004b8 <main+0x170> addiu     $4,$0,32
+004004c0 <main+0x178> jal       004001f0 <matrix_multiplication> 
+maxmult_org.c:39
+004004c8 <main+0x180> addu      $2,$0,$0
+maxmult_org.c:40
+004004d0 <main+0x188> lw        $31,16($29)
+004004d8 <main+0x190> addiu     $29,$29,24
+004004e0 <main+0x198> jr        $31
+004004e8 <main+0x1a0> nop       
+end_addr

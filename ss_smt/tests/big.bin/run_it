@@ -1,0 +1,14 @@
+#/bin/bash
+
+echo Running anagram...
+../ss_smt 1 1 -redir:sim /dev/null -redir:prog ../results/anagram run.in
+echo Running fmath
+../ss_smt 2 2 -redir:sim /dev/null -redir:prog ../results/fmath run.in
+echo Running llong
+../ss_smt 3 3 -redir:sim /dev/null -redir:prog ../results/llong run.in
+echo Running lslwr
+../ss_smt 4 4 -redir:sim /dev/null -redir:prog ../results/lslwr run.in
+echo Running math
+../ss_smt 5 5 -redir:sim /dev/null -redir:prog ../results/math run.in
+echo Running printf
+../ss_smt 6 6 -redir:sim /dev/null -redir:prog ../results/printf run.in

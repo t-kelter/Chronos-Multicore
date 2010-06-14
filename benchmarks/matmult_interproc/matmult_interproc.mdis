@@ -1,0 +1,301 @@
+
+../benchmarks/matmult_interproc/matmult_interproc:     file format ss-coff-little
+
+Disassembly of section .text:
+00400140 <__start> lw $16,0($29)
+00400148 <__start+0x8> lui $28,4097
+00400150 <__start+0x10> addiu $28,$28,-32032
+00400158 <__start+0x18> addiu $17,$29,4
+00400160 <__start+0x20> addiu $3,$17,4
+00400168 <__start+0x28> sll $2,$16,0x2
+00400170 <__start+0x30> addu $3,$3,$2
+00400178 <__start+0x38> addu $18,$0,$3
+00400180 <__start+0x40> sw $18,-32636($28)
+00400188 <__start+0x48> addiu $29,$29,-24
+00400190 <__start+0x50> addu $4,$0,$16
+00400198 <__start+0x58> addu $5,$0,$17
+004001a0 <__start+0x60> addu $6,$0,$18
+004001a8 <__start+0x68> jal 00400860 <__libc_init>
+004001b0 <__start+0x70> sw $0,-32640($28)
+004001b8 <__start+0x78> addu $4,$0,$16
+004001c0 <__start+0x80> addu $5,$0,$17
+004001c8 <__start+0x88> addu $6,$0,$18
+004001d0 <__start+0x90> jal 004004b0 <main>
+004001d8 <__start+0x98> addu $4,$0,$2
+004001e0 <__start+0xa0> jal 00400890 <exit>
+004001e8 <__start+0xa8> nop 
+matrix_multiplication():
+../benchmarks/matmult_interproc/matmult_interproc.c:8
+#endif
+
+#define N 32
+int A[N][N],B[N][N],C[N][N];
+void matrix_multiplication(int n) {
+004001f0 <matrix_multiplication> addiu $29,$29,-24
+004001f8 <matrix_multiplication+0x8> sw $30,16($29)
+00400200 <matrix_multiplication+0x10> addu $30,$0,$29
+00400208 <matrix_multiplication+0x18> sw $4,24($30)
+../benchmarks/matmult_interproc/matmult_interproc.c:11
+    int i,j,k;
+
+    for (i=0; i<n; i++) {
+00400210 <matrix_multiplication+0x20> sw $0,0($30)
+00400218 <matrix_multiplication+0x28> lw $2,0($30)
+00400220 <matrix_multiplication+0x30> lw $3,24($30)
+00400228 <matrix_multiplication+0x38> slt $2,$2,$3
+00400230 <matrix_multiplication+0x40> bne $2,$0,00400240 <matrix_multiplication+0x50>
+00400238 <matrix_multiplication+0x48> j 00400490 <matrix_multiplication+0x2a0>
+../benchmarks/matmult_interproc/matmult_interproc.c:12
+        for (j=0; j<n; j++) {
+00400240 <matrix_multiplication+0x50> sw $0,4($30)
+00400248 <matrix_multiplication+0x58> lw $2,4($30)
+00400250 <matrix_multiplication+0x60> lw $3,24($30)
+00400258 <matrix_multiplication+0x68> slt $2,$2,$3
+00400260 <matrix_multiplication+0x70> bne $2,$0,00400270 <matrix_multiplication+0x80>
+00400268 <matrix_multiplication+0x78> j 00400468 <matrix_multiplication+0x278>
+../benchmarks/matmult_interproc/matmult_interproc.c:13
+            for (k=0; k<n; k++) {
+00400270 <matrix_multiplication+0x80> sw $0,8($30)
+00400278 <matrix_multiplication+0x88> lw $2,8($30)
+00400280 <matrix_multiplication+0x90> lw $3,24($30)
+00400288 <matrix_multiplication+0x98> slt $2,$2,$3
+00400290 <matrix_multiplication+0xa0> bne $2,$0,004002a0 <matrix_multiplication+0xb0>
+00400298 <matrix_multiplication+0xa8> j 00400440 <matrix_multiplication+0x250>
+../benchmarks/matmult_interproc/matmult_interproc.c:14
+                C[i][j] += A[i][k]*B[k][j];
+004002a0 <matrix_multiplication+0xb0> lw $2,0($30)
+004002a8 <matrix_multiplication+0xb8> addu $3,$0,$2
+004002b0 <matrix_multiplication+0xc0> sll $2,$3,0x7
+004002b8 <matrix_multiplication+0xc8> lui $3,4096
+004002c0 <matrix_multiplication+0xd0> addiu $3,$3,9136
+004002c8 <matrix_multiplication+0xd8> addu $2,$2,$3
+004002d0 <matrix_multiplication+0xe0> lw $3,4($30)
+004002d8 <matrix_multiplication+0xe8> addu $4,$0,$3
+004002e0 <matrix_multiplication+0xf0> sll $3,$4,0x2
+004002e8 <matrix_multiplication+0xf8> addu $2,$3,$2
+004002f0 <matrix_multiplication+0x100> lw $3,0($30)
+004002f8 <matrix_multiplication+0x108> addu $4,$0,$3
+00400300 <matrix_multiplication+0x110> sll $3,$4,0x7
+00400308 <matrix_multiplication+0x118> lui $4,4096
+00400310 <matrix_multiplication+0x120> addiu $4,$4,9136
+00400318 <matrix_multiplication+0x128> addu $3,$3,$4
+00400320 <matrix_multiplication+0x130> lw $4,4($30)
+00400328 <matrix_multiplication+0x138> addu $5,$0,$4
+00400330 <matrix_multiplication+0x140> sll $4,$5,0x2
+00400338 <matrix_multiplication+0x148> addu $3,$4,$3
+00400340 <matrix_multiplication+0x150> lw $4,0($30)
+00400348 <matrix_multiplication+0x158> addu $5,$0,$4
+00400350 <matrix_multiplication+0x160> sll $4,$5,0x7
+00400358 <matrix_multiplication+0x168> lui $5,4096
+00400360 <matrix_multiplication+0x170> addiu $5,$5,944
+00400368 <matrix_multiplication+0x178> addu $4,$4,$5
+00400370 <matrix_multiplication+0x180> lw $5,8($30)
+00400378 <matrix_multiplication+0x188> addu $6,$0,$5
+00400380 <matrix_multiplication+0x190> sll $5,$6,0x2
+00400388 <matrix_multiplication+0x198> addu $4,$5,$4
+00400390 <matrix_multiplication+0x1a0> lw $5,8($30)
+00400398 <matrix_multiplication+0x1a8> addu $6,$0,$5
+004003a0 <matrix_multiplication+0x1b0> sll $5,$6,0x7
+004003a8 <matrix_multiplication+0x1b8> lui $6,4096
+004003b0 <matrix_multiplication+0x1c0> addiu $6,$6,5040
+004003b8 <matrix_multiplication+0x1c8> addu $5,$5,$6
+004003c0 <matrix_multiplication+0x1d0> lw $6,4($30)
+004003c8 <matrix_multiplication+0x1d8> addu $7,$0,$6
+004003d0 <matrix_multiplication+0x1e0> sll $6,$7,0x2
+004003d8 <matrix_multiplication+0x1e8> addu $5,$6,$5
+004003e0 <matrix_multiplication+0x1f0> lw $4,0($4)
+004003e8 <matrix_multiplication+0x1f8> lw $5,0($5)
+004003f0 <matrix_multiplication+0x200> mult $4,$5
+004003f8 <matrix_multiplication+0x208> mflo $4
+00400400 <matrix_multiplication+0x210> lw $3,0($3)
+00400408 <matrix_multiplication+0x218> addu $4,$3,$4
+00400410 <matrix_multiplication+0x220> sw $4,0($2)
+../benchmarks/matmult_interproc/matmult_interproc.c:13
+00400418 <matrix_multiplication+0x228> lw $3,8($30)
+00400420 <matrix_multiplication+0x230> addiu $2,$3,1
+00400428 <matrix_multiplication+0x238> addu $3,$0,$2
+00400430 <matrix_multiplication+0x240> sw $3,8($30)
+00400438 <matrix_multiplication+0x248> j 00400278 <matrix_multiplication+0x88>
+../benchmarks/matmult_interproc/matmult_interproc.c:12
+00400440 <matrix_multiplication+0x250> lw $3,4($30)
+00400448 <matrix_multiplication+0x258> addiu $2,$3,1
+00400450 <matrix_multiplication+0x260> addu $3,$0,$2
+00400458 <matrix_multiplication+0x268> sw $3,4($30)
+00400460 <matrix_multiplication+0x270> j 00400248 <matrix_multiplication+0x58>
+../benchmarks/matmult_interproc/matmult_interproc.c:11
+00400468 <matrix_multiplication+0x278> lw $3,0($30)
+00400470 <matrix_multiplication+0x280> addiu $2,$3,1
+00400478 <matrix_multiplication+0x288> addu $3,$0,$2
+00400480 <matrix_multiplication+0x290> sw $3,0($30)
+00400488 <matrix_multiplication+0x298> j 00400218 <matrix_multiplication+0x28>
+../benchmarks/matmult_interproc/matmult_interproc.c:18
+            }
+        }
+    }
+} 
+00400490 <matrix_multiplication+0x2a0> addu $29,$0,$30
+00400498 <matrix_multiplication+0x2a8> lw $30,16($29)
+004004a0 <matrix_multiplication+0x2b0> addiu $29,$29,24
+004004a8 <matrix_multiplication+0x2b8> jr $31
+main():
+../benchmarks/matmult_interproc/matmult_interproc.c:20
+
+int main() {
+004004b0 <main> addiu $29,$29,-40
+004004b8 <main+0x8> sw $31,36($29)
+004004c0 <main+0x10> sw $30,32($29)
+004004c8 <main+0x18> addu $30,$0,$29
+../benchmarks/matmult_interproc/matmult_interproc.c:23
+    int i,j,k;
+    
+    for (i=0;i<N;i++) {
+004004d0 <main+0x20> nop 
+004004d8 <main+0x28> sw $0,16($30)
+004004e0 <main+0x30> lw $2,16($30)
+004004e8 <main+0x38> slti $3,$2,32
+004004f0 <main+0x40> bne $3,$0,00400500 <main+0x50>
+004004f8 <main+0x48> j 004005f8 <main+0x148>
+../benchmarks/matmult_interproc/matmult_interproc.c:24
+        for (j=0;j<N;j++) {
+00400500 <main+0x50> sw $0,20($30)
+00400508 <main+0x58> lw $2,20($30)
+00400510 <main+0x60> slti $3,$2,32
+00400518 <main+0x68> bne $3,$0,00400528 <main+0x78>
+00400520 <main+0x70> j 004005d0 <main+0x120>
+../benchmarks/matmult_interproc/matmult_interproc.c:25
+            A[i][j] = i*N+j;
+00400528 <main+0x78> lw $2,16($30)
+00400530 <main+0x80> addu $3,$0,$2
+00400538 <main+0x88> sll $2,$3,0x7
+00400540 <main+0x90> lui $3,4096
+00400548 <main+0x98> addiu $3,$3,944
+00400550 <main+0xa0> addu $2,$2,$3
+00400558 <main+0xa8> lw $3,20($30)
+00400560 <main+0xb0> addu $4,$0,$3
+00400568 <main+0xb8> sll $3,$4,0x2
+00400570 <main+0xc0> addu $2,$3,$2
+00400578 <main+0xc8> lw $3,16($30)
+00400580 <main+0xd0> addu $4,$0,$3
+00400588 <main+0xd8> sll $3,$4,0x5
+00400590 <main+0xe0> lw $4,20($30)
+00400598 <main+0xe8> addu $3,$3,$4
+004005a0 <main+0xf0> sw $3,0($2)
+../benchmarks/matmult_interproc/matmult_interproc.c:24
+004005a8 <main+0xf8> lw $3,20($30)
+004005b0 <main+0x100> addiu $2,$3,1
+004005b8 <main+0x108> addu $3,$0,$2
+004005c0 <main+0x110> sw $3,20($30)
+004005c8 <main+0x118> j 00400508 <main+0x58>
+../benchmarks/matmult_interproc/matmult_interproc.c:23
+004005d0 <main+0x120> lw $3,16($30)
+004005d8 <main+0x128> addiu $2,$3,1
+004005e0 <main+0x130> addu $3,$0,$2
+004005e8 <main+0x138> sw $3,16($30)
+004005f0 <main+0x140> j 004004e0 <main+0x30>
+../benchmarks/matmult_interproc/matmult_interproc.c:28
+        }
+    }
+    for (i=0;i<N;i++) {
+004005f8 <main+0x148> sw $0,16($30)
+00400600 <main+0x150> lw $2,16($30)
+00400608 <main+0x158> slti $3,$2,32
+00400610 <main+0x160> bne $3,$0,00400620 <main+0x170>
+00400618 <main+0x168> j 00400718 <main+0x268>
+../benchmarks/matmult_interproc/matmult_interproc.c:29
+        for (j=0;j<N;j++) {
+00400620 <main+0x170> sw $0,20($30)
+00400628 <main+0x178> lw $2,20($30)
+00400630 <main+0x180> slti $3,$2,32
+00400638 <main+0x188> bne $3,$0,00400648 <main+0x198>
+00400640 <main+0x190> j 004006f0 <main+0x240>
+../benchmarks/matmult_interproc/matmult_interproc.c:30
+            B[i][j] = j*N+i;
+00400648 <main+0x198> lw $2,16($30)
+00400650 <main+0x1a0> addu $3,$0,$2
+00400658 <main+0x1a8> sll $2,$3,0x7
+00400660 <main+0x1b0> lui $3,4096
+00400668 <main+0x1b8> addiu $3,$3,5040
+00400670 <main+0x1c0> addu $2,$2,$3
+00400678 <main+0x1c8> lw $3,20($30)
+00400680 <main+0x1d0> addu $4,$0,$3
+00400688 <main+0x1d8> sll $3,$4,0x2
+00400690 <main+0x1e0> addu $2,$3,$2
+00400698 <main+0x1e8> lw $3,20($30)
+004006a0 <main+0x1f0> addu $4,$0,$3
+004006a8 <main+0x1f8> sll $3,$4,0x5
+004006b0 <main+0x200> lw $4,16($30)
+004006b8 <main+0x208> addu $3,$3,$4
+004006c0 <main+0x210> sw $3,0($2)
+../benchmarks/matmult_interproc/matmult_interproc.c:29
+004006c8 <main+0x218> lw $3,20($30)
+004006d0 <main+0x220> addiu $2,$3,1
+004006d8 <main+0x228> addu $3,$0,$2
+004006e0 <main+0x230> sw $3,20($30)
+004006e8 <main+0x238> j 00400628 <main+0x178>
+../benchmarks/matmult_interproc/matmult_interproc.c:28
+004006f0 <main+0x240> lw $3,16($30)
+004006f8 <main+0x248> addiu $2,$3,1
+00400700 <main+0x250> addu $3,$0,$2
+00400708 <main+0x258> sw $3,16($30)
+00400710 <main+0x260> j 00400600 <main+0x150>
+../benchmarks/matmult_interproc/matmult_interproc.c:33
+        }
+    }
+    for (i=0;i<N;i++) {
+00400718 <main+0x268> sw $0,16($30)
+00400720 <main+0x270> lw $2,16($30)
+00400728 <main+0x278> slti $3,$2,32
+00400730 <main+0x280> bne $3,$0,00400740 <main+0x290>
+00400738 <main+0x288> j 00400810 <main+0x360>
+../benchmarks/matmult_interproc/matmult_interproc.c:34
+        for (j=0;j<N;j++) {
+00400740 <main+0x290> sw $0,20($30)
+00400748 <main+0x298> lw $2,20($30)
+00400750 <main+0x2a0> slti $3,$2,32
+00400758 <main+0x2a8> bne $3,$0,00400768 <main+0x2b8>
+00400760 <main+0x2b0> j 004007e8 <main+0x338>
+../benchmarks/matmult_interproc/matmult_interproc.c:35
+            C[i][j] = 0;
+00400768 <main+0x2b8> lw $2,16($30)
+00400770 <main+0x2c0> addu $3,$0,$2
+00400778 <main+0x2c8> sll $2,$3,0x7
+00400780 <main+0x2d0> lui $3,4096
+00400788 <main+0x2d8> addiu $3,$3,9136
+00400790 <main+0x2e0> addu $2,$2,$3
+00400798 <main+0x2e8> lw $3,20($30)
+004007a0 <main+0x2f0> addu $4,$0,$3
+004007a8 <main+0x2f8> sll $3,$4,0x2
+004007b0 <main+0x300> addu $2,$3,$2
+004007b8 <main+0x308> sw $0,0($2)
+../benchmarks/matmult_interproc/matmult_interproc.c:34
+004007c0 <main+0x310> lw $3,20($30)
+004007c8 <main+0x318> addiu $2,$3,1
+004007d0 <main+0x320> addu $3,$0,$2
+004007d8 <main+0x328> sw $3,20($30)
+004007e0 <main+0x330> j 00400748 <main+0x298>
+../benchmarks/matmult_interproc/matmult_interproc.c:33
+004007e8 <main+0x338> lw $3,16($30)
+004007f0 <main+0x340> addiu $2,$3,1
+004007f8 <main+0x348> addu $3,$0,$2
+00400800 <main+0x350> sw $3,16($30)
+00400808 <main+0x358> j 00400720 <main+0x270>
+../benchmarks/matmult_interproc/matmult_interproc.c:39
+        }
+    }
+	 
+	 matrix_multiplication(N);
+00400810 <main+0x360> addiu $4,$0,32
+00400818 <main+0x368> jal 004001f0 <matrix_multiplication>
+../benchmarks/matmult_interproc/matmult_interproc.c:41
+    
+	 return 0;
+00400820 <main+0x370> addu $2,$0,$0
+00400828 <main+0x378> j 00400830 <main+0x380>
+../benchmarks/matmult_interproc/matmult_interproc.c:42
+}
+00400830 <main+0x380> addu $29,$0,$30
+00400838 <main+0x388> lw $31,36($29)
+00400840 <main+0x390> lw $30,32($29)
+00400848 <main+0x398> addiu $29,$29,40
+00400850 <main+0x3a0> jr $31
+00400858 <main+0x3a8> nop 

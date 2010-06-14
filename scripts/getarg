@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# from assembly files $1.md and $1.mdis (see extractmdis)
+# produces the "argument list" $1.arg
+# containing the addresses of the program's start insn, end insn, and start of main function.
+# (the rest are irrelevant values used by xianfeng's cfg builder)
+
+sed '/nop/d' $1.md > $1.mdt
+
+echo \
+`head -1 $1.mdt | awk '{print $1}'` \
+`tail -1 $1.mdt | awk '{print $1}'` \
+`grep \<main\> $1.mdis | awk '$2 ~ /main/ {print $1}'` \
+32 4 32 10 > $1.arg
+
+rm $1.mdt

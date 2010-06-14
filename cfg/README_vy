@@ -1,0 +1,2 @@
+If encounter segmentation fault,
+try changing the parameters in cfg.h and common.h

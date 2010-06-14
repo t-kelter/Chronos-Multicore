@@ -1,0 +1,62 @@
+machine.def: *		    READ_WORD(A)          - read word from address A
+machine.def:    _result = READ_WORD(GPR(BS) + OFS, _fault);				\
+machine.def:    _result_hi = READ_WORD(GPR(BS) + OFS, _fault);			\
+machine.def:    _result_lo = READ_WORD(GPR(BS) + OFS + 4, _fault);			\
+machine.def:    _result = READ_WORD(GPR(BS) + OFS, _fault);				\
+machine.def:    _result_hi = READ_WORD(GPR(BS) + OFS, _fault);			\
+machine.def:    _result_lo = READ_WORD(GPR(BS) + OFS + 4, _fault);			\
+machine.def:    _lr_temp = READ_WORD(WL_BASE(_temp_bs + OFS), _fault);		\
+machine.def:    _lr_temp = READ_WORD(WR_BASE(_temp_bs + OFS), _fault);		\
+machine.def:    _lr_temp = READ_WORD(WL_BASE(_temp_bs + OFS), _fault);		\
+machine.def:    _lr_temp = READ_WORD(WR_BASE(_temp_bs + OFS), _fault);		\
+machine.def:    _lr_temp = READ_WORD(WL_BASE(_temp_bs + OFS), _fault);		\
+machine.def:	(ss_lr_temp = READ_WORD(WL_BASE(GPR(BS) + OFS)),
+machine.def:    _lr_temp = READ_WORD(WR_BASE(_temp_bs + OFS), _fault);		\
+machine.def:	(ss_lr_temp = READ_WORD(WR_BASE(GPR(BS) + OFS)),
+machine.def:    _lr_temp = READ_WORD(WL_BASE(GPR(BS) + OFS), _fault);		\
+machine.def:    _lr_temp = READ_WORD(WR_BASE(GPR(BS) + OFS), _fault);		\
+machine.def:    _lr_temp = READ_WORD(WL_BASE(GPR(BS) + OFS), _fault);		\
+machine.def:    _lr_temp = READ_WORD(WR_BASE(GPR(BS) + OFS), _fault);		\
+machine.def:    _lr_temp = READ_WORD(WL_BASE(GPR(BS) + OFS), _fault);		\
+machine.def:	(ss_lr_temp = READ_WORD(WL_BASE(GPR(BS) + OFS)),
+machine.def:    _lr_temp = READ_WORD(WR_BASE(GPR(BS) + OFS), _fault);		\
+machine.def:	(ss_lr_temp = READ_WORD(WR_BASE(GPR(BS)+OFS)),
+machine.def:    _result = READ_WORD(GPR(BS) + GPR(RD), _fault);			\
+machine.def:    _result_hi = READ_WORD(GPR(BS) + GPR(RD), _fault);			\
+machine.def:    _result_lo = READ_WORD(GPR(BS) + GPR(RD) + 4, _fault);		\
+machine.def:    _result = READ_WORD(GPR(BS) + GPR(RD), _fault);			\
+machine.def:    _result_hi = READ_WORD(GPR(BS) + GPR(RD), _fault);			\
+machine.def:    _result_lo = READ_WORD(GPR(BS) + GPR(RD) + 4, _fault);		\
+machine.def:    _result = READ_WORD(GPR(BS) + GPR(RD) + 4, _fault);			\
+machine.def:    _result = READ_WORD(GPR(BS) + GPR(RD) + 4, _fault);			\
+machine.h:  { inst.a = MEM_READ_WORD(mem, (PC));					\
+machine.h:    inst.b = MEM_READ_WORD(mem, (PC) + sizeof(word_t)); }
+memory.c:	*((word_t *)p) = MEM_READ_WORD(mem, addr);
+memory.h:#define MEM_READ_WORD(MEM, ADDR)	MD_SWAPW(MEM_READ(MEM, ADDR, word_t))
+sim-bpred.c:#define READ_WORD(SRC, FAULT)						\
+sim-bpred.c:  ((FAULT) = md_fault_none, addr = (SRC), MEM_READ_WORD(mem, addr))
+sim-cache.c:#define READ_WORD(SRC, FAULT)						\
+sim-cache.c:   __READ_CACHE(addr, word_t), MEM_READ_WORD(mem, addr))
+sim-eio.c:#define READ_WORD(SRC, FAULT)						\
+sim-eio.c:  ((FAULT) = md_fault_none, addr = (SRC), MEM_READ_WORD(mem, addr))
+sim-fast.c:#define READ_WORD(SRC, FAULT)						\
+sim-fast.c:  ((FAULT) = md_fault_none, MEM_READ_WORD(mem, (SRC)))
+sim-outorder.c:	      *((word_t *)p) = MEM_READ_WORD(mem, addr);
+sim-outorder.c:	      *((word_t *)p) = MEM_READ_WORD(mem, addr);
+sim-outorder.c:		MEM_READ_WORD(mem, addr + sizeof(word_t));
+sim-outorder.c:#define READ_WORD(SRC, FAULT)						\
+sim-profile.c:#define READ_WORD(SRC, FAULT)						\
+sim-profile.c:  ((FAULT) = md_fault_none, addr = (SRC), MEM_READ_WORD(mem, addr))
+sim-safe.c:#define READ_WORD(SRC, FAULT)						\
+sim-safe.c:  ((FAULT) = md_fault_none, addr = (SRC), MEM_READ_WORD(mem, addr))
+sim-safe-orig.c:#define READ_WORD(SRC, FAULT)						\
+sim-safe-orig.c:  ((FAULT) = md_fault_none, addr = (SRC), MEM_READ_WORD(mem, addr))
+tags:MEM_READ_WORD	memory.h	176;"	d
+tags:READ_WORD	sim-bpred.c	418;"	d	file:
+tags:READ_WORD	sim-cache.c	666;"	d	file:
+tags:READ_WORD	sim-eio.c	372;"	d	file:
+tags:READ_WORD	sim-fast.c	278;"	d	file:
+tags:READ_WORD	sim-outorder.c	3589;"	d	file:
+tags:READ_WORD	sim-profile.c	614;"	d	file:
+tags:READ_WORD	sim-safe-orig.c	241;"	d	file:
+tags:READ_WORD	sim-safe.c	126;"	d	file:

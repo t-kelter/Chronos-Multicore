@@ -1,0 +1,1316 @@
+
+../benchmarks/edn/edn:     file format ss-coff-little
+
+Disassembly of section .text:
+00400140 <__start> lw $16,0($29)
+00400148 <__start+0x8> lui $28,4097
+00400150 <__start+0x10> addiu $28,$28,-31232
+00400158 <__start+0x18> addiu $17,$29,4
+00400160 <__start+0x20> addiu $3,$17,4
+00400168 <__start+0x28> sll $2,$16,0x2
+00400170 <__start+0x30> addu $3,$3,$2
+00400178 <__start+0x38> addu $18,$0,$3
+00400180 <__start+0x40> sw $18,-32636($28)
+00400188 <__start+0x48> addiu $29,$29,-24
+00400190 <__start+0x50> addu $4,$0,$16
+00400198 <__start+0x58> addu $5,$0,$17
+004001a0 <__start+0x60> addu $6,$0,$18
+004001a8 <__start+0x68> jal 00401e70 <__libc_init>
+004001b0 <__start+0x70> sw $0,-32640($28)
+004001b8 <__start+0x78> addu $4,$0,$16
+004001c0 <__start+0x80> addu $5,$0,$17
+004001c8 <__start+0x88> addu $6,$0,$18
+004001d0 <__start+0x90> jal 00401ba0 <main>
+004001d8 <__start+0x98> addu $4,$0,$2
+004001e0 <__start+0xa0> jal 00401ea0 <exit>
+004001e8 <__start+0xa8> nop 
+vec_mpy1():
+../benchmarks/edn/edn.c:33
+
+
+void
+vec_mpy1(short y[], const short x[], short scaler)
+{
+004001f0 <vec_mpy1> addiu $29,$29,-16
+004001f8 <vec_mpy1+0x8> sw $30,8($29)
+00400200 <vec_mpy1+0x10> addu $30,$0,$29
+00400208 <vec_mpy1+0x18> sw $4,16($30)
+00400210 <vec_mpy1+0x20> sw $5,20($30)
+00400218 <vec_mpy1+0x28> addu $2,$0,$6
+00400220 <vec_mpy1+0x30> sh $2,0($30)
+../benchmarks/edn/edn.c:36
+	long int        i;
+
+	for (i = 0; i < 150; i++)
+00400228 <vec_mpy1+0x38> sw $0,4($30)
+00400230 <vec_mpy1+0x40> lw $3,4($30)
+00400238 <vec_mpy1+0x48> slti $4,$3,150
+00400240 <vec_mpy1+0x50> bne $4,$0,00400250 <vec_mpy1+0x60>
+00400248 <vec_mpy1+0x58> j 00400338 <vec_mpy1+0x148>
+../benchmarks/edn/edn.c:37
+		y[i] += ((scaler * x[i]) >> 15);
+00400250 <vec_mpy1+0x60> lw $3,4($30)
+00400258 <vec_mpy1+0x68> addu $4,$0,$3
+00400260 <vec_mpy1+0x70> sll $3,$4,0x1
+00400268 <vec_mpy1+0x78> lw $4,16($30)
+00400270 <vec_mpy1+0x80> addu $3,$3,$4
+00400278 <vec_mpy1+0x88> lw $4,4($30)
+00400280 <vec_mpy1+0x90> addu $5,$0,$4
+00400288 <vec_mpy1+0x98> sll $4,$5,0x1
+00400290 <vec_mpy1+0xa0> lw $5,16($30)
+00400298 <vec_mpy1+0xa8> addu $4,$4,$5
+004002a0 <vec_mpy1+0xb0> lh $5,0($30)
+004002a8 <vec_mpy1+0xb8> lw $6,4($30)
+004002b0 <vec_mpy1+0xc0> addu $7,$0,$6
+004002b8 <vec_mpy1+0xc8> sll $6,$7,0x1
+004002c0 <vec_mpy1+0xd0> lw $7,20($30)
+004002c8 <vec_mpy1+0xd8> addu $6,$6,$7
+004002d0 <vec_mpy1+0xe0> lh $7,0($6)
+004002d8 <vec_mpy1+0xe8> mult $5,$7
+004002e0 <vec_mpy1+0xf0> mflo $5
+004002e8 <vec_mpy1+0xf8> sra $6,$5,0xf
+004002f0 <vec_mpy1+0x100> lhu $4,0($4)
+004002f8 <vec_mpy1+0x108> addu $5,$0,$6
+00400300 <vec_mpy1+0x110> addu $4,$4,$5
+00400308 <vec_mpy1+0x118> sh $4,0($3)
+../benchmarks/edn/edn.c:36
+00400310 <vec_mpy1+0x120> lw $4,4($30)
+00400318 <vec_mpy1+0x128> addiu $3,$4,1
+00400320 <vec_mpy1+0x130> addu $4,$0,$3
+00400328 <vec_mpy1+0x138> sw $4,4($30)
+00400330 <vec_mpy1+0x140> j 00400230 <vec_mpy1+0x40>
+../benchmarks/edn/edn.c:38
+}
+00400338 <vec_mpy1+0x148> addu $29,$0,$30
+00400340 <vec_mpy1+0x150> lw $30,8($29)
+00400348 <vec_mpy1+0x158> addiu $29,$29,16
+00400350 <vec_mpy1+0x160> jr $31
+mac():
+../benchmarks/edn/edn.c:46
+
+
+/*****************************************************
+*			Dot Product	      *
+*****************************************************/
+long int
+mac(const short *a, const short *b, long int sqr, long int *sum)
+{
+00400358 <mac> addiu $29,$29,-16
+00400360 <mac+0x8> sw $30,8($29)
+00400368 <mac+0x10> addu $30,$0,$29
+00400370 <mac+0x18> sw $4,16($30)
+00400378 <mac+0x20> sw $5,20($30)
+00400380 <mac+0x28> sw $6,24($30)
+00400388 <mac+0x30> sw $7,28($30)
+../benchmarks/edn/edn.c:48
+	long int        i;
+	long int        dotp = *sum;
+00400390 <mac+0x38> lw $2,28($30)
+00400398 <mac+0x40> lw $3,0($2)
+004003a0 <mac+0x48> sw $3,4($30)
+../benchmarks/edn/edn.c:50
+
+	for (i = 0; i < 150; i++) {
+004003a8 <mac+0x50> sw $0,0($30)
+004003b0 <mac+0x58> lw $2,0($30)
+004003b8 <mac+0x60> slti $3,$2,150
+004003c0 <mac+0x68> bne $3,$0,004003d0 <mac+0x78>
+004003c8 <mac+0x70> j 00400508 <mac+0x1b0>
+../benchmarks/edn/edn.c:51
+		dotp += b[i] * a[i];
+004003d0 <mac+0x78> lw $2,0($30)
+004003d8 <mac+0x80> addu $3,$0,$2
+004003e0 <mac+0x88> sll $2,$3,0x1
+004003e8 <mac+0x90> lw $4,20($30)
+004003f0 <mac+0x98> addu $3,$2,$4
+004003f8 <mac+0xa0> lh $2,0($3)
+00400400 <mac+0xa8> lw $3,0($30)
+00400408 <mac+0xb0> addu $4,$0,$3
+00400410 <mac+0xb8> sll $3,$4,0x1
+00400418 <mac+0xc0> lw $4,16($30)
+00400420 <mac+0xc8> addu $3,$3,$4
+00400428 <mac+0xd0> lh $4,0($3)
+00400430 <mac+0xd8> mult $2,$4
+00400438 <mac+0xe0> mflo $2
+00400440 <mac+0xe8> lw $3,4($30)
+00400448 <mac+0xf0> addu $2,$3,$2
+00400450 <mac+0xf8> sw $2,4($30)
+../benchmarks/edn/edn.c:52
+		sqr += b[i] * b[i];
+00400458 <mac+0x100> lw $2,0($30)
+00400460 <mac+0x108> addu $3,$0,$2
+00400468 <mac+0x110> sll $2,$3,0x1
+00400470 <mac+0x118> lw $4,20($30)
+00400478 <mac+0x120> addu $3,$2,$4
+00400480 <mac+0x128> lh $2,0($3)
+00400488 <mac+0x130> lw $3,0($30)
+00400490 <mac+0x138> addu $4,$0,$3
+00400498 <mac+0x140> sll $3,$4,0x1
+004004a0 <mac+0x148> lw $4,20($30)
+004004a8 <mac+0x150> addu $3,$3,$4
+004004b0 <mac+0x158> lh $4,0($3)
+004004b8 <mac+0x160> mult $2,$4
+004004c0 <mac+0x168> mflo $2
+004004c8 <mac+0x170> lw $3,24($30)
+004004d0 <mac+0x178> addu $2,$3,$2
+004004d8 <mac+0x180> sw $2,24($30)
+../benchmarks/edn/edn.c:50
+004004e0 <mac+0x188> lw $3,0($30)
+004004e8 <mac+0x190> addiu $2,$3,1
+004004f0 <mac+0x198> addu $3,$0,$2
+004004f8 <mac+0x1a0> sw $3,0($30)
+00400500 <mac+0x1a8> j 004003b0 <mac+0x58>
+../benchmarks/edn/edn.c:55
+	}
+
+	*sum = dotp;
+00400508 <mac+0x1b0> lw $2,28($30)
+00400510 <mac+0x1b8> lw $3,4($30)
+00400518 <mac+0x1c0> sw $3,0($2)
+../benchmarks/edn/edn.c:56
+	return sqr;
+00400520 <mac+0x1c8> lw $2,24($30)
+00400528 <mac+0x1d0> j 00400530 <mac+0x1d8>
+../benchmarks/edn/edn.c:57
+}
+00400530 <mac+0x1d8> addu $29,$0,$30
+00400538 <mac+0x1e0> lw $30,8($29)
+00400540 <mac+0x1e8> addiu $29,$29,16
+00400548 <mac+0x1f0> jr $31
+fir():
+../benchmarks/edn/edn.c:65
+
+
+/*****************************************************
+*		FIR Filter		     *
+*****************************************************/
+void
+fir(const short array1[], const short coeff[], long int output[])
+{
+00400550 <fir> addiu $29,$29,-24
+00400558 <fir+0x8> sw $30,16($29)
+00400560 <fir+0x10> addu $30,$0,$29
+00400568 <fir+0x18> sw $4,24($30)
+00400570 <fir+0x20> sw $5,28($30)
+00400578 <fir+0x28> sw $6,32($30)
+../benchmarks/edn/edn.c:68
+	long int        i, j, sum;
+
+	for (i = 0; i < N - ORDER; i++) {
+00400580 <fir+0x30> sw $0,0($30)
+00400588 <fir+0x38> lw $2,0($30)
+00400590 <fir+0x40> slti $3,$2,50
+00400598 <fir+0x48> bne $3,$0,004005a8 <fir+0x58>
+004005a0 <fir+0x50> j 00400700 <fir+0x1b0>
+../benchmarks/edn/edn.c:69
+		sum = 0;
+004005a8 <fir+0x58> sw $0,8($30)
+../benchmarks/edn/edn.c:70
+		for (j = 0; j < ORDER; j++) {
+004005b0 <fir+0x60> sw $0,4($30)
+004005b8 <fir+0x68> lw $2,4($30)
+004005c0 <fir+0x70> slti $3,$2,50
+004005c8 <fir+0x78> bne $3,$0,004005d8 <fir+0x88>
+004005d0 <fir+0x80> j 00400698 <fir+0x148>
+../benchmarks/edn/edn.c:71
+			sum += array1[i + j] * coeff[j];
+004005d8 <fir+0x88> lw $2,0($30)
+004005e0 <fir+0x90> lw $3,4($30)
+004005e8 <fir+0x98> addu $2,$2,$3
+004005f0 <fir+0xa0> addu $3,$0,$2
+004005f8 <fir+0xa8> sll $2,$3,0x1
+00400600 <fir+0xb0> lw $4,24($30)
+00400608 <fir+0xb8> addu $3,$2,$4
+00400610 <fir+0xc0> lh $2,0($3)
+00400618 <fir+0xc8> lw $3,4($30)
+00400620 <fir+0xd0> addu $4,$0,$3
+00400628 <fir+0xd8> sll $3,$4,0x1
+00400630 <fir+0xe0> lw $4,28($30)
+00400638 <fir+0xe8> addu $3,$3,$4
+00400640 <fir+0xf0> lh $4,0($3)
+00400648 <fir+0xf8> mult $2,$4
+00400650 <fir+0x100> mflo $2
+00400658 <fir+0x108> lw $3,8($30)
+00400660 <fir+0x110> addu $2,$3,$2
+00400668 <fir+0x118> sw $2,8($30)
+../benchmarks/edn/edn.c:70
+00400670 <fir+0x120> lw $3,4($30)
+00400678 <fir+0x128> addiu $2,$3,1
+00400680 <fir+0x130> addu $3,$0,$2
+00400688 <fir+0x138> sw $3,4($30)
+00400690 <fir+0x140> j 004005b8 <fir+0x68>
+../benchmarks/edn/edn.c:73
+		}
+		output[i] = sum >> 15;
+00400698 <fir+0x148> lw $2,0($30)
+004006a0 <fir+0x150> addu $3,$0,$2
+004006a8 <fir+0x158> sll $2,$3,0x2
+004006b0 <fir+0x160> lw $3,32($30)
+004006b8 <fir+0x168> addu $2,$2,$3
+004006c0 <fir+0x170> lw $3,8($30)
+004006c8 <fir+0x178> sra $4,$3,0xf
+004006d0 <fir+0x180> sw $4,0($2)
+../benchmarks/edn/edn.c:68
+004006d8 <fir+0x188> lw $3,0($30)
+004006e0 <fir+0x190> addiu $2,$3,1
+004006e8 <fir+0x198> addu $3,$0,$2
+004006f0 <fir+0x1a0> sw $3,0($30)
+004006f8 <fir+0x1a8> j 00400588 <fir+0x38>
+../benchmarks/edn/edn.c:75
+	}
+}
+00400700 <fir+0x1b0> addu $29,$0,$30
+00400708 <fir+0x1b8> lw $30,16($29)
+00400710 <fir+0x1c0> addiu $29,$29,24
+00400718 <fir+0x1c8> jr $31
+fir_no_red_ld():
+../benchmarks/edn/edn.c:86
+
+/****************************************************
+*	FIR Filter with Redundant Load Elimination
+						
+By doing two outer loops simultaneously, you can potentially  reuse data (depending on the DSP architecture).
+x and h  only  need to be loaded once, therefore reducing redundant loads.
+This reduces memory bandwidth and power.
+*****************************************************/
+void
+fir_no_red_ld(const short x[], const short h[], long int y[])
+{
+00400720 <fir_no_red_ld> addiu $29,$29,-32
+00400728 <fir_no_red_ld+0x8> sw $30,24($29)
+00400730 <fir_no_red_ld+0x10> addu $30,$0,$29
+00400738 <fir_no_red_ld+0x18> sw $4,32($30)
+00400740 <fir_no_red_ld+0x20> sw $5,36($30)
+00400748 <fir_no_red_ld+0x28> sw $6,40($30)
+../benchmarks/edn/edn.c:90
+	long int        i, j;
+	long int        sum0, sum1;
+	short           x0, x1, h0, h1;
+	for (j = 0; j < 100; j += 2) {
+00400750 <fir_no_red_ld+0x30> sw $0,4($30)
+00400758 <fir_no_red_ld+0x38> lw $2,4($30)
+00400760 <fir_no_red_ld+0x40> slti $3,$2,100
+00400768 <fir_no_red_ld+0x48> bne $3,$0,00400778 <fir_no_red_ld+0x58>
+00400770 <fir_no_red_ld+0x50> j 00400aa8 <fir_no_red_ld+0x388>
+../benchmarks/edn/edn.c:91
+		sum0 = 0;
+00400778 <fir_no_red_ld+0x58> sw $0,8($30)
+../benchmarks/edn/edn.c:92
+		sum1 = 0;
+00400780 <fir_no_red_ld+0x60> sw $0,12($30)
+../benchmarks/edn/edn.c:93
+		x0 = x[j];
+00400788 <fir_no_red_ld+0x68> lw $2,4($30)
+00400790 <fir_no_red_ld+0x70> addu $3,$0,$2
+00400798 <fir_no_red_ld+0x78> sll $2,$3,0x1
+004007a0 <fir_no_red_ld+0x80> lw $3,32($30)
+004007a8 <fir_no_red_ld+0x88> addu $2,$2,$3
+004007b0 <fir_no_red_ld+0x90> lhu $3,0($2)
+004007b8 <fir_no_red_ld+0x98> sh $3,16($30)
+../benchmarks/edn/edn.c:94
+		for (i = 0; i < 32; i += 2) {
+004007c0 <fir_no_red_ld+0xa0> sw $0,0($30)
+004007c8 <fir_no_red_ld+0xa8> lw $2,0($30)
+004007d0 <fir_no_red_ld+0xb0> slti $3,$2,32
+004007d8 <fir_no_red_ld+0xb8> bne $3,$0,004007e8 <fir_no_red_ld+0xc8>
+004007e0 <fir_no_red_ld+0xc0> j 00400a00 <fir_no_red_ld+0x2e0>
+../benchmarks/edn/edn.c:95
+			x1 = x[j + i + 1];
+004007e8 <fir_no_red_ld+0xc8> lw $2,4($30)
+004007f0 <fir_no_red_ld+0xd0> lw $3,0($30)
+004007f8 <fir_no_red_ld+0xd8> addu $2,$2,$3
+00400800 <fir_no_red_ld+0xe0> addu $3,$0,$2
+00400808 <fir_no_red_ld+0xe8> sll $2,$3,0x1
+00400810 <fir_no_red_ld+0xf0> lw $3,32($30)
+00400818 <fir_no_red_ld+0xf8> addu $2,$2,$3
+00400820 <fir_no_red_ld+0x100> addiu $3,$2,2
+00400828 <fir_no_red_ld+0x108> lhu $2,0($3)
+00400830 <fir_no_red_ld+0x110> sh $2,18($30)
+../benchmarks/edn/edn.c:96
+			h0 = h[i];
+00400838 <fir_no_red_ld+0x118> lw $2,0($30)
+00400840 <fir_no_red_ld+0x120> addu $3,$0,$2
+00400848 <fir_no_red_ld+0x128> sll $2,$3,0x1
+00400850 <fir_no_red_ld+0x130> lw $3,36($30)
+00400858 <fir_no_red_ld+0x138> addu $2,$2,$3
+00400860 <fir_no_red_ld+0x140> lhu $3,0($2)
+00400868 <fir_no_red_ld+0x148> sh $3,20($30)
+../benchmarks/edn/edn.c:97
+			sum0 += x0 * h0;
+00400870 <fir_no_red_ld+0x150> lh $2,16($30)
+00400878 <fir_no_red_ld+0x158> lh $3,20($30)
+00400880 <fir_no_red_ld+0x160> mult $2,$3
+00400888 <fir_no_red_ld+0x168> mflo $2
+00400890 <fir_no_red_ld+0x170> lw $3,8($30)
+00400898 <fir_no_red_ld+0x178> addu $2,$3,$2
+004008a0 <fir_no_red_ld+0x180> sw $2,8($30)
+../benchmarks/edn/edn.c:98
+			sum1 += x1 * h0;
+004008a8 <fir_no_red_ld+0x188> lh $2,18($30)
+004008b0 <fir_no_red_ld+0x190> lh $3,20($30)
+004008b8 <fir_no_red_ld+0x198> mult $2,$3
+004008c0 <fir_no_red_ld+0x1a0> mflo $2
+004008c8 <fir_no_red_ld+0x1a8> lw $3,12($30)
+004008d0 <fir_no_red_ld+0x1b0> addu $2,$3,$2
+004008d8 <fir_no_red_ld+0x1b8> sw $2,12($30)
+../benchmarks/edn/edn.c:99
+			x0 = x[j + i + 2];
+004008e0 <fir_no_red_ld+0x1c0> lw $2,4($30)
+004008e8 <fir_no_red_ld+0x1c8> lw $3,0($30)
+004008f0 <fir_no_red_ld+0x1d0> addu $2,$2,$3
+004008f8 <fir_no_red_ld+0x1d8> addu $3,$0,$2
+00400900 <fir_no_red_ld+0x1e0> sll $2,$3,0x1
+00400908 <fir_no_red_ld+0x1e8> lw $3,32($30)
+00400910 <fir_no_red_ld+0x1f0> addu $2,$2,$3
+00400918 <fir_no_red_ld+0x1f8> addiu $3,$2,4
+00400920 <fir_no_red_ld+0x200> lhu $2,0($3)
+00400928 <fir_no_red_ld+0x208> sh $2,16($30)
+../benchmarks/edn/edn.c:100
+			h1 = h[i + 1];
+00400930 <fir_no_red_ld+0x210> lw $2,0($30)
+00400938 <fir_no_red_ld+0x218> addu $3,$0,$2
+00400940 <fir_no_red_ld+0x220> sll $2,$3,0x1
+00400948 <fir_no_red_ld+0x228> lw $3,36($30)
+00400950 <fir_no_red_ld+0x230> addu $2,$2,$3
+00400958 <fir_no_red_ld+0x238> addiu $3,$2,2
+00400960 <fir_no_red_ld+0x240> lhu $2,0($3)
+00400968 <fir_no_red_ld+0x248> sh $2,22($30)
+../benchmarks/edn/edn.c:101
+			sum0 += x1 * h1;
+00400970 <fir_no_red_ld+0x250> lh $2,18($30)
+00400978 <fir_no_red_ld+0x258> lh $3,22($30)
+00400980 <fir_no_red_ld+0x260> mult $2,$3
+00400988 <fir_no_red_ld+0x268> mflo $2
+00400990 <fir_no_red_ld+0x270> lw $3,8($30)
+00400998 <fir_no_red_ld+0x278> addu $2,$3,$2
+004009a0 <fir_no_red_ld+0x280> sw $2,8($30)
+../benchmarks/edn/edn.c:102
+			sum1 += x0 * h1;
+004009a8 <fir_no_red_ld+0x288> lh $2,16($30)
+004009b0 <fir_no_red_ld+0x290> lh $3,22($30)
+004009b8 <fir_no_red_ld+0x298> mult $2,$3
+004009c0 <fir_no_red_ld+0x2a0> mflo $2
+004009c8 <fir_no_red_ld+0x2a8> lw $3,12($30)
+004009d0 <fir_no_red_ld+0x2b0> addu $2,$3,$2
+004009d8 <fir_no_red_ld+0x2b8> sw $2,12($30)
+../benchmarks/edn/edn.c:94
+004009e0 <fir_no_red_ld+0x2c0> lw $2,0($30)
+004009e8 <fir_no_red_ld+0x2c8> addiu $3,$2,2
+004009f0 <fir_no_red_ld+0x2d0> sw $3,0($30)
+004009f8 <fir_no_red_ld+0x2d8> j 004007c8 <fir_no_red_ld+0xa8>
+../benchmarks/edn/edn.c:104
+		}
+		y[j] = sum0 >> 15;
+00400a00 <fir_no_red_ld+0x2e0> lw $2,4($30)
+00400a08 <fir_no_red_ld+0x2e8> addu $3,$0,$2
+00400a10 <fir_no_red_ld+0x2f0> sll $2,$3,0x2
+00400a18 <fir_no_red_ld+0x2f8> lw $3,40($30)
+00400a20 <fir_no_red_ld+0x300> addu $2,$2,$3
+00400a28 <fir_no_red_ld+0x308> lw $3,8($30)
+00400a30 <fir_no_red_ld+0x310> sra $4,$3,0xf
+00400a38 <fir_no_red_ld+0x318> sw $4,0($2)
+../benchmarks/edn/edn.c:105
+		y[j + 1] = sum1 >> 15;
+00400a40 <fir_no_red_ld+0x320> lw $2,4($30)
+00400a48 <fir_no_red_ld+0x328> addu $3,$0,$2
+00400a50 <fir_no_red_ld+0x330> sll $2,$3,0x2
+00400a58 <fir_no_red_ld+0x338> lw $4,40($30)
+00400a60 <fir_no_red_ld+0x340> addu $3,$2,$4
+00400a68 <fir_no_red_ld+0x348> addiu $2,$3,4
+00400a70 <fir_no_red_ld+0x350> lw $3,12($30)
+00400a78 <fir_no_red_ld+0x358> sra $4,$3,0xf
+00400a80 <fir_no_red_ld+0x360> sw $4,0($2)
+../benchmarks/edn/edn.c:90
+00400a88 <fir_no_red_ld+0x368> lw $2,4($30)
+00400a90 <fir_no_red_ld+0x370> addiu $3,$2,2
+00400a98 <fir_no_red_ld+0x378> sw $3,4($30)
+00400aa0 <fir_no_red_ld+0x380> j 00400758 <fir_no_red_ld+0x38>
+../benchmarks/edn/edn.c:107
+	}
+}
+00400aa8 <fir_no_red_ld+0x388> addu $29,$0,$30
+00400ab0 <fir_no_red_ld+0x390> lw $30,24($29)
+00400ab8 <fir_no_red_ld+0x398> addiu $29,$29,32
+00400ac0 <fir_no_red_ld+0x3a0> jr $31
+latsynth():
+../benchmarks/edn/edn.c:114
+
+/*******************************************************
+*	Lattice Synthesis	           *
+* This function doesn't follow the typical DSP multiply two  vector operation, but it will point out the compiler's flexibility   ********************************************************/
+long int
+latsynth(short b[], const short k[], long int n, long int f)
+{
+00400ac8 <latsynth> addiu $29,$29,-16
+00400ad0 <latsynth+0x8> sw $30,8($29)
+00400ad8 <latsynth+0x10> addu $30,$0,$29
+00400ae0 <latsynth+0x18> sw $4,16($30)
+00400ae8 <latsynth+0x20> sw $5,20($30)
+00400af0 <latsynth+0x28> sw $6,24($30)
+00400af8 <latsynth+0x30> sw $7,28($30)
+../benchmarks/edn/edn.c:117
+	long int        i;
+
+	f -= b[n - 1] * k[n - 1];
+00400b00 <latsynth+0x38> lw $2,24($30)
+00400b08 <latsynth+0x40> addu $3,$0,$2
+00400b10 <latsynth+0x48> sll $2,$3,0x1
+00400b18 <latsynth+0x50> lw $3,16($30)
+00400b20 <latsynth+0x58> addu $2,$2,$3
+00400b28 <latsynth+0x60> addiu $3,$2,-2
+00400b30 <latsynth+0x68> lh $2,0($3)
+00400b38 <latsynth+0x70> lw $3,24($30)
+00400b40 <latsynth+0x78> addu $4,$0,$3
+00400b48 <latsynth+0x80> sll $3,$4,0x1
+00400b50 <latsynth+0x88> lw $4,20($30)
+00400b58 <latsynth+0x90> addu $3,$3,$4
+00400b60 <latsynth+0x98> addiu $4,$3,-2
+00400b68 <latsynth+0xa0> lh $3,0($4)
+00400b70 <latsynth+0xa8> mult $2,$3
+00400b78 <latsynth+0xb0> mflo $2
+00400b80 <latsynth+0xb8> lw $3,28($30)
+00400b88 <latsynth+0xc0> subu $2,$3,$2
+00400b90 <latsynth+0xc8> sw $2,28($30)
+../benchmarks/edn/edn.c:118
+	for (i = n - 2; i >= 0; i--) {
+00400b98 <latsynth+0xd0> lw $2,24($30)
+00400ba0 <latsynth+0xd8> addiu $3,$2,-2
+00400ba8 <latsynth+0xe0> sw $3,0($30)
+00400bb0 <latsynth+0xe8> lw $2,0($30)
+00400bb8 <latsynth+0xf0> bgez $2,00400bc8 <latsynth+0x100>
+00400bc0 <latsynth+0xf8> j 00400d48 <latsynth+0x280>
+../benchmarks/edn/edn.c:119
+		f -= b[i] * k[i];
+00400bc8 <latsynth+0x100> lw $2,0($30)
+00400bd0 <latsynth+0x108> addu $3,$0,$2
+00400bd8 <latsynth+0x110> sll $2,$3,0x1
+00400be0 <latsynth+0x118> lw $4,16($30)
+00400be8 <latsynth+0x120> addu $3,$2,$4
+00400bf0 <latsynth+0x128> lh $2,0($3)
+00400bf8 <latsynth+0x130> lw $3,0($30)
+00400c00 <latsynth+0x138> addu $4,$0,$3
+00400c08 <latsynth+0x140> sll $3,$4,0x1
+00400c10 <latsynth+0x148> lw $4,20($30)
+00400c18 <latsynth+0x150> addu $3,$3,$4
+00400c20 <latsynth+0x158> lh $4,0($3)
+00400c28 <latsynth+0x160> mult $2,$4
+00400c30 <latsynth+0x168> mflo $2
+00400c38 <latsynth+0x170> lw $3,28($30)
+00400c40 <latsynth+0x178> subu $2,$3,$2
+00400c48 <latsynth+0x180> sw $2,28($30)
+../benchmarks/edn/edn.c:120
+		b[i + 1] = b[i] + ((k[i] * (f >> 16)) >> 16);
+00400c50 <latsynth+0x188> lw $2,0($30)
+00400c58 <latsynth+0x190> addu $3,$0,$2
+00400c60 <latsynth+0x198> sll $2,$3,0x1
+00400c68 <latsynth+0x1a0> lw $4,16($30)
+00400c70 <latsynth+0x1a8> addu $3,$2,$4
+00400c78 <latsynth+0x1b0> addiu $2,$3,2
+00400c80 <latsynth+0x1b8> lw $3,0($30)
+00400c88 <latsynth+0x1c0> addu $4,$0,$3
+00400c90 <latsynth+0x1c8> sll $3,$4,0x1
+00400c98 <latsynth+0x1d0> lw $4,16($30)
+00400ca0 <latsynth+0x1d8> addu $3,$3,$4
+00400ca8 <latsynth+0x1e0> lw $4,0($30)
+00400cb0 <latsynth+0x1e8> addu $5,$0,$4
+00400cb8 <latsynth+0x1f0> sll $4,$5,0x1
+00400cc0 <latsynth+0x1f8> lw $6,20($30)
+00400cc8 <latsynth+0x200> addu $5,$4,$6
+00400cd0 <latsynth+0x208> lh $4,0($5)
+00400cd8 <latsynth+0x210> lw $6,28($30)
+00400ce0 <latsynth+0x218> sra $5,$6,0x10
+00400ce8 <latsynth+0x220> mult $4,$5
+00400cf0 <latsynth+0x228> mflo $4
+00400cf8 <latsynth+0x230> sra $5,$4,0x10
+00400d00 <latsynth+0x238> lhu $3,0($3)
+00400d08 <latsynth+0x240> addu $4,$0,$5
+00400d10 <latsynth+0x248> addu $3,$3,$4
+00400d18 <latsynth+0x250> sh $3,0($2)
+../benchmarks/edn/edn.c:118
+00400d20 <latsynth+0x258> lw $3,0($30)
+00400d28 <latsynth+0x260> addiu $2,$3,-1
+00400d30 <latsynth+0x268> addu $3,$0,$2
+00400d38 <latsynth+0x270> sw $3,0($30)
+00400d40 <latsynth+0x278> j 00400bb0 <latsynth+0xe8>
+../benchmarks/edn/edn.c:122
+	}
+	b[0] = f >> 16;
+00400d48 <latsynth+0x280> lw $2,16($30)
+00400d50 <latsynth+0x288> lw $4,28($30)
+00400d58 <latsynth+0x290> sra $3,$4,0x10
+00400d60 <latsynth+0x298> sh $3,0($2)
+../benchmarks/edn/edn.c:123
+	return f;
+00400d68 <latsynth+0x2a0> lw $2,28($30)
+00400d70 <latsynth+0x2a8> j 00400d78 <latsynth+0x2b0>
+../benchmarks/edn/edn.c:124
+}
+00400d78 <latsynth+0x2b0> addu $29,$0,$30
+00400d80 <latsynth+0x2b8> lw $30,8($29)
+00400d88 <latsynth+0x2c0> addiu $29,$29,16
+00400d90 <latsynth+0x2c8> jr $31
+iir1():
+../benchmarks/edn/edn.c:131
+
+/*****************************************************
+*			IIR Filter		     *
+*****************************************************/
+void
+iir1(const short *coefs, const short *input, long int *optr, long int *state)
+{
+00400d98 <iir1> addiu $29,$29,-24
+00400da0 <iir1+0x8> sw $30,16($29)
+00400da8 <iir1+0x10> addu $30,$0,$29
+00400db0 <iir1+0x18> sw $4,24($30)
+00400db8 <iir1+0x20> sw $5,28($30)
+00400dc0 <iir1+0x28> sw $6,32($30)
+00400dc8 <iir1+0x30> sw $7,36($30)
+../benchmarks/edn/edn.c:136
+	long int        x;
+	long int        t;
+	long int        n;
+
+	x = input[0];
+00400dd0 <iir1+0x38> lw $2,28($30)
+00400dd8 <iir1+0x40> lh $3,0($2)
+00400de0 <iir1+0x48> sw $3,0($30)
+../benchmarks/edn/edn.c:137
+	for (n = 0; n < 50; n++) {
+00400de8 <iir1+0x50> sw $0,8($30)
+00400df0 <iir1+0x58> lw $2,8($30)
+00400df8 <iir1+0x60> slti $3,$2,50
+00400e00 <iir1+0x68> bne $3,$0,00400e10 <iir1+0x78>
+00400e08 <iir1+0x70> j 00400fe0 <iir1+0x248>
+../benchmarks/edn/edn.c:138
+		t = x + ((coefs[2] * state[0] + coefs[3] * state[1]) >> 15);
+00400e10 <iir1+0x78> lw $2,24($30)
+00400e18 <iir1+0x80> addiu $3,$2,4
+00400e20 <iir1+0x88> lh $2,0($3)
+00400e28 <iir1+0x90> lw $3,36($30)
+00400e30 <iir1+0x98> lw $4,0($3)
+00400e38 <iir1+0xa0> mult $2,$4
+00400e40 <iir1+0xa8> mflo $2
+00400e48 <iir1+0xb0> lw $3,24($30)
+00400e50 <iir1+0xb8> addiu $4,$3,6
+00400e58 <iir1+0xc0> lh $3,0($4)
+00400e60 <iir1+0xc8> lw $5,36($30)
+00400e68 <iir1+0xd0> addiu $4,$5,4
+00400e70 <iir1+0xd8> lw $5,0($4)
+00400e78 <iir1+0xe0> mult $3,$5
+00400e80 <iir1+0xe8> mflo $3
+00400e88 <iir1+0xf0> addu $2,$2,$3
+00400e90 <iir1+0xf8> sra $3,$2,0xf
+00400e98 <iir1+0x100> lw $2,0($30)
+00400ea0 <iir1+0x108> addu $3,$2,$3
+00400ea8 <iir1+0x110> sw $3,4($30)
+../benchmarks/edn/edn.c:139
+		x = t + ((coefs[0] * state[0] + coefs[1] * state[1]) >> 15);
+00400eb0 <iir1+0x118> lw $3,24($30)
+00400eb8 <iir1+0x120> lh $2,0($3)
+00400ec0 <iir1+0x128> lw $3,36($30)
+00400ec8 <iir1+0x130> lw $4,0($3)
+00400ed0 <iir1+0x138> mult $2,$4
+00400ed8 <iir1+0x140> mflo $2
+00400ee0 <iir1+0x148> lw $3,24($30)
+00400ee8 <iir1+0x150> addiu $4,$3,2
+00400ef0 <iir1+0x158> lh $3,0($4)
+00400ef8 <iir1+0x160> lw $5,36($30)
+00400f00 <iir1+0x168> addiu $4,$5,4
+00400f08 <iir1+0x170> lw $5,0($4)
+00400f10 <iir1+0x178> mult $3,$5
+00400f18 <iir1+0x180> mflo $3
+00400f20 <iir1+0x188> addu $2,$2,$3
+00400f28 <iir1+0x190> sra $3,$2,0xf
+00400f30 <iir1+0x198> lw $2,4($30)
+00400f38 <iir1+0x1a0> addu $3,$2,$3
+00400f40 <iir1+0x1a8> sw $3,0($30)
+../benchmarks/edn/edn.c:140
+		state[1] = state[0];
+00400f48 <iir1+0x1b0> lw $3,36($30)
+00400f50 <iir1+0x1b8> addiu $2,$3,4
+00400f58 <iir1+0x1c0> lw $3,36($30)
+00400f60 <iir1+0x1c8> lw $4,0($3)
+00400f68 <iir1+0x1d0> sw $4,0($2)
+../benchmarks/edn/edn.c:141
+		state[0] = t;
+00400f70 <iir1+0x1d8> lw $2,36($30)
+00400f78 <iir1+0x1e0> lw $3,4($30)
+00400f80 <iir1+0x1e8> sw $3,0($2)
+../benchmarks/edn/edn.c:142
+		coefs += 4;	/* point to next filter coefs  */
+00400f88 <iir1+0x1f0> lw $2,24($30)
+00400f90 <iir1+0x1f8> addiu $3,$2,8
+00400f98 <iir1+0x200> sw $3,24($30)
+../benchmarks/edn/edn.c:143
+		state += 2;	/* point to next filter states */
+00400fa0 <iir1+0x208> lw $2,36($30)
+00400fa8 <iir1+0x210> addiu $3,$2,8
+00400fb0 <iir1+0x218> sw $3,36($30)
+../benchmarks/edn/edn.c:137
+00400fb8 <iir1+0x220> lw $3,8($30)
+00400fc0 <iir1+0x228> addiu $2,$3,1
+00400fc8 <iir1+0x230> addu $3,$0,$2
+00400fd0 <iir1+0x238> sw $3,8($30)
+00400fd8 <iir1+0x240> j 00400df0 <iir1+0x58>
+../benchmarks/edn/edn.c:145
+	}
+	*optr++ = x;
+00400fe0 <iir1+0x248> lw $2,32($30)
+00400fe8 <iir1+0x250> addiu $3,$2,4
+00400ff0 <iir1+0x258> sw $3,32($30)
+00400ff8 <iir1+0x260> lw $3,0($30)
+00401000 <iir1+0x268> sw $3,0($2)
+../benchmarks/edn/edn.c:146
+}
+00401008 <iir1+0x270> addu $29,$0,$30
+00401010 <iir1+0x278> lw $30,16($29)
+00401018 <iir1+0x280> addiu $29,$29,24
+00401020 <iir1+0x288> jr $31
+codebook():
+../benchmarks/edn/edn.c:158
+
+/*****************************************************
+*	Vocoder Codebook Search 	     *
+*****************************************************/
+long int
+codebook(long int mask, long int bitchanged, long int numbasis, long int codeword, long int g, const short *d, short ddim, short theta)
+/*
+ * dfm (mask=d  bitchanged=1 numbasis=17  codeword=e[0] , g=d, d=a, ddim=c,
+ * theta =1
+ */
+
+{
+00401028 <codebook> addiu $29,$29,-24
+00401030 <codebook+0x8> sw $30,16($29)
+00401038 <codebook+0x10> addu $30,$0,$29
+00401040 <codebook+0x18> sw $4,24($30)
+00401048 <codebook+0x20> sw $5,28($30)
+00401050 <codebook+0x28> sw $6,32($30)
+00401058 <codebook+0x30> sw $7,36($30)
+00401060 <codebook+0x38> lw $3,48($30)
+00401068 <codebook+0x40> lw $4,52($30)
+00401070 <codebook+0x48> sh $3,0($30)
+00401078 <codebook+0x50> sh $4,2($30)
+../benchmarks/edn/edn.c:162
+	long int        j;
+	long int        tmpMask;
+
+	tmpMask = mask << 1;
+00401080 <codebook+0x58> lw $2,24($30)
+00401088 <codebook+0x60> sll $5,$2,0x1
+00401090 <codebook+0x68> sw $5,8($30)
+../benchmarks/edn/edn.c:179
+	//for (j = bitchanged + 1; j <= numbasis; j++) {
+
+
+
+/*		
+ * The following code is removed since it gave a memory access exception.
+ * It is OK since the return value does not control the flow.
+ * The loop always iterates a fixed number of times independent of the loop body.
+ 
+    if (theta == !(!(codeword & tmpMask)))
+			g += *(d + bitchanged * ddim + j);
+		else
+			g -= *(d + bitchanged * ddim + j);
+		tmpMask <<= 1;
+*/
+	//}
+	return g;
+00401098 <codebook+0x70> lw $2,40($30)
+004010a0 <codebook+0x78> j 004010a8 <codebook+0x80>
+../benchmarks/edn/edn.c:180
+}
+004010a8 <codebook+0x80> addu $29,$0,$30
+004010b0 <codebook+0x88> lw $30,16($29)
+004010b8 <codebook+0x90> addiu $29,$29,24
+004010c0 <codebook+0x98> jr $31
+jpegdct():
+../benchmarks/edn/edn.c:188
+
+
+/*****************************************************
+*		JPEG Discrete Cosine Transform 		     *
+*****************************************************/
+void
+jpegdct(short *d, short *r)
+{
+004010c8 <jpegdct> addiu $29,$29,-72
+004010d0 <jpegdct+0x8> sw $30,64($29)
+004010d8 <jpegdct+0x10> addu $30,$0,$29
+004010e0 <jpegdct+0x18> sw $4,72($30)
+004010e8 <jpegdct+0x20> sw $5,76($30)
+../benchmarks/edn/edn.c:191
+	long int        t[12];
+	short           i, j, k, m, n, p;
+	for (k = 1, m = 0, n = 13, p = 8; k <= 8; k += 7, m += 3, n += 3, p -= 7, d -= 64) {
+004010f0 <jpegdct+0x28> addiu $2,$0,1
+004010f8 <jpegdct+0x30> sh $2,52($30)
+00401100 <jpegdct+0x38> sh $0,54($30)
+00401108 <jpegdct+0x40> addiu $2,$0,13
+00401110 <jpegdct+0x48> sh $2,56($30)
+00401118 <jpegdct+0x50> addiu $2,$0,8
+00401120 <jpegdct+0x58> sh $2,58($30)
+00401128 <jpegdct+0x60> lh $2,52($30)
+00401130 <jpegdct+0x68> slti $3,$2,9
+00401138 <jpegdct+0x70> bne $3,$0,00401148 <jpegdct+0x80>
+00401140 <jpegdct+0x78> j 00401b80 <jpegdct+0xab8>
+../benchmarks/edn/edn.c:192
+		for (i = 0; i < 8; i++, d += p) {
+00401148 <jpegdct+0x80> sh $0,48($30)
+00401150 <jpegdct+0x88> lh $2,48($30)
+00401158 <jpegdct+0x90> slti $3,$2,8
+00401160 <jpegdct+0x98> bne $3,$0,00401170 <jpegdct+0xa8>
+00401168 <jpegdct+0xa0> j 00401b00 <jpegdct+0xa38>
+../benchmarks/edn/edn.c:193
+			for (j = 0; j < 4; j++) {
+00401170 <jpegdct+0xa8> sh $0,50($30)
+00401178 <jpegdct+0xb0> lh $2,50($30)
+00401180 <jpegdct+0xb8> slti $3,$2,4
+00401188 <jpegdct+0xc0> bne $3,$0,00401198 <jpegdct+0xd0>
+00401190 <jpegdct+0xc8> j 00401370 <jpegdct+0x2a8>
+../benchmarks/edn/edn.c:194
+				t[j] = d[k * j] + d[k * (7 - j)];
+00401198 <jpegdct+0xd0> lh $2,50($30)
+004011a0 <jpegdct+0xd8> addu $3,$0,$2
+004011a8 <jpegdct+0xe0> sll $4,$3,0x2
+004011b0 <jpegdct+0xe8> addu $2,$4,$30
+004011b8 <jpegdct+0xf0> lh $3,52($30)
+004011c0 <jpegdct+0xf8> lh $4,50($30)
+004011c8 <jpegdct+0x100> mult $3,$4
+004011d0 <jpegdct+0x108> mflo $3
+004011d8 <jpegdct+0x110> addu $4,$0,$3
+004011e0 <jpegdct+0x118> sll $3,$4,0x1
+004011e8 <jpegdct+0x120> lw $5,72($30)
+004011f0 <jpegdct+0x128> addu $4,$3,$5
+004011f8 <jpegdct+0x130> lh $3,0($4)
+00401200 <jpegdct+0x138> lh $4,52($30)
+00401208 <jpegdct+0x140> lh $5,50($30)
+00401210 <jpegdct+0x148> addiu $6,$0,7
+00401218 <jpegdct+0x150> subu $5,$6,$5
+00401220 <jpegdct+0x158> mult $4,$5
+00401228 <jpegdct+0x160> mflo $4
+00401230 <jpegdct+0x168> addu $5,$0,$4
+00401238 <jpegdct+0x170> sll $4,$5,0x1
+00401240 <jpegdct+0x178> lw $5,72($30)
+00401248 <jpegdct+0x180> addu $4,$4,$5
+00401250 <jpegdct+0x188> lh $5,0($4)
+00401258 <jpegdct+0x190> addu $3,$3,$5
+00401260 <jpegdct+0x198> sw $3,0($2)
+../benchmarks/edn/edn.c:195
+				t[7 - j] = d[k * j] - d[k * (7 - j)];
+00401268 <jpegdct+0x1a0> lh $2,50($30)
+00401270 <jpegdct+0x1a8> addiu $3,$0,7
+00401278 <jpegdct+0x1b0> subu $2,$3,$2
+00401280 <jpegdct+0x1b8> addu $3,$0,$2
+00401288 <jpegdct+0x1c0> sll $4,$3,0x2
+00401290 <jpegdct+0x1c8> addu $2,$4,$30
+00401298 <jpegdct+0x1d0> lh $3,52($30)
+004012a0 <jpegdct+0x1d8> lh $4,50($30)
+004012a8 <jpegdct+0x1e0> mult $3,$4
+004012b0 <jpegdct+0x1e8> mflo $3
+004012b8 <jpegdct+0x1f0> addu $4,$0,$3
+004012c0 <jpegdct+0x1f8> sll $3,$4,0x1
+004012c8 <jpegdct+0x200> lw $5,72($30)
+004012d0 <jpegdct+0x208> addu $4,$3,$5
+004012d8 <jpegdct+0x210> lh $3,0($4)
+004012e0 <jpegdct+0x218> lh $4,52($30)
+004012e8 <jpegdct+0x220> lh $5,50($30)
+004012f0 <jpegdct+0x228> addiu $6,$0,7
+004012f8 <jpegdct+0x230> subu $5,$6,$5
+00401300 <jpegdct+0x238> mult $4,$5
+00401308 <jpegdct+0x240> mflo $4
+00401310 <jpegdct+0x248> addu $5,$0,$4
+00401318 <jpegdct+0x250> sll $4,$5,0x1
+00401320 <jpegdct+0x258> lw $5,72($30)
+00401328 <jpegdct+0x260> addu $4,$4,$5
+00401330 <jpegdct+0x268> lh $5,0($4)
+00401338 <jpegdct+0x270> subu $3,$3,$5
+00401340 <jpegdct+0x278> sw $3,0($2)
+../benchmarks/edn/edn.c:193
+00401348 <jpegdct+0x280> lhu $2,50($30)
+00401350 <jpegdct+0x288> addiu $3,$2,1
+00401358 <jpegdct+0x290> addu $2,$0,$3
+00401360 <jpegdct+0x298> sh $2,50($30)
+00401368 <jpegdct+0x2a0> j 00401178 <jpegdct+0xb0>
+../benchmarks/edn/edn.c:197
+			}
+			t[8] = t[0] + t[3];
+00401370 <jpegdct+0x2a8> lw $2,0($30)
+00401378 <jpegdct+0x2b0> lw $3,12($30)
+00401380 <jpegdct+0x2b8> addu $2,$2,$3
+00401388 <jpegdct+0x2c0> sw $2,32($30)
+../benchmarks/edn/edn.c:198
+			t[9] = t[0] - t[3];
+00401390 <jpegdct+0x2c8> lw $2,0($30)
+00401398 <jpegdct+0x2d0> lw $3,12($30)
+004013a0 <jpegdct+0x2d8> subu $2,$2,$3
+004013a8 <jpegdct+0x2e0> sw $2,36($30)
+../benchmarks/edn/edn.c:199
+			t[10] = t[1] + t[2];
+004013b0 <jpegdct+0x2e8> lw $2,4($30)
+004013b8 <jpegdct+0x2f0> lw $3,8($30)
+004013c0 <jpegdct+0x2f8> addu $2,$2,$3
+004013c8 <jpegdct+0x300> sw $2,40($30)
+../benchmarks/edn/edn.c:200
+			t[11] = t[1] - t[2];
+004013d0 <jpegdct+0x308> lw $2,4($30)
+004013d8 <jpegdct+0x310> lw $3,8($30)
+004013e0 <jpegdct+0x318> subu $2,$2,$3
+004013e8 <jpegdct+0x320> sw $2,44($30)
+../benchmarks/edn/edn.c:201
+			d[0] = (t[8] + t[10]) >> m;
+004013f0 <jpegdct+0x328> lw $2,72($30)
+004013f8 <jpegdct+0x330> lw $3,32($30)
+00401400 <jpegdct+0x338> lw $4,40($30)
+00401408 <jpegdct+0x340> addu $3,$3,$4
+00401410 <jpegdct+0x348> lh $4,54($30)
+00401418 <jpegdct+0x350> srav $3,$3,$4
+00401420 <jpegdct+0x358> sh $3,0($2)
+../benchmarks/edn/edn.c:202
+			d[4 * k] = (t[8] - t[10]) >> m;
+00401428 <jpegdct+0x360> lh $2,52($30)
+00401430 <jpegdct+0x368> addu $3,$0,$2
+00401438 <jpegdct+0x370> sll $2,$3,0x3
+00401440 <jpegdct+0x378> lw $3,72($30)
+00401448 <jpegdct+0x380> addu $2,$2,$3
+00401450 <jpegdct+0x388> lw $3,32($30)
+00401458 <jpegdct+0x390> lw $4,40($30)
+00401460 <jpegdct+0x398> subu $3,$3,$4
+00401468 <jpegdct+0x3a0> lh $4,54($30)
+00401470 <jpegdct+0x3a8> srav $3,$3,$4
+00401478 <jpegdct+0x3b0> sh $3,0($2)
+../benchmarks/edn/edn.c:203
+			t[8] = (short) (t[11] + t[9]) * r[10];
+00401480 <jpegdct+0x3b8> lhu $2,44($30)
+00401488 <jpegdct+0x3c0> lhu $3,36($30)
+00401490 <jpegdct+0x3c8> addu $2,$2,$3
+00401498 <jpegdct+0x3d0> sll $3,$2,0x10
+004014a0 <jpegdct+0x3d8> sra $2,$3,0x10
+004014a8 <jpegdct+0x3e0> lw $4,76($30)
+004014b0 <jpegdct+0x3e8> addiu $3,$4,20
+004014b8 <jpegdct+0x3f0> lh $4,0($3)
+004014c0 <jpegdct+0x3f8> mult $2,$4
+004014c8 <jpegdct+0x400> mflo $2
+004014d0 <jpegdct+0x408> sw $2,32($30)
+../benchmarks/edn/edn.c:204
+			d[2 * k] = t[8] + (short) ((t[9] * r[9]) >> n);
+004014d8 <jpegdct+0x410> lh $2,52($30)
+004014e0 <jpegdct+0x418> addu $3,$0,$2
+004014e8 <jpegdct+0x420> sll $2,$3,0x2
+004014f0 <jpegdct+0x428> lw $3,72($30)
+004014f8 <jpegdct+0x430> addu $2,$2,$3
+00401500 <jpegdct+0x438> lw $4,76($30)
+00401508 <jpegdct+0x440> addiu $3,$4,18
+00401510 <jpegdct+0x448> lh $4,0($3)
+00401518 <jpegdct+0x450> lw $5,36($30)
+00401520 <jpegdct+0x458> mult $4,$5
+00401528 <jpegdct+0x460> mflo $3
+00401530 <jpegdct+0x468> lh $4,56($30)
+00401538 <jpegdct+0x470> srav $3,$3,$4
+00401540 <jpegdct+0x478> lhu $4,32($30)
+00401548 <jpegdct+0x480> addu $4,$4,$3
+00401550 <jpegdct+0x488> sh $4,0($2)
+../benchmarks/edn/edn.c:205
+			d[6 * k] = t[8] + (short) ((t[11] * r[11]) >> n);
+00401558 <jpegdct+0x490> lh $2,52($30)
+00401560 <jpegdct+0x498> addu $4,$0,$2
+00401568 <jpegdct+0x4a0> sll $3,$4,0x1
+00401570 <jpegdct+0x4a8> addu $3,$3,$2
+00401578 <jpegdct+0x4b0> sll $2,$3,0x2
+00401580 <jpegdct+0x4b8> lw $3,72($30)
+00401588 <jpegdct+0x4c0> addu $2,$2,$3
+00401590 <jpegdct+0x4c8> lw $4,76($30)
+00401598 <jpegdct+0x4d0> addiu $3,$4,22
+004015a0 <jpegdct+0x4d8> lh $4,0($3)
+004015a8 <jpegdct+0x4e0> lw $5,44($30)
+004015b0 <jpegdct+0x4e8> mult $4,$5
+004015b8 <jpegdct+0x4f0> mflo $3
+004015c0 <jpegdct+0x4f8> lh $4,56($30)
+004015c8 <jpegdct+0x500> srav $3,$3,$4
+004015d0 <jpegdct+0x508> lhu $4,32($30)
+004015d8 <jpegdct+0x510> addu $4,$4,$3
+004015e0 <jpegdct+0x518> sh $4,0($2)
+../benchmarks/edn/edn.c:206
+			t[0] = (short) (t[4] + t[7]) * r[2];
+004015e8 <jpegdct+0x520> lhu $2,16($30)
+004015f0 <jpegdct+0x528> lhu $3,28($30)
+004015f8 <jpegdct+0x530> addu $2,$2,$3
+00401600 <jpegdct+0x538> sll $3,$2,0x10
+00401608 <jpegdct+0x540> sra $2,$3,0x10
+00401610 <jpegdct+0x548> lw $4,76($30)
+00401618 <jpegdct+0x550> addiu $3,$4,4
+00401620 <jpegdct+0x558> lh $4,0($3)
+00401628 <jpegdct+0x560> mult $2,$4
+00401630 <jpegdct+0x568> mflo $2
+00401638 <jpegdct+0x570> sw $2,0($30)
+../benchmarks/edn/edn.c:207
+			t[1] = (short) (t[5] + t[6]) * r[0];
+00401640 <jpegdct+0x578> lhu $2,20($30)
+00401648 <jpegdct+0x580> lhu $3,24($30)
+00401650 <jpegdct+0x588> addu $2,$2,$3
+00401658 <jpegdct+0x590> sll $3,$2,0x10
+00401660 <jpegdct+0x598> sra $2,$3,0x10
+00401668 <jpegdct+0x5a0> lw $3,76($30)
+00401670 <jpegdct+0x5a8> lh $4,0($3)
+00401678 <jpegdct+0x5b0> mult $2,$4
+00401680 <jpegdct+0x5b8> mflo $2
+00401688 <jpegdct+0x5c0> sw $2,4($30)
+../benchmarks/edn/edn.c:208
+			t[2] = t[4] + t[6];
+00401690 <jpegdct+0x5c8> lw $2,16($30)
+00401698 <jpegdct+0x5d0> lw $3,24($30)
+004016a0 <jpegdct+0x5d8> addu $2,$2,$3
+004016a8 <jpegdct+0x5e0> sw $2,8($30)
+../benchmarks/edn/edn.c:209
+			t[3] = t[5] + t[7];
+004016b0 <jpegdct+0x5e8> lw $2,20($30)
+004016b8 <jpegdct+0x5f0> lw $3,28($30)
+004016c0 <jpegdct+0x5f8> addu $2,$2,$3
+004016c8 <jpegdct+0x600> sw $2,12($30)
+../benchmarks/edn/edn.c:210
+			t[8] = (short) (t[2] + t[3]) * r[8];
+004016d0 <jpegdct+0x608> lhu $2,8($30)
+004016d8 <jpegdct+0x610> lhu $3,12($30)
+004016e0 <jpegdct+0x618> addu $2,$2,$3
+004016e8 <jpegdct+0x620> sll $3,$2,0x10
+004016f0 <jpegdct+0x628> sra $2,$3,0x10
+004016f8 <jpegdct+0x630> lw $4,76($30)
+00401700 <jpegdct+0x638> addiu $3,$4,16
+00401708 <jpegdct+0x640> lh $4,0($3)
+00401710 <jpegdct+0x648> mult $2,$4
+00401718 <jpegdct+0x650> mflo $2
+00401720 <jpegdct+0x658> sw $2,32($30)
+../benchmarks/edn/edn.c:211
+			t[2] = (short) t[2] * r[1] + t[8];
+00401728 <jpegdct+0x660> lh $2,8($30)
+00401730 <jpegdct+0x668> lw $4,76($30)
+00401738 <jpegdct+0x670> addiu $3,$4,2
+00401740 <jpegdct+0x678> lh $4,0($3)
+00401748 <jpegdct+0x680> mult $2,$4
+00401750 <jpegdct+0x688> mflo $2
+00401758 <jpegdct+0x690> lw $3,32($30)
+00401760 <jpegdct+0x698> addu $2,$2,$3
+00401768 <jpegdct+0x6a0> sw $2,8($30)
+../benchmarks/edn/edn.c:212
+			t[3] = (short) t[3] * r[3] + t[8];
+00401770 <jpegdct+0x6a8> lh $2,12($30)
+00401778 <jpegdct+0x6b0> lw $4,76($30)
+00401780 <jpegdct+0x6b8> addiu $3,$4,6
+00401788 <jpegdct+0x6c0> lh $4,0($3)
+00401790 <jpegdct+0x6c8> mult $2,$4
+00401798 <jpegdct+0x6d0> mflo $2
+004017a0 <jpegdct+0x6d8> lw $3,32($30)
+004017a8 <jpegdct+0x6e0> addu $2,$2,$3
+004017b0 <jpegdct+0x6e8> sw $2,12($30)
+../benchmarks/edn/edn.c:213
+			d[7 * k] = (short) (t[4] * r[4] + t[0] + t[2]) >> n;
+004017b8 <jpegdct+0x6f0> lh $2,52($30)
+004017c0 <jpegdct+0x6f8> addu $4,$0,$2
+004017c8 <jpegdct+0x700> sll $3,$4,0x3
+004017d0 <jpegdct+0x708> subu $3,$3,$2
+004017d8 <jpegdct+0x710> sll $2,$3,0x1
+004017e0 <jpegdct+0x718> lw $3,72($30)
+004017e8 <jpegdct+0x720> addu $2,$2,$3
+004017f0 <jpegdct+0x728> lw $4,76($30)
+004017f8 <jpegdct+0x730> addiu $3,$4,8
+00401800 <jpegdct+0x738> lh $4,0($3)
+00401808 <jpegdct+0x740> lw $5,16($30)
+00401810 <jpegdct+0x748> mult $4,$5
+00401818 <jpegdct+0x750> mflo $3
+00401820 <jpegdct+0x758> addu $4,$0,$3
+00401828 <jpegdct+0x760> lhu $3,0($30)
+00401830 <jpegdct+0x768> addu $4,$4,$3
+00401838 <jpegdct+0x770> addu $3,$0,$4
+00401840 <jpegdct+0x778> lhu $4,8($30)
+00401848 <jpegdct+0x780> addu $3,$3,$4
+00401850 <jpegdct+0x788> sll $4,$3,0x10
+00401858 <jpegdct+0x790> sra $3,$4,0x10
+00401860 <jpegdct+0x798> lh $4,56($30)
+00401868 <jpegdct+0x7a0> srav $3,$3,$4
+00401870 <jpegdct+0x7a8> sh $3,0($2)
+../benchmarks/edn/edn.c:214
+			d[5 * k] = (short) (t[5] * r[6] + t[1] + t[3]) >> n;
+00401878 <jpegdct+0x7b0> lh $2,52($30)
+00401880 <jpegdct+0x7b8> addu $4,$0,$2
+00401888 <jpegdct+0x7c0> sll $3,$4,0x2
+00401890 <jpegdct+0x7c8> addu $3,$3,$2
+00401898 <jpegdct+0x7d0> sll $2,$3,0x1
+004018a0 <jpegdct+0x7d8> lw $3,72($30)
+004018a8 <jpegdct+0x7e0> addu $2,$2,$3
+004018b0 <jpegdct+0x7e8> lw $4,76($30)
+004018b8 <jpegdct+0x7f0> addiu $3,$4,12
+004018c0 <jpegdct+0x7f8> lh $4,0($3)
+004018c8 <jpegdct+0x800> lw $5,20($30)
+004018d0 <jpegdct+0x808> mult $4,$5
+004018d8 <jpegdct+0x810> mflo $3
+004018e0 <jpegdct+0x818> addu $4,$0,$3
+004018e8 <jpegdct+0x820> lhu $3,4($30)
+004018f0 <jpegdct+0x828> addu $4,$4,$3
+004018f8 <jpegdct+0x830> addu $3,$0,$4
+00401900 <jpegdct+0x838> lhu $4,12($30)
+00401908 <jpegdct+0x840> addu $3,$3,$4
+00401910 <jpegdct+0x848> sll $4,$3,0x10
+00401918 <jpegdct+0x850> sra $3,$4,0x10
+00401920 <jpegdct+0x858> lh $4,56($30)
+00401928 <jpegdct+0x860> srav $3,$3,$4
+00401930 <jpegdct+0x868> sh $3,0($2)
+../benchmarks/edn/edn.c:215
+			d[3 * k] = (short) (t[6] * r[5] + t[1] + t[2]) >> n;
+00401938 <jpegdct+0x870> lh $2,52($30)
+00401940 <jpegdct+0x878> addu $4,$0,$2
+00401948 <jpegdct+0x880> sll $3,$4,0x1
+00401950 <jpegdct+0x888> addu $3,$3,$2
+00401958 <jpegdct+0x890> sll $2,$3,0x1
+00401960 <jpegdct+0x898> lw $3,72($30)
+00401968 <jpegdct+0x8a0> addu $2,$2,$3
+00401970 <jpegdct+0x8a8> lw $4,76($30)
+00401978 <jpegdct+0x8b0> addiu $3,$4,10
+00401980 <jpegdct+0x8b8> lh $4,0($3)
+00401988 <jpegdct+0x8c0> lw $5,24($30)
+00401990 <jpegdct+0x8c8> mult $4,$5
+00401998 <jpegdct+0x8d0> mflo $3
+004019a0 <jpegdct+0x8d8> addu $4,$0,$3
+004019a8 <jpegdct+0x8e0> lhu $3,4($30)
+004019b0 <jpegdct+0x8e8> addu $4,$4,$3
+004019b8 <jpegdct+0x8f0> addu $3,$0,$4
+004019c0 <jpegdct+0x8f8> lhu $4,8($30)
+004019c8 <jpegdct+0x900> addu $3,$3,$4
+004019d0 <jpegdct+0x908> sll $4,$3,0x10
+004019d8 <jpegdct+0x910> sra $3,$4,0x10
+004019e0 <jpegdct+0x918> lh $4,56($30)
+004019e8 <jpegdct+0x920> srav $3,$3,$4
+004019f0 <jpegdct+0x928> sh $3,0($2)
+../benchmarks/edn/edn.c:216
+			d[1 * k] = (short) (t[7] * r[7] + t[0] + t[3]) >> n;
+004019f8 <jpegdct+0x930> lh $2,52($30)
+00401a00 <jpegdct+0x938> addu $3,$0,$2
+00401a08 <jpegdct+0x940> sll $2,$3,0x1
+00401a10 <jpegdct+0x948> lw $3,72($30)
+00401a18 <jpegdct+0x950> addu $2,$2,$3
+00401a20 <jpegdct+0x958> lw $4,76($30)
+00401a28 <jpegdct+0x960> addiu $3,$4,14
+00401a30 <jpegdct+0x968> lh $4,0($3)
+00401a38 <jpegdct+0x970> lw $5,28($30)
+00401a40 <jpegdct+0x978> mult $4,$5
+00401a48 <jpegdct+0x980> mflo $3
+00401a50 <jpegdct+0x988> addu $4,$0,$3
+00401a58 <jpegdct+0x990> lhu $3,0($30)
+00401a60 <jpegdct+0x998> addu $4,$4,$3
+00401a68 <jpegdct+0x9a0> addu $3,$0,$4
+00401a70 <jpegdct+0x9a8> lhu $4,12($30)
+00401a78 <jpegdct+0x9b0> addu $3,$3,$4
+00401a80 <jpegdct+0x9b8> sll $4,$3,0x10
+00401a88 <jpegdct+0x9c0> sra $3,$4,0x10
+00401a90 <jpegdct+0x9c8> lh $4,56($30)
+00401a98 <jpegdct+0x9d0> srav $3,$3,$4
+00401aa0 <jpegdct+0x9d8> sh $3,0($2)
+../benchmarks/edn/edn.c:192
+00401aa8 <jpegdct+0x9e0> lhu $2,48($30)
+00401ab0 <jpegdct+0x9e8> addiu $3,$2,1
+00401ab8 <jpegdct+0x9f0> addu $2,$0,$3
+00401ac0 <jpegdct+0x9f8> sh $2,48($30)
+00401ac8 <jpegdct+0xa00> lh $2,58($30)
+00401ad0 <jpegdct+0xa08> addu $3,$0,$2
+00401ad8 <jpegdct+0xa10> sll $2,$3,0x1
+00401ae0 <jpegdct+0xa18> lw $3,72($30)
+00401ae8 <jpegdct+0xa20> addu $2,$3,$2
+00401af0 <jpegdct+0xa28> sw $2,72($30)
+00401af8 <jpegdct+0xa30> j 00401150 <jpegdct+0x88>
+../benchmarks/edn/edn.c:191
+00401b00 <jpegdct+0xa38> lhu $2,52($30)
+00401b08 <jpegdct+0xa40> addiu $3,$2,7
+00401b10 <jpegdct+0xa48> sh $3,52($30)
+00401b18 <jpegdct+0xa50> lhu $2,54($30)
+00401b20 <jpegdct+0xa58> addiu $3,$2,3
+00401b28 <jpegdct+0xa60> sh $3,54($30)
+00401b30 <jpegdct+0xa68> lhu $2,56($30)
+00401b38 <jpegdct+0xa70> addiu $3,$2,3
+00401b40 <jpegdct+0xa78> sh $3,56($30)
+00401b48 <jpegdct+0xa80> lhu $2,58($30)
+00401b50 <jpegdct+0xa88> addiu $3,$2,-7
+00401b58 <jpegdct+0xa90> sh $3,58($30)
+00401b60 <jpegdct+0xa98> lw $2,72($30)
+00401b68 <jpegdct+0xaa0> addiu $3,$2,-128
+00401b70 <jpegdct+0xaa8> sw $3,72($30)
+00401b78 <jpegdct+0xab0> j 00401128 <jpegdct+0x60>
+../benchmarks/edn/edn.c:219
+		}
+	}
+}
+00401b80 <jpegdct+0xab8> addu $29,$0,$30
+00401b88 <jpegdct+0xac0> lw $30,64($29)
+00401b90 <jpegdct+0xac8> addiu $29,$29,72
+00401b98 <jpegdct+0xad0> jr $31
+main():
+../benchmarks/edn/edn.c:223
+
+int
+main(void)
+{
+00401ba0 <main> addiu $29,$29,-1656
+00401ba8 <main+0x8> sw $31,1652($29)
+00401bb0 <main+0x10> sw $30,1648($29)
+00401bb8 <main+0x18> addu $30,$0,$29
+../benchmarks/edn/edn.c:224
+	short           a[200] = {0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000,
+00401bc0 <main+0x20> addiu $2,$30,32
+00401bc8 <main+0x28> lui $3,4096
+00401bd0 <main+0x30> addiu $3,$3,0
+00401bd8 <main+0x38> addu $4,$0,$2
+00401be0 <main+0x40> addu $5,$0,$3
+00401be8 <main+0x48> addiu $6,$0,400
+00401bf0 <main+0x50> jal 00402040 <memcpy>
+../benchmarks/edn/edn.c:245
+		0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00,
+		0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200,
+		0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300,
+		0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000,
+		0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00,
+		0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200,
+		0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300,
+		0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000,
+		0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00,
+		0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200,
+		0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300,
+		0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000,
+		0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00,
+		0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200,
+		0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300,
+		0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000,
+		0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00,
+		0x0800, 0x0200, 0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200,
+		0xf800, 0xf300, 0x0400, 0x0000, 0x07ff, 0x0c00, 0x0800, 0x0200, 0xf800, 0xf300, 0x0400
+	};
+	short           b[200] =
+00401bf8 <main+0x58> addiu $2,$30,432
+00401c00 <main+0x60> lui $3,4096
+00401c08 <main+0x68> addiu $3,$3,400
+00401c10 <main+0x70> addu $4,$0,$2
+00401c18 <main+0x78> addu $5,$0,$3
+00401c20 <main+0x80> addiu $6,$0,400
+00401c28 <main+0x88> jal 00402040 <memcpy>
+../benchmarks/edn/edn.c:267
+	{0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60,
+		0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20,
+		0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600,
+		0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200,
+		0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60,
+		0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20,
+		0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600,
+		0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200,
+		0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60,
+		0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20,
+		0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600,
+		0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200,
+		0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60,
+		0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20,
+		0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600,
+		0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200,
+		0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60,
+		0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20,
+		0x0c00, 0xf600, 0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600,
+		0xf400, 0xf200, 0xf000, 0x0c60, 0x0c40, 0x0c20, 0x0c00, 0xf600, 0xf400, 0xf200, 0xf000
+	};
+	short           c = 0x3;
+00401c30 <main+0x90> addiu $2,$0,3
+00401c38 <main+0x98> sh $2,832($30)
+../benchmarks/edn/edn.c:269
+	long int        output[200];
+	long int        d = 0xAAAA;
+00401c40 <main+0xa0> ori $2,$0,43690
+00401c48 <main+0xa8> sw $2,1640($30)
+../benchmarks/edn/edn.c:270
+	int             e[1] = {0xEEEE};
+00401c50 <main+0xb0> ori $2,$0,61166
+00401c58 <main+0xb8> sw $2,1644($30)
+../benchmarks/edn/edn.c:275
+	/*
+	 * Declared as memory variable so it doesn't get optimized out
+	 */
+
+	vec_mpy1(a, b, c);
+00401c60 <main+0xc0> addiu $2,$30,432
+00401c68 <main+0xc8> lh $3,832($30)
+00401c70 <main+0xd0> addiu $4,$30,32
+00401c78 <main+0xd8> addu $5,$0,$2
+00401c80 <main+0xe0> addu $6,$0,$3
+00401c88 <main+0xe8> jal 004001f0 <vec_mpy1>
+../benchmarks/edn/edn.c:276
+	c = mac(a, b, (long int) c, (long int *) output);
+00401c90 <main+0xf0> addiu $2,$30,432
+00401c98 <main+0xf8> lh $3,832($30)
+00401ca0 <main+0x100> addiu $7,$30,840
+00401ca8 <main+0x108> addiu $4,$30,32
+00401cb0 <main+0x110> addu $5,$0,$2
+00401cb8 <main+0x118> addu $6,$0,$3
+00401cc0 <main+0x120> jal 00400358 <mac>
+00401cc8 <main+0x128> sh $2,832($30)
+../benchmarks/edn/edn.c:277
+	fir(a, b, output);
+00401cd0 <main+0x130> addiu $2,$30,432
+00401cd8 <main+0x138> addiu $3,$30,840
+00401ce0 <main+0x140> addiu $4,$30,32
+00401ce8 <main+0x148> addu $5,$0,$2
+00401cf0 <main+0x150> addu $6,$0,$3
+00401cf8 <main+0x158> jal 00400550 <fir>
+../benchmarks/edn/edn.c:278
+	fir_no_red_ld(a, b, output);
+00401d00 <main+0x160> addiu $2,$30,432
+00401d08 <main+0x168> addiu $3,$30,840
+00401d10 <main+0x170> addiu $4,$30,32
+00401d18 <main+0x178> addu $5,$0,$2
+00401d20 <main+0x180> addu $6,$0,$3
+00401d28 <main+0x188> jal 00400720 <fir_no_red_ld>
+../benchmarks/edn/edn.c:279
+	d = latsynth(a, b, N, d);
+00401d30 <main+0x190> addiu $2,$30,432
+00401d38 <main+0x198> addiu $4,$30,32
+00401d40 <main+0x1a0> addu $5,$0,$2
+00401d48 <main+0x1a8> addiu $6,$0,100
+00401d50 <main+0x1b0> lw $7,1640($30)
+00401d58 <main+0x1b8> jal 00400ac8 <latsynth>
+00401d60 <main+0x1c0> sw $2,1640($30)
+../benchmarks/edn/edn.c:280
+	iir1(a, b, &output[100], output);
+00401d68 <main+0x1c8> addiu $2,$30,432
+00401d70 <main+0x1d0> addiu $4,$30,840
+00401d78 <main+0x1d8> addiu $3,$4,400
+00401d80 <main+0x1e0> addiu $7,$30,840
+00401d88 <main+0x1e8> addiu $4,$30,32
+00401d90 <main+0x1f0> addu $5,$0,$2
+00401d98 <main+0x1f8> addu $6,$0,$3
+00401da0 <main+0x200> jal 00400d98 <iir1>
+../benchmarks/edn/edn.c:281
+	e[0] = codebook(d, 1, 17, e[0], d, a, c, 1);
+00401da8 <main+0x208> lw $2,1640($30)
+00401db0 <main+0x210> sw $2,16($29)
+00401db8 <main+0x218> addiu $2,$30,32
+00401dc0 <main+0x220> sw $2,20($29)
+00401dc8 <main+0x228> lh $2,832($30)
+00401dd0 <main+0x230> sw $2,24($29)
+00401dd8 <main+0x238> addiu $2,$0,1
+00401de0 <main+0x240> sw $2,28($29)
+00401de8 <main+0x248> lw $4,1640($30)
+00401df0 <main+0x250> addiu $5,$0,1
+00401df8 <main+0x258> addiu $6,$0,17
+00401e00 <main+0x260> lw $7,1644($30)
+00401e08 <main+0x268> jal 00401028 <codebook>
+00401e10 <main+0x270> sw $2,1644($30)
+../benchmarks/edn/edn.c:282
+	jpegdct(a, b);
+00401e18 <main+0x278> addiu $2,$30,432
+00401e20 <main+0x280> addiu $4,$30,32
+00401e28 <main+0x288> addu $5,$0,$2
+00401e30 <main+0x290> jal 004010c8 <jpegdct>
+../benchmarks/edn/edn.c:283
+	return 0;
+00401e38 <main+0x298> addu $2,$0,$0
+00401e40 <main+0x2a0> j 00401e48 <main+0x2a8>
+../benchmarks/edn/edn.c:284
+}
+00401e48 <main+0x2a8> addu $29,$0,$30
+00401e50 <main+0x2b0> lw $31,1652($29)
+00401e58 <main+0x2b8> lw $30,1648($29)
+00401e60 <main+0x2c0> addiu $29,$29,1656
+00401e68 <main+0x2c8> jr $31

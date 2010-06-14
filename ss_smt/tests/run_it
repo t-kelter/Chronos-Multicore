@@ -1,0 +1,27 @@
+#/bin/bash
+
+ENDIAN=`./sysprobe -s`
+
+cd $ENDIAN.bin
+echo Running in $ENDIAN mode!
+echo
+./run_it
+
+cd ..
+echo "Diffing Results (Nothing should appear)"
+echo
+echo Diffing printf 
+diff results/printf out/printf
+echo Diffing fmath 
+diff results/fmath out/fmath
+echo Diffing llong 
+diff results/llong out/llong
+echo Diffing lslwr 
+diff results/lslwr out/lslwr
+echo Diffing math 
+diff results/math out/math
+echo Diffing anagram 
+diff results/anagram out/anagram
+
+echo 
+echo Done!

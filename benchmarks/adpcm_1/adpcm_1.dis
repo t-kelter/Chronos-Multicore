@@ -1,0 +1,1412 @@
+start_addr
+00400140 <__start> lw        $16,0($29)
+00400148 <__start+0x8> lui       $28,4097
+00400150 <__start+0x10> addiu     $28,$28,-30864
+00400158 <__start+0x18> addiu     $17,$29,4
+00400160 <__start+0x20> addiu     $3,$17,4
+00400168 <__start+0x28> sll       $2,$16,0x2
+00400170 <__start+0x30> addu      $3,$3,$2
+00400178 <__start+0x38> addu      $18,$0,$3
+00400180 <__start+0x40> sw        $18,-32636($28)
+00400188 <__start+0x48> addiu     $29,$29,-24
+00400190 <__start+0x50> addu      $4,$0,$16
+00400198 <__start+0x58> addu      $5,$0,$17
+004001a0 <__start+0x60> addu      $6,$0,$18
+004001a8 <__start+0x68> jal       00401ef0 <__libc_init> 
+004001b0 <__start+0x70> sw        $0,-32640($28)
+004001b8 <__start+0x78> addu      $4,$0,$16
+004001c0 <__start+0x80> addu      $5,$0,$17
+004001c8 <__start+0x88> addu      $6,$0,$18
+004001d0 <__start+0x90> jal       00401c48 <main> 
+004001d8 <__start+0x98> addu      $4,$0,$2
+004001e0 <__start+0xa0> jal       00401f20 <exit> 
+004001e8 <__start+0xa8> nop       
+    ...
+my_abs():
+adpcm.c:266
+004001f0 <my_abs> addu      $2,$0,$4
+adpcm.c:269
+004001f8 <my_abs+0x8> bgez      $2,00400208
+adpcm.c:270
+00400200 <my_abs+0x10> subu      $2,$0,$2
+adpcm.c:272
+00400208 <my_abs+0x18> jr        $31
+my_fabs():
+adpcm.c:276
+00400210 <my_fabs> addu      $2,$0,$4
+adpcm.c:279
+00400218 <my_fabs+0x8> bgez      $2,00400228
+adpcm.c:280
+00400220 <my_fabs+0x10> subu      $2,$0,$2
+adpcm.c:282
+00400228 <my_fabs+0x18> jr        $31
+my_sin():
+adpcm.c:285
+00400230 <my_sin> addiu     $29,$29,-40
+00400238 <my_sin+0x8> sw        $19,28($29)
+adpcm.c:289
+00400240 <my_sin+0x10> addiu     $19,$0,1
+adpcm.c:292
+00400248 <my_sin+0x18> slti      $2,$4,6283
+adpcm.c:285
+00400250 <my_sin+0x20> sw        $31,36($29)
+00400258 <my_sin+0x28> sw        $20,32($29)
+00400260 <my_sin+0x30> sw        $18,24($29)
+00400268 <my_sin+0x38> sw        $17,20($29)
+00400270 <my_sin+0x40> sw        $16,16($29)
+adpcm.c:292
+00400278 <my_sin+0x48> bne       $2,$0,004002a8
+adpcm.c:293
+00400280 <my_sin+0x50> addiu     $4,$4,-6282
+00400288 <my_sin+0x58> slti      $2,$4,6283
+00400290 <my_sin+0x60> beq       $2,$0,00400280
+adpcm.c:295
+00400298 <my_sin+0x68> j         004002a8
+adpcm.c:296
+004002a0 <my_sin+0x70> addiu     $4,$4,6282
+004002a8 <my_sin+0x78> slti      $2,$4,-6282
+004002b0 <my_sin+0x80> bne       $2,$0,004002a0
+adpcm.c:297
+004002b8 <my_sin+0x88> addu      $17,$0,$4
+adpcm.c:299
+004002c0 <my_sin+0x90> mult      $17,$17
+004002c8 <my_sin+0x98> mflo      $2
+004002d0 <my_sin+0xa0> subu      $2,$0,$2
+004002d8 <my_sin+0xa8> mult      $17,$2
+004002e0 <my_sin+0xb0> mflo      $3
+004002e8 <my_sin+0xb8> sll       $2,$19,0x2
+004002f0 <my_sin+0xc0> ori       $2,$2,2
+004002f8 <my_sin+0xc8> mult      $19,$2
+00400300 <my_sin+0xd0> mflo      $2
+00400308 <my_sin+0xd8> div       $3,$2
+00400310 <my_sin+0xe0> bne       $2,$0,00400320
+00400318 <my_sin+0xe8> break     00000007
+00400320 <my_sin+0xf0> addiu     $1,$0,-1
+00400328 <my_sin+0xf8> bne       $2,$1,00400348
+00400330 <my_sin+0x100> lui       $1,32768
+00400338 <my_sin+0x108> bne       $3,$1,00400348
+00400340 <my_sin+0x110> break     00000006
+00400348 <my_sin+0x118> mflo      $16
+adpcm.c:305
+00400350 <my_sin+0x120> mult      $17,$17
+adpcm.c:302
+00400358 <my_sin+0x128> addiu     $19,$19,1
+adpcm.c:305
+00400360 <my_sin+0x130> sll       $2,$19,0x2
+00400368 <my_sin+0x138> mflo      $3
+00400370 <my_sin+0x140> addiu     $18,$2,2
+adpcm.c:301
+00400378 <my_sin+0x148> addu      $17,$17,$16
+adpcm.c:305
+00400380 <my_sin+0x150> subu      $20,$0,$3
+00400388 <my_sin+0x158> addu      $4,$0,$16
+00400390 <my_sin+0x160> jal       00400210 <my_fabs> 
+00400398 <my_sin+0x168> blez      $2,00400428
+adpcm.c:306
+004003a0 <my_sin+0x170> mult      $16,$20
+004003a8 <my_sin+0x178> mflo      $3
+004003b0 <my_sin+0x180> mult      $19,$18
+004003b8 <my_sin+0x188> mflo      $2
+004003c0 <my_sin+0x190> div       $3,$2
+004003c8 <my_sin+0x198> bne       $2,$0,004003d8
+004003d0 <my_sin+0x1a0> break     00000007
+004003d8 <my_sin+0x1a8> addiu     $1,$0,-1
+004003e0 <my_sin+0x1b0> bne       $2,$1,00400400
+004003e8 <my_sin+0x1b8> lui       $1,32768
+004003f0 <my_sin+0x1c0> bne       $3,$1,00400400
+004003f8 <my_sin+0x1c8> break     00000006
+00400400 <my_sin+0x1d0> mflo      $16
+adpcm.c:309
+00400408 <my_sin+0x1d8> addiu     $18,$18,4
+00400410 <my_sin+0x1e0> addiu     $19,$19,1
+adpcm.c:308
+00400418 <my_sin+0x1e8> addu      $17,$17,$16
+adpcm.c:310
+00400420 <my_sin+0x1f0> j         00400388
+adpcm.c:312
+00400428 <my_sin+0x1f8> addu      $2,$0,$17
+adpcm.c:313
+00400430 <my_sin+0x200> lw        $31,36($29)
+00400438 <my_sin+0x208> lw        $20,32($29)
+00400440 <my_sin+0x210> lw        $19,28($29)
+00400448 <my_sin+0x218> lw        $18,24($29)
+00400450 <my_sin+0x220> lw        $17,20($29)
+00400458 <my_sin+0x228> lw        $16,16($29)
+00400460 <my_sin+0x230> addiu     $29,$29,40
+00400468 <my_sin+0x238> jr        $31
+my_cos():
+adpcm.c:317
+00400470 <my_cos> addiu     $29,$29,-24
+00400478 <my_cos+0x8> sw        $31,16($29)
+adpcm.c:318
+00400480 <my_cos+0x10> addiu     $2,$0,1570
+00400488 <my_cos+0x18> subu      $4,$2,$4
+00400490 <my_cos+0x20> jal       00400230 <my_sin> 
+00400498 <my_cos+0x28> lw        $31,16($29)
+004004a0 <my_cos+0x30> addiu     $29,$29,24
+004004a8 <my_cos+0x38> jr        $31
+encode():
+adpcm.c:324
+004004b0 <encode> addiu     $29,$29,-40
+004004b8 <encode+0x8> addu      $10,$0,$4
+adpcm.c:331
+004004c0 <encode+0x10> lui       $4,4096
+004004c8 <encode+0x18> addiu     $4,$4,96
+adpcm.c:332
+004004d0 <encode+0x20> lui       $6,4096
+004004d8 <encode+0x28> addiu     $6,$6,2656
+adpcm.c:324
+004004e0 <encode+0x30> sw        $31,32($29)
+004004e8 <encode+0x38> sw        $17,28($29)
+004004f0 <encode+0x40> sw        $16,24($29)
+adpcm.c:333
+004004f8 <encode+0x48> lw        $3,0($6)
+00400500 <encode+0x50> lw        $2,0($4)
+00400508 <encode+0x58> mult      $3,$2
+00400510 <encode+0x60> addiu     $4,$4,4
+00400518 <encode+0x68> addiu     $6,$6,4
+adpcm.c:334
+00400520 <encode+0x70> lw        $3,0($6)
+00400528 <encode+0x78> lw        $2,0($4)
+adpcm.c:333
+00400530 <encode+0x80> mflo      $9
+adpcm.c:334
+00400538 <encode+0x88> mult      $3,$2
+adpcm.c:324
+00400540 <encode+0x90> addu      $11,$0,$5
+adpcm.c:337
+00400548 <encode+0x98> addu      $5,$0,$0
+adpcm.c:334
+00400550 <encode+0xa0> addiu     $4,$4,4
+00400558 <encode+0xa8> addiu     $6,$6,4
+00400560 <encode+0xb0> mflo      $8
+adpcm.c:338
+00400568 <encode+0xb8> lw        $3,0($6)
+00400570 <encode+0xc0> lw        $2,0($4)
+00400578 <encode+0xc8> mult      $3,$2
+00400580 <encode+0xd0> addiu     $4,$4,4
+00400588 <encode+0xd8> addiu     $6,$6,4
+adpcm.c:339
+00400590 <encode+0xe0> lw        $3,0($6)
+00400598 <encode+0xe8> lw        $2,0($4)
+adpcm.c:338
+004005a0 <encode+0xf0> mflo      $7
+adpcm.c:339
+004005a8 <encode+0xf8> mult      $3,$2
+adpcm.c:337
+004005b0 <encode+0x100> addiu     $5,$5,1
+adpcm.c:339
+004005b8 <encode+0x108> addiu     $4,$4,4
+004005c0 <encode+0x110> mflo      $2
+004005c8 <encode+0x118> addiu     $6,$6,4
+adpcm.c:338
+004005d0 <encode+0x120> addu      $9,$9,$7
+adpcm.c:339
+004005d8 <encode+0x128> addu      $8,$8,$2
+adpcm.c:337
+004005e0 <encode+0x130> slti      $2,$5,10
+004005e8 <encode+0x138> bne       $2,$0,00400568
+adpcm.c:342
+004005f0 <encode+0x140> lw        $3,0($6)
+004005f8 <encode+0x148> lw        $2,0($4)
+00400600 <encode+0x150> mult      $3,$2
+adpcm.c:343
+00400608 <encode+0x158> lw        $2,4($4)
+adpcm.c:342
+00400610 <encode+0x160> addiu     $6,$6,4
+adpcm.c:343
+00400618 <encode+0x168> lw        $3,0($6)
+adpcm.c:342
+00400620 <encode+0x170> mflo      $4
+adpcm.c:343
+00400628 <encode+0x178> mult      $3,$2
+adpcm.c:348
+00400630 <encode+0x180> addu      $5,$0,$0
+adpcm.c:343
+00400638 <encode+0x188> mflo      $2
+adpcm.c:342
+00400640 <encode+0x190> addu      $9,$9,$4
+adpcm.c:346
+00400648 <encode+0x198> addiu     $3,$6,-8
+adpcm.c:343
+00400650 <encode+0x1a0> addu      $8,$8,$2
+adpcm.c:348
+00400658 <encode+0x1a8> lw        $2,0($3)
+00400660 <encode+0x1b0> addiu     $5,$5,1
+00400668 <encode+0x1b8> addiu     $3,$3,-4
+00400670 <encode+0x1c0> sw        $2,0($6)
+00400678 <encode+0x1c8> addiu     $6,$6,-4
+00400680 <encode+0x1d0> slti      $2,$5,22
+00400688 <encode+0x1d8> bne       $2,$0,00400658
+adpcm.c:361
+00400690 <encode+0x1e0> lui       $17,4096
+00400698 <encode+0x1e8> addiu     $17,$17,2832
+004006a0 <encode+0x1f0> addu      $4,$0,$17
+004006a8 <encode+0x1f8> lui       $16,4096
+004006b0 <encode+0x200> addiu     $16,$16,2480
+004006b8 <encode+0x208> addu      $5,$0,$16
+adpcm.c:353
+004006c0 <encode+0x210> addu      $2,$9,$8
+004006c8 <encode+0x218> sra       $2,$2,0xf
+adpcm.c:349
+004006d0 <encode+0x220> sw        $10,0($6)
+adpcm.c:350
+004006d8 <encode+0x228> sw        $11,-4($6)
+adpcm.c:353
+004006e0 <encode+0x230> sw        $2,-32360($28)
+adpcm.c:354
+004006e8 <encode+0x238> subu      $2,$9,$8
+004006f0 <encode+0x240> sra       $2,$2,0xf
+004006f8 <encode+0x248> sw        $2,-32496($28)
+adpcm.c:361
+00400700 <encode+0x250> jal       00401638 <filtez> 
+adpcm.c:364
+00400708 <encode+0x258> lw        $4,-32368($28)
+00400710 <encode+0x260> lw        $5,-32344($28)
+00400718 <encode+0x268> lw        $6,-32480($28)
+00400720 <encode+0x270> lw        $7,-32384($28)
+adpcm.c:361
+00400728 <encode+0x278> sw        $2,-32532($28)
+adpcm.c:364
+00400730 <encode+0x280> jal       004016d0 <filtep> 
+adpcm.c:371
+00400738 <encode+0x288> lw        $5,-32564($28)
+adpcm.c:367
+00400740 <encode+0x290> lw        $3,-32532($28)
+adpcm.c:368
+00400748 <encode+0x298> lw        $4,-32360($28)
+adpcm.c:364
+00400750 <encode+0x2a0> sw        $2,-32612($28)
+adpcm.c:367
+00400758 <encode+0x2a8> addu      $3,$3,$2
+adpcm.c:368
+00400760 <encode+0x2b0> subu      $4,$4,$3
+adpcm.c:367
+00400768 <encode+0x2b8> sw        $3,-32544($28)
+adpcm.c:368
+00400770 <encode+0x2c0> sw        $4,-32456($28)
+adpcm.c:371
+00400778 <encode+0x2c8> jal       00401718 <quantl> 
+adpcm.c:375
+00400780 <encode+0x2d0> sra       $3,$2,0x2
+00400788 <encode+0x2d8> sll       $3,$3,0x2
+00400790 <encode+0x2e0> lw        $4,-32564($28)
+00400798 <encode+0x2e8> lui       $1,4096
+004007a0 <encode+0x2f0> addu      $1,$1,$3
+004007a8 <encode+0x2f8> lw        $3,192($1)
+004007b0 <encode+0x300> mult      $4,$3
+adpcm.c:378
+004007b8 <encode+0x308> lw        $5,-32592($28)
+adpcm.c:375
+004007c0 <encode+0x310> mflo      $3
+adpcm.c:378
+004007c8 <encode+0x318> addu      $4,$0,$2
+adpcm.c:371
+004007d0 <encode+0x320> sw        $4,-32464($28)
+adpcm.c:375
+004007d8 <encode+0x328> sra       $2,$3,0xf
+004007e0 <encode+0x330> sw        $2,-32432($28)
+adpcm.c:378
+004007e8 <encode+0x338> jal       00401838 <logscl> 
+adpcm.c:382
+004007f0 <encode+0x340> addu      $4,$0,$2
+004007f8 <encode+0x348> addiu     $5,$0,8
+adpcm.c:378
+00400800 <encode+0x350> sw        $4,-32592($28)
+adpcm.c:382
+00400808 <encode+0x358> jal       004018b8 <scalel> 
+adpcm.c:385
+00400810 <encode+0x360> lw        $4,-32432($28)
+00400818 <encode+0x368> lw        $3,-32532($28)
+adpcm.c:391
+00400820 <encode+0x370> addu      $5,$0,$16
+00400828 <encode+0x378> addu      $6,$0,$17
+adpcm.c:382
+00400830 <encode+0x380> sw        $2,-32564($28)
+adpcm.c:385
+00400838 <encode+0x388> addu      $2,$4,$3
+00400840 <encode+0x390> sw        $2,-32356($28)
+adpcm.c:391
+00400848 <encode+0x398> jal       00401910 <upzero> 
+adpcm.c:395
+00400850 <encode+0x3a0> lw        $2,-32408($28)
+00400858 <encode+0x3a8> lw        $4,-32344($28)
+00400860 <encode+0x3b0> lw        $5,-32384($28)
+00400868 <encode+0x3b8> lw        $6,-32356($28)
+00400870 <encode+0x3c0> lw        $7,-32396($28)
+00400878 <encode+0x3c8> sw        $2,16($29)
+00400880 <encode+0x3d0> jal       00401a68 <uppol2> 
+adpcm.c:399
+00400888 <encode+0x3d8> lw        $4,-32344($28)
+00400890 <encode+0x3e0> lw        $6,-32356($28)
+00400898 <encode+0x3e8> lw        $7,-32396($28)
+004008a0 <encode+0x3f0> addu      $5,$0,$2
+adpcm.c:395
+004008a8 <encode+0x3f8> sw        $5,-32384($28)
+adpcm.c:399
+004008b0 <encode+0x400> jal       00401b30 <uppol1> 
+adpcm.c:402
+004008b8 <encode+0x408> lw        $3,-32544($28)
+004008c0 <encode+0x410> lw        $6,-32432($28)
+adpcm.c:405
+004008c8 <encode+0x418> lw        $7,-32368($28)
+adpcm.c:407
+004008d0 <encode+0x420> lw        $8,-32396($28)
+adpcm.c:408
+004008d8 <encode+0x428> lw        $9,-32356($28)
+adpcm.c:412
+004008e0 <encode+0x430> lui       $4,4096
+004008e8 <encode+0x438> addiu     $4,$4,2896
+004008f0 <encode+0x440> lui       $5,4096
+004008f8 <encode+0x448> addiu     $5,$5,2624
+adpcm.c:399
+00400900 <encode+0x450> sw        $2,-32344($28)
+adpcm.c:402
+00400908 <encode+0x458> addu      $3,$3,$6
+00400910 <encode+0x460> sw        $3,-32548($28)
+adpcm.c:405
+00400918 <encode+0x468> sw        $7,-32480($28)
+adpcm.c:406
+00400920 <encode+0x470> sw        $3,-32368($28)
+adpcm.c:407
+00400928 <encode+0x478> sw        $8,-32408($28)
+adpcm.c:408
+00400930 <encode+0x480> sw        $9,-32396($28)
+adpcm.c:412
+00400938 <encode+0x488> jal       00401638 <filtez> 
+adpcm.c:414
+00400940 <encode+0x490> lw        $4,-32420($28)
+00400948 <encode+0x498> lw        $5,-32552($28)
+00400950 <encode+0x4a0> lw        $6,-32616($28)
+00400958 <encode+0x4a8> lw        $7,-32468($28)
+adpcm.c:412
+00400960 <encode+0x4b0> sw        $2,-32608($28)
+adpcm.c:414
+00400968 <encode+0x4b8> jal       004016d0 <filtep> 
+adpcm.c:417
+00400970 <encode+0x4c0> lw        $4,-32608($28)
+adpcm.c:419
+00400978 <encode+0x4c8> lw        $3,-32496($28)
+adpcm.c:414
+00400980 <encode+0x4d0> sw        $2,-32436($28)
+adpcm.c:417
+00400988 <encode+0x4d8> addu      $2,$2,$4
+adpcm.c:419
+00400990 <encode+0x4e0> subu      $3,$3,$2
+adpcm.c:417
+00400998 <encode+0x4e8> sw        $2,-32568($28)
+adpcm.c:419
+004009a0 <encode+0x4f0> sw        $3,-32560($28)
+adpcm.c:423
+004009a8 <encode+0x4f8> bltz      $3,004009c0
+adpcm.c:424
+004009b0 <encode+0x500> addiu     $2,$0,3
+adpcm.c:425
+004009b8 <encode+0x508> j         004009c8
+adpcm.c:427
+004009c0 <encode+0x510> addiu     $2,$0,1
+004009c8 <encode+0x518> sw        $2,-32600($28)
+adpcm.c:429
+004009d0 <encode+0x520> lw        $2,-32508($28)
+adpcm.c:430
+004009d8 <encode+0x528> lw        $4,-32560($28)
+adpcm.c:429
+004009e0 <encode+0x530> sll       $16,$2,0x3
+004009e8 <encode+0x538> addu      $16,$16,$2
+004009f0 <encode+0x540> sll       $16,$16,0x2
+004009f8 <encode+0x548> subu      $16,$16,$2
+00400a00 <encode+0x550> sll       $16,$16,0x2
+00400a08 <encode+0x558> addu      $16,$16,$2
+00400a10 <encode+0x560> sll       $16,$16,0x2
+00400a18 <encode+0x568> sra       $16,$16,0xc
+adpcm.c:430
+00400a20 <encode+0x570> jal       004001f0 <my_abs> 
+00400a28 <encode+0x578> slt       $16,$16,$2
+00400a30 <encode+0x580> beq       $16,$0,00400a50
+00400a38 <encode+0x588> lw        $2,-32600($28)
+00400a40 <encode+0x590> addiu     $2,$2,-1
+00400a48 <encode+0x598> sw        $2,-32600($28)
+adpcm.c:433
+00400a50 <encode+0x5a0> lw        $4,-32600($28)
+00400a58 <encode+0x5a8> lw        $3,-32508($28)
+00400a60 <encode+0x5b0> sll       $2,$4,0x2
+00400a68 <encode+0x5b8> lui       $1,4096
+00400a70 <encode+0x5c0> addu      $1,$1,$2
+00400a78 <encode+0x5c8> lw        $2,1232($1)
+00400a80 <encode+0x5d0> mult      $3,$2
+00400a88 <encode+0x5d8> mflo      $2
+adpcm.c:436
+00400a90 <encode+0x5e0> lw        $5,-32372($28)
+adpcm.c:433
+00400a98 <encode+0x5e8> sra       $2,$2,0xf
+00400aa0 <encode+0x5f0> sw        $2,-32576($28)
+adpcm.c:436
+00400aa8 <encode+0x5f8> jal       00401bd0 <logsch> 
+adpcm.c:439
+00400ab0 <encode+0x600> addu      $4,$0,$2
+00400ab8 <encode+0x608> addiu     $5,$0,10
+adpcm.c:436
+00400ac0 <encode+0x610> sw        $4,-32372($28)
+adpcm.c:439
+00400ac8 <encode+0x618> jal       004018b8 <scalel> 
+adpcm.c:442
+00400ad0 <encode+0x620> lw        $4,-32576($28)
+00400ad8 <encode+0x628> lw        $3,-32608($28)
+adpcm.c:447
+00400ae0 <encode+0x630> lui       $5,4096
+00400ae8 <encode+0x638> addiu     $5,$5,2624
+00400af0 <encode+0x640> lui       $6,4096
+00400af8 <encode+0x648> addiu     $6,$6,2896
+adpcm.c:439
+00400b00 <encode+0x650> sw        $2,-32508($28)
+adpcm.c:442
+00400b08 <encode+0x658> addu      $2,$4,$3
+00400b10 <encode+0x660> sw        $2,-32580($28)
+adpcm.c:447
+00400b18 <encode+0x668> jal       00401910 <upzero> 
+adpcm.c:451
+00400b20 <encode+0x670> lw        $2,-32476($28)
+00400b28 <encode+0x678> lw        $4,-32552($28)
+00400b30 <encode+0x680> lw        $5,-32468($28)
+00400b38 <encode+0x688> lw        $6,-32580($28)
+00400b40 <encode+0x690> lw        $7,-32424($28)
+00400b48 <encode+0x698> sw        $2,16($29)
+00400b50 <encode+0x6a0> jal       00401a68 <uppol2> 
+adpcm.c:454
+00400b58 <encode+0x6a8> lw        $4,-32552($28)
+00400b60 <encode+0x6b0> lw        $6,-32580($28)
+00400b68 <encode+0x6b8> lw        $7,-32424($28)
+00400b70 <encode+0x6c0> addu      $5,$0,$2
+adpcm.c:451
+00400b78 <encode+0x6c8> sw        $5,-32468($28)
+adpcm.c:454
+00400b80 <encode+0x6d0> jal       00401b30 <uppol1> 
+adpcm.c:457
+00400b88 <encode+0x6d8> lw        $3,-32568($28)
+00400b90 <encode+0x6e0> lw        $5,-32576($28)
+adpcm.c:460
+00400b98 <encode+0x6e8> lw        $7,-32420($28)
+adpcm.c:462
+00400ba0 <encode+0x6f0> lw        $8,-32424($28)
+adpcm.c:454
+00400ba8 <encode+0x6f8> sw        $2,-32552($28)
+adpcm.c:466
+00400bb0 <encode+0x700> lw        $2,-32600($28)
+00400bb8 <encode+0x708> lw        $4,-32464($28)
+adpcm.c:463
+00400bc0 <encode+0x710> lw        $6,-32580($28)
+adpcm.c:466
+00400bc8 <encode+0x718> sll       $2,$2,0x6
+00400bd0 <encode+0x720> or        $2,$4,$2
+adpcm.c:457
+00400bd8 <encode+0x728> addu      $3,$3,$5
+00400be0 <encode+0x730> sw        $3,-32556($28)
+adpcm.c:460
+00400be8 <encode+0x738> sw        $7,-32616($28)
+adpcm.c:461
+00400bf0 <encode+0x740> sw        $3,-32420($28)
+adpcm.c:462
+00400bf8 <encode+0x748> sw        $8,-32476($28)
+adpcm.c:463
+00400c00 <encode+0x750> sw        $6,-32424($28)
+adpcm.c:467
+00400c08 <encode+0x758> lw        $31,32($29)
+00400c10 <encode+0x760> lw        $17,28($29)
+00400c18 <encode+0x768> lw        $16,24($29)
+00400c20 <encode+0x770> addiu     $29,$29,40
+00400c28 <encode+0x778> jr        $31
+decode():
+adpcm.c:472
+00400c30 <decode> addiu     $29,$29,-40
+00400c38 <decode+0x8> addu      $3,$0,$4
+00400c40 <decode+0x10> sw        $17,28($29)
+adpcm.c:484
+00400c48 <decode+0x18> lui       $17,4096
+00400c50 <decode+0x20> addiu     $17,$17,2864
+00400c58 <decode+0x28> addu      $4,$0,$17
+adpcm.c:472
+00400c60 <decode+0x30> sw        $16,24($29)
+adpcm.c:484
+00400c68 <decode+0x38> lui       $16,4096
+00400c70 <decode+0x40> addiu     $16,$16,2512
+00400c78 <decode+0x48> addu      $5,$0,$16
+adpcm.c:478
+00400c80 <decode+0x50> andi      $2,$3,63
+adpcm.c:479
+00400c88 <decode+0x58> sra       $3,$3,0x6
+adpcm.c:472
+00400c90 <decode+0x60> sw        $31,32($29)
+adpcm.c:478
+00400c98 <decode+0x68> sw        $2,-32460($28)
+adpcm.c:479
+00400ca0 <decode+0x70> sw        $3,-32600($28)
+adpcm.c:484
+00400ca8 <decode+0x78> jal       00401638 <filtez> 
+adpcm.c:487
+00400cb0 <decode+0x80> lw        $4,-32500($28)
+00400cb8 <decode+0x88> lw        $5,-32364($28)
+00400cc0 <decode+0x90> lw        $6,-32504($28)
+00400cc8 <decode+0x98> lw        $7,-32400($28)
+adpcm.c:484
+00400cd0 <decode+0xa0> sw        $2,-32520($28)
+adpcm.c:487
+00400cd8 <decode+0xa8> jal       004016d0 <filtep> 
+adpcm.c:492
+00400ce0 <decode+0xb0> lw        $4,-32460($28)
+00400ce8 <decode+0xb8> lw        $5,-32404($28)
+00400cf0 <decode+0xc0> sra       $3,$4,0x2
+00400cf8 <decode+0xc8> sll       $3,$3,0x2
+00400d00 <decode+0xd0> lui       $1,4096
+00400d08 <decode+0xd8> addu      $1,$1,$3
+00400d10 <decode+0xe0> lw        $3,192($1)
+00400d18 <decode+0xe8> mult      $5,$3
+adpcm.c:495
+00400d20 <decode+0xf0> lw        $3,-32464($28)
+adpcm.c:492
+00400d28 <decode+0xf8> mflo      $7
+adpcm.c:495
+00400d30 <decode+0x100> sll       $3,$3,0x2
+00400d38 <decode+0x108> lui       $1,4096
+00400d40 <decode+0x110> addu      $1,$1,$3
+00400d48 <decode+0x118> lw        $3,384($1)
+00400d50 <decode+0x120> mult      $5,$3
+adpcm.c:487
+00400d58 <decode+0x128> sw        $2,-32452($28)
+adpcm.c:489
+00400d60 <decode+0x130> lw        $3,-32520($28)
+adpcm.c:500
+00400d68 <decode+0x138> lw        $5,-32444($28)
+adpcm.c:495
+00400d70 <decode+0x140> mflo      $6
+adpcm.c:489
+00400d78 <decode+0x148> addu      $2,$2,$3
+adpcm.c:492
+00400d80 <decode+0x150> sra       $3,$7,0xf
+00400d88 <decode+0x158> sw        $3,-32472($28)
+adpcm.c:495
+00400d90 <decode+0x160> sra       $3,$6,0xf
+00400d98 <decode+0x168> sw        $3,-32428($28)
+adpcm.c:497
+00400da0 <decode+0x170> addu      $3,$3,$2
+adpcm.c:489
+00400da8 <decode+0x178> sw        $2,-32492($28)
+adpcm.c:497
+00400db0 <decode+0x180> sw        $3,-32624($28)
+adpcm.c:500
+00400db8 <decode+0x188> jal       00401838 <logscl> 
+adpcm.c:503
+00400dc0 <decode+0x190> addu      $4,$0,$2
+00400dc8 <decode+0x198> addiu     $5,$0,8
+adpcm.c:500
+00400dd0 <decode+0x1a0> sw        $4,-32444($28)
+adpcm.c:503
+00400dd8 <decode+0x1a8> jal       004018b8 <scalel> 
+adpcm.c:507
+00400de0 <decode+0x1b0> lw        $4,-32472($28)
+00400de8 <decode+0x1b8> lw        $3,-32520($28)
+adpcm.c:510
+00400df0 <decode+0x1c0> addu      $5,$0,$16
+00400df8 <decode+0x1c8> addu      $6,$0,$17
+adpcm.c:503
+00400e00 <decode+0x1d0> sw        $2,-32404($28)
+adpcm.c:507
+00400e08 <decode+0x1d8> addu      $2,$4,$3
+00400e10 <decode+0x1e0> sw        $2,-32392($28)
+adpcm.c:510
+00400e18 <decode+0x1e8> jal       00401910 <upzero> 
+adpcm.c:513
+00400e20 <decode+0x1f0> lw        $2,-32620($28)
+00400e28 <decode+0x1f8> lw        $4,-32364($28)
+00400e30 <decode+0x200> lw        $5,-32400($28)
+00400e38 <decode+0x208> lw        $6,-32392($28)
+00400e40 <decode+0x210> lw        $7,-32596($28)
+00400e48 <decode+0x218> sw        $2,16($29)
+00400e50 <decode+0x220> jal       00401a68 <uppol2> 
+adpcm.c:516
+00400e58 <decode+0x228> lw        $4,-32364($28)
+00400e60 <decode+0x230> lw        $6,-32392($28)
+00400e68 <decode+0x238> lw        $7,-32596($28)
+00400e70 <decode+0x240> addu      $5,$0,$2
+adpcm.c:513
+00400e78 <decode+0x248> sw        $5,-32400($28)
+adpcm.c:516
+00400e80 <decode+0x250> jal       00401b30 <uppol1> 
+adpcm.c:530
+00400e88 <decode+0x258> lui       $17,4096
+00400e90 <decode+0x260> addiu     $17,$17,2752
+00400e98 <decode+0x268> addu      $4,$0,$17
+adpcm.c:519
+00400ea0 <decode+0x270> lw        $3,-32492($28)
+00400ea8 <decode+0x278> lw        $6,-32472($28)
+adpcm.c:522
+00400eb0 <decode+0x280> lw        $7,-32500($28)
+adpcm.c:524
+00400eb8 <decode+0x288> lw        $8,-32596($28)
+adpcm.c:525
+00400ec0 <decode+0x290> lw        $9,-32392($28)
+adpcm.c:530
+00400ec8 <decode+0x298> lui       $16,4096
+00400ed0 <decode+0x2a0> addiu     $16,$16,2592
+00400ed8 <decode+0x2a8> addu      $5,$0,$16
+adpcm.c:516
+00400ee0 <decode+0x2b0> sw        $2,-32364($28)
+adpcm.c:519
+00400ee8 <decode+0x2b8> addu      $3,$3,$6
+00400ef0 <decode+0x2c0> sw        $3,-32604($28)
+adpcm.c:522
+00400ef8 <decode+0x2c8> sw        $7,-32504($28)
+adpcm.c:523
+00400f00 <decode+0x2d0> sw        $3,-32500($28)
+adpcm.c:524
+00400f08 <decode+0x2d8> sw        $8,-32620($28)
+adpcm.c:525
+00400f10 <decode+0x2e0> sw        $9,-32596($28)
+adpcm.c:530
+00400f18 <decode+0x2e8> jal       00401638 <filtez> 
+adpcm.c:533
+00400f20 <decode+0x2f0> lw        $4,-32380($28)
+00400f28 <decode+0x2f8> lw        $5,-32524($28)
+00400f30 <decode+0x300> lw        $6,-32388($28)
+00400f38 <decode+0x308> lw        $7,-32352($28)
+adpcm.c:530
+00400f40 <decode+0x310> sw        $2,-32448($28)
+adpcm.c:533
+00400f48 <decode+0x318> jal       004016d0 <filtep> 
+adpcm.c:539
+00400f50 <decode+0x320> lw        $4,-32600($28)
+00400f58 <decode+0x328> lw        $5,-32484($28)
+00400f60 <decode+0x330> sll       $3,$4,0x2
+00400f68 <decode+0x338> lui       $1,4096
+00400f70 <decode+0x340> addu      $1,$1,$3
+00400f78 <decode+0x348> lw        $3,1232($1)
+00400f80 <decode+0x350> mult      $5,$3
+adpcm.c:542
+00400f88 <decode+0x358> lw        $5,-32588($28)
+adpcm.c:536
+00400f90 <decode+0x360> lw        $3,-32448($28)
+adpcm.c:539
+00400f98 <decode+0x368> mflo      $6
+adpcm.c:533
+00400fa0 <decode+0x370> sw        $2,-32572($28)
+adpcm.c:536
+00400fa8 <decode+0x378> addu      $2,$2,$3
+00400fb0 <decode+0x380> sw        $2,-32416($28)
+adpcm.c:539
+00400fb8 <decode+0x388> sra       $2,$6,0xf
+00400fc0 <decode+0x390> sw        $2,-32516($28)
+adpcm.c:542
+00400fc8 <decode+0x398> jal       00401bd0 <logsch> 
+adpcm.c:545
+00400fd0 <decode+0x3a0> addu      $4,$0,$2
+00400fd8 <decode+0x3a8> addiu     $5,$0,10
+adpcm.c:542
+00400fe0 <decode+0x3b0> sw        $4,-32588($28)
+adpcm.c:545
+00400fe8 <decode+0x3b8> jal       004018b8 <scalel> 
+adpcm.c:548
+00400ff0 <decode+0x3c0> lw        $4,-32516($28)
+00400ff8 <decode+0x3c8> lw        $3,-32448($28)
+adpcm.c:551
+00401000 <decode+0x3d0> addu      $5,$0,$16
+00401008 <decode+0x3d8> addu      $6,$0,$17
+adpcm.c:545
+00401010 <decode+0x3e0> sw        $2,-32484($28)
+adpcm.c:548
+00401018 <decode+0x3e8> addu      $2,$4,$3
+00401020 <decode+0x3f0> sw        $2,-32440($28)
+adpcm.c:551
+00401028 <decode+0x3f8> jal       00401910 <upzero> 
+adpcm.c:554
+00401030 <decode+0x400> lw        $2,-32528($28)
+00401038 <decode+0x408> lw        $4,-32524($28)
+00401040 <decode+0x410> lw        $5,-32352($28)
+00401048 <decode+0x418> lw        $6,-32440($28)
+00401050 <decode+0x420> lw        $7,-32584($28)
+00401058 <decode+0x428> sw        $2,16($29)
+00401060 <decode+0x430> jal       00401a68 <uppol2> 
+adpcm.c:557
+00401068 <decode+0x438> lw        $4,-32524($28)
+00401070 <decode+0x440> lw        $6,-32440($28)
+00401078 <decode+0x448> lw        $7,-32584($28)
+00401080 <decode+0x450> addu      $5,$0,$2
+adpcm.c:554
+00401088 <decode+0x458> sw        $5,-32352($28)
+adpcm.c:557
+00401090 <decode+0x460> jal       00401b30 <uppol1> 
+adpcm.c:560
+00401098 <decode+0x468> lw        $3,-32416($28)
+004010a0 <decode+0x470> lw        $5,-32516($28)
+adpcm.c:563
+004010a8 <decode+0x478> lw        $6,-32380($28)
+adpcm.c:565
+004010b0 <decode+0x480> lw        $7,-32584($28)
+adpcm.c:566
+004010b8 <decode+0x488> lw        $8,-32440($28)
+adpcm.c:571
+004010c0 <decode+0x490> lw        $4,-32624($28)
+adpcm.c:575
+004010c8 <decode+0x498> lui       $9,4096
+004010d0 <decode+0x4a0> addiu     $9,$9,96
+adpcm.c:557
+004010d8 <decode+0x4a8> sw        $2,-32524($28)
+adpcm.c:560
+004010e0 <decode+0x4b0> addu      $3,$3,$5
+adpcm.c:571
+004010e8 <decode+0x4b8> subu      $5,$4,$3
+adpcm.c:572
+004010f0 <decode+0x4c0> addu      $4,$4,$3
+adpcm.c:560
+004010f8 <decode+0x4c8> sw        $3,-32512($28)
+adpcm.c:563
+00401100 <decode+0x4d0> sw        $6,-32388($28)
+adpcm.c:564
+00401108 <decode+0x4d8> sw        $3,-32380($28)
+adpcm.c:565
+00401110 <decode+0x4e0> sw        $7,-32528($28)
+adpcm.c:566
+00401118 <decode+0x4e8> sw        $8,-32584($28)
+adpcm.c:571
+00401120 <decode+0x4f0> sw        $5,-32412($28)
+adpcm.c:572
+00401128 <decode+0x4f8> sw        $4,-32348($28)
+adpcm.c:578
+00401130 <decode+0x500> lw        $2,0($9)
+00401138 <decode+0x508> mult      $5,$2
+00401140 <decode+0x510> addiu     $9,$9,4
+adpcm.c:579
+00401148 <decode+0x518> lw        $2,0($9)
+adpcm.c:578
+00401150 <decode+0x520> mflo      $10
+adpcm.c:579
+00401158 <decode+0x528> mult      $4,$2
+adpcm.c:581
+00401160 <decode+0x530> addu      $6,$0,$0
+adpcm.c:577
+00401168 <decode+0x538> lui       $5,4096
+00401170 <decode+0x540> addiu     $5,$5,2544
+adpcm.c:579
+00401178 <decode+0x548> addiu     $9,$9,4
+adpcm.c:576
+00401180 <decode+0x550> lui       $4,4096
+00401188 <decode+0x558> addiu     $4,$4,2784
+adpcm.c:579
+00401190 <decode+0x560> mflo      $8
+adpcm.c:582
+00401198 <decode+0x568> lw        $3,0($4)
+004011a0 <decode+0x570> lw        $2,0($9)
+004011a8 <decode+0x578> mult      $3,$2
+004011b0 <decode+0x580> addiu     $9,$9,4
+adpcm.c:583
+004011b8 <decode+0x588> lw        $3,0($5)
+004011c0 <decode+0x590> lw        $2,0($9)
+adpcm.c:582
+004011c8 <decode+0x598> mflo      $7
+adpcm.c:583
+004011d0 <decode+0x5a0> mult      $3,$2
+adpcm.c:581
+004011d8 <decode+0x5a8> addiu     $6,$6,1
+adpcm.c:582
+004011e0 <decode+0x5b0> addiu     $4,$4,4
+adpcm.c:583
+004011e8 <decode+0x5b8> addiu     $5,$5,4
+004011f0 <decode+0x5c0> mflo      $2
+004011f8 <decode+0x5c8> addiu     $9,$9,4
+adpcm.c:582
+00401200 <decode+0x5d0> addu      $10,$10,$7
+adpcm.c:583
+00401208 <decode+0x5d8> addu      $8,$8,$2
+adpcm.c:581
+00401210 <decode+0x5e0> slti      $2,$6,10
+00401218 <decode+0x5e8> bne       $2,$0,00401198
+adpcm.c:586
+00401220 <decode+0x5f0> lw        $3,0($4)
+00401228 <decode+0x5f8> lw        $2,0($9)
+00401230 <decode+0x600> mult      $3,$2
+adpcm.c:587
+00401238 <decode+0x608> lw        $3,0($5)
+00401240 <decode+0x610> lw        $2,4($9)
+adpcm.c:586
+00401248 <decode+0x618> mflo      $11
+adpcm.c:587
+00401250 <decode+0x620> mult      $3,$2
+adpcm.c:594
+00401258 <decode+0x628> addiu     $7,$4,-4
+adpcm.c:596
+00401260 <decode+0x630> addu      $6,$0,$0
+adpcm.c:586
+00401268 <decode+0x638> addu      $10,$10,$11
+adpcm.c:587
+00401270 <decode+0x640> mflo      $9
+adpcm.c:595
+00401278 <decode+0x648> addiu     $3,$5,-4
+adpcm.c:590
+00401280 <decode+0x650> sra       $2,$10,0xe
+00401288 <decode+0x658> sw        $2,-32540($28)
+adpcm.c:587
+00401290 <decode+0x660> addu      $8,$8,$9
+adpcm.c:591
+00401298 <decode+0x668> sra       $2,$8,0xe
+004012a0 <decode+0x670> sw        $2,-32488($28)
+adpcm.c:597
+004012a8 <decode+0x678> lw        $2,0($7)
+adpcm.c:596
+004012b0 <decode+0x680> addiu     $6,$6,1
+adpcm.c:597
+004012b8 <decode+0x688> sw        $2,0($4)
+adpcm.c:598
+004012c0 <decode+0x690> lw        $2,0($3)
+adpcm.c:597
+004012c8 <decode+0x698> addiu     $7,$7,-4
+004012d0 <decode+0x6a0> addiu     $4,$4,-4
+adpcm.c:598
+004012d8 <decode+0x6a8> addiu     $3,$3,-4
+004012e0 <decode+0x6b0> sw        $2,0($5)
+004012e8 <decode+0x6b8> addiu     $5,$5,-4
+adpcm.c:596
+004012f0 <decode+0x6c0> slti      $2,$6,10
+004012f8 <decode+0x6c8> bne       $2,$0,004012a8
+adpcm.c:600
+00401300 <decode+0x6d0> lw        $2,-32412($28)
+00401308 <decode+0x6d8> sw        $2,0($4)
+adpcm.c:601
+00401310 <decode+0x6e0> lw        $2,-32348($28)
+00401318 <decode+0x6e8> sw        $2,0($5)
+adpcm.c:604
+00401320 <decode+0x6f0> lw        $31,32($29)
+00401328 <decode+0x6f8> lw        $17,28($29)
+00401330 <decode+0x700> lw        $16,24($29)
+00401338 <decode+0x708> addiu     $29,$29,40
+00401340 <decode+0x710> jr        $31
+reset():
+adpcm.c:619
+00401348 <reset> addu      $5,$0,$0
+00401350 <reset+0x8> lui       $7,4096
+00401358 <reset+0x10> addiu     $7,$7,2592
+00401360 <reset+0x18> lui       $6,4096
+00401368 <reset+0x20> addiu     $6,$6,2512
+00401370 <reset+0x28> lui       $4,4096
+00401378 <reset+0x30> addiu     $4,$4,2624
+00401380 <reset+0x38> lui       $3,4096
+00401388 <reset+0x40> addiu     $3,$3,2480
+adpcm.c:612
+00401390 <reset+0x48> addiu     $2,$0,32
+00401398 <reset+0x50> sw        $2,-32404($28)
+004013a0 <reset+0x58> sw        $2,-32564($28)
+adpcm.c:613
+004013a8 <reset+0x60> addiu     $2,$0,8
+004013b0 <reset+0x68> sw        $2,-32484($28)
+004013b8 <reset+0x70> sw        $2,-32508($28)
+adpcm.c:614
+004013c0 <reset+0x78> sw        $0,-32480($28)
+004013c8 <reset+0x80> sw        $0,-32368($28)
+004013d0 <reset+0x88> sw        $0,-32408($28)
+004013d8 <reset+0x90> sw        $0,-32396($28)
+004013e0 <reset+0x98> sw        $0,-32384($28)
+004013e8 <reset+0xa0> sw        $0,-32344($28)
+004013f0 <reset+0xa8> sw        $0,-32592($28)
+adpcm.c:615
+004013f8 <reset+0xb0> sw        $0,-32616($28)
+00401400 <reset+0xb8> sw        $0,-32420($28)
+00401408 <reset+0xc0> sw        $0,-32476($28)
+00401410 <reset+0xc8> sw        $0,-32424($28)
+00401418 <reset+0xd0> sw        $0,-32468($28)
+00401420 <reset+0xd8> sw        $0,-32552($28)
+00401428 <reset+0xe0> sw        $0,-32372($28)
+adpcm.c:616
+00401430 <reset+0xe8> sw        $0,-32504($28)
+00401438 <reset+0xf0> sw        $0,-32500($28)
+00401440 <reset+0xf8> sw        $0,-32620($28)
+00401448 <reset+0x100> sw        $0,-32596($28)
+00401450 <reset+0x108> sw        $0,-32400($28)
+00401458 <reset+0x110> sw        $0,-32364($28)
+00401460 <reset+0x118> sw        $0,-32444($28)
+adpcm.c:617
+00401468 <reset+0x120> sw        $0,-32388($28)
+00401470 <reset+0x128> sw        $0,-32380($28)
+00401478 <reset+0x130> sw        $0,-32528($28)
+00401480 <reset+0x138> sw        $0,-32584($28)
+00401488 <reset+0x140> sw        $0,-32352($28)
+00401490 <reset+0x148> sw        $0,-32524($28)
+00401498 <reset+0x150> sw        $0,-32588($28)
+adpcm.c:620
+004014a0 <reset+0x158> sw        $0,0($3)
+adpcm.c:621
+004014a8 <reset+0x160> sw        $0,0($4)
+adpcm.c:622
+004014b0 <reset+0x168> sw        $0,0($6)
+adpcm.c:623
+004014b8 <reset+0x170> sw        $0,0($7)
+adpcm.c:619
+004014c0 <reset+0x178> addiu     $7,$7,4
+004014c8 <reset+0x180> addiu     $6,$6,4
+004014d0 <reset+0x188> addiu     $4,$4,4
+004014d8 <reset+0x190> addiu     $3,$3,4
+004014e0 <reset+0x198> addiu     $5,$5,1
+004014e8 <reset+0x1a0> slti      $2,$5,6
+004014f0 <reset+0x1a8> bne       $2,$0,004014a0
+adpcm.c:626
+004014f8 <reset+0x1b0> addu      $5,$0,$0
+00401500 <reset+0x1b8> lui       $7,4096
+00401508 <reset+0x1c0> addiu     $7,$7,2752
+00401510 <reset+0x1c8> lui       $6,4096
+00401518 <reset+0x1d0> addiu     $6,$6,2864
+00401520 <reset+0x1d8> lui       $4,4096
+00401528 <reset+0x1e0> addiu     $4,$4,2896
+00401530 <reset+0x1e8> lui       $3,4096
+00401538 <reset+0x1f0> addiu     $3,$3,2832
+adpcm.c:627
+00401540 <reset+0x1f8> sw        $0,0($3)
+adpcm.c:628
+00401548 <reset+0x200> sw        $0,0($4)
+adpcm.c:629
+00401550 <reset+0x208> sw        $0,0($6)
+adpcm.c:630
+00401558 <reset+0x210> sw        $0,0($7)
+adpcm.c:626
+00401560 <reset+0x218> addiu     $7,$7,4
+00401568 <reset+0x220> addiu     $6,$6,4
+00401570 <reset+0x228> addiu     $4,$4,4
+00401578 <reset+0x230> addiu     $3,$3,4
+00401580 <reset+0x238> addiu     $5,$5,1
+00401588 <reset+0x240> slti      $2,$5,6
+00401590 <reset+0x248> bne       $2,$0,00401540
+adpcm.c:633
+00401598 <reset+0x250> addiu     $5,$0,22
+004015a0 <reset+0x258> lui       $2,4096
+004015a8 <reset+0x260> addiu     $2,$2,2744
+004015b0 <reset+0x268> sw        $0,0($2)
+004015b8 <reset+0x270> addiu     $2,$2,-4
+004015c0 <reset+0x278> addiu     $5,$5,-1
+004015c8 <reset+0x280> bgez      $5,004015b0
+adpcm.c:635
+004015d0 <reset+0x288> addu      $5,$0,$0
+004015d8 <reset+0x290> lui       $4,4096
+004015e0 <reset+0x298> addiu     $4,$4,2544
+004015e8 <reset+0x2a0> lui       $3,4096
+004015f0 <reset+0x2a8> addiu     $3,$3,2784
+adpcm.c:636
+004015f8 <reset+0x2b0> sw        $0,0($3)
+adpcm.c:637
+00401600 <reset+0x2b8> sw        $0,0($4)
+adpcm.c:635
+00401608 <reset+0x2c0> addiu     $4,$4,4
+00401610 <reset+0x2c8> addiu     $3,$3,4
+00401618 <reset+0x2d0> addiu     $5,$5,1
+00401620 <reset+0x2d8> slti      $2,$5,11
+00401628 <reset+0x2e0> bne       $2,$0,004015f8
+adpcm.c:640
+00401630 <reset+0x2e8> jr        $31
+filtez():
+adpcm.c:649
+00401638 <filtez> lw        $3,0($4)
+00401640 <filtez+0x8> lw        $2,0($5)
+00401648 <filtez+0x10> mult      $3,$2
+adpcm.c:651
+00401650 <filtez+0x18> addiu     $6,$0,1
+adpcm.c:649
+00401658 <filtez+0x20> addiu     $5,$5,4
+00401660 <filtez+0x28> addiu     $4,$4,4
+00401668 <filtez+0x30> mflo      $7
+adpcm.c:652
+00401670 <filtez+0x38> lw        $2,0($4)
+00401678 <filtez+0x40> lw        $3,0($5)
+00401680 <filtez+0x48> mult      $2,$3
+adpcm.c:651
+00401688 <filtez+0x50> addiu     $6,$6,1
+adpcm.c:652
+00401690 <filtez+0x58> mflo      $2
+00401698 <filtez+0x60> addiu     $5,$5,4
+004016a0 <filtez+0x68> addiu     $4,$4,4
+004016a8 <filtez+0x70> addu      $7,$7,$2
+adpcm.c:651
+004016b0 <filtez+0x78> slti      $2,$6,6
+004016b8 <filtez+0x80> bne       $2,$0,00401670
+adpcm.c:654
+004016c0 <filtez+0x88> sra       $2,$7,0xe
+adpcm.c:655
+004016c8 <filtez+0x90> jr        $31
+filtep():
+adpcm.c:663
+004016d0 <filtep> sll       $4,$4,0x1
+adpcm.c:664
+004016d8 <filtep+0x8> mult      $4,$5
+004016e0 <filtep+0x10> mflo      $2
+adpcm.c:665
+004016e8 <filtep+0x18> sll       $6,$6,0x1
+adpcm.c:666
+004016f0 <filtep+0x20> mult      $7,$6
+004016f8 <filtep+0x28> mflo      $3
+00401700 <filtep+0x30> addu      $2,$2,$3
+adpcm.c:667
+00401708 <filtep+0x38> sra       $2,$2,0xf
+adpcm.c:668
+00401710 <filtep+0x40> jr        $31
+quantl():
+adpcm.c:672
+00401718 <quantl> addiu     $29,$29,-32
+00401720 <quantl+0x8> sw        $17,20($29)
+00401728 <quantl+0x10> addu      $17,$0,$4
+00401730 <quantl+0x18> sw        $16,16($29)
+00401738 <quantl+0x20> addu      $16,$0,$5
+00401740 <quantl+0x28> sw        $31,24($29)
+adpcm.c:677
+00401748 <quantl+0x30> jal       004001f0 <my_abs> 
+00401750 <quantl+0x38> addu      $5,$0,$2
+adpcm.c:680
+00401758 <quantl+0x40> addu      $3,$0,$0
+00401760 <quantl+0x48> lui       $4,4096
+00401768 <quantl+0x50> addiu     $4,$4,864
+adpcm.c:681
+00401770 <quantl+0x58> lw        $2,0($4)
+00401778 <quantl+0x60> mult      $2,$16
+00401780 <quantl+0x68> mflo      $2
+00401788 <quantl+0x70> sra       $2,$2,0xf
+adpcm.c:682
+00401790 <quantl+0x78> slt       $2,$2,$5
+00401798 <quantl+0x80> beq       $2,$0,004017c0
+adpcm.c:680
+004017a0 <quantl+0x88> addiu     $4,$4,4
+004017a8 <quantl+0x90> addiu     $3,$3,1
+004017b0 <quantl+0x98> slti      $2,$3,30
+004017b8 <quantl+0xa0> bne       $2,$0,00401770
+adpcm.c:685
+004017c0 <quantl+0xa8> bltz      $17,004017f0
+004017c8 <quantl+0xb0> sll       $2,$3,0x2
+004017d0 <quantl+0xb8> lui       $1,4096
+004017d8 <quantl+0xc0> addu      $1,$1,$2
+004017e0 <quantl+0xc8> lw        $2,984($1)
+004017e8 <quantl+0xd0> j         00401810
+adpcm.c:686
+004017f0 <quantl+0xd8> sll       $2,$3,0x2
+004017f8 <quantl+0xe0> lui       $1,4096
+00401800 <quantl+0xe8> addu      $1,$1,$2
+00401808 <quantl+0xf0> lw        $2,1108($1)
+adpcm.c:688
+00401810 <quantl+0xf8> lw        $31,24($29)
+00401818 <quantl+0x100> lw        $17,20($29)
+00401820 <quantl+0x108> lw        $16,16($29)
+00401828 <quantl+0x110> addiu     $29,$29,32
+00401830 <quantl+0x118> jr        $31
+logscl():
+adpcm.c:706
+00401838 <logscl> sll       $2,$5,0x7
+adpcm.c:707
+00401840 <logscl+0x8> sra       $4,$4,0x2
+00401848 <logscl+0x10> sll       $4,$4,0x2
+00401850 <logscl+0x18> lui       $3,4096
+00401858 <logscl+0x20> addu      $3,$3,$4
+00401860 <logscl+0x28> lw        $3,640($3)
+adpcm.c:706
+00401868 <logscl+0x30> subu      $2,$2,$5
+00401870 <logscl+0x38> sra       $2,$2,0x7
+adpcm.c:707
+00401878 <logscl+0x40> addu      $3,$2,$3
+adpcm.c:708
+00401880 <logscl+0x48> bgez      $3,00401890
+00401888 <logscl+0x50> addu      $3,$0,$0
+adpcm.c:709
+00401890 <logscl+0x58> slti      $2,$3,18433
+00401898 <logscl+0x60> bne       $2,$0,004018a8
+004018a0 <logscl+0x68> addiu     $3,$0,18432
+adpcm.c:710
+004018a8 <logscl+0x70> addu      $2,$0,$3
+adpcm.c:711
+004018b0 <logscl+0x78> jr        $31
+scalel():
+adpcm.c:718
+004018b8 <scalel> sra       $2,$4,0x4
+adpcm.c:719
+004018c0 <scalel+0x8> sra       $4,$4,0xb
+adpcm.c:720
+004018c8 <scalel+0x10> andi      $2,$2,124
+004018d0 <scalel+0x18> lui       $1,4096
+004018d8 <scalel+0x20> addu      $1,$1,$2
+004018e0 <scalel+0x28> lw        $2,736($1)
+004018e8 <scalel+0x30> addiu     $4,$4,-1
+004018f0 <scalel+0x38> subu      $5,$5,$4
+004018f8 <scalel+0x40> srav      $2,$2,$5
+adpcm.c:721
+00401900 <scalel+0x48> sll       $2,$2,0x3
+adpcm.c:722
+00401908 <scalel+0x50> jr        $31
+upzero():
+adpcm.c:728
+00401910 <upzero> addu      $9,$0,$4
+00401918 <upzero+0x8> addu      $7,$0,$5
+adpcm.c:731
+00401920 <upzero+0x10> bne       $9,$0,00401980
+adpcm.c:732
+00401928 <upzero+0x18> addu      $4,$0,$0
+adpcm.c:733
+00401930 <upzero+0x20> lw        $2,0($6)
+adpcm.c:732
+00401938 <upzero+0x28> addiu     $4,$4,1
+adpcm.c:733
+00401940 <upzero+0x30> sll       $3,$2,0x8
+00401948 <upzero+0x38> subu      $3,$3,$2
+00401950 <upzero+0x40> sra       $3,$3,0x8
+00401958 <upzero+0x48> sw        $3,0($6)
+adpcm.c:732
+00401960 <upzero+0x50> addiu     $6,$6,4
+00401968 <upzero+0x58> slti      $2,$4,6
+00401970 <upzero+0x60> bne       $2,$0,00401930
+adpcm.c:735
+00401978 <upzero+0x68> j         00401a18
+adpcm.c:737
+00401980 <upzero+0x70> addu      $4,$0,$0
+00401988 <upzero+0x78> addu      $8,$0,$7
+adpcm.c:738
+00401990 <upzero+0x80> lw        $2,0($8)
+00401998 <upzero+0x88> mult      $9,$2
+004019a0 <upzero+0x90> mflo      $2
+004019a8 <upzero+0x98> addiu     $5,$0,-128
+004019b0 <upzero+0xa0> bltz      $2,004019c0
+004019b8 <upzero+0xa8> addiu     $5,$0,128
+adpcm.c:739
+004019c0 <upzero+0xb0> lw        $2,0($6)
+adpcm.c:737
+004019c8 <upzero+0xb8> addiu     $8,$8,4
+004019d0 <upzero+0xc0> addiu     $4,$4,1
+adpcm.c:739
+004019d8 <upzero+0xc8> sll       $3,$2,0x8
+004019e0 <upzero+0xd0> subu      $3,$3,$2
+004019e8 <upzero+0xd8> sra       $3,$3,0x8
+adpcm.c:740
+004019f0 <upzero+0xe0> addu      $3,$5,$3
+004019f8 <upzero+0xe8> sw        $3,0($6)
+adpcm.c:737
+00401a00 <upzero+0xf0> addiu     $6,$6,4
+00401a08 <upzero+0xf8> slti      $2,$4,6
+00401a10 <upzero+0x100> bne       $2,$0,00401990
+adpcm.c:744
+00401a18 <upzero+0x108> lw        $2,16($7)
+adpcm.c:745
+00401a20 <upzero+0x110> lw        $3,12($7)
+adpcm.c:746
+00401a28 <upzero+0x118> lw        $4,8($7)
+adpcm.c:747
+00401a30 <upzero+0x120> lw        $5,0($7)
+adpcm.c:744
+00401a38 <upzero+0x128> sw        $2,20($7)
+adpcm.c:745
+00401a40 <upzero+0x130> sw        $3,16($7)
+adpcm.c:746
+00401a48 <upzero+0x138> sw        $4,12($7)
+adpcm.c:747
+00401a50 <upzero+0x140> sw        $5,4($7)
+adpcm.c:748
+00401a58 <upzero+0x148> sw        $9,0($7)
+adpcm.c:750
+00401a60 <upzero+0x150> jr        $31
+uppol2():
+adpcm.c:760
+00401a68 <uppol2> mult      $6,$7
+adpcm.c:756
+00401a70 <uppol2+0x8> lw        $3,16($29)
+adpcm.c:760
+00401a78 <uppol2+0x10> mflo      $2
+adpcm.c:759
+00401a80 <uppol2+0x18> sll       $4,$4,0x2
+adpcm.c:760
+00401a88 <uppol2+0x20> bltz      $2,00401a98
+00401a90 <uppol2+0x28> subu      $4,$0,$4
+adpcm.c:762
+00401a98 <uppol2+0x30> mult      $6,$3
+00401aa0 <uppol2+0x38> mflo      $2
+adpcm.c:761
+00401aa8 <uppol2+0x40> sra       $4,$4,0x7
+adpcm.c:762
+00401ab0 <uppol2+0x48> bltz      $2,00401ac8
+adpcm.c:763
+00401ab8 <uppol2+0x50> addiu     $4,$4,128
+adpcm.c:764
+00401ac0 <uppol2+0x58> j         00401ad0
+adpcm.c:766
+00401ac8 <uppol2+0x60> addiu     $4,$4,-128
+adpcm.c:768
+00401ad0 <uppol2+0x68> sll       $2,$5,0x7
+00401ad8 <uppol2+0x70> subu      $2,$2,$5
+00401ae0 <uppol2+0x78> sra       $2,$2,0x7
+00401ae8 <uppol2+0x80> addu      $4,$4,$2
+adpcm.c:771
+00401af0 <uppol2+0x88> slti      $2,$4,12289
+00401af8 <uppol2+0x90> bne       $2,$0,00401b08
+00401b00 <uppol2+0x98> addiu     $4,$0,12288
+adpcm.c:772
+00401b08 <uppol2+0xa0> slti      $2,$4,-12288
+00401b10 <uppol2+0xa8> beq       $2,$0,00401b20
+00401b18 <uppol2+0xb0> addiu     $4,$0,-12288
+adpcm.c:773
+00401b20 <uppol2+0xb8> addu      $2,$0,$4
+adpcm.c:774
+00401b28 <uppol2+0xc0> jr        $31
+uppol1():
+adpcm.c:784
+00401b30 <uppol1> mult      $6,$7
+adpcm.c:783
+00401b38 <uppol1+0x8> sll       $2,$4,0x8
+adpcm.c:784
+00401b40 <uppol1+0x10> mflo      $3
+adpcm.c:783
+00401b48 <uppol1+0x18> subu      $2,$2,$4
+00401b50 <uppol1+0x20> sra       $2,$2,0x8
+adpcm.c:784
+00401b58 <uppol1+0x28> bltz      $3,00401b70
+adpcm.c:785
+00401b60 <uppol1+0x30> addiu     $3,$2,192
+adpcm.c:786
+00401b68 <uppol1+0x38> j         00401b78
+adpcm.c:788
+00401b70 <uppol1+0x40> addiu     $3,$2,-192
+adpcm.c:791
+00401b78 <uppol1+0x48> addiu     $2,$0,15360
+00401b80 <uppol1+0x50> subu      $5,$2,$5
+adpcm.c:792
+00401b88 <uppol1+0x58> slt       $2,$5,$3
+00401b90 <uppol1+0x60> beq       $2,$0,00401ba0
+00401b98 <uppol1+0x68> addu      $3,$0,$5
+adpcm.c:793
+00401ba0 <uppol1+0x70> subu      $5,$0,$5
+00401ba8 <uppol1+0x78> slt       $2,$3,$5
+00401bb0 <uppol1+0x80> beq       $2,$0,00401bc0
+00401bb8 <uppol1+0x88> addu      $3,$0,$5
+adpcm.c:794
+00401bc0 <uppol1+0x90> addu      $2,$0,$3
+adpcm.c:795
+00401bc8 <uppol1+0x98> jr        $31
+logsch():
+adpcm.c:813
+00401bd0 <logsch> sll       $2,$5,0x7
+adpcm.c:814
+00401bd8 <logsch+0x8> sll       $4,$4,0x2
+00401be0 <logsch+0x10> lui       $3,4096
+00401be8 <logsch+0x18> addu      $3,$3,$4
+00401bf0 <logsch+0x20> lw        $3,1248($3)
+adpcm.c:813
+00401bf8 <logsch+0x28> subu      $2,$2,$5
+00401c00 <logsch+0x30> sra       $2,$2,0x7
+adpcm.c:814
+00401c08 <logsch+0x38> addu      $3,$2,$3
+adpcm.c:815
+00401c10 <logsch+0x40> bgez      $3,00401c20
+00401c18 <logsch+0x48> addu      $3,$0,$0
+adpcm.c:816
+00401c20 <logsch+0x50> slti      $2,$3,22529
+00401c28 <logsch+0x58> bne       $2,$0,00401c38
+00401c30 <logsch+0x60> addiu     $3,$0,22528
+adpcm.c:817
+00401c38 <logsch+0x68> addu      $2,$0,$3
+adpcm.c:818
+00401c40 <logsch+0x70> jr        $31
+main():
+adpcm.c:823
+00401c48 <main> addiu     $29,$29,-40
+00401c50 <main+0x8> sw        $31,36($29)
+00401c58 <main+0x10> sw        $20,32($29)
+00401c60 <main+0x18> sw        $19,28($29)
+00401c68 <main+0x20> sw        $18,24($29)
+00401c70 <main+0x28> sw        $17,20($29)
+00401c78 <main+0x30> sw        $16,16($29)
+adpcm.c:828
+00401c80 <main+0x38> jal       00401348 <reset> 
+adpcm.c:833
+00401c88 <main+0x40> addiu     $20,$0,10
+00401c90 <main+0x48> addiu     $19,$0,2000
+adpcm.c:839
+00401c98 <main+0x50> addu      $16,$0,$0
+00401ca0 <main+0x58> lui       $18,4096
+00401ca8 <main+0x60> addiu     $18,$18,2416
+00401cb0 <main+0x68> addu      $17,$0,$0
+adpcm.c:840
+00401cb8 <main+0x70> mult      $19,$17
+00401cc0 <main+0x78> mflo      $4
+00401cc8 <main+0x80> jal       00400470 <my_cos> 
+00401cd0 <main+0x88> mult      $20,$2
+00401cd8 <main+0x90> mflo      $2
+adpcm.c:839
+00401ce0 <main+0x98> addiu     $16,$16,1
+00401ce8 <main+0xa0> addiu     $17,$17,3141
+adpcm.c:840
+00401cf0 <main+0xa8> sw        $2,0($18)
+adpcm.c:839
+00401cf8 <main+0xb0> addiu     $18,$18,4
+00401d00 <main+0xb8> slti      $2,$16,3
+00401d08 <main+0xc0> bne       $2,$0,00401cb8
+adpcm.c:853
+00401d10 <main+0xc8> addu      $16,$0,$0
+00401d18 <main+0xd0> lui       $19,4096
+00401d20 <main+0xd8> addiu     $19,$19,2440
+00401d28 <main+0xe0> lui       $2,4096
+00401d30 <main+0xe8> addiu     $2,$2,2416
+00401d38 <main+0xf0> addiu     $18,$2,4
+00401d40 <main+0xf8> addu      $17,$0,$2
+adpcm.c:854
+00401d48 <main+0x100> lw        $4,0($17)
+00401d50 <main+0x108> lw        $5,0($18)
+00401d58 <main+0x110> jal       004004b0 <encode> 
+adpcm.c:853
+00401d60 <main+0x118> addiu     $18,$18,8
+00401d68 <main+0x120> addiu     $17,$17,8
+adpcm.c:854
+00401d70 <main+0x128> srl       $3,$16,0x1f
+00401d78 <main+0x130> addu      $3,$16,$3
+adpcm.c:853
+00401d80 <main+0x138> addiu     $16,$16,2
+adpcm.c:854
+00401d88 <main+0x140> sra       $3,$3,0x1
+00401d90 <main+0x148> sll       $3,$3,0x2
+00401d98 <main+0x150> addu      $3,$3,$19
+00401da0 <main+0x158> sw        $2,0($3)
+adpcm.c:853
+00401da8 <main+0x160> slti      $2,$16,4
+00401db0 <main+0x168> bne       $2,$0,00401d48
+adpcm.c:856
+00401db8 <main+0x170> addu      $16,$0,$0
+00401dc0 <main+0x178> lui       $19,4096
+00401dc8 <main+0x180> addiu     $19,$19,2440
+00401dd0 <main+0x188> lui       $2,4096
+00401dd8 <main+0x190> addiu     $2,$2,2456
+00401de0 <main+0x198> addiu     $18,$2,4
+00401de8 <main+0x1a0> addu      $17,$0,$2
+adpcm.c:857
+00401df0 <main+0x1a8> srl       $2,$16,0x1f
+00401df8 <main+0x1b0> addu      $2,$16,$2
+00401e00 <main+0x1b8> sra       $2,$2,0x1
+00401e08 <main+0x1c0> sll       $2,$2,0x2
+00401e10 <main+0x1c8> addu      $2,$2,$19
+00401e18 <main+0x1d0> lw        $4,0($2)
+00401e20 <main+0x1d8> jal       00400c30 <decode> 
+adpcm.c:858
+00401e28 <main+0x1e0> lw        $2,-32540($28)
+adpcm.c:859
+00401e30 <main+0x1e8> lw        $3,-32488($28)
+adpcm.c:856
+00401e38 <main+0x1f0> addiu     $16,$16,2
+adpcm.c:858
+00401e40 <main+0x1f8> sw        $2,0($17)
+adpcm.c:859
+00401e48 <main+0x200> sw        $3,0($18)
+adpcm.c:856
+00401e50 <main+0x208> addiu     $18,$18,8
+00401e58 <main+0x210> addiu     $17,$17,8
+00401e60 <main+0x218> slti      $2,$16,4
+00401e68 <main+0x220> bne       $2,$0,00401df0
+adpcm.c:873
+00401e70 <main+0x228> lui       $2,4096
+00401e78 <main+0x230> addiu     $2,$2,2456
+00401e80 <main+0x238> sll       $3,$16,0x2
+00401e88 <main+0x240> addu      $4,$3,$2
+00401e90 <main+0x248> addu      $2,$2,$3
+00401e98 <main+0x250> lw        $3,0($4)
+00401ea0 <main+0x258> lw        $2,4($2)
+00401ea8 <main+0x260> addu      $2,$3,$2
+adpcm.c:874
+00401eb0 <main+0x268> lw        $31,36($29)
+00401eb8 <main+0x270> lw        $20,32($29)
+00401ec0 <main+0x278> lw        $19,28($29)
+00401ec8 <main+0x280> lw        $18,24($29)
+00401ed0 <main+0x288> lw        $17,20($29)
+00401ed8 <main+0x290> lw        $16,16($29)
+00401ee0 <main+0x298> addiu     $29,$29,40
+00401ee8 <main+0x2a0> jr        $31
+end_addr

@@ -1,0 +1,981 @@
+
+../benchmarks/jfdcint/jfdcint:     file format ss-coff-little
+
+Disassembly of section .text:
+00400140 <__start> lw $16,0($29)
+00400148 <__start+0x8> lui $28,4097
+00400150 <__start+0x10> addiu $28,$28,-32032
+00400158 <__start+0x18> addiu $17,$29,4
+00400160 <__start+0x20> addiu $3,$17,4
+00400168 <__start+0x28> sll $2,$16,0x2
+00400170 <__start+0x30> addu $3,$3,$2
+00400178 <__start+0x38> addu $18,$0,$3
+00400180 <__start+0x40> sw $18,-32636($28)
+00400188 <__start+0x48> addiu $29,$29,-24
+00400190 <__start+0x50> addu $4,$0,$16
+00400198 <__start+0x58> addu $5,$0,$17
+004001a0 <__start+0x60> addu $6,$0,$18
+004001a8 <__start+0x68> jal 00401780 <__libc_init>
+004001b0 <__start+0x70> sw $0,-32640($28)
+004001b8 <__start+0x78> addu $4,$0,$16
+004001c0 <__start+0x80> addu $5,$0,$17
+004001c8 <__start+0x88> addu $6,$0,$18
+004001d0 <__start+0x90> jal 004015d0 <main>
+004001d8 <__start+0x98> addu $4,$0,$2
+004001e0 <__start+0xa0> jal 004017b0 <exit>
+004001e8 <__start+0xa8> nop 
+jpeg_fdct_islow():
+../benchmarks/jfdcint/jfdcint.c:206
+ */
+
+GLOBAL void
+jpeg_fdct_islow ()
+{
+004001f0 <jpeg_fdct_islow> addiu $29,$29,-88
+004001f8 <jpeg_fdct_islow+0x8> sw $30,80($29)
+00400200 <jpeg_fdct_islow+0x10> addu $30,$0,$29
+../benchmarks/jfdcint/jfdcint.c:218
+  INT32 tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
+  INT32 tmp10, tmp11, tmp12, tmp13;
+  INT32 z1, z2, z3, z4, z5;
+  DCTELEM *dataptr;
+  int ctr;
+  SHIFT_TEMPS
+
+  /* Pass 1: process rows. */
+  /* Note results are scaled up by sqrt(8) compared to a true DCT; */
+  /* furthermore, we scale the results by 2**PASS1_BITS. */
+
+  dataptr = data;
+00400208 <jpeg_fdct_islow+0x18> lui $2,4096
+00400210 <jpeg_fdct_islow+0x20> addiu $2,$2,944
+00400218 <jpeg_fdct_islow+0x28> sw $2,68($30)
+../benchmarks/jfdcint/jfdcint.c:219
+  for (ctr = DCTSIZE-1; ctr >= 0; ctr--) {
+00400220 <jpeg_fdct_islow+0x30> addiu $2,$0,7
+00400228 <jpeg_fdct_islow+0x38> sw $2,72($30)
+00400230 <jpeg_fdct_islow+0x40> lw $2,72($30)
+00400238 <jpeg_fdct_islow+0x48> bgez $2,00400248 <jpeg_fdct_islow+0x58>
+00400240 <jpeg_fdct_islow+0x50> j 00400bd0 <jpeg_fdct_islow+0x9e0>
+../benchmarks/jfdcint/jfdcint.c:220
+    tmp0 = dataptr[0] + dataptr[7];
+00400248 <jpeg_fdct_islow+0x58> lw $2,68($30)
+00400250 <jpeg_fdct_islow+0x60> lw $4,68($30)
+00400258 <jpeg_fdct_islow+0x68> addiu $3,$4,28
+00400260 <jpeg_fdct_islow+0x70> lw $2,0($2)
+00400268 <jpeg_fdct_islow+0x78> lw $3,0($3)
+00400270 <jpeg_fdct_islow+0x80> addu $2,$2,$3
+00400278 <jpeg_fdct_islow+0x88> sw $2,0($30)
+../benchmarks/jfdcint/jfdcint.c:221
+    tmp7 = dataptr[0] - dataptr[7];
+00400280 <jpeg_fdct_islow+0x90> lw $2,68($30)
+00400288 <jpeg_fdct_islow+0x98> lw $4,68($30)
+00400290 <jpeg_fdct_islow+0xa0> addiu $3,$4,28
+00400298 <jpeg_fdct_islow+0xa8> lw $2,0($2)
+004002a0 <jpeg_fdct_islow+0xb0> lw $3,0($3)
+004002a8 <jpeg_fdct_islow+0xb8> subu $2,$2,$3
+004002b0 <jpeg_fdct_islow+0xc0> sw $2,28($30)
+../benchmarks/jfdcint/jfdcint.c:222
+    tmp1 = dataptr[1] + dataptr[6];
+004002b8 <jpeg_fdct_islow+0xc8> lw $3,68($30)
+004002c0 <jpeg_fdct_islow+0xd0> addiu $2,$3,4
+004002c8 <jpeg_fdct_islow+0xd8> lw $4,68($30)
+004002d0 <jpeg_fdct_islow+0xe0> addiu $3,$4,24
+004002d8 <jpeg_fdct_islow+0xe8> lw $2,0($2)
+004002e0 <jpeg_fdct_islow+0xf0> lw $3,0($3)
+004002e8 <jpeg_fdct_islow+0xf8> addu $2,$2,$3
+004002f0 <jpeg_fdct_islow+0x100> sw $2,4($30)
+../benchmarks/jfdcint/jfdcint.c:223
+    tmp6 = dataptr[1] - dataptr[6];
+004002f8 <jpeg_fdct_islow+0x108> lw $3,68($30)
+00400300 <jpeg_fdct_islow+0x110> addiu $2,$3,4
+00400308 <jpeg_fdct_islow+0x118> lw $4,68($30)
+00400310 <jpeg_fdct_islow+0x120> addiu $3,$4,24
+00400318 <jpeg_fdct_islow+0x128> lw $2,0($2)
+00400320 <jpeg_fdct_islow+0x130> lw $3,0($3)
+00400328 <jpeg_fdct_islow+0x138> subu $2,$2,$3
+00400330 <jpeg_fdct_islow+0x140> sw $2,24($30)
+../benchmarks/jfdcint/jfdcint.c:224
+    tmp2 = dataptr[2] + dataptr[5];
+00400338 <jpeg_fdct_islow+0x148> lw $3,68($30)
+00400340 <jpeg_fdct_islow+0x150> addiu $2,$3,8
+00400348 <jpeg_fdct_islow+0x158> lw $4,68($30)
+00400350 <jpeg_fdct_islow+0x160> addiu $3,$4,20
+00400358 <jpeg_fdct_islow+0x168> lw $2,0($2)
+00400360 <jpeg_fdct_islow+0x170> lw $3,0($3)
+00400368 <jpeg_fdct_islow+0x178> addu $2,$2,$3
+00400370 <jpeg_fdct_islow+0x180> sw $2,8($30)
+../benchmarks/jfdcint/jfdcint.c:225
+    tmp5 = dataptr[2] - dataptr[5];
+00400378 <jpeg_fdct_islow+0x188> lw $3,68($30)
+00400380 <jpeg_fdct_islow+0x190> addiu $2,$3,8
+00400388 <jpeg_fdct_islow+0x198> lw $4,68($30)
+00400390 <jpeg_fdct_islow+0x1a0> addiu $3,$4,20
+00400398 <jpeg_fdct_islow+0x1a8> lw $2,0($2)
+004003a0 <jpeg_fdct_islow+0x1b0> lw $3,0($3)
+004003a8 <jpeg_fdct_islow+0x1b8> subu $2,$2,$3
+004003b0 <jpeg_fdct_islow+0x1c0> sw $2,20($30)
+../benchmarks/jfdcint/jfdcint.c:226
+    tmp3 = dataptr[3] + dataptr[4];
+004003b8 <jpeg_fdct_islow+0x1c8> lw $3,68($30)
+004003c0 <jpeg_fdct_islow+0x1d0> addiu $2,$3,12
+004003c8 <jpeg_fdct_islow+0x1d8> lw $4,68($30)
+004003d0 <jpeg_fdct_islow+0x1e0> addiu $3,$4,16
+004003d8 <jpeg_fdct_islow+0x1e8> lw $2,0($2)
+004003e0 <jpeg_fdct_islow+0x1f0> lw $3,0($3)
+004003e8 <jpeg_fdct_islow+0x1f8> addu $2,$2,$3
+004003f0 <jpeg_fdct_islow+0x200> sw $2,12($30)
+../benchmarks/jfdcint/jfdcint.c:227
+    tmp4 = dataptr[3] - dataptr[4];
+004003f8 <jpeg_fdct_islow+0x208> lw $3,68($30)
+00400400 <jpeg_fdct_islow+0x210> addiu $2,$3,12
+00400408 <jpeg_fdct_islow+0x218> lw $4,68($30)
+00400410 <jpeg_fdct_islow+0x220> addiu $3,$4,16
+00400418 <jpeg_fdct_islow+0x228> lw $2,0($2)
+00400420 <jpeg_fdct_islow+0x230> lw $3,0($3)
+00400428 <jpeg_fdct_islow+0x238> subu $2,$2,$3
+00400430 <jpeg_fdct_islow+0x240> sw $2,16($30)
+../benchmarks/jfdcint/jfdcint.c:233
+
+    /* Even part per LL&M figure 1 --- note that published figure is faulty;
+     * rotator "sqrt(2)*c1" should be "sqrt(2)*c6".
+     */
+
+    tmp10 = tmp0 + tmp3;
+00400438 <jpeg_fdct_islow+0x248> lw $2,0($30)
+00400440 <jpeg_fdct_islow+0x250> lw $3,12($30)
+00400448 <jpeg_fdct_islow+0x258> addu $2,$2,$3
+00400450 <jpeg_fdct_islow+0x260> sw $2,32($30)
+../benchmarks/jfdcint/jfdcint.c:234
+    tmp13 = tmp0 - tmp3;
+00400458 <jpeg_fdct_islow+0x268> lw $2,0($30)
+00400460 <jpeg_fdct_islow+0x270> lw $3,12($30)
+00400468 <jpeg_fdct_islow+0x278> subu $2,$2,$3
+00400470 <jpeg_fdct_islow+0x280> sw $2,44($30)
+../benchmarks/jfdcint/jfdcint.c:235
+    tmp11 = tmp1 + tmp2;
+00400478 <jpeg_fdct_islow+0x288> lw $2,4($30)
+00400480 <jpeg_fdct_islow+0x290> lw $3,8($30)
+00400488 <jpeg_fdct_islow+0x298> addu $2,$2,$3
+00400490 <jpeg_fdct_islow+0x2a0> sw $2,36($30)
+../benchmarks/jfdcint/jfdcint.c:236
+    tmp12 = tmp1 - tmp2;
+00400498 <jpeg_fdct_islow+0x2a8> lw $2,4($30)
+004004a0 <jpeg_fdct_islow+0x2b0> lw $3,8($30)
+004004a8 <jpeg_fdct_islow+0x2b8> subu $2,$2,$3
+004004b0 <jpeg_fdct_islow+0x2c0> sw $2,40($30)
+../benchmarks/jfdcint/jfdcint.c:238
+
+    dataptr[0] = (DCTELEM) ((tmp10 + tmp11) << PASS1_BITS);
+004004b8 <jpeg_fdct_islow+0x2c8> lw $2,68($30)
+004004c0 <jpeg_fdct_islow+0x2d0> lw $3,32($30)
+004004c8 <jpeg_fdct_islow+0x2d8> lw $4,36($30)
+004004d0 <jpeg_fdct_islow+0x2e0> addu $3,$3,$4
+004004d8 <jpeg_fdct_islow+0x2e8> sll $4,$3,0x2
+004004e0 <jpeg_fdct_islow+0x2f0> sw $4,0($2)
+../benchmarks/jfdcint/jfdcint.c:239
+    dataptr[4] = (DCTELEM) ((tmp10 - tmp11) << PASS1_BITS);
+004004e8 <jpeg_fdct_islow+0x2f8> lw $3,68($30)
+004004f0 <jpeg_fdct_islow+0x300> addiu $2,$3,16
+004004f8 <jpeg_fdct_islow+0x308> lw $3,32($30)
+00400500 <jpeg_fdct_islow+0x310> lw $4,36($30)
+00400508 <jpeg_fdct_islow+0x318> subu $3,$3,$4
+00400510 <jpeg_fdct_islow+0x320> sll $4,$3,0x2
+00400518 <jpeg_fdct_islow+0x328> sw $4,0($2)
+../benchmarks/jfdcint/jfdcint.c:241
+
+    z1 = MULTIPLY(tmp12 + tmp13, FIX_0_541196100);
+00400520 <jpeg_fdct_islow+0x330> lw $2,40($30)
+00400528 <jpeg_fdct_islow+0x338> lw $3,44($30)
+00400530 <jpeg_fdct_islow+0x340> addu $2,$2,$3
+00400538 <jpeg_fdct_islow+0x348> addu $4,$0,$2
+00400540 <jpeg_fdct_islow+0x350> sll $3,$4,0x3
+00400548 <jpeg_fdct_islow+0x358> addu $3,$3,$2
+00400550 <jpeg_fdct_islow+0x360> sll $4,$3,0x4
+00400558 <jpeg_fdct_islow+0x368> subu $4,$4,$2
+00400560 <jpeg_fdct_islow+0x370> sll $2,$4,0x5
+00400568 <jpeg_fdct_islow+0x378> subu $3,$2,$4
+00400570 <jpeg_fdct_islow+0x380> sw $3,48($30)
+../benchmarks/jfdcint/jfdcint.c:242
+    dataptr[2] = (DCTELEM) DESCALE(z1 + MULTIPLY(tmp13, FIX_0_765366865),
+00400578 <jpeg_fdct_islow+0x388> lw $3,68($30)
+00400580 <jpeg_fdct_islow+0x390> addiu $2,$3,8
+00400588 <jpeg_fdct_islow+0x398> lw $3,44($30)
+00400590 <jpeg_fdct_islow+0x3a0> addu $5,$0,$3
+00400598 <jpeg_fdct_islow+0x3a8> sll $4,$5,0x1
+004005a0 <jpeg_fdct_islow+0x3b0> addu $4,$4,$3
+004005a8 <jpeg_fdct_islow+0x3b8> sll $5,$4,0x4
+004005b0 <jpeg_fdct_islow+0x3c0> addu $5,$5,$3
+004005b8 <jpeg_fdct_islow+0x3c8> sll $4,$5,0x6
+004005c0 <jpeg_fdct_islow+0x3d0> subu $4,$4,$3
+004005c8 <jpeg_fdct_islow+0x3d8> sll $3,$4,0x1
+004005d0 <jpeg_fdct_islow+0x3e0> lw $4,48($30)
+004005d8 <jpeg_fdct_islow+0x3e8> addu $3,$3,$4
+004005e0 <jpeg_fdct_islow+0x3f0> addiu $4,$3,1024
+004005e8 <jpeg_fdct_islow+0x3f8> sra $3,$4,0xb
+004005f0 <jpeg_fdct_islow+0x400> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:244
+				   CONST_BITS-PASS1_BITS);
+    dataptr[6] = (DCTELEM) DESCALE(z1 + MULTIPLY(tmp12, - FIX_1_847759065),
+004005f8 <jpeg_fdct_islow+0x408> lw $3,68($30)
+00400600 <jpeg_fdct_islow+0x410> addiu $2,$3,24
+00400608 <jpeg_fdct_islow+0x418> lw $3,40($30)
+00400610 <jpeg_fdct_islow+0x420> addu $5,$0,$3
+00400618 <jpeg_fdct_islow+0x428> sll $4,$5,0x4
+00400620 <jpeg_fdct_islow+0x430> subu $4,$4,$3
+00400628 <jpeg_fdct_islow+0x438> sll $5,$4,0x2
+00400630 <jpeg_fdct_islow+0x440> subu $5,$5,$3
+00400638 <jpeg_fdct_islow+0x448> sll $4,$5,0x3
+00400640 <jpeg_fdct_islow+0x450> addu $4,$4,$3
+00400648 <jpeg_fdct_islow+0x458> sll $5,$4,0x5
+00400650 <jpeg_fdct_islow+0x460> addu $5,$5,$3
+00400658 <jpeg_fdct_islow+0x468> subu $3,$0,$5
+00400660 <jpeg_fdct_islow+0x470> lw $4,48($30)
+00400668 <jpeg_fdct_islow+0x478> addu $3,$3,$4
+00400670 <jpeg_fdct_islow+0x480> addiu $4,$3,1024
+00400678 <jpeg_fdct_islow+0x488> sra $3,$4,0xb
+00400680 <jpeg_fdct_islow+0x490> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:252
+				   CONST_BITS-PASS1_BITS);
+
+    /* Odd part per figure 8 --- note paper omits factor of sqrt(2).
+     * cK represents cos(K*pi/16).
+     * i0..i3 in the paper are tmp4..tmp7 here.
+     */
+
+    z1 = tmp4 + tmp7;
+00400688 <jpeg_fdct_islow+0x498> lw $2,16($30)
+00400690 <jpeg_fdct_islow+0x4a0> lw $3,28($30)
+00400698 <jpeg_fdct_islow+0x4a8> addu $2,$2,$3
+004006a0 <jpeg_fdct_islow+0x4b0> sw $2,48($30)
+../benchmarks/jfdcint/jfdcint.c:253
+    z2 = tmp5 + tmp6;
+004006a8 <jpeg_fdct_islow+0x4b8> lw $2,20($30)
+004006b0 <jpeg_fdct_islow+0x4c0> lw $3,24($30)
+004006b8 <jpeg_fdct_islow+0x4c8> addu $2,$2,$3
+004006c0 <jpeg_fdct_islow+0x4d0> sw $2,52($30)
+../benchmarks/jfdcint/jfdcint.c:254
+    z3 = tmp4 + tmp6;
+004006c8 <jpeg_fdct_islow+0x4d8> lw $2,16($30)
+004006d0 <jpeg_fdct_islow+0x4e0> lw $3,24($30)
+004006d8 <jpeg_fdct_islow+0x4e8> addu $2,$2,$3
+004006e0 <jpeg_fdct_islow+0x4f0> sw $2,56($30)
+../benchmarks/jfdcint/jfdcint.c:255
+    z4 = tmp5 + tmp7;
+004006e8 <jpeg_fdct_islow+0x4f8> lw $2,20($30)
+004006f0 <jpeg_fdct_islow+0x500> lw $3,28($30)
+004006f8 <jpeg_fdct_islow+0x508> addu $2,$2,$3
+00400700 <jpeg_fdct_islow+0x510> sw $2,60($30)
+../benchmarks/jfdcint/jfdcint.c:256
+    z5 = MULTIPLY(z3 + z4, FIX_1_175875602); /* sqrt(2) * c3 */
+00400708 <jpeg_fdct_islow+0x518> lw $2,56($30)
+00400710 <jpeg_fdct_islow+0x520> lw $3,60($30)
+00400718 <jpeg_fdct_islow+0x528> addu $2,$2,$3
+00400720 <jpeg_fdct_islow+0x530> addu $3,$0,$2
+00400728 <jpeg_fdct_islow+0x538> sll $4,$3,0x2
+00400730 <jpeg_fdct_islow+0x540> addu $4,$4,$2
+00400738 <jpeg_fdct_islow+0x548> sll $3,$4,0x4
+00400740 <jpeg_fdct_islow+0x550> subu $3,$3,$4
+00400748 <jpeg_fdct_islow+0x558> sll $4,$3,0x2
+00400750 <jpeg_fdct_islow+0x560> addu $4,$4,$2
+00400758 <jpeg_fdct_islow+0x568> sll $3,$4,0x5
+00400760 <jpeg_fdct_islow+0x570> addu $2,$3,$2
+00400768 <jpeg_fdct_islow+0x578> sw $2,64($30)
+../benchmarks/jfdcint/jfdcint.c:258
+
+    tmp4 = MULTIPLY(tmp4, FIX_0_298631336); /* sqrt(2) * (-c1+c3+c5-c7) */
+00400770 <jpeg_fdct_islow+0x580> lw $2,16($30)
+00400778 <jpeg_fdct_islow+0x588> addu $4,$0,$2
+00400780 <jpeg_fdct_islow+0x590> sll $3,$4,0x3
+00400788 <jpeg_fdct_islow+0x598> addu $3,$3,$2
+00400790 <jpeg_fdct_islow+0x5a0> sll $4,$3,0x4
+00400798 <jpeg_fdct_islow+0x5a8> addu $3,$3,$4
+004007a0 <jpeg_fdct_islow+0x5b0> sll $4,$3,0x3
+004007a8 <jpeg_fdct_islow+0x5b8> subu $4,$4,$2
+004007b0 <jpeg_fdct_islow+0x5c0> sll $2,$4,0x1
+004007b8 <jpeg_fdct_islow+0x5c8> sw $2,16($30)
+../benchmarks/jfdcint/jfdcint.c:259
+    tmp5 = MULTIPLY(tmp5, FIX_2_053119869); /* sqrt(2) * ( c1+c3-c5+c7) */
+004007c0 <jpeg_fdct_islow+0x5d0> lw $2,20($30)
+004007c8 <jpeg_fdct_islow+0x5d8> addu $4,$0,$2
+004007d0 <jpeg_fdct_islow+0x5e0> sll $3,$4,0x5
+004007d8 <jpeg_fdct_islow+0x5e8> addu $3,$3,$2
+004007e0 <jpeg_fdct_islow+0x5f0> sll $4,$3,0x3
+004007e8 <jpeg_fdct_islow+0x5f8> subu $4,$4,$2
+004007f0 <jpeg_fdct_islow+0x600> sll $3,$4,0x2
+004007f8 <jpeg_fdct_islow+0x608> subu $3,$3,$2
+00400800 <jpeg_fdct_islow+0x610> sll $4,$3,0x2
+00400808 <jpeg_fdct_islow+0x618> addu $4,$4,$2
+00400810 <jpeg_fdct_islow+0x620> sll $3,$4,0x2
+00400818 <jpeg_fdct_islow+0x628> subu $2,$3,$2
+00400820 <jpeg_fdct_islow+0x630> sw $2,20($30)
+../benchmarks/jfdcint/jfdcint.c:260
+    tmp6 = MULTIPLY(tmp6, FIX_3_072711026); /* sqrt(2) * ( c1+c3+c5-c7) */
+00400828 <jpeg_fdct_islow+0x638> lw $2,24($30)
+00400830 <jpeg_fdct_islow+0x640> addu $4,$0,$2
+00400838 <jpeg_fdct_islow+0x648> sll $3,$4,0x1
+00400840 <jpeg_fdct_islow+0x650> addu $3,$3,$2
+00400848 <jpeg_fdct_islow+0x658> sll $4,$3,0x4
+00400850 <jpeg_fdct_islow+0x660> addu $3,$3,$4
+00400858 <jpeg_fdct_islow+0x668> sll $4,$3,0x2
+00400860 <jpeg_fdct_islow+0x670> subu $4,$4,$2
+00400868 <jpeg_fdct_islow+0x678> sll $2,$4,0x5
+00400870 <jpeg_fdct_islow+0x680> subu $2,$2,$4
+00400878 <jpeg_fdct_islow+0x688> sll $3,$2,0x2
+00400880 <jpeg_fdct_islow+0x690> sw $3,24($30)
+../benchmarks/jfdcint/jfdcint.c:261
+    tmp7 = MULTIPLY(tmp7, FIX_1_501321110); /* sqrt(2) * ( c1+c3-c5-c7) */
+00400888 <jpeg_fdct_islow+0x698> lw $2,28($30)
+00400890 <jpeg_fdct_islow+0x6a0> addu $4,$0,$2
+00400898 <jpeg_fdct_islow+0x6a8> sll $3,$4,0x1
+004008a0 <jpeg_fdct_islow+0x6b0> addu $3,$3,$2
+004008a8 <jpeg_fdct_islow+0x6b8> sll $4,$3,0xa
+004008b0 <jpeg_fdct_islow+0x6c0> addu $3,$3,$4
+004008b8 <jpeg_fdct_islow+0x6c8> sll $4,$3,0x2
+004008c0 <jpeg_fdct_islow+0x6d0> subu $2,$4,$2
+004008c8 <jpeg_fdct_islow+0x6d8> sw $2,28($30)
+../benchmarks/jfdcint/jfdcint.c:262
+    z1 = MULTIPLY(z1, - FIX_0_899976223); /* sqrt(2) * (c7-c3) */
+004008d0 <jpeg_fdct_islow+0x6e0> lw $2,48($30)
+004008d8 <jpeg_fdct_islow+0x6e8> addiu $3,$0,-7373
+004008e0 <jpeg_fdct_islow+0x6f0> mult $2,$3
+004008e8 <jpeg_fdct_islow+0x6f8> mflo $2
+004008f0 <jpeg_fdct_islow+0x700> sw $2,48($30)
+../benchmarks/jfdcint/jfdcint.c:263
+    z2 = MULTIPLY(z2, - FIX_2_562915447); /* sqrt(2) * (-c1-c3) */
+004008f8 <jpeg_fdct_islow+0x708> lw $2,52($30)
+00400900 <jpeg_fdct_islow+0x710> addu $4,$0,$2
+00400908 <jpeg_fdct_islow+0x718> sll $3,$4,0x2
+00400910 <jpeg_fdct_islow+0x720> addu $3,$3,$2
+00400918 <jpeg_fdct_islow+0x728> sll $4,$3,0x3
+00400920 <jpeg_fdct_islow+0x730> addu $4,$4,$2
+00400928 <jpeg_fdct_islow+0x738> sll $3,$4,0x7
+00400930 <jpeg_fdct_islow+0x740> addu $3,$3,$2
+00400938 <jpeg_fdct_islow+0x748> sll $4,$3,0x2
+00400940 <jpeg_fdct_islow+0x750> subu $2,$4,$2
+00400948 <jpeg_fdct_islow+0x758> subu $3,$0,$2
+00400950 <jpeg_fdct_islow+0x760> sw $3,52($30)
+../benchmarks/jfdcint/jfdcint.c:264
+    z3 = MULTIPLY(z3, - FIX_1_961570560); /* sqrt(2) * (-c3-c5) */
+00400958 <jpeg_fdct_islow+0x768> lw $2,56($30)
+00400960 <jpeg_fdct_islow+0x770> addu $4,$0,$2
+00400968 <jpeg_fdct_islow+0x778> sll $3,$4,0x6
+00400970 <jpeg_fdct_islow+0x780> subu $3,$3,$2
+00400978 <jpeg_fdct_islow+0x788> sll $4,$3,0x2
+00400980 <jpeg_fdct_islow+0x790> subu $4,$4,$2
+00400988 <jpeg_fdct_islow+0x798> sll $3,$4,0x4
+00400990 <jpeg_fdct_islow+0x7a0> addu $3,$3,$2
+00400998 <jpeg_fdct_islow+0x7a8> sll $4,$3,0x2
+004009a0 <jpeg_fdct_islow+0x7b0> addu $2,$4,$2
+004009a8 <jpeg_fdct_islow+0x7b8> subu $3,$0,$2
+004009b0 <jpeg_fdct_islow+0x7c0> sw $3,56($30)
+../benchmarks/jfdcint/jfdcint.c:265
+    z4 = MULTIPLY(z4, - FIX_0_390180644); /* sqrt(2) * (c5-c3) */
+004009b8 <jpeg_fdct_islow+0x7c8> lw $2,60($30)
+004009c0 <jpeg_fdct_islow+0x7d0> addu $4,$0,$2
+004009c8 <jpeg_fdct_islow+0x7d8> sll $3,$4,0x1
+004009d0 <jpeg_fdct_islow+0x7e0> addu $3,$3,$2
+004009d8 <jpeg_fdct_islow+0x7e8> sll $4,$3,0x3
+004009e0 <jpeg_fdct_islow+0x7f0> addu $4,$4,$2
+004009e8 <jpeg_fdct_islow+0x7f8> sll $3,$4,0x5
+004009f0 <jpeg_fdct_islow+0x800> subu $3,$3,$2
+004009f8 <jpeg_fdct_islow+0x808> sll $2,$3,0x2
+00400a00 <jpeg_fdct_islow+0x810> subu $3,$0,$2
+00400a08 <jpeg_fdct_islow+0x818> sw $3,60($30)
+../benchmarks/jfdcint/jfdcint.c:267
+
+    z3 += z5;
+00400a10 <jpeg_fdct_islow+0x820> lw $2,56($30)
+00400a18 <jpeg_fdct_islow+0x828> lw $3,64($30)
+00400a20 <jpeg_fdct_islow+0x830> addu $2,$2,$3
+00400a28 <jpeg_fdct_islow+0x838> sw $2,56($30)
+../benchmarks/jfdcint/jfdcint.c:268
+    z4 += z5;
+00400a30 <jpeg_fdct_islow+0x840> lw $2,60($30)
+00400a38 <jpeg_fdct_islow+0x848> lw $3,64($30)
+00400a40 <jpeg_fdct_islow+0x850> addu $2,$2,$3
+00400a48 <jpeg_fdct_islow+0x858> sw $2,60($30)
+../benchmarks/jfdcint/jfdcint.c:270
+
+    dataptr[7] = (DCTELEM) DESCALE(tmp4 + z1 + z3, CONST_BITS-PASS1_BITS);
+00400a50 <jpeg_fdct_islow+0x860> lw $3,68($30)
+00400a58 <jpeg_fdct_islow+0x868> addiu $2,$3,28
+00400a60 <jpeg_fdct_islow+0x870> lw $3,16($30)
+00400a68 <jpeg_fdct_islow+0x878> lw $4,48($30)
+00400a70 <jpeg_fdct_islow+0x880> addu $3,$3,$4
+00400a78 <jpeg_fdct_islow+0x888> lw $4,56($30)
+00400a80 <jpeg_fdct_islow+0x890> addu $3,$3,$4
+00400a88 <jpeg_fdct_islow+0x898> addiu $4,$3,1024
+00400a90 <jpeg_fdct_islow+0x8a0> sra $3,$4,0xb
+00400a98 <jpeg_fdct_islow+0x8a8> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:271
+    dataptr[5] = (DCTELEM) DESCALE(tmp5 + z2 + z4, CONST_BITS-PASS1_BITS);
+00400aa0 <jpeg_fdct_islow+0x8b0> lw $3,68($30)
+00400aa8 <jpeg_fdct_islow+0x8b8> addiu $2,$3,20
+00400ab0 <jpeg_fdct_islow+0x8c0> lw $3,20($30)
+00400ab8 <jpeg_fdct_islow+0x8c8> lw $4,52($30)
+00400ac0 <jpeg_fdct_islow+0x8d0> addu $3,$3,$4
+00400ac8 <jpeg_fdct_islow+0x8d8> lw $4,60($30)
+00400ad0 <jpeg_fdct_islow+0x8e0> addu $3,$3,$4
+00400ad8 <jpeg_fdct_islow+0x8e8> addiu $4,$3,1024
+00400ae0 <jpeg_fdct_islow+0x8f0> sra $3,$4,0xb
+00400ae8 <jpeg_fdct_islow+0x8f8> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:272
+    dataptr[3] = (DCTELEM) DESCALE(tmp6 + z2 + z3, CONST_BITS-PASS1_BITS);
+00400af0 <jpeg_fdct_islow+0x900> lw $3,68($30)
+00400af8 <jpeg_fdct_islow+0x908> addiu $2,$3,12
+00400b00 <jpeg_fdct_islow+0x910> lw $3,24($30)
+00400b08 <jpeg_fdct_islow+0x918> lw $4,52($30)
+00400b10 <jpeg_fdct_islow+0x920> addu $3,$3,$4
+00400b18 <jpeg_fdct_islow+0x928> lw $4,56($30)
+00400b20 <jpeg_fdct_islow+0x930> addu $3,$3,$4
+00400b28 <jpeg_fdct_islow+0x938> addiu $4,$3,1024
+00400b30 <jpeg_fdct_islow+0x940> sra $3,$4,0xb
+00400b38 <jpeg_fdct_islow+0x948> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:273
+    dataptr[1] = (DCTELEM) DESCALE(tmp7 + z1 + z4, CONST_BITS-PASS1_BITS);
+00400b40 <jpeg_fdct_islow+0x950> lw $3,68($30)
+00400b48 <jpeg_fdct_islow+0x958> addiu $2,$3,4
+00400b50 <jpeg_fdct_islow+0x960> lw $3,28($30)
+00400b58 <jpeg_fdct_islow+0x968> lw $4,48($30)
+00400b60 <jpeg_fdct_islow+0x970> addu $3,$3,$4
+00400b68 <jpeg_fdct_islow+0x978> lw $4,60($30)
+00400b70 <jpeg_fdct_islow+0x980> addu $3,$3,$4
+00400b78 <jpeg_fdct_islow+0x988> addiu $4,$3,1024
+00400b80 <jpeg_fdct_islow+0x990> sra $3,$4,0xb
+00400b88 <jpeg_fdct_islow+0x998> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:275
+
+    dataptr += DCTSIZE;		/* advance pointer to next row */
+00400b90 <jpeg_fdct_islow+0x9a0> lw $2,68($30)
+00400b98 <jpeg_fdct_islow+0x9a8> addiu $3,$2,32
+00400ba0 <jpeg_fdct_islow+0x9b0> sw $3,68($30)
+../benchmarks/jfdcint/jfdcint.c:219
+00400ba8 <jpeg_fdct_islow+0x9b8> lw $3,72($30)
+00400bb0 <jpeg_fdct_islow+0x9c0> addiu $2,$3,-1
+00400bb8 <jpeg_fdct_islow+0x9c8> addu $3,$0,$2
+00400bc0 <jpeg_fdct_islow+0x9d0> sw $3,72($30)
+00400bc8 <jpeg_fdct_islow+0x9d8> j 00400230 <jpeg_fdct_islow+0x40>
+../benchmarks/jfdcint/jfdcint.c:283
+  }
+
+  /* Pass 2: process columns.
+   * We remove the PASS1_BITS scaling, but leave the results scaled up
+   * by an overall factor of 8.
+   */
+
+  dataptr = data;
+00400bd0 <jpeg_fdct_islow+0x9e0> lui $2,4096
+00400bd8 <jpeg_fdct_islow+0x9e8> addiu $2,$2,944
+00400be0 <jpeg_fdct_islow+0x9f0> sw $2,68($30)
+../benchmarks/jfdcint/jfdcint.c:284
+  for (ctr = DCTSIZE-1; ctr >= 0; ctr--) {
+00400be8 <jpeg_fdct_islow+0x9f8> addiu $2,$0,7
+00400bf0 <jpeg_fdct_islow+0xa00> sw $2,72($30)
+00400bf8 <jpeg_fdct_islow+0xa08> lw $2,72($30)
+00400c00 <jpeg_fdct_islow+0xa10> bgez $2,00400c10 <jpeg_fdct_islow+0xa20>
+00400c08 <jpeg_fdct_islow+0xa18> j 004015b0 <jpeg_fdct_islow+0x13c0>
+../benchmarks/jfdcint/jfdcint.c:285
+    tmp0 = dataptr[DCTSIZE*0] + dataptr[DCTSIZE*7];
+00400c10 <jpeg_fdct_islow+0xa20> lw $2,68($30)
+00400c18 <jpeg_fdct_islow+0xa28> lw $4,68($30)
+00400c20 <jpeg_fdct_islow+0xa30> addiu $3,$4,224
+00400c28 <jpeg_fdct_islow+0xa38> lw $2,0($2)
+00400c30 <jpeg_fdct_islow+0xa40> lw $3,0($3)
+00400c38 <jpeg_fdct_islow+0xa48> addu $2,$2,$3
+00400c40 <jpeg_fdct_islow+0xa50> sw $2,0($30)
+../benchmarks/jfdcint/jfdcint.c:286
+    tmp7 = dataptr[DCTSIZE*0] - dataptr[DCTSIZE*7];
+00400c48 <jpeg_fdct_islow+0xa58> lw $2,68($30)
+00400c50 <jpeg_fdct_islow+0xa60> lw $4,68($30)
+00400c58 <jpeg_fdct_islow+0xa68> addiu $3,$4,224
+00400c60 <jpeg_fdct_islow+0xa70> lw $2,0($2)
+00400c68 <jpeg_fdct_islow+0xa78> lw $3,0($3)
+00400c70 <jpeg_fdct_islow+0xa80> subu $2,$2,$3
+00400c78 <jpeg_fdct_islow+0xa88> sw $2,28($30)
+../benchmarks/jfdcint/jfdcint.c:287
+    tmp1 = dataptr[DCTSIZE*1] + dataptr[DCTSIZE*6];
+00400c80 <jpeg_fdct_islow+0xa90> lw $3,68($30)
+00400c88 <jpeg_fdct_islow+0xa98> addiu $2,$3,32
+00400c90 <jpeg_fdct_islow+0xaa0> lw $4,68($30)
+00400c98 <jpeg_fdct_islow+0xaa8> addiu $3,$4,192
+00400ca0 <jpeg_fdct_islow+0xab0> lw $2,0($2)
+00400ca8 <jpeg_fdct_islow+0xab8> lw $3,0($3)
+00400cb0 <jpeg_fdct_islow+0xac0> addu $2,$2,$3
+00400cb8 <jpeg_fdct_islow+0xac8> sw $2,4($30)
+../benchmarks/jfdcint/jfdcint.c:288
+    tmp6 = dataptr[DCTSIZE*1] - dataptr[DCTSIZE*6];
+00400cc0 <jpeg_fdct_islow+0xad0> lw $3,68($30)
+00400cc8 <jpeg_fdct_islow+0xad8> addiu $2,$3,32
+00400cd0 <jpeg_fdct_islow+0xae0> lw $4,68($30)
+00400cd8 <jpeg_fdct_islow+0xae8> addiu $3,$4,192
+00400ce0 <jpeg_fdct_islow+0xaf0> lw $2,0($2)
+00400ce8 <jpeg_fdct_islow+0xaf8> lw $3,0($3)
+00400cf0 <jpeg_fdct_islow+0xb00> subu $2,$2,$3
+00400cf8 <jpeg_fdct_islow+0xb08> sw $2,24($30)
+../benchmarks/jfdcint/jfdcint.c:289
+    tmp2 = dataptr[DCTSIZE*2] + dataptr[DCTSIZE*5];
+00400d00 <jpeg_fdct_islow+0xb10> lw $3,68($30)
+00400d08 <jpeg_fdct_islow+0xb18> addiu $2,$3,64
+00400d10 <jpeg_fdct_islow+0xb20> lw $4,68($30)
+00400d18 <jpeg_fdct_islow+0xb28> addiu $3,$4,160
+00400d20 <jpeg_fdct_islow+0xb30> lw $2,0($2)
+00400d28 <jpeg_fdct_islow+0xb38> lw $3,0($3)
+00400d30 <jpeg_fdct_islow+0xb40> addu $2,$2,$3
+00400d38 <jpeg_fdct_islow+0xb48> sw $2,8($30)
+../benchmarks/jfdcint/jfdcint.c:290
+    tmp5 = dataptr[DCTSIZE*2] - dataptr[DCTSIZE*5];
+00400d40 <jpeg_fdct_islow+0xb50> lw $3,68($30)
+00400d48 <jpeg_fdct_islow+0xb58> addiu $2,$3,64
+00400d50 <jpeg_fdct_islow+0xb60> lw $4,68($30)
+00400d58 <jpeg_fdct_islow+0xb68> addiu $3,$4,160
+00400d60 <jpeg_fdct_islow+0xb70> lw $2,0($2)
+00400d68 <jpeg_fdct_islow+0xb78> lw $3,0($3)
+00400d70 <jpeg_fdct_islow+0xb80> subu $2,$2,$3
+00400d78 <jpeg_fdct_islow+0xb88> sw $2,20($30)
+../benchmarks/jfdcint/jfdcint.c:291
+    tmp3 = dataptr[DCTSIZE*3] + dataptr[DCTSIZE*4];
+00400d80 <jpeg_fdct_islow+0xb90> lw $3,68($30)
+00400d88 <jpeg_fdct_islow+0xb98> addiu $2,$3,96
+00400d90 <jpeg_fdct_islow+0xba0> lw $4,68($30)
+00400d98 <jpeg_fdct_islow+0xba8> addiu $3,$4,128
+00400da0 <jpeg_fdct_islow+0xbb0> lw $2,0($2)
+00400da8 <jpeg_fdct_islow+0xbb8> lw $3,0($3)
+00400db0 <jpeg_fdct_islow+0xbc0> addu $2,$2,$3
+00400db8 <jpeg_fdct_islow+0xbc8> sw $2,12($30)
+../benchmarks/jfdcint/jfdcint.c:292
+    tmp4 = dataptr[DCTSIZE*3] - dataptr[DCTSIZE*4];
+00400dc0 <jpeg_fdct_islow+0xbd0> lw $3,68($30)
+00400dc8 <jpeg_fdct_islow+0xbd8> addiu $2,$3,96
+00400dd0 <jpeg_fdct_islow+0xbe0> lw $4,68($30)
+00400dd8 <jpeg_fdct_islow+0xbe8> addiu $3,$4,128
+00400de0 <jpeg_fdct_islow+0xbf0> lw $2,0($2)
+00400de8 <jpeg_fdct_islow+0xbf8> lw $3,0($3)
+00400df0 <jpeg_fdct_islow+0xc00> subu $2,$2,$3
+00400df8 <jpeg_fdct_islow+0xc08> sw $2,16($30)
+../benchmarks/jfdcint/jfdcint.c:298
+
+    /* Even part per LL&M figure 1 --- note that published figure is faulty;
+     * rotator "sqrt(2)*c1" should be "sqrt(2)*c6".
+     */
+
+    tmp10 = tmp0 + tmp3;
+00400e00 <jpeg_fdct_islow+0xc10> lw $2,0($30)
+00400e08 <jpeg_fdct_islow+0xc18> lw $3,12($30)
+00400e10 <jpeg_fdct_islow+0xc20> addu $2,$2,$3
+00400e18 <jpeg_fdct_islow+0xc28> sw $2,32($30)
+../benchmarks/jfdcint/jfdcint.c:299
+    tmp13 = tmp0 - tmp3;
+00400e20 <jpeg_fdct_islow+0xc30> lw $2,0($30)
+00400e28 <jpeg_fdct_islow+0xc38> lw $3,12($30)
+00400e30 <jpeg_fdct_islow+0xc40> subu $2,$2,$3
+00400e38 <jpeg_fdct_islow+0xc48> sw $2,44($30)
+../benchmarks/jfdcint/jfdcint.c:300
+    tmp11 = tmp1 + tmp2;
+00400e40 <jpeg_fdct_islow+0xc50> lw $2,4($30)
+00400e48 <jpeg_fdct_islow+0xc58> lw $3,8($30)
+00400e50 <jpeg_fdct_islow+0xc60> addu $2,$2,$3
+00400e58 <jpeg_fdct_islow+0xc68> sw $2,36($30)
+../benchmarks/jfdcint/jfdcint.c:301
+    tmp12 = tmp1 - tmp2;
+00400e60 <jpeg_fdct_islow+0xc70> lw $2,4($30)
+00400e68 <jpeg_fdct_islow+0xc78> lw $3,8($30)
+00400e70 <jpeg_fdct_islow+0xc80> subu $2,$2,$3
+00400e78 <jpeg_fdct_islow+0xc88> sw $2,40($30)
+../benchmarks/jfdcint/jfdcint.c:303
+
+    dataptr[DCTSIZE*0] = (DCTELEM) DESCALE(tmp10 + tmp11, PASS1_BITS);
+00400e80 <jpeg_fdct_islow+0xc90> lw $2,68($30)
+00400e88 <jpeg_fdct_islow+0xc98> lw $3,32($30)
+00400e90 <jpeg_fdct_islow+0xca0> lw $4,36($30)
+00400e98 <jpeg_fdct_islow+0xca8> addu $3,$3,$4
+00400ea0 <jpeg_fdct_islow+0xcb0> addiu $4,$3,2
+00400ea8 <jpeg_fdct_islow+0xcb8> sra $3,$4,0x2
+00400eb0 <jpeg_fdct_islow+0xcc0> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:304
+    dataptr[DCTSIZE*4] = (DCTELEM) DESCALE(tmp10 - tmp11, PASS1_BITS);
+00400eb8 <jpeg_fdct_islow+0xcc8> lw $3,68($30)
+00400ec0 <jpeg_fdct_islow+0xcd0> addiu $2,$3,128
+00400ec8 <jpeg_fdct_islow+0xcd8> lw $3,32($30)
+00400ed0 <jpeg_fdct_islow+0xce0> lw $4,36($30)
+00400ed8 <jpeg_fdct_islow+0xce8> subu $3,$3,$4
+00400ee0 <jpeg_fdct_islow+0xcf0> addiu $4,$3,2
+00400ee8 <jpeg_fdct_islow+0xcf8> sra $3,$4,0x2
+00400ef0 <jpeg_fdct_islow+0xd00> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:306
+
+    z1 = MULTIPLY(tmp12 + tmp13, FIX_0_541196100);
+00400ef8 <jpeg_fdct_islow+0xd08> lw $2,40($30)
+00400f00 <jpeg_fdct_islow+0xd10> lw $3,44($30)
+00400f08 <jpeg_fdct_islow+0xd18> addu $2,$2,$3
+00400f10 <jpeg_fdct_islow+0xd20> addu $4,$0,$2
+00400f18 <jpeg_fdct_islow+0xd28> sll $3,$4,0x3
+00400f20 <jpeg_fdct_islow+0xd30> addu $3,$3,$2
+00400f28 <jpeg_fdct_islow+0xd38> sll $4,$3,0x4
+00400f30 <jpeg_fdct_islow+0xd40> subu $4,$4,$2
+00400f38 <jpeg_fdct_islow+0xd48> sll $2,$4,0x5
+00400f40 <jpeg_fdct_islow+0xd50> subu $3,$2,$4
+00400f48 <jpeg_fdct_islow+0xd58> sw $3,48($30)
+../benchmarks/jfdcint/jfdcint.c:307
+    dataptr[DCTSIZE*2] = (DCTELEM) DESCALE(z1 + MULTIPLY(tmp13, FIX_0_765366865),
+00400f50 <jpeg_fdct_islow+0xd60> lw $3,68($30)
+00400f58 <jpeg_fdct_islow+0xd68> addiu $2,$3,64
+00400f60 <jpeg_fdct_islow+0xd70> lw $3,44($30)
+00400f68 <jpeg_fdct_islow+0xd78> addu $5,$0,$3
+00400f70 <jpeg_fdct_islow+0xd80> sll $4,$5,0x1
+00400f78 <jpeg_fdct_islow+0xd88> addu $4,$4,$3
+00400f80 <jpeg_fdct_islow+0xd90> sll $5,$4,0x4
+00400f88 <jpeg_fdct_islow+0xd98> addu $5,$5,$3
+00400f90 <jpeg_fdct_islow+0xda0> sll $4,$5,0x6
+00400f98 <jpeg_fdct_islow+0xda8> subu $4,$4,$3
+00400fa0 <jpeg_fdct_islow+0xdb0> sll $3,$4,0x1
+00400fa8 <jpeg_fdct_islow+0xdb8> lw $4,48($30)
+00400fb0 <jpeg_fdct_islow+0xdc0> addu $3,$3,$4
+00400fb8 <jpeg_fdct_islow+0xdc8> addiu $4,$3,16384
+00400fc0 <jpeg_fdct_islow+0xdd0> sra $3,$4,0xf
+00400fc8 <jpeg_fdct_islow+0xdd8> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:309
+					   CONST_BITS+PASS1_BITS);
+    dataptr[DCTSIZE*6] = (DCTELEM) DESCALE(z1 + MULTIPLY(tmp12, - FIX_1_847759065),
+00400fd0 <jpeg_fdct_islow+0xde0> lw $3,68($30)
+00400fd8 <jpeg_fdct_islow+0xde8> addiu $2,$3,192
+00400fe0 <jpeg_fdct_islow+0xdf0> lw $3,40($30)
+00400fe8 <jpeg_fdct_islow+0xdf8> addu $5,$0,$3
+00400ff0 <jpeg_fdct_islow+0xe00> sll $4,$5,0x4
+00400ff8 <jpeg_fdct_islow+0xe08> subu $4,$4,$3
+00401000 <jpeg_fdct_islow+0xe10> sll $5,$4,0x2
+00401008 <jpeg_fdct_islow+0xe18> subu $5,$5,$3
+00401010 <jpeg_fdct_islow+0xe20> sll $4,$5,0x3
+00401018 <jpeg_fdct_islow+0xe28> addu $4,$4,$3
+00401020 <jpeg_fdct_islow+0xe30> sll $5,$4,0x5
+00401028 <jpeg_fdct_islow+0xe38> addu $5,$5,$3
+00401030 <jpeg_fdct_islow+0xe40> subu $3,$0,$5
+00401038 <jpeg_fdct_islow+0xe48> lw $4,48($30)
+00401040 <jpeg_fdct_islow+0xe50> addu $3,$3,$4
+00401048 <jpeg_fdct_islow+0xe58> addiu $4,$3,16384
+00401050 <jpeg_fdct_islow+0xe60> sra $3,$4,0xf
+00401058 <jpeg_fdct_islow+0xe68> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:317
+					   CONST_BITS+PASS1_BITS);
+
+    /* Odd part per figure 8 --- note paper omits factor of sqrt(2).
+     * cK represents cos(K*pi/16).
+     * i0..i3 in the paper are tmp4..tmp7 here.
+     */
+
+    z1 = tmp4 + tmp7;
+00401060 <jpeg_fdct_islow+0xe70> lw $2,16($30)
+00401068 <jpeg_fdct_islow+0xe78> lw $3,28($30)
+00401070 <jpeg_fdct_islow+0xe80> addu $2,$2,$3
+00401078 <jpeg_fdct_islow+0xe88> sw $2,48($30)
+../benchmarks/jfdcint/jfdcint.c:318
+    z2 = tmp5 + tmp6;
+00401080 <jpeg_fdct_islow+0xe90> lw $2,20($30)
+00401088 <jpeg_fdct_islow+0xe98> lw $3,24($30)
+00401090 <jpeg_fdct_islow+0xea0> addu $2,$2,$3
+00401098 <jpeg_fdct_islow+0xea8> sw $2,52($30)
+../benchmarks/jfdcint/jfdcint.c:319
+    z3 = tmp4 + tmp6;
+004010a0 <jpeg_fdct_islow+0xeb0> lw $2,16($30)
+004010a8 <jpeg_fdct_islow+0xeb8> lw $3,24($30)
+004010b0 <jpeg_fdct_islow+0xec0> addu $2,$2,$3
+004010b8 <jpeg_fdct_islow+0xec8> sw $2,56($30)
+../benchmarks/jfdcint/jfdcint.c:320
+    z4 = tmp5 + tmp7;
+004010c0 <jpeg_fdct_islow+0xed0> lw $2,20($30)
+004010c8 <jpeg_fdct_islow+0xed8> lw $3,28($30)
+004010d0 <jpeg_fdct_islow+0xee0> addu $2,$2,$3
+004010d8 <jpeg_fdct_islow+0xee8> sw $2,60($30)
+../benchmarks/jfdcint/jfdcint.c:321
+    z5 = MULTIPLY(z3 + z4, FIX_1_175875602); /* sqrt(2) * c3 */
+004010e0 <jpeg_fdct_islow+0xef0> lw $2,56($30)
+004010e8 <jpeg_fdct_islow+0xef8> lw $3,60($30)
+004010f0 <jpeg_fdct_islow+0xf00> addu $2,$2,$3
+004010f8 <jpeg_fdct_islow+0xf08> addu $3,$0,$2
+00401100 <jpeg_fdct_islow+0xf10> sll $4,$3,0x2
+00401108 <jpeg_fdct_islow+0xf18> addu $4,$4,$2
+00401110 <jpeg_fdct_islow+0xf20> sll $3,$4,0x4
+00401118 <jpeg_fdct_islow+0xf28> subu $3,$3,$4
+00401120 <jpeg_fdct_islow+0xf30> sll $4,$3,0x2
+00401128 <jpeg_fdct_islow+0xf38> addu $4,$4,$2
+00401130 <jpeg_fdct_islow+0xf40> sll $3,$4,0x5
+00401138 <jpeg_fdct_islow+0xf48> addu $2,$3,$2
+00401140 <jpeg_fdct_islow+0xf50> sw $2,64($30)
+../benchmarks/jfdcint/jfdcint.c:323
+
+    tmp4 = MULTIPLY(tmp4, FIX_0_298631336); /* sqrt(2) * (-c1+c3+c5-c7) */
+00401148 <jpeg_fdct_islow+0xf58> lw $2,16($30)
+00401150 <jpeg_fdct_islow+0xf60> addu $4,$0,$2
+00401158 <jpeg_fdct_islow+0xf68> sll $3,$4,0x3
+00401160 <jpeg_fdct_islow+0xf70> addu $3,$3,$2
+00401168 <jpeg_fdct_islow+0xf78> sll $4,$3,0x4
+00401170 <jpeg_fdct_islow+0xf80> addu $3,$3,$4
+00401178 <jpeg_fdct_islow+0xf88> sll $4,$3,0x3
+00401180 <jpeg_fdct_islow+0xf90> subu $4,$4,$2
+00401188 <jpeg_fdct_islow+0xf98> sll $2,$4,0x1
+00401190 <jpeg_fdct_islow+0xfa0> sw $2,16($30)
+../benchmarks/jfdcint/jfdcint.c:324
+    tmp5 = MULTIPLY(tmp5, FIX_2_053119869); /* sqrt(2) * ( c1+c3-c5+c7) */
+00401198 <jpeg_fdct_islow+0xfa8> lw $2,20($30)
+004011a0 <jpeg_fdct_islow+0xfb0> addu $4,$0,$2
+004011a8 <jpeg_fdct_islow+0xfb8> sll $3,$4,0x5
+004011b0 <jpeg_fdct_islow+0xfc0> addu $3,$3,$2
+004011b8 <jpeg_fdct_islow+0xfc8> sll $4,$3,0x3
+004011c0 <jpeg_fdct_islow+0xfd0> subu $4,$4,$2
+004011c8 <jpeg_fdct_islow+0xfd8> sll $3,$4,0x2
+004011d0 <jpeg_fdct_islow+0xfe0> subu $3,$3,$2
+004011d8 <jpeg_fdct_islow+0xfe8> sll $4,$3,0x2
+004011e0 <jpeg_fdct_islow+0xff0> addu $4,$4,$2
+004011e8 <jpeg_fdct_islow+0xff8> sll $3,$4,0x2
+004011f0 <jpeg_fdct_islow+0x1000> subu $2,$3,$2
+004011f8 <jpeg_fdct_islow+0x1008> sw $2,20($30)
+../benchmarks/jfdcint/jfdcint.c:325
+    tmp6 = MULTIPLY(tmp6, FIX_3_072711026); /* sqrt(2) * ( c1+c3+c5-c7) */
+00401200 <jpeg_fdct_islow+0x1010> lw $2,24($30)
+00401208 <jpeg_fdct_islow+0x1018> addu $4,$0,$2
+00401210 <jpeg_fdct_islow+0x1020> sll $3,$4,0x1
+00401218 <jpeg_fdct_islow+0x1028> addu $3,$3,$2
+00401220 <jpeg_fdct_islow+0x1030> sll $4,$3,0x4
+00401228 <jpeg_fdct_islow+0x1038> addu $3,$3,$4
+00401230 <jpeg_fdct_islow+0x1040> sll $4,$3,0x2
+00401238 <jpeg_fdct_islow+0x1048> subu $4,$4,$2
+00401240 <jpeg_fdct_islow+0x1050> sll $2,$4,0x5
+00401248 <jpeg_fdct_islow+0x1058> subu $2,$2,$4
+00401250 <jpeg_fdct_islow+0x1060> sll $3,$2,0x2
+00401258 <jpeg_fdct_islow+0x1068> sw $3,24($30)
+../benchmarks/jfdcint/jfdcint.c:326
+    tmp7 = MULTIPLY(tmp7, FIX_1_501321110); /* sqrt(2) * ( c1+c3-c5-c7) */
+00401260 <jpeg_fdct_islow+0x1070> lw $2,28($30)
+00401268 <jpeg_fdct_islow+0x1078> addu $4,$0,$2
+00401270 <jpeg_fdct_islow+0x1080> sll $3,$4,0x1
+00401278 <jpeg_fdct_islow+0x1088> addu $3,$3,$2
+00401280 <jpeg_fdct_islow+0x1090> sll $4,$3,0xa
+00401288 <jpeg_fdct_islow+0x1098> addu $3,$3,$4
+00401290 <jpeg_fdct_islow+0x10a0> sll $4,$3,0x2
+00401298 <jpeg_fdct_islow+0x10a8> subu $2,$4,$2
+004012a0 <jpeg_fdct_islow+0x10b0> sw $2,28($30)
+../benchmarks/jfdcint/jfdcint.c:327
+    z1 = MULTIPLY(z1, - FIX_0_899976223); /* sqrt(2) * (c7-c3) */
+004012a8 <jpeg_fdct_islow+0x10b8> lw $2,48($30)
+004012b0 <jpeg_fdct_islow+0x10c0> addiu $3,$0,-7373
+004012b8 <jpeg_fdct_islow+0x10c8> mult $2,$3
+004012c0 <jpeg_fdct_islow+0x10d0> mflo $2
+004012c8 <jpeg_fdct_islow+0x10d8> sw $2,48($30)
+../benchmarks/jfdcint/jfdcint.c:328
+    z2 = MULTIPLY(z2, - FIX_2_562915447); /* sqrt(2) * (-c1-c3) */
+004012d0 <jpeg_fdct_islow+0x10e0> lw $2,52($30)
+004012d8 <jpeg_fdct_islow+0x10e8> addu $4,$0,$2
+004012e0 <jpeg_fdct_islow+0x10f0> sll $3,$4,0x2
+004012e8 <jpeg_fdct_islow+0x10f8> addu $3,$3,$2
+004012f0 <jpeg_fdct_islow+0x1100> sll $4,$3,0x3
+004012f8 <jpeg_fdct_islow+0x1108> addu $4,$4,$2
+00401300 <jpeg_fdct_islow+0x1110> sll $3,$4,0x7
+00401308 <jpeg_fdct_islow+0x1118> addu $3,$3,$2
+00401310 <jpeg_fdct_islow+0x1120> sll $4,$3,0x2
+00401318 <jpeg_fdct_islow+0x1128> subu $2,$4,$2
+00401320 <jpeg_fdct_islow+0x1130> subu $3,$0,$2
+00401328 <jpeg_fdct_islow+0x1138> sw $3,52($30)
+../benchmarks/jfdcint/jfdcint.c:329
+    z3 = MULTIPLY(z3, - FIX_1_961570560); /* sqrt(2) * (-c3-c5) */
+00401330 <jpeg_fdct_islow+0x1140> lw $2,56($30)
+00401338 <jpeg_fdct_islow+0x1148> addu $4,$0,$2
+00401340 <jpeg_fdct_islow+0x1150> sll $3,$4,0x6
+00401348 <jpeg_fdct_islow+0x1158> subu $3,$3,$2
+00401350 <jpeg_fdct_islow+0x1160> sll $4,$3,0x2
+00401358 <jpeg_fdct_islow+0x1168> subu $4,$4,$2
+00401360 <jpeg_fdct_islow+0x1170> sll $3,$4,0x4
+00401368 <jpeg_fdct_islow+0x1178> addu $3,$3,$2
+00401370 <jpeg_fdct_islow+0x1180> sll $4,$3,0x2
+00401378 <jpeg_fdct_islow+0x1188> addu $2,$4,$2
+00401380 <jpeg_fdct_islow+0x1190> subu $3,$0,$2
+00401388 <jpeg_fdct_islow+0x1198> sw $3,56($30)
+../benchmarks/jfdcint/jfdcint.c:330
+    z4 = MULTIPLY(z4, - FIX_0_390180644); /* sqrt(2) * (c5-c3) */
+00401390 <jpeg_fdct_islow+0x11a0> lw $2,60($30)
+00401398 <jpeg_fdct_islow+0x11a8> addu $4,$0,$2
+004013a0 <jpeg_fdct_islow+0x11b0> sll $3,$4,0x1
+004013a8 <jpeg_fdct_islow+0x11b8> addu $3,$3,$2
+004013b0 <jpeg_fdct_islow+0x11c0> sll $4,$3,0x3
+004013b8 <jpeg_fdct_islow+0x11c8> addu $4,$4,$2
+004013c0 <jpeg_fdct_islow+0x11d0> sll $3,$4,0x5
+004013c8 <jpeg_fdct_islow+0x11d8> subu $3,$3,$2
+004013d0 <jpeg_fdct_islow+0x11e0> sll $2,$3,0x2
+004013d8 <jpeg_fdct_islow+0x11e8> subu $3,$0,$2
+004013e0 <jpeg_fdct_islow+0x11f0> sw $3,60($30)
+../benchmarks/jfdcint/jfdcint.c:332
+
+    z3 += z5;
+004013e8 <jpeg_fdct_islow+0x11f8> lw $2,56($30)
+004013f0 <jpeg_fdct_islow+0x1200> lw $3,64($30)
+004013f8 <jpeg_fdct_islow+0x1208> addu $2,$2,$3
+00401400 <jpeg_fdct_islow+0x1210> sw $2,56($30)
+../benchmarks/jfdcint/jfdcint.c:333
+    z4 += z5;
+00401408 <jpeg_fdct_islow+0x1218> lw $2,60($30)
+00401410 <jpeg_fdct_islow+0x1220> lw $3,64($30)
+00401418 <jpeg_fdct_islow+0x1228> addu $2,$2,$3
+00401420 <jpeg_fdct_islow+0x1230> sw $2,60($30)
+../benchmarks/jfdcint/jfdcint.c:335
+
+    dataptr[DCTSIZE*7] = (DCTELEM) DESCALE(tmp4 + z1 + z3,
+00401428 <jpeg_fdct_islow+0x1238> lw $3,68($30)
+00401430 <jpeg_fdct_islow+0x1240> addiu $2,$3,224
+00401438 <jpeg_fdct_islow+0x1248> lw $3,16($30)
+00401440 <jpeg_fdct_islow+0x1250> lw $4,48($30)
+00401448 <jpeg_fdct_islow+0x1258> addu $3,$3,$4
+00401450 <jpeg_fdct_islow+0x1260> lw $4,56($30)
+00401458 <jpeg_fdct_islow+0x1268> addu $3,$3,$4
+00401460 <jpeg_fdct_islow+0x1270> addiu $4,$3,16384
+00401468 <jpeg_fdct_islow+0x1278> sra $3,$4,0xf
+00401470 <jpeg_fdct_islow+0x1280> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:337
+					   CONST_BITS+PASS1_BITS);
+    dataptr[DCTSIZE*5] = (DCTELEM) DESCALE(tmp5 + z2 + z4,
+00401478 <jpeg_fdct_islow+0x1288> lw $3,68($30)
+00401480 <jpeg_fdct_islow+0x1290> addiu $2,$3,160
+00401488 <jpeg_fdct_islow+0x1298> lw $3,20($30)
+00401490 <jpeg_fdct_islow+0x12a0> lw $4,52($30)
+00401498 <jpeg_fdct_islow+0x12a8> addu $3,$3,$4
+004014a0 <jpeg_fdct_islow+0x12b0> lw $4,60($30)
+004014a8 <jpeg_fdct_islow+0x12b8> addu $3,$3,$4
+004014b0 <jpeg_fdct_islow+0x12c0> addiu $4,$3,16384
+004014b8 <jpeg_fdct_islow+0x12c8> sra $3,$4,0xf
+004014c0 <jpeg_fdct_islow+0x12d0> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:339
+					   CONST_BITS+PASS1_BITS);
+    dataptr[DCTSIZE*3] = (DCTELEM) DESCALE(tmp6 + z2 + z3,
+004014c8 <jpeg_fdct_islow+0x12d8> lw $3,68($30)
+004014d0 <jpeg_fdct_islow+0x12e0> addiu $2,$3,96
+004014d8 <jpeg_fdct_islow+0x12e8> lw $3,24($30)
+004014e0 <jpeg_fdct_islow+0x12f0> lw $4,52($30)
+004014e8 <jpeg_fdct_islow+0x12f8> addu $3,$3,$4
+004014f0 <jpeg_fdct_islow+0x1300> lw $4,56($30)
+004014f8 <jpeg_fdct_islow+0x1308> addu $3,$3,$4
+00401500 <jpeg_fdct_islow+0x1310> addiu $4,$3,16384
+00401508 <jpeg_fdct_islow+0x1318> sra $3,$4,0xf
+00401510 <jpeg_fdct_islow+0x1320> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:341
+					   CONST_BITS+PASS1_BITS);
+    dataptr[DCTSIZE*1] = (DCTELEM) DESCALE(tmp7 + z1 + z4,
+00401518 <jpeg_fdct_islow+0x1328> lw $3,68($30)
+00401520 <jpeg_fdct_islow+0x1330> addiu $2,$3,32
+00401528 <jpeg_fdct_islow+0x1338> lw $3,28($30)
+00401530 <jpeg_fdct_islow+0x1340> lw $4,48($30)
+00401538 <jpeg_fdct_islow+0x1348> addu $3,$3,$4
+00401540 <jpeg_fdct_islow+0x1350> lw $4,60($30)
+00401548 <jpeg_fdct_islow+0x1358> addu $3,$3,$4
+00401550 <jpeg_fdct_islow+0x1360> addiu $4,$3,16384
+00401558 <jpeg_fdct_islow+0x1368> sra $3,$4,0xf
+00401560 <jpeg_fdct_islow+0x1370> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:344
+					   CONST_BITS+PASS1_BITS);
+
+    dataptr++;			/* advance pointer to next column */
+00401568 <jpeg_fdct_islow+0x1378> lw $3,68($30)
+00401570 <jpeg_fdct_islow+0x1380> addiu $2,$3,4
+00401578 <jpeg_fdct_islow+0x1388> addu $3,$0,$2
+00401580 <jpeg_fdct_islow+0x1390> sw $3,68($30)
+../benchmarks/jfdcint/jfdcint.c:284
+00401588 <jpeg_fdct_islow+0x1398> lw $3,72($30)
+00401590 <jpeg_fdct_islow+0x13a0> addiu $2,$3,-1
+00401598 <jpeg_fdct_islow+0x13a8> addu $3,$0,$2
+004015a0 <jpeg_fdct_islow+0x13b0> sw $3,72($30)
+004015a8 <jpeg_fdct_islow+0x13b8> j 00400bf8 <jpeg_fdct_islow+0xa08>
+../benchmarks/jfdcint/jfdcint.c:346
+  }
+}
+004015b0 <jpeg_fdct_islow+0x13c0> addu $29,$0,$30
+004015b8 <jpeg_fdct_islow+0x13c8> lw $30,80($29)
+004015c0 <jpeg_fdct_islow+0x13d0> addiu $29,$29,88
+004015c8 <jpeg_fdct_islow+0x13d8> jr $31
+main():
+../benchmarks/jfdcint/jfdcint.c:362
+
+#endif /* DCT_ISLOW_SUPPORTED */
+
+
+
+
+
+/* Main function
+   Time to function execution time using logic analyzer,
+   which measures the OFF time of a LED on board.
+
+   The switching latency, including the function call/return time,
+   is measured to be equal to 1.1us (22 clock cycles).
+*/
+void main(void)
+{
+004015d0 <main> addiu $29,$29,-32
+004015d8 <main+0x8> sw $31,28($29)
+004015e0 <main+0x10> sw $30,24($29)
+004015e8 <main+0x18> addu $30,$0,$29
+../benchmarks/jfdcint/jfdcint.c:367
+  int i, seed;
+
+  /* Worst case settings */
+  /* Set array to random values */
+  seed = 1;
+004015f0 <main+0x20> addiu $2,$0,1
+004015f8 <main+0x28> sw $2,20($30)
+../benchmarks/jfdcint/jfdcint.c:368
+  for (i = 0; i < 64; i++) {
+00401600 <main+0x30> sw $0,16($30)
+00401608 <main+0x38> lw $2,16($30)
+00401610 <main+0x40> slti $3,$2,64
+00401618 <main+0x48> bne $3,$0,00401628 <main+0x58>
+00401620 <main+0x50> j 00401748 <main+0x178>
+../benchmarks/jfdcint/jfdcint.c:369
+    seed = ((seed * 133) + 81) % 65535;
+00401628 <main+0x58> lw $2,20($30)
+00401630 <main+0x60> addu $4,$0,$2
+00401638 <main+0x68> sll $3,$4,0x5
+00401640 <main+0x70> addu $3,$3,$2
+00401648 <main+0x78> sll $4,$3,0x2
+00401650 <main+0x80> addu $4,$4,$2
+00401658 <main+0x88> addiu $2,$4,81
+00401660 <main+0x90> lui $6,32768
+00401668 <main+0x98> ori $6,$6,32769
+00401670 <main+0xa0> mult $2,$6
+00401678 <main+0xa8> mfhi $5
+00401680 <main+0xb0> mflo $4
+00401688 <main+0xb8> srl $6,$5,0x0
+00401690 <main+0xc0> addu $7,$0,$0
+00401698 <main+0xc8> addu $3,$2,$6
+004016a0 <main+0xd0> sra $4,$3,0xf
+004016a8 <main+0xd8> sra $5,$2,0x1f
+004016b0 <main+0xe0> subu $3,$4,$5
+004016b8 <main+0xe8> addu $5,$0,$3
+004016c0 <main+0xf0> sll $4,$5,0x10
+004016c8 <main+0xf8> subu $4,$4,$3
+004016d0 <main+0x100> subu $2,$2,$4
+004016d8 <main+0x108> sw $2,20($30)
+../benchmarks/jfdcint/jfdcint.c:370
+    data[i] = seed;
+004016e0 <main+0x110> lw $2,16($30)
+004016e8 <main+0x118> addu $3,$0,$2
+004016f0 <main+0x120> sll $2,$3,0x2
+004016f8 <main+0x128> lui $3,4096
+00401700 <main+0x130> addiu $3,$3,944
+00401708 <main+0x138> addu $2,$2,$3
+00401710 <main+0x140> lw $3,20($30)
+00401718 <main+0x148> sw $3,0($2)
+../benchmarks/jfdcint/jfdcint.c:368
+00401720 <main+0x150> lw $3,16($30)
+00401728 <main+0x158> addiu $2,$3,1
+00401730 <main+0x160> addu $3,$0,$2
+00401738 <main+0x168> sw $3,16($30)
+00401740 <main+0x170> j 00401608 <main+0x38>
+../benchmarks/jfdcint/jfdcint.c:373
+  }
+
+  jpeg_fdct_islow();
+00401748 <main+0x178> jal 004001f0 <jpeg_fdct_islow>
+../benchmarks/jfdcint/jfdcint.c:374
+}
+00401750 <main+0x180> addu $29,$0,$30
+00401758 <main+0x188> lw $31,28($29)
+00401760 <main+0x190> lw $30,24($29)
+00401768 <main+0x198> addiu $29,$29,32
+00401770 <main+0x1a0> jr $31
+00401778 <main+0x1a8> nop 

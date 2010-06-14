@@ -1,0 +1,14 @@
+cfg.h
+
+#define MAX_BB_IN          1024
+//#define       MAX_BB_IN          64
+//#define       MAX_BB_IN           16
+
+
+common.h
+
+#define MAX_INST        10240   /* maximum # of instructions can be processed */
+#define MAX_BB          4096    /* maximum # of blocks can be processed */
+// #define      MAX_INST        5120    /* maximum # of instructions can be processed */
+// #define MAX_BB               1024    /* maximum # of blocks can be processed */
+

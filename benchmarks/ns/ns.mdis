@@ -1,0 +1,236 @@
+
+../benchmarks/ns/ns:     file format ss-coff-little
+
+Disassembly of section .text:
+00400140 <__start> lw $16,0($29)
+00400148 <__start+0x8> lui $28,4097
+00400150 <__start+0x10> addiu $28,$28,-27024
+00400158 <__start+0x18> addiu $17,$29,4
+00400160 <__start+0x20> addiu $3,$17,4
+00400168 <__start+0x28> sll $2,$16,0x2
+00400170 <__start+0x30> addu $3,$3,$2
+00400178 <__start+0x38> addu $18,$0,$3
+00400180 <__start+0x40> sw $18,-32636($28)
+00400188 <__start+0x48> addiu $29,$29,-24
+00400190 <__start+0x50> addu $4,$0,$16
+00400198 <__start+0x58> addu $5,$0,$17
+004001a0 <__start+0x60> addu $6,$0,$18
+004001a8 <__start+0x68> jal 004006c0 <__libc_init>
+004001b0 <__start+0x70> sw $0,-32640($28)
+004001b8 <__start+0x78> addu $4,$0,$16
+004001c0 <__start+0x80> addu $5,$0,$17
+004001c8 <__start+0x88> addu $6,$0,$18
+004001d0 <__start+0x90> jal 00400660 <main>
+004001d8 <__start+0x98> addu $4,$0,$2
+004001e0 <__start+0xa0> jal 004006f0 <exit>
+004001e8 <__start+0xa8> nop 
+foo():
+../benchmarks/ns/ns.c:498
+};
+
+
+int foo(int x)
+{
+004001f0 <foo> addiu $29,$29,-24
+004001f8 <foo+0x8> sw $30,16($29)
+00400200 <foo+0x10> addu $30,$0,$29
+00400208 <foo+0x18> sw $4,24($30)
+../benchmarks/ns/ns.c:504
+#ifdef TEST
+  int c = 0;                    /* counter for innerloop */
+#endif
+  int i,j,k,l;
+
+  for(i=0; i<5; i++)
+00400210 <foo+0x20> sw $0,0($30)
+00400218 <foo+0x28> lw $2,0($30)
+00400220 <foo+0x30> slti $3,$2,5
+00400228 <foo+0x38> bne $3,$0,00400238 <foo+0x48>
+00400230 <foo+0x40> j 00400630 <foo+0x440>
+../benchmarks/ns/ns.c:505
+    for(j=0 ; j<5 ; j++)
+00400238 <foo+0x48> sw $0,4($30)
+00400240 <foo+0x50> lw $2,4($30)
+00400248 <foo+0x58> slti $3,$2,5
+00400250 <foo+0x60> bne $3,$0,00400260 <foo+0x70>
+00400258 <foo+0x68> j 00400608 <foo+0x418>
+../benchmarks/ns/ns.c:506
+      for(k=0 ; k<5 ; k++)
+00400260 <foo+0x70> sw $0,8($30)
+00400268 <foo+0x78> lw $2,8($30)
+00400270 <foo+0x80> slti $3,$2,5
+00400278 <foo+0x88> bne $3,$0,00400288 <foo+0x98>
+00400280 <foo+0x90> j 004005e0 <foo+0x3f0>
+../benchmarks/ns/ns.c:507
+        for(l=0 ; l<5 ; l++)
+00400288 <foo+0x98> sw $0,12($30)
+00400290 <foo+0xa0> lw $2,12($30)
+00400298 <foo+0xa8> slti $3,$2,5
+004002a0 <foo+0xb0> bne $3,$0,004002b0 <foo+0xc0>
+004002a8 <foo+0xb8> j 004005b8 <foo+0x3c8>
+../benchmarks/ns/ns.c:512
+        {
+#ifdef TEST
+          c++;
+#endif
+          if( keys[i][j][k][l] == x )
+004002b0 <foo+0xc0> lw $2,0($30)
+004002b8 <foo+0xc8> addu $4,$0,$2
+004002c0 <foo+0xd0> sll $3,$4,0x5
+004002c8 <foo+0xd8> subu $3,$3,$2
+004002d0 <foo+0xe0> sll $4,$3,0x2
+004002d8 <foo+0xe8> addu $4,$4,$2
+004002e0 <foo+0xf0> sll $2,$4,0x2
+004002e8 <foo+0xf8> lui $3,4096
+004002f0 <foo+0x100> addiu $3,$3,96
+004002f8 <foo+0x108> addu $2,$2,$3
+00400300 <foo+0x110> lw $3,4($30)
+00400308 <foo+0x118> addu $5,$0,$3
+00400310 <foo+0x120> sll $4,$5,0x1
+00400318 <foo+0x128> addu $4,$4,$3
+00400320 <foo+0x130> sll $5,$4,0x3
+00400328 <foo+0x138> addu $5,$5,$3
+00400330 <foo+0x140> sll $3,$5,0x2
+00400338 <foo+0x148> addu $2,$3,$2
+00400340 <foo+0x150> lw $3,8($30)
+00400348 <foo+0x158> addu $5,$0,$3
+00400350 <foo+0x160> sll $4,$5,0x2
+00400358 <foo+0x168> addu $4,$4,$3
+00400360 <foo+0x170> sll $3,$4,0x2
+00400368 <foo+0x178> addu $2,$3,$2
+00400370 <foo+0x180> lw $3,12($30)
+00400378 <foo+0x188> addu $4,$0,$3
+00400380 <foo+0x190> sll $3,$4,0x2
+00400388 <foo+0x198> addu $2,$3,$2
+00400390 <foo+0x1a0> lw $3,0($2)
+00400398 <foo+0x1a8> lw $2,24($30)
+004003a0 <foo+0x1b0> bne $3,$2,00400590 <foo+0x3a0>
+../benchmarks/ns/ns.c:517
+            {
+#ifdef TEST
+              printf("   %d\n",c);
+#endif
+              return answer[i][j][k][l] + keys[i][j][k][l];
+004003a8 <foo+0x1b8> lw $2,0($30)
+004003b0 <foo+0x1c0> addu $4,$0,$2
+004003b8 <foo+0x1c8> sll $3,$4,0x5
+004003c0 <foo+0x1d0> subu $3,$3,$2
+004003c8 <foo+0x1d8> sll $4,$3,0x2
+004003d0 <foo+0x1e0> addu $4,$4,$2
+004003d8 <foo+0x1e8> sll $2,$4,0x2
+004003e0 <foo+0x1f0> lui $3,4096
+004003e8 <foo+0x1f8> addiu $3,$3,2596
+004003f0 <foo+0x200> addu $2,$2,$3
+004003f8 <foo+0x208> lw $3,4($30)
+00400400 <foo+0x210> addu $5,$0,$3
+00400408 <foo+0x218> sll $4,$5,0x1
+00400410 <foo+0x220> addu $4,$4,$3
+00400418 <foo+0x228> sll $5,$4,0x3
+00400420 <foo+0x230> addu $5,$5,$3
+00400428 <foo+0x238> sll $3,$5,0x2
+00400430 <foo+0x240> addu $2,$3,$2
+00400438 <foo+0x248> lw $3,8($30)
+00400440 <foo+0x250> addu $5,$0,$3
+00400448 <foo+0x258> sll $4,$5,0x2
+00400450 <foo+0x260> addu $4,$4,$3
+00400458 <foo+0x268> sll $3,$4,0x2
+00400460 <foo+0x270> addu $2,$3,$2
+00400468 <foo+0x278> lw $3,12($30)
+00400470 <foo+0x280> addu $4,$0,$3
+00400478 <foo+0x288> sll $3,$4,0x2
+00400480 <foo+0x290> addu $2,$3,$2
+00400488 <foo+0x298> lw $3,0($30)
+00400490 <foo+0x2a0> addu $5,$0,$3
+00400498 <foo+0x2a8> sll $4,$5,0x5
+004004a0 <foo+0x2b0> subu $4,$4,$3
+004004a8 <foo+0x2b8> sll $5,$4,0x2
+004004b0 <foo+0x2c0> addu $5,$5,$3
+004004b8 <foo+0x2c8> sll $3,$5,0x2
+004004c0 <foo+0x2d0> lui $4,4096
+004004c8 <foo+0x2d8> addiu $4,$4,96
+004004d0 <foo+0x2e0> addu $3,$3,$4
+004004d8 <foo+0x2e8> lw $4,4($30)
+004004e0 <foo+0x2f0> addu $6,$0,$4
+004004e8 <foo+0x2f8> sll $5,$6,0x1
+004004f0 <foo+0x300> addu $5,$5,$4
+004004f8 <foo+0x308> sll $6,$5,0x3
+00400500 <foo+0x310> addu $6,$6,$4
+00400508 <foo+0x318> sll $4,$6,0x2
+00400510 <foo+0x320> addu $3,$4,$3
+00400518 <foo+0x328> lw $4,8($30)
+00400520 <foo+0x330> addu $6,$0,$4
+00400528 <foo+0x338> sll $5,$6,0x2
+00400530 <foo+0x340> addu $5,$5,$4
+00400538 <foo+0x348> sll $4,$5,0x2
+00400540 <foo+0x350> addu $3,$4,$3
+00400548 <foo+0x358> lw $4,12($30)
+00400550 <foo+0x360> addu $5,$0,$4
+00400558 <foo+0x368> sll $4,$5,0x2
+00400560 <foo+0x370> addu $3,$4,$3
+00400568 <foo+0x378> lw $2,0($2)
+00400570 <foo+0x380> lw $4,0($3)
+00400578 <foo+0x388> addu $3,$2,$4
+00400580 <foo+0x390> addu $2,$0,$3
+00400588 <foo+0x398> j 00400640 <foo+0x450>
+../benchmarks/ns/ns.c:507
+00400590 <foo+0x3a0> lw $3,12($30)
+00400598 <foo+0x3a8> addiu $2,$3,1
+004005a0 <foo+0x3b0> addu $3,$0,$2
+004005a8 <foo+0x3b8> sw $3,12($30)
+004005b0 <foo+0x3c0> j 00400290 <foo+0xa0>
+../benchmarks/ns/ns.c:506
+004005b8 <foo+0x3c8> lw $3,8($30)
+004005c0 <foo+0x3d0> addiu $2,$3,1
+004005c8 <foo+0x3d8> addu $3,$0,$2
+004005d0 <foo+0x3e0> sw $3,8($30)
+004005d8 <foo+0x3e8> j 00400268 <foo+0x78>
+../benchmarks/ns/ns.c:505
+004005e0 <foo+0x3f0> lw $3,4($30)
+004005e8 <foo+0x3f8> addiu $2,$3,1
+004005f0 <foo+0x400> addu $3,$0,$2
+004005f8 <foo+0x408> sw $3,4($30)
+00400600 <foo+0x410> j 00400240 <foo+0x50>
+../benchmarks/ns/ns.c:504
+00400608 <foo+0x418> lw $3,0($30)
+00400610 <foo+0x420> addiu $2,$3,1
+00400618 <foo+0x428> addu $3,$0,$2
+00400620 <foo+0x430> sw $3,0($30)
+00400628 <foo+0x438> j 00400218 <foo+0x28>
+../benchmarks/ns/ns.c:520
+            }
+        }
+  return -1;
+00400630 <foo+0x440> addiu $2,$0,-1
+00400638 <foo+0x448> j 00400640 <foo+0x450>
+../benchmarks/ns/ns.c:521
+}
+00400640 <foo+0x450> addu $29,$0,$30
+00400648 <foo+0x458> lw $30,16($29)
+00400650 <foo+0x460> addiu $29,$29,24
+00400658 <foo+0x468> jr $31
+main():
+../benchmarks/ns/ns.c:525
+
+
+void main(void)
+{
+00400660 <main> addiu $29,$29,-24
+00400668 <main+0x8> sw $31,20($29)
+00400670 <main+0x10> sw $30,16($29)
+00400678 <main+0x18> addu $30,$0,$29
+../benchmarks/ns/ns.c:529
+#ifdef TEST
+  printf("result=%d\n",foo(400));
+#else
+  foo(400);
+00400680 <main+0x20> addiu $4,$0,400
+00400688 <main+0x28> jal 004001f0 <foo>
+../benchmarks/ns/ns.c:531
+#endif
+}
+00400690 <main+0x30> addu $29,$0,$30
+00400698 <main+0x38> lw $31,20($29)
+004006a0 <main+0x40> lw $30,16($29)
+004006a8 <main+0x48> addiu $29,$29,24
+004006b0 <main+0x50> jr $31
+004006b8 <main+0x58> nop 

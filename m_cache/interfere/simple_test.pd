@@ -1,0 +1,4 @@
+/home/sudiptac/sudiptac/Work/benchmarks/matmult/matmult 	1	200 5 800000000000
+/home/sudiptac/sudiptac/mWork/benchmarks/jfdcint/jfdcint 	1	200 5 800000000000
+compress/compress  1 200 5 800000000000
+/home/sudiptac/sudiptac/mWork/benchmarks/matmult_interproc/matmult_interproc 1 200 5 800000000000

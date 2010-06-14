@@ -1,0 +1,285 @@
+
+../benchmarks/fir/fir:     file format ss-coff-little
+
+Disassembly of section .text:
+00400140 <__start> lw $16,0($29)
+00400148 <__start+0x8> lui $28,4097
+00400150 <__start+0x10> addiu $28,$28,-26192
+00400158 <__start+0x18> addiu $17,$29,4
+00400160 <__start+0x20> addiu $3,$17,4
+00400168 <__start+0x28> sll $2,$16,0x2
+00400170 <__start+0x30> addu $3,$3,$2
+00400178 <__start+0x38> addu $18,$0,$3
+00400180 <__start+0x40> sw $18,-32636($28)
+00400188 <__start+0x48> addiu $29,$29,-24
+00400190 <__start+0x50> addu $4,$0,$16
+00400198 <__start+0x58> addu $5,$0,$17
+004001a0 <__start+0x60> addu $6,$0,$18
+004001a8 <__start+0x68> jal 00400670 <__libc_init>
+004001b0 <__start+0x70> sw $0,-32640($28)
+004001b8 <__start+0x78> addu $4,$0,$16
+004001c0 <__start+0x80> addu $5,$0,$17
+004001c8 <__start+0x88> addu $6,$0,$18
+004001d0 <__start+0x90> jal 004001f0 <main>
+004001d8 <__start+0x98> addu $4,$0,$2
+004001e0 <__start+0xa0> jal 004006a0 <exit>
+004001e8 <__start+0xa8> nop 
+main():
+../benchmarks/fir/fir.c:191
+/*--------------------------------------------------
+ *--- Main Function
+ *--------------------------------------------------*/
+void main()
+{
+004001f0 <main> addiu $29,$29,-2912
+004001f8 <main+0x8> sw $31,2908($29)
+00400200 <main+0x10> sw $30,2904($29)
+00400208 <main+0x18> addu $30,$0,$29
+../benchmarks/fir/fir.c:194
+  long  output[OUTSIZE];
+
+  fir_filter_int(in_data,output,700,fir_int,35,285); //Changed JG/Ebbe
+00400210 <main+0x20> addiu $2,$0,35
+00400218 <main+0x28> sw $2,16($29)
+00400220 <main+0x30> addiu $2,$0,285
+00400228 <main+0x38> sw $2,20($29)
+00400230 <main+0x40> lui $4,4096
+00400238 <main+0x48> addiu $4,$4,240
+00400240 <main+0x50> addiu $5,$30,24
+00400248 <main+0x58> addiu $6,$0,700
+00400250 <main+0x60> lui $7,4096
+00400258 <main+0x68> addiu $7,$7,96
+00400260 <main+0x70> jal 00400290 <fir_filter_int>
+../benchmarks/fir/fir.c:204
+  //fir_filter_int(in_data,output,10,fir_int,35,285);
+
+  /* Verify results */
+  /*for(i=0;i<700;i++)*/
+  /* if (output[i]!=out_data[i])*/
+  /*{ printf("Error: index %d, data %x != %x\n",*/
+  /* i, output[i], out_data[i]); */
+  /* break; */
+  /* }*/
+}
+00400268 <main+0x78> addu $29,$0,$30
+00400270 <main+0x80> lw $31,2908($29)
+00400278 <main+0x88> lw $30,2904($29)
+00400280 <main+0x90> addiu $29,$29,2912
+00400288 <main+0x98> jr $31
+fir_filter_int():
+../benchmarks/fir/fir.c:231
+
+/**************************************************************************
+fir_filter_int - Filters int data array based on passed int coefficients.
+
+The length of the input and output arrays are equal
+and are allocated by the calller.
+The length of the coefficient array is passed.
+An integer scale factor (passed) is used to divide the accumulation result.
+
+void fir_filter_int(int *in,int *out,int in_len,
+                                  int *coef,int coef_len,int scale)
+
+    in          integer pointer to input array
+    out         integer pointer to output array
+    in_len      length of input and output arrays
+    coef        integer pointer to coefficient array
+    coef_len    length of coeffient array
+    scale       scale factor to divide after accumulation
+
+No return value.
+
+*************************************************************************/
+
+void fir_filter_int(long* in,long* out,long in_len,
+                    long* coef,long coef_len,
+                    long scale)
+{
+00400290 <fir_filter_int> addiu $29,$29,-48
+00400298 <fir_filter_int+0x8> sw $30,40($29)
+004002a0 <fir_filter_int+0x10> addu $30,$0,$29
+004002a8 <fir_filter_int+0x18> sw $4,48($30)
+004002b0 <fir_filter_int+0x20> sw $5,52($30)
+004002b8 <fir_filter_int+0x28> sw $6,56($30)
+004002c0 <fir_filter_int+0x30> sw $7,60($30)
+../benchmarks/fir/fir.c:237
+  long i,j,coef_len2,acc_length;
+  long acc;
+  long *in_ptr,*data_ptr,*coef_start,*coef_ptr,*in_end;
+
+  /* set up for coefficients */
+  coef_start = coef;
+004002c8 <fir_filter_int+0x38> lw $2,60($30)
+004002d0 <fir_filter_int+0x40> sw $2,28($30)
+../benchmarks/fir/fir.c:238
+  coef_len2 = (coef_len + 1) >> 1;
+004002d8 <fir_filter_int+0x48> lw $3,64($30)
+004002e0 <fir_filter_int+0x50> addiu $2,$3,1
+004002e8 <fir_filter_int+0x58> sra $3,$2,0x1
+004002f0 <fir_filter_int+0x60> sw $3,8($30)
+../benchmarks/fir/fir.c:241
+
+  /* set up input data pointers */
+  in_end = in + in_len - 1;
+004002f8 <fir_filter_int+0x68> lw $2,56($30)
+00400300 <fir_filter_int+0x70> addu $3,$0,$2
+00400308 <fir_filter_int+0x78> sll $2,$3,0x2
+00400310 <fir_filter_int+0x80> lw $3,48($30)
+00400318 <fir_filter_int+0x88> addu $2,$2,$3
+00400320 <fir_filter_int+0x90> addiu $3,$2,-4
+00400328 <fir_filter_int+0x98> sw $3,36($30)
+../benchmarks/fir/fir.c:242
+  in_ptr = in + coef_len2 - 1;
+00400330 <fir_filter_int+0xa0> lw $2,8($30)
+00400338 <fir_filter_int+0xa8> addu $3,$0,$2
+00400340 <fir_filter_int+0xb0> sll $2,$3,0x2
+00400348 <fir_filter_int+0xb8> lw $3,48($30)
+00400350 <fir_filter_int+0xc0> addu $2,$2,$3
+00400358 <fir_filter_int+0xc8> addiu $3,$2,-4
+00400360 <fir_filter_int+0xd0> sw $3,20($30)
+../benchmarks/fir/fir.c:245
+
+  /* initial value of accumulation length for startup */
+  acc_length = coef_len2;
+00400368 <fir_filter_int+0xd8> lw $2,8($30)
+00400370 <fir_filter_int+0xe0> sw $2,12($30)
+../benchmarks/fir/fir.c:247
+
+  for(i = 0 ; i < in_len ; i++) {
+00400378 <fir_filter_int+0xe8> sw $0,0($30)
+00400380 <fir_filter_int+0xf0> lw $2,0($30)
+00400388 <fir_filter_int+0xf8> lw $3,56($30)
+00400390 <fir_filter_int+0x100> slt $2,$2,$3
+00400398 <fir_filter_int+0x108> bne $2,$0,004003a8 <fir_filter_int+0x118>
+004003a0 <fir_filter_int+0x110> j 00400648 <fir_filter_int+0x3b8>
+../benchmarks/fir/fir.c:250
+
+    /* set up pointer for accumulation */
+    data_ptr = in_ptr;
+004003a8 <fir_filter_int+0x118> lw $2,20($30)
+004003b0 <fir_filter_int+0x120> sw $2,24($30)
+../benchmarks/fir/fir.c:251
+    coef_ptr = coef_start;
+004003b8 <fir_filter_int+0x128> lw $2,28($30)
+004003c0 <fir_filter_int+0x130> sw $2,32($30)
+../benchmarks/fir/fir.c:255
+
+    /* do accumulation and write result with scale factor */
+
+    acc = (long)(*coef_ptr++) * (*data_ptr--);
+004003c8 <fir_filter_int+0x138> lw $2,32($30)
+004003d0 <fir_filter_int+0x140> addiu $3,$2,4
+004003d8 <fir_filter_int+0x148> sw $3,32($30)
+004003e0 <fir_filter_int+0x150> lw $3,24($30)
+004003e8 <fir_filter_int+0x158> addiu $4,$3,-4
+004003f0 <fir_filter_int+0x160> sw $4,24($30)
+004003f8 <fir_filter_int+0x168> lw $2,0($2)
+00400400 <fir_filter_int+0x170> lw $3,0($3)
+00400408 <fir_filter_int+0x178> mult $2,$3
+00400410 <fir_filter_int+0x180> mflo $2
+00400418 <fir_filter_int+0x188> sw $2,16($30)
+../benchmarks/fir/fir.c:256
+    for(j = 1 ; j < acc_length ; j++)
+00400420 <fir_filter_int+0x190> addiu $2,$0,1
+00400428 <fir_filter_int+0x198> sw $2,4($30)
+00400430 <fir_filter_int+0x1a0> lw $2,4($30)
+00400438 <fir_filter_int+0x1a8> lw $3,12($30)
+00400440 <fir_filter_int+0x1b0> slt $2,$2,$3
+00400448 <fir_filter_int+0x1b8> bne $2,$0,00400458 <fir_filter_int+0x1c8>
+00400450 <fir_filter_int+0x1c0> j 004004e8 <fir_filter_int+0x258>
+../benchmarks/fir/fir.c:257
+      acc += (long)(*coef_ptr++) * (*data_ptr--);
+00400458 <fir_filter_int+0x1c8> lw $2,32($30)
+00400460 <fir_filter_int+0x1d0> addiu $3,$2,4
+00400468 <fir_filter_int+0x1d8> sw $3,32($30)
+00400470 <fir_filter_int+0x1e0> lw $3,24($30)
+00400478 <fir_filter_int+0x1e8> addiu $4,$3,-4
+00400480 <fir_filter_int+0x1f0> sw $4,24($30)
+00400488 <fir_filter_int+0x1f8> lw $2,0($2)
+00400490 <fir_filter_int+0x200> lw $3,0($3)
+00400498 <fir_filter_int+0x208> mult $2,$3
+004004a0 <fir_filter_int+0x210> mflo $2
+004004a8 <fir_filter_int+0x218> lw $3,16($30)
+004004b0 <fir_filter_int+0x220> addu $2,$3,$2
+004004b8 <fir_filter_int+0x228> sw $2,16($30)
+../benchmarks/fir/fir.c:256
+004004c0 <fir_filter_int+0x230> lw $3,4($30)
+004004c8 <fir_filter_int+0x238> addiu $2,$3,1
+004004d0 <fir_filter_int+0x240> addu $3,$0,$2
+004004d8 <fir_filter_int+0x248> sw $3,4($30)
+004004e0 <fir_filter_int+0x250> j 00400430 <fir_filter_int+0x1a0>
+../benchmarks/fir/fir.c:258
+    *out++ = (int)(acc/scale);
+004004e8 <fir_filter_int+0x258> lw $2,52($30)
+004004f0 <fir_filter_int+0x260> addiu $3,$2,4
+004004f8 <fir_filter_int+0x268> sw $3,52($30)
+00400500 <fir_filter_int+0x270> lw $3,16($30)
+00400508 <fir_filter_int+0x278> lw $4,68($30)
+00400510 <fir_filter_int+0x280> div $0,$3,$4
+00400518 <fir_filter_int+0x288> bne $4,$0,00400528 <fir_filter_int+0x298>
+00400520 <fir_filter_int+0x290> break 
+00400528 <fir_filter_int+0x298> addiu $1,$0,-1
+00400530 <fir_filter_int+0x2a0> bne $4,$1,00400550 <fir_filter_int+0x2c0>
+00400538 <fir_filter_int+0x2a8> lui $1,32768
+00400540 <fir_filter_int+0x2b0> bne $3,$1,00400550 <fir_filter_int+0x2c0>
+00400548 <fir_filter_int+0x2b8> break 
+00400550 <fir_filter_int+0x2c0> mflo $3
+00400558 <fir_filter_int+0x2c8> sw $3,0($2)
+../benchmarks/fir/fir.c:262
+
+    /* check for end case */
+
+    if(in_ptr == in_end) {
+00400560 <fir_filter_int+0x2d0> lw $2,20($30)
+00400568 <fir_filter_int+0x2d8> lw $3,36($30)
+00400570 <fir_filter_int+0x2e0> bne $2,$3,004005c0 <fir_filter_int+0x330>
+../benchmarks/fir/fir.c:263
+      acc_length--;       /* one shorter each time */
+00400578 <fir_filter_int+0x2e8> lw $3,12($30)
+00400580 <fir_filter_int+0x2f0> addiu $2,$3,-1
+00400588 <fir_filter_int+0x2f8> addu $3,$0,$2
+00400590 <fir_filter_int+0x300> sw $3,12($30)
+../benchmarks/fir/fir.c:264
+      coef_start++;       /* next coefficient each time */
+00400598 <fir_filter_int+0x308> lw $3,28($30)
+004005a0 <fir_filter_int+0x310> addiu $2,$3,4
+004005a8 <fir_filter_int+0x318> addu $3,$0,$2
+004005b0 <fir_filter_int+0x320> sw $3,28($30)
+../benchmarks/fir/fir.c:265
+    }
+004005b8 <fir_filter_int+0x328> j 00400620 <fir_filter_int+0x390>
+../benchmarks/fir/fir.c:270
+
+    /* if not at end, then check for startup, add to input pointer */
+
+    else {
+      if(acc_length < coef_len) acc_length++;
+004005c0 <fir_filter_int+0x330> lw $2,12($30)
+004005c8 <fir_filter_int+0x338> lw $3,64($30)
+004005d0 <fir_filter_int+0x340> slt $2,$2,$3
+004005d8 <fir_filter_int+0x348> beq $2,$0,00400600 <fir_filter_int+0x370>
+004005e0 <fir_filter_int+0x350> lw $3,12($30)
+004005e8 <fir_filter_int+0x358> addiu $2,$3,1
+004005f0 <fir_filter_int+0x360> addu $3,$0,$2
+004005f8 <fir_filter_int+0x368> sw $3,12($30)
+../benchmarks/fir/fir.c:271
+      in_ptr++;
+00400600 <fir_filter_int+0x370> lw $3,20($30)
+00400608 <fir_filter_int+0x378> addiu $2,$3,4
+00400610 <fir_filter_int+0x380> addu $3,$0,$2
+00400618 <fir_filter_int+0x388> sw $3,20($30)
+../benchmarks/fir/fir.c:247
+00400620 <fir_filter_int+0x390> lw $3,0($30)
+00400628 <fir_filter_int+0x398> addiu $2,$3,1
+00400630 <fir_filter_int+0x3a0> addu $3,$0,$2
+00400638 <fir_filter_int+0x3a8> sw $3,0($30)
+00400640 <fir_filter_int+0x3b0> j 00400380 <fir_filter_int+0xf0>
+../benchmarks/fir/fir.c:274
+    }
+  }
+}
+00400648 <fir_filter_int+0x3b8> addu $29,$0,$30
+00400650 <fir_filter_int+0x3c0> lw $30,40($29)
+00400658 <fir_filter_int+0x3c8> addiu $29,$29,48
+00400660 <fir_filter_int+0x3d0> jr $31
+00400668 <fir_filter_int+0x3d8> nop 

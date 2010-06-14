@@ -1,0 +1,3 @@
+#!/bin/sh
+
+gcc -g -D_DEBUG -o timing main.c -lm

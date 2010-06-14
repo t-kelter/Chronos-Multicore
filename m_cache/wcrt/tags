@@ -1,0 +1,234 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.7	//
+ALLOCHEUR	./header.h	/^char ALLOCHEUR = 0;$/;"	v
+ASYNCH	./header.h	26;"	d
+CALLOC	./handler.c	30;"	d	file:
+CLUSTER_BASED	./header.h	35;"	d
+CYCLES_PER_MSEC	./handler.c	17;"	d	file:
+CYCLE_TIME_H	./cycle_time.h	2;"	d
+DEBUG	./header.h	/^char DEBUG = 0;$/;"	v
+DEBUGSLACK	./slacks.c	1;"	d	file:
+DEBUGTHIS	./timing.c	7;"	d	file:
+DEFAULT_ALLOCWEIGHT	./header.h	19;"	d
+DEFAULT_LIMITSOLN	./header.h	22;"	d
+DEFAULT_OFF_LATENCY	./header.h	14;"	d
+DEFAULT_SPM_LATENCY	./header.h	13;"	d
+DOWNTIME_TOLERANCE	./header.h	16;"	d
+DP_knapsack	./knapsack.c	/^int DP_knapsack( int capacity, int num_items, int *gain, int *weight, char *alloc ) {$/;"	f
+FETCH_SIZE	./header.h	11;"	d
+GRAPH_COLORING	./header.h	32;"	d
+GREEDY	./header.h	/^char GREEDY = 1;$/;"	v
+INSN_EXEC_TIME	./header.h	8;"	d
+INSN_SIZE	./header.h	10;"	d
+INTERFERENCE_CLUSTER	./header.h	31;"	d
+MALLOC	./handler.c	26;"	d	file:
+MAXCR	./header.h	5;"	d
+MAXLEN	./header.h	4;"	d
+MAXSTEP	./header.h	3;"	d
+MAX_UNFOLD	./header.h	6;"	d
+NAMELEN	./handler.c	21;"	d	file:
+NONE	./header.h	29;"	d
+PEList	./header.h	/^  sched_t **PEList;$/;"	m	struct:__anon6
+PROFILE_KNAPSACK	./header.h	30;"	d
+REALLOC	./handler.c	34;"	d	file:
+SLACK_CRITICAL	./header.h	33;"	d
+STARTTIME	./handler.c	18;"	d	file:
+STOPTIME	./handler.c	19;"	d	file:
+SYNCH	./header.h	25;"	d
+access_counter	./cycle_time.c	/^access_counter(unsigned *hi, unsigned *lo)$/;"	f	file:
+actorID	./header.h	/^  int    actorID;$/;"	m	struct:__anon5
+addChartTasks	./timingMSG.c	/^int addChartTasks( int chartid, chart_t *ctx ) {$/;"	f
+addConcatDependency	./timingMSG.c	/^int addConcatDependency( chart_t *cx, int **predRecord, int **succRecord, int *recordLen ) {$/;"	f
+addFreq	./analysis.c	/^int addFreq( task_t *tc, int fnid, int bbid, int freq ) {$/;"	f
+addr	./header.h	/^  int addr;$/;"	m	struct:__anon4
+alloc_t	./header.h	/^} alloc_t;$/;"	t	typeref:struct:__anon2
+allocated	./header.h	/^  char   *allocated;$/;"	m	struct:__anon5
+allocmethod	./header.h	/^char allocmethod;$/;"	v
+allocweight	./header.h	/^double allocweight;$/;"	v
+assignedList	./header.h	/^  int *assignedList;      \/\/ task index (not pid!) of assigned tasks, not ordered$/;"	m	struct:__anon3
+bbid	./header.h	/^  int fnid, bbid;         \/\/ for analysis$/;"	m	struct:__anon4
+bound	./header.h	/^  int bound;$/;"	m	struct:__anon7
+canConflict	./timing.c	/^int canConflict( int suspect, int victim ) {$/;"	f
+canPreempt	./timing.c	/^char canPreempt( int suspect, int victim ) {$/;"	f
+cfname	./header.h	/^char *cfname;$/;"	v
+chart_t	./header.h	/^} chart_t;$/;"	t	typeref:struct:__anon6
+collectStartTasks	./topo.c	/^int collectStartTasks( int *taskIDList, int numChartTasks, int **startTaskList ) {$/;"	f
+colorAllocation	./graphcoloring.c	/^int colorAllocation( chart_t *msc, overlay_t *ox, char *colorAssg, int numColors, int capacity ) {$/;"	f
+colorPartition	./graphcoloring.c	/^int colorPartition( int *memberList, int numMembers, char *colorAssg, int **colorShare, int capacity ) {$/;"	f
+comesBefore	./slacks.c	/^char comesBefore( int pred, int succ, chart_t *msc ) {$/;"	f
+computeWCRT	./timing.c	/^time_t computeWCRT( chart_t *msc ) {$/;"	f
+concat	./header.h	/^char concat;$/;"	v
+copyChart	./timingMSG.c	/^int copyChart( chart_t *new, chart_t *src, int lastnode, char nextsucc ) {$/;"	f
+copyPath	./timingMSG.c	/^int copyPath( path_t *new, path_t *src, int lastnode, char nextsucc ) {$/;"	f
+copyTask	./timingMSG.c	/^int copyTask( task_t *dst, task_t *src ) {$/;"	f
+countEdge	./timingMSG.c	/^int countEdge( path_t *px, int src, int dst ) {$/;"	f
+ctimeHi	./header.h	/^  time_t ctimeHi;          \/\/ upper bound of computation time$/;"	m	struct:__anon5
+ctimeLo	./header.h	/^  time_t ctimeLo;          \/\/ lower bound of computation time$/;"	m	struct:__anon5
+cycle_time	./cycle_time.c	/^cycle_time(int start_end)$/;"	f
+dequeue	./util.c	/^int dequeue( int **arr, int *len ) {$/;"	f
+dgname	./header.h	/^char *dgname;$/;"	v
+doAllocation	./selectcontent.c	/^int doAllocation( chart_t *msc, overlay_t *ox, int capacity ) {$/;"	f
+doAllocationILP	./selectcontent.c	/^int doAllocationILP( chart_t *msc, overlay_t *ox, int capacity ) {$/;"	f
+doAllocationKnapsack	./selectcontent.c	/^int doAllocationKnapsack( overlay_t *ox, int capacity ) {$/;"	f
+doClustering	./cluster.c	/^char doClustering( sched_t *sc, chart_t *msc ) {$/;"	f
+doTiming	./slacks.c	/^char doTiming( chart_t *msc, char slack ) {$/;"	f
+dpmin	./dp.c	/^int dpmin( int N, int S, double **val ) {$/;"	f
+dst	./header.h	/^  int dst;$/;"	m	struct:__anon7
+dumpInterference	./slacks.c	/^int dumpInterference( chart_t *msc ) {$/;"	f
+dumpTaskInfo	./dump.c	/^int dumpTaskInfo() {$/;"	f
+dumpTaskInfo_dep	./dump.c	/^int dumpTaskInfo_dep() {$/;"	f
+earliestFin	./header.h	/^time_t *earliestFin;$/;"	v
+earliestReq	./header.h	/^time_t *earliestReq;$/;"	v
+earliestTimes	./timing.c	/^char earliestTimes( chart_t *msc, int *topoArr, int toposize ) {$/;"	f
+earliestTimes_slack	./slacks.c	/^char earliestTimes_slack( chart_t *msc, int *topoArr, int toposize ) {$/;"	f
+edgeBounds	./header.h	/^  char **edgeBounds;$/;"	m	struct:__anon8
+edgeBounds	./header.h	/^edge_t *edgeBounds;       \/\/ bounds of back edges in the MSG$/;"	v
+edge_t	./header.h	/^} edge_t;$/;"	t	typeref:struct:__anon7
+endNode	./header.h	/^int endNode;              \/\/ index of end node of the MSG (assumed single; may still have outgoing edges if MSG is cyclic)$/;"	v
+enqueue	./util.c	/^int enqueue( int element, int **arr, int *len ) {$/;"	f
+enqueuePair	./util.c	/^int enqueuePair( int element1, int **arr1, int element2, int **arr2, int *len ) {$/;"	f
+enqueueUnique	./util.c	/^int enqueueUnique( int element, int **arr, int *len ) {$/;"	f
+estGain	./slacks.c	/^time_t estGain( task_t *ts, int capacity ) {$/;"	f
+extractTaskName	./dump.c	/^char* extractTaskName( char *fullname ) {$/;"	f
+findChart	./parse.c	/^int findChart( int idx ) {$/;"	f
+findCriticalPath	./timing.c	/^int findCriticalPath( chart_t *msc ) {$/;"	f
+findPE	./parse.c	/^int findPE( int id ) {$/;"	f
+findTask	./parse.c	/^int findTask( char tname[] ) {$/;"	f
+firstAlloc	./alloc.c	/^int firstAlloc() {$/;"	f
+fixedPointCalcHi	./timing.c	/^time_t fixedPointCalcHi( chart_t *msc, int idx ) {$/;"	f
+fixedPointCalcLo	./timing.c	/^time_t fixedPointCalcLo( chart_t *msc, int idx ) {$/;"	f
+fnid	./header.h	/^  int fnid, bbid;         \/\/ for analysis$/;"	m	struct:__anon4
+freeAll	./parse.c	/^int freeAll() {$/;"	f
+freeAlloc	./parse.c	/^int freeAlloc( alloc_t *ac ) {$/;"	f
+freeChart	./parse.c	/^int freeChart( chart_t *cx ) {$/;"	f
+freePath	./parse.c	/^int freePath( path_t *px ) {$/;"	f
+freeSched	./parse.c	/^int freeSched( sched_t *sc ) {$/;"	f
+freeTask	./parse.c	/^int freeTask( task_t *tx ) {$/;"	f
+freq	./header.h	/^  int freq;               \/\/ access frequency$/;"	m	struct:__anon4
+generateWeiConflict	./slacks.c	/^generateWeiConflict(chart_t *msc)$/;"	f	file:
+getAllocatedSize	./slacks.c	/^int getAllocatedSize( task_t *ts ) {$/;"	f
+getIndexInList	./util.c	/^int getIndexInList( int element, int *arr, int len ) {$/;"	f
+getNextValidSuccId	./timingMSG.c	/^int getNextValidSuccId( path_t *px, int chartid, int from ) {$/;"	f
+getNumFetch	./analysis.c	/^int getNumFetch( int size ) {$/;"	f
+getTaskName	./dump.c	/^char* getTaskName( int pidx ) {$/;"	f
+graphColoring	./graphcoloring.c	/^int graphColoring( int numNodes, int *outdegree, int **outedges, char **colorAssg ) {$/;"	f
+gxCalcHi	./timing.c	/^time_t gxCalcHi( chart_t *msc, int idx, time_t x ) {$/;"	f
+gxCalcLo	./timing.c	/^time_t gxCalcLo( chart_t *msc, int idx, time_t x ) {$/;"	f
+imin	./util.c	/^int imin( int a, int b ) {$/;"	f
+inList	./util.c	/^char inList( int element, int *arr, int len ) {$/;"	f
+initAlloc	./alloc.c	/^int initAlloc( chart_t *msc ) {$/;"	f
+initChart	./parse.c	/^int initChart( chart_t *cx ) {$/;"	f
+initPath	./timingMSG.c	/^int initPath( path_t *px ) {$/;"	f
+initSched	./parse.c	/^int initSched( sched_t *sc ) {$/;"	f
+insertSlacks	./slacks.c	/^int insertSlacks( chart_t *msc ) {$/;"	f
+interfere	./header.h	/^char **interfere;$/;"	v
+isCritical	./header.h	/^char *isCritical;         \/\/ isCritical[i] = 1 if taskList[i] is in the critical path of its MSC, 0 otherwise$/;"	v
+isPred	./timing.c	/^isPred(chart_t *msc, int id, int pred)$/;"	f	file:
+isPredecessorOf	./parse.c	/^char isPredecessorOf( int pred, int succ ) {$/;"	f
+latestFin	./header.h	/^time_t *latestFin;$/;"	v
+latestReq	./header.h	/^time_t *latestReq;$/;"	v
+latestReq_copy	./header.h	/^time_t *latestReq_copy;$/;"	v
+latestTimes	./timing.c	/^char latestTimes( chart_t *msc, int *topoArr, int toposize ) {$/;"	f
+latestTimes_slack	./slacks.c	/^char latestTimes_slack( chart_t *msc, int *topoArr, int toposize ) {$/;"	f
+main	./main.c	/^int main( int argc, char *argv[] ) {$/;"	f
+mapDependency	./timingMSG.c	/^int mapDependency( task_t *tc, int *map ) {$/;"	f
+memBlockList	./header.h	/^  mem_t  **memBlockList;$/;"	m	struct:__anon5
+mem_t	./header.h	/^} mem_t;$/;"	t	typeref:struct:__anon4
+msc	./header.h	/^  chart_t *msc;$/;"	m	struct:__anon8
+msg	./header.h	/^chart_t *msg;$/;"	v
+mymod	./util.c	/^int mymod( int a, int b ) {$/;"	f
+numAssigned	./header.h	/^  int numAssigned;$/;"	m	struct:__anon3
+numCharts	./header.h	/^int numCharts;            \/\/ number of MSC nodes in the MSG$/;"	v
+numEdgeBounds	./header.h	/^int numEdgeBounds;$/;"	v
+numMemBlocks	./header.h	/^  int    numMemBlocks;$/;"	m	struct:__anon5
+numOverlays	./header.h	/^  int numOverlays;$/;"	m	struct:__anon2
+numOwnerTasks	./header.h	/^  int numOwnerTasks;$/;"	m	struct:__anon1
+numPEs	./header.h	/^int numPEs;$/;"	v
+numPreds	./header.h	/^  int    numPreds;$/;"	m	struct:__anon5
+numSuccs	./header.h	/^  int    numSuccs;$/;"	m	struct:__anon5
+numSuccs	./header.h	/^  int  numSuccs;$/;"	m	struct:__anon6
+numTasks	./header.h	/^int numTasks;$/;"	v
+off_latency	./header.h	/^int off_latency;$/;"	v
+openfext	./handler.c	/^FILE* openfext( char *filename, char *ext, char *mode ) {$/;"	f
+openfile	./handler.c	/^FILE* openfile( char *filename, char *mode ) {$/;"	f
+overlap	./timing.c	/^static char overlap(int i, int j)$/;"	f	file:
+overlayList	./header.h	/^  overlay_t **overlayList;$/;"	m	struct:__anon2
+overlay_t	./header.h	/^} overlay_t;$/;"	t	typeref:struct:__anon1
+ownerTaskList	./header.h	/^  int *ownerTaskList;$/;"	m	struct:__anon1
+pChart	./header.h	/^int *pChart;              \/\/ pChart[i]: index of topoLists of the MSC containing taskList[i]$/;"	v
+path_t	./header.h	/^} path_t;$/;"	t	typeref:struct:__anon8
+pdname	./header.h	/^char *pdname;$/;"	v
+peID	./header.h	/^  int    peID;$/;"	m	struct:__anon5
+peID	./header.h	/^int *peID;$/;"	v
+peers	./header.h	/^char **peers;$/;"	v
+period	./header.h	/^  time_t period;$/;"	m	struct:__anon5
+popNode	./timingMSG.c	/^int popNode( int *node, int *next, int **bpStack, int **nextSucc, int *len ) {$/;"	f
+predList	./header.h	/^  int    *predList;        \/\/ task index (not pid!) of predecessors$/;"	m	struct:__anon5
+printMem	./dump.c	/^int printMem( int pidx, char verbose ) {$/;"	f
+printPE	./dump.c	/^int printPE( int peID, int spmCapacity, sched_t *sc ) {$/;"	f
+printTask	./dump.c	/^int printTask( int pidx ) {$/;"	f
+printTaskList	./dump.c	/^int printTaskList( chart_t *msc ) {$/;"	f
+printTask_dep	./dump.c	/^int printTask_dep( int pidx ) {$/;"	f
+printTimes	./dump.c	/^int printTimes( int idx ) {$/;"	f
+priority	./header.h	/^  int    priority;$/;"	m	struct:__anon5
+readConfig	./parse.c	/^int readConfig() {$/;"	f
+readCost	./analysis.c	/^int readCost() {$/;"	f
+readEdgeBounds	./parse.c	/^int readEdgeBounds() {$/;"	f
+readMSG	./parse.c	/^int readMSG() {$/;"	f
+readMemoryReq	./parse.c	/^int readMemoryReq() {$/;"	f
+readTaskMemoryReq	./parse.c	/^int readTaskMemoryReq( task_t *tc ) {$/;"	f
+readTasks	./parse.c	/^int readTasks() {$/;"	f
+realsize	./header.h	/^  int realsize;           \/\/ in the case that jumps are inserted because of allocation$/;"	m	struct:__anon4
+recoverConcatDependency	./timingMSG.c	/^int recoverConcatDependency( int *predRecord, int *succRecord, int recordLen ) {$/;"	f
+resetAllocation	./alloc.c	/^int resetAllocation( chart_t *msc ) {$/;"	f
+resetInterference	./slacks.c	/^int resetInterference( chart_t *msc ) {$/;"	f
+sched_t	./header.h	/^} sched_t;$/;"	t	typeref:struct:__anon3
+setInterference	./slacks.c	/^int setInterference( chart_t *msc ) {$/;"	f
+size	./header.h	/^  int size;$/;"	m	struct:__anon4
+spm	./header.h	/^  alloc_t* spm;$/;"	m	struct:__anon3
+spmCapacity	./header.h	/^int *spmCapacity;$/;"	v
+spm_latency	./header.h	/^int spm_latency;$/;"	v
+src	./header.h	/^  int src;$/;"	m	struct:__anon7
+startNode	./header.h	/^int startNode;            \/\/ index of start node of the MSG$/;"	v
+succList	./header.h	/^  int    *succList;        \/\/ task index (not pid!) of successors$/;"	m	struct:__anon5
+succList	./header.h	/^  int  *succList;$/;"	m	struct:__anon6
+taskColoring	./graphcoloring.c	/^int taskColoring( overlay_t *ox, char **colorAssg ) {$/;"	f
+taskList	./header.h	/^task_t **taskList;        \/\/ global task list$/;"	v
+task_t	./header.h	/^} task_t;$/;"	t	typeref:struct:__anon5
+testopen	./handler.c	/^char testopen( char *filename ) {$/;"	f
+testopenfext	./handler.c	/^char testopenfext( char *filename, char *ext ) {$/;"	f
+timeTopoList	./header.h	/^  int  *timeTopoList;      \/\/ updating order based on topology and current scheduling, for safe slack insertion$/;"	m	struct:__anon6
+time_t	./header.h	1;"	d
+times_iteration	./header.h	/^char *times_iteration;$/;"	v
+timingAllocMSC	./alloc.c	/^int timingAllocMSC( chart_t *msc ) {$/;"	f
+timingAllocMSC_slackCritical	./alloc.c	/^int timingAllocMSC_slackCritical( chart_t *msc ) {$/;"	f
+timingEstimate	./timingMSG.c	/^int timingEstimate() {$/;"	f
+timingEstimateMSC	./timing.c	/^int timingEstimateMSC( chart_t *msc )$/;"	f
+timingEstimate_asynch	./timingMSG.c	/^int timingEstimate_asynch() {$/;"	f
+timingEstimate_asynch_	./timingMSG.c	/^int timingEstimate_asynch_() {$/;"	f
+timingEstimate_asynch_acyclic	./timingMSG.c	/^int timingEstimate_asynch_acyclic() {$/;"	f
+timingEstimate_synch	./timingMSG.c	/^int timingEstimate_synch() {$/;"	f
+timingEstimate_synch_acyclic	./timingMSG.c	/^int timingEstimate_synch_acyclic() {$/;"	f
+tmEnd	./header.h	/^  time_t tmEnd;$/;"	m	struct:__anon1
+tmStart	./header.h	/^  time_t tmStart;$/;"	m	struct:__anon1
+tmax	./util.c	/^time_t tmax( time_t a, time_t b ) {$/;"	f
+tname	./header.h	/^  char   tname[MAXLEN];$/;"	m	struct:__anon5
+topoGraph	./topo.c	/^int topoGraph() {$/;"	f
+topoList	./header.h	/^  int  *topoList;$/;"	m	struct:__anon6
+topoListLen	./header.h	/^  int  topoListLen;$/;"	m	struct:__anon6
+topoMSG	./header.h	/^int *topoMSG;             \/\/ MSG with nodes topologically sorted, for traversal$/;"	v
+topoSort	./topo.c	/^int topoSort( int *taskIDList, int numChartTasks, int **topoArr ) {$/;"	f
+topoSortSubgraph	./topo.c	/^int topoSortSubgraph( int startid, int **topoArr ) {$/;"	f
+topoTask	./topo.c	/^int topoTask() {$/;"	f
+totalcapacity	./header.h	/^int totalcapacity;$/;"	v
+updateAllocation	./alloc.c	/^char updateAllocation( int peID, chart_t *msc ) {$/;"	f
+updateAllocationGC	./alloc.c	/^int updateAllocationGC( sched_t *sc, chart_t *msc, int spmCapacity ) {$/;"	f
+updateAllocationIC	./alloc.c	/^int updateAllocationIC( sched_t *sc, chart_t *msc, int spmCapacity ) {$/;"	f
+updateAllocationPK	./alloc.c	/^int updateAllocationPK( sched_t *sc, chart_t *msc, int spmCapacity ) {$/;"	f
+wcrt	./header.h	/^  time_t wcrt;             \/\/ WCRT of the chart$/;"	m	struct:__anon6
+writeInterference	./slacks.c	/^     int writeInterference()$/;"	f
+writeWeiConflict	./slacks.c	/^writeWeiConflict()$/;"	f	file:

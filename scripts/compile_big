@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if
+  /home/sudiptac/sudiptac/mWork/gcc-alpha/bin/ssbig-na-sstrix-gcc -g -o $1 $1.c
+then
+  /home/sudiptac/sudiptac/mWork/gcc-alpha/bin/ssbig-na-sstrix-objdump -dlS --disassemble-zeroes --prefix-addresses $1 >& $1.dis
+  /home/sudiptac/sudiptac/mWork/gcc-alpha/bin/ssbig-na-sstrix-objdump -t $1 >& $1.sym
+
+./extractmdis $1
+./getarg $1
+
+#./buildcfg $1
+
+#  perl ~/util/findvar.pl $1
+#  editsymb $1
+fi

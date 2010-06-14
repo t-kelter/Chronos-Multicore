@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd /home/sudiptac/sudiptac/mWork/cfg
+./run $1

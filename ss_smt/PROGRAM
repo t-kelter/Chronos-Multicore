@@ -1,0 +1,81 @@
+#  Example of application input file to SS_SMT 1.0 simulator
+#  
+#  This file was done by Ronaldo A. L. Goncalves
+# 
+# Ronaldo is professor at the Informatics Department in the State 
+# University of Maringa - Brazil. 
+#
+# Contacts with him can be done by e_mail: ronaldo@din.uem.br
+# More details about him can be found in http://www.din.uem.br/~ronaldo
+#
+# This work was done as part of his PhD thesis in the SEMPRE project.
+# His advisor was Dr. Philippe Navaux from Federal University of Rio 
+# Grande do Sul - Brazil and contacts with him can be done by e-mail:
+# navaux@inf.ufrgs.br
+# 
+# Also, the professors Mateo Valero and Eduard Ayguade from UPC/Barcelona
+# help Ronaldo to do this simulator, during a technological interchange 
+# accomplished at the labs of the DAC/UPC. Contacts with them can be done
+# by e_mail: mateo@ac.upc.es and eduard@ac.upc.es, respectively.
+#
+#  The applications bellow will be executed by SS_SMT in-order until
+#  complete the total determined by USED_SLOTS
+
+#  If you need change the order, applications and/or pathnames, but keep
+#  at least USED-SLOTS applications
+
+# 8 Float Point Benchmarks X 8 Integer Benchmarks
+
+#1 float Point
+../spec95.big/swim.ss < ../inputs/swim.in
+
+#2 Integer
+../spec95.big/perl.ss ../inputs/scrabbl.pl < ../inputs/scrabbl.in
+
+#3 float Point
+../spec95.big/mgrid.ss < ../inputs/mgrid.in
+
+#4 Integer
+../spec95.big/ijpeg.ss -image_file ../inputs/specmun.ppm -compression.quality 90 -compression.optimize_coding 0 -compression.smoothing_factor 90 -difference.image 1 -difference.x_stride 10 -difference.y_stride 10 -verbose 1 -GO.findoptcomp
+
+#5 float Point
+../spec95.big/wave5.ss < ../inputs/wave5.in
+
+#6 Integer
+../spec95.big/cc1.ss -quiet -funroll-loops -fforce-mem -fcse-follow-jumps  -fcse-skip-blocks -fexpensive-optimizations -fstrength-reduce -fpeephole  -fschedule-insns -finline-functions -fschedule-insns2 -O ../inputs/cccp.i -o ../inputs/cccp.s
+
+#7 float Point
+../spec95.big/fpppp.ss < ../inputs/natoms.in
+
+#8 Integer
+../spec95.big/li.ss ../inputs/boyer.lsp
+
+# same benchmark set, buts different positions 
+
+#9 Integer
+../spec95.big/li.ss ../inputs/boyer.lsp
+
+#10 float Point
+../spec95.big/fpppp.ss < ../inputs/natoms.in
+
+#11 Integer
+../spec95.big/ijpeg.ss -image_file ../inputs/specmun.ppm -compression.quality 90 -compression.optimize_coding 0 -compression.smoothing_factor 90 -difference.image 1 -difference.x_stride 10 -difference.y_stride 10 -verbose 1 -GO.findoptcomp
+
+#12 float Point
+../spec95.big/mgrid.ss < ../inputs/mgrid.in
+
+#13 Integer
+../spec95.big/cc1.ss -quiet -funroll-loops -fforce-mem -fcse-follow-jumps  -fcse-skip-blocks -fexpensive-optimizations -fstrength-reduce -fpeephole  -fschedule-insns -finline-functions -fschedule-insns2 -O ../inputs/cccp.i -o ../inputs/cccp.s
+
+#14 float Point
+../spec95.big/wave5.ss < ../inputs/wave5.in
+
+#15 Integer
+../spec95.big/perl.ss ../inputs/scrabbl.pl < ../inputs/scrabbl.in
+
+#16 float Point
+../spec95.big/swim.ss < ../inputs/swim.in
+
+#17 Interger
+../spec95.big/compress95.ss < ../inputs/bigtest.in
+

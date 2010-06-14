@@ -1,0 +1,2515 @@
+
+../m_cache/compress/compress:     file format ss-coff-little
+
+Disassembly of section .text:
+00400140 <__start> lw $16,0($29)
+00400148 <__start+0x8> lui $28,4097
+00400150 <__start+0x10> addiu $28,$28,-31872
+00400158 <__start+0x18> addiu $17,$29,4
+00400160 <__start+0x20> addiu $3,$17,4
+00400168 <__start+0x28> sll $2,$16,0x2
+00400170 <__start+0x30> addu $3,$3,$2
+00400178 <__start+0x38> addu $18,$0,$3
+00400180 <__start+0x40> sw $18,-32540($28)
+00400188 <__start+0x48> addiu $29,$29,-24
+00400190 <__start+0x50> addu $4,$0,$16
+00400198 <__start+0x58> addu $5,$0,$17
+004001a0 <__start+0x60> addu $6,$0,$18
+004001a8 <__start+0x68> jal 004020d0 <__libc_init>
+004001b0 <__start+0x70> sw $0,-32544($28)
+004001b8 <__start+0x78> addu $4,$0,$16
+004001c0 <__start+0x80> addu $5,$0,$17
+004001c8 <__start+0x88> addu $6,$0,$18
+004001d0 <__start+0x90> jal 004001f0 <main>
+004001d8 <__start+0x98> addu $4,$0,$2
+004001e0 <__start+0xa0> jal 00402100 <exit>
+004001e8 <__start+0xa8> nop 
+main():
+../m_cache/compress/compress.c:44
+
+void initbuffer();
+
+void main()
+{
+004001f0 <main> addiu $29,$29,-32
+004001f8 <main+0x8> sw $31,28($29)
+00400200 <main+0x10> sw $30,24($29)
+00400208 <main+0x18> addu $30,$0,$29
+../m_cache/compress/compress.c:45
+  int count = IN_COUNT, comp_count;
+00400210 <main+0x20> addiu $2,$0,50
+00400218 <main+0x28> sw $2,16($30)
+../m_cache/compress/compress.c:47
+
+  initbuffer();
+00400220 <main+0x30> jal 00400290 <initbuffer>
+../m_cache/compress/compress.c:49
+
+  comp_count = spec_select_action(orig_text_buffer, count,
+00400228 <main+0x38> lui $4,4096
+00400230 <main+0x40> addiu $4,$4,1248
+00400238 <main+0x48> lw $5,16($30)
+00400240 <main+0x50> addu $6,$0,$0
+00400248 <main+0x58> lui $7,4100
+00400250 <main+0x60> addiu $7,$7,1312
+00400258 <main+0x68> jal 00400468 <spec_select_action>
+00400260 <main+0x70> sw $2,20($30)
+../m_cache/compress/compress.c:53
+				  0 /* COMPPRESS */, comp_text_buffer);
+
+  /* printf("Original size: %d\nCompressed size: %d\n", count, comp_count); */
+}
+00400268 <main+0x78> addu $29,$0,$30
+00400270 <main+0x80> lw $31,28($29)
+00400278 <main+0x88> lw $30,24($29)
+00400280 <main+0x90> addiu $29,$29,32
+00400288 <main+0x98> jr $31
+initbuffer():
+../m_cache/compress/compress.c:57
+
+
+void initbuffer()
+{
+00400290 <initbuffer> addiu $29,$29,-16
+00400298 <initbuffer+0x8> sw $30,8($29)
+004002a0 <initbuffer+0x10> addu $30,$0,$29
+../m_cache/compress/compress.c:58
+  int seed = KNOWN_VALUE;
+004002a8 <initbuffer+0x18> lui $2,32800
+004002b0 <initbuffer+0x20> lb $2,1($2)
+004002b8 <initbuffer+0x28> sw $2,0($30)
+../m_cache/compress/compress.c:61
+  int ii;
+  
+  for (ii = 0 ; ii < BUFFERSIZE ; ii++)
+004002c0 <initbuffer+0x30> sw $0,4($30)
+004002c8 <initbuffer+0x38> lw $2,4($30)
+004002d0 <initbuffer+0x40> slti $3,$2,50
+004002d8 <initbuffer+0x48> bne $3,$0,004002e8 <initbuffer+0x58>
+004002e0 <initbuffer+0x50> j 00400448 <initbuffer+0x1b8>
+../m_cache/compress/compress.c:64
+    {
+      /* Generates random integers between 0 and 8095 */
+      seed = ((seed * 133) + 81) % 8095;
+004002e8 <initbuffer+0x58> lw $2,0($30)
+004002f0 <initbuffer+0x60> addu $4,$0,$2
+004002f8 <initbuffer+0x68> sll $3,$4,0x5
+00400300 <initbuffer+0x70> addu $3,$3,$2
+00400308 <initbuffer+0x78> sll $4,$3,0x2
+00400310 <initbuffer+0x80> addu $4,$4,$2
+00400318 <initbuffer+0x88> addiu $2,$4,81
+00400320 <initbuffer+0x90> lui $6,4145
+00400328 <initbuffer+0x98> ori $6,$6,5319
+00400330 <initbuffer+0xa0> mult $2,$6
+00400338 <initbuffer+0xa8> mfhi $5
+00400340 <initbuffer+0xb0> mflo $4
+00400348 <initbuffer+0xb8> srl $6,$5,0x0
+00400350 <initbuffer+0xc0> addu $7,$0,$0
+00400358 <initbuffer+0xc8> sra $3,$6,0x9
+00400360 <initbuffer+0xd0> sra $4,$2,0x1f
+00400368 <initbuffer+0xd8> subu $3,$3,$4
+00400370 <initbuffer+0xe0> addu $5,$0,$3
+00400378 <initbuffer+0xe8> sll $4,$5,0x6
+00400380 <initbuffer+0xf0> subu $4,$4,$3
+00400388 <initbuffer+0xf8> sll $5,$4,0x2
+00400390 <initbuffer+0x100> addu $5,$5,$3
+00400398 <initbuffer+0x108> sll $4,$5,0x5
+004003a0 <initbuffer+0x110> subu $4,$4,$3
+004003a8 <initbuffer+0x118> subu $2,$2,$4
+004003b0 <initbuffer+0x120> sw $2,0($30)
+../m_cache/compress/compress.c:66
+
+      orig_text_buffer[ii] = seed % 256;
+004003b8 <initbuffer+0x128> lw $2,4($30)
+004003c0 <initbuffer+0x130> lui $3,4096
+004003c8 <initbuffer+0x138> addiu $3,$3,1248
+004003d0 <initbuffer+0x140> addu $2,$2,$3
+004003d8 <initbuffer+0x148> lw $3,0($30)
+004003e0 <initbuffer+0x150> addu $4,$0,$3
+004003e8 <initbuffer+0x158> bgez $4,004003f8 <initbuffer+0x168>
+004003f0 <initbuffer+0x160> addiu $4,$4,255
+004003f8 <initbuffer+0x168> sra $4,$4,0x8
+00400400 <initbuffer+0x170> addu $5,$0,$4
+00400408 <initbuffer+0x178> sll $4,$5,0x8
+00400410 <initbuffer+0x180> subu $3,$3,$4
+00400418 <initbuffer+0x188> sb $3,0($2)
+../m_cache/compress/compress.c:61
+00400420 <initbuffer+0x190> lw $3,4($30)
+00400428 <initbuffer+0x198> addiu $2,$3,1
+00400430 <initbuffer+0x1a0> addu $3,$0,$2
+00400438 <initbuffer+0x1a8> sw $3,4($30)
+00400440 <initbuffer+0x1b0> j 004002c8 <initbuffer+0x38>
+../m_cache/compress/compress.c:68
+    }
+}
+00400448 <initbuffer+0x1b8> addu $29,$0,$30
+00400450 <initbuffer+0x1c0> lw $30,8($29)
+00400458 <initbuffer+0x1c8> addiu $29,$29,16
+00400460 <initbuffer+0x1d0> jr $31
+spec_select_action():
+../m_cache/compress/compress.c:425
+
+
+/**************************************************************/
+/* Code below this line is not changed in any drastically way */
+/* All printf is disabled. HSIZE changed from 69001 to 257.   */
+
+#define	min(a,b)	((a>b) ? b : a)
+
+/*
+ * Set USERMEM to the maximum amount of physical user memory available
+ * in bytes.  USERMEM is used to determine the maximum BITS that can be used
+ * for compression.
+ *
+ * SACREDMEM is the amount of physical memory saved for others; compress
+ * will hog the rest.
+ */
+/* For SPEC95 use, SACREDMEM automatically set to 0.
+	Jeff Reilly, 1/15/95				*/
+
+#define SACREDMEM	0
+
+/* For SPEC95 use, USERMEM automatically set to 450000.
+	Jeff Reilly, 1/15/95				*/
+# define USERMEM 	450000	/* default user memory */
+
+#ifdef interdata		/* (Perkin-Elmer) */
+#define SIGNED_COMPARE_SLOW	/* signed compare is slower than unsigned */
+#endif
+
+/* For SPEC95 use, PBITS and BITS automatically set to 16.
+	Jeff Reilyy, 1/15/95				*/
+#define PBITS	16
+#define BITS 16
+#define HSIZE	257		/* 95% occupancy was 69001 */
+
+
+/*
+ * a code_int must be able to hold 2**BITS values of type int, and also -1
+ */
+#if BITS > 15
+typedef long int	code_int;
+#else
+typedef int		code_int;
+#endif
+
+#ifdef SIGNED_COMPARE_SLOW
+typedef unsigned long int count_int;
+typedef unsigned short int count_short;
+#else
+/*typedef long int	  count_int;*/
+#endif
+
+#ifdef NO_UCHAR
+ typedef char	char_type;
+#else
+ typedef	unsigned char	char_type;
+#endif /* UCHAR */
+char_type magic_header[] = { "\037\235" };	/* 1F 9D */
+
+/* Defines for third byte of header */
+#define BIT_MASK	0x1f
+#define BLOCK_MASK	0x80
+/* Masks 0x40 and 0x20 are free.  I think 0x20 should mean that there is
+   a fourth header byte (for expansion).
+*/
+#define INIT_BITS 9			/* initial number of bits/code */
+
+/* SPEC95, Original comments left  - Jeff Reilly, 1/18/95 */
+/*
+ * compress.c - File compression ala IEEE Computer, June 1984.
+ *
+ * Authors:	Spencer W. Thomas	(decvax!harpo!utah-cs!utah-gr!thomas)
+ *		Jim McKie		(decvax!mcvax!jim)
+ *		Steve Davies		(decvax!vax135!petsd!peora!srd)
+ *		Ken Turkowski		(decvax!decwrl!turtlevax!ken)
+ *		James A. Woods		(decvax!ihnp4!ames!jaw)
+ *		Joe Orost		(decvax!vax135!petsd!joe)
+ *
+ * $Header: /home/fenix2/docs/ebbe/cvsroot/wcet_tool/WCETBench/ThomasL/compress95b.c,v 1.1 2000/01/21 10:32:42 jakob Exp $
+ * $Log: compress95b.c,v $
+ * Revision 1.1  2000/01/21 10:32:42  jakob
+ * no message
+ *
+ * Revision 1.3  90/07/18  20:22:34  mips
+ * a few small changes for VMS, all of the ifdef VAX is gone.
+ * 
+ * Revision 1.1  90/07/12  10:58:29  10:58:29  root ()
+ * Initial revision
+ * 
+ * Revision 4.0  85/07/30  12:50:00  joe
+ * Removed ferror() calls in output routine on every output except first.
+ * Prepared for release to the world.
+ * 
+ * Revision 3.6  85/07/04  01:22:21  joe
+ * Remove much wasted storage by overlaying hash table with the tables
+ * used by decompress: tab_suffix[1<<BITS], stack[8000].  Updated USERMEM
+ * computations.  Fixed dump_tab() DEBUG routine.
+ *
+ * Revision 3.5  85/06/30  20:47:21  jaw
+ * Change hash function to use exclusive-or.  Rip out hash cache.  These
+ * speedups render the megamemory version defunct, for now.  Make decoder
+ * stack global.  Parts of the RCS trunks 2.7, 2.6, and 2.1 no longer apply.
+ *
+ * Revision 3.4  85/06/27  12:00:00  ken
+ * Get rid of all floating-point calculations by doing all compression ratio
+ * calculations in fixed point.
+ *
+ * Revision 3.3  85/06/24  21:53:24  joe
+ * Incorporate portability suggestion for M_XENIX.  Got rid of text on #else
+ * and #endif lines.  Cleaned up #ifdefs for vax and interdata.
+ *
+ * Revision 3.2  85/06/06  21:53:24  jaw
+ * Incorporate portability suggestions for Z8000, IBM PC/XT from mailing list.
+ * Default to "quiet" output (no compression statistics).
+ *
+ * Revision 3.1  85/05/12  18:56:13  jaw
+ * Integrate decompress() stack speedups (from early pointer mods by McKie).
+ * Repair multi-file USERMEM gaffe.  Unify 'force' flags to mimic semantics
+ * of SVR2 'pack'.  Streamline block-compress table clear logic.  Increase 
+ * output byte count by magic number size.
+ * 
+ * Revision 3.0   84/11/27  11:50:00  petsd!joe
+ * Set HSIZE depending on BITS.  Set BITS depending on USERMEM.  Unrolled
+ * loops in clear routines.  Added "-C" flag for 2.0 compatibility.  Used
+ * unsigned compares on Perkin-Elmer.  Fixed foreground check.
+ *
+ * Revision 2.7   84/11/16  19:35:39  ames!jaw
+ * Cache common hash codes based on input statistics; this improves
+ * performance for low-density raster images.  Pass on #ifdef bundle
+ * from Turkowski.
+ *
+ * Revision 2.6   84/11/05  19:18:21  ames!jaw
+ * Vary size of hash tables to reduce time for small files.
+ * Tune PDP-11 hash function.
+ *
+ * Revision 2.5   84/10/30  20:15:14  ames!jaw
+ * Junk chaining; replace with the simpler (and, on the VAX, faster)
+ * double hashing, discussed within.  Make block compression standard.
+ *
+ * Revision 2.4   84/10/16  11:11:11  ames!jaw
+ * Introduce adaptive reset for block compression, to boost the rate
+ * another several percent.  (See mailing list notes.)
+ *
+ * Revision 2.3   84/09/22  22:00:00  petsd!joe
+ * Implemented "-B" block compress.  Implemented REVERSE sorting of tab_next.
+ * Bug fix for last bits.  Changed fwrite to putchar loop everywhere.
+ *
+ * Revision 2.2   84/09/18  14:12:21  ames!jaw
+ * Fold in news changes, small machine typedef from thomas,
+ * #ifdef interdata from joe.
+ *
+ * Revision 2.1   84/09/10  12:34:56  ames!jaw
+ * Configured fast table lookup for 32-bit machines.
+ * This cuts user time in half for b <= FBITS, and is useful for news batching
+ * from VAX to PDP sites.  Also sped up decompress() [fwrite->putc] and
+ * added signal catcher [plus beef in writeerr()] to delete effluvia.
+ *
+ * Revision 2.0   84/08/28  22:00:00  petsd!joe
+ * Add check for foreground before prompting user.  Insert maxbits into
+ * compressed file.  Force file being uncompressed to end with ".Z".
+ * Added "-c" flag and "zcat".  Prepared for release.
+ *
+ * Revision 1.10  84/08/24  18:28:00  turtlevax!ken
+ * Will only compress regular files (no directories), added a magic number
+ * header (plus an undocumented -n flag to handle old files without headers),
+ * added -f flag to force overwriting of possibly existing destination file,
+ * otherwise the user is prompted for a response.  Will tack on a .Z to a
+ * filename if it doesn't have one when decompressing.  Will only replace
+ * file if it was compressed.
+ *
+ * Revision 1.9  84/08/16  17:28:00  turtlevax!ken
+ * Removed scanargs(), getopt(), added .Z extension and unlimited number of
+ * filenames to compress.  Flags may be clustered (-Ddvb12) or separated
+ * (-D -d -v -b 12), or combination thereof.  Modes and other status is
+ * copied with copystat().  -O bug for 4.2 seems to have disappeared with
+ * 1.8.
+ *
+ * Revision 1.8  84/08/09  23:15:00  joe
+ * Made it compatible with vax version, installed jim's fixes/enhancements
+ *
+ * Revision 1.6  84/08/01  22:08:00  joe
+ * Sped up algorithm significantly by sorting the compress chain.
+ *
+ * Revision 1.5  84/07/13  13:11:00  srd
+ * Added C version of vax asm routines.  Changed structure to arrays to
+ * save much memory.  Do unsigned compares where possible (faster on
+ * Perkin-Elmer)
+ *
+ * Revision 1.4  84/07/05  03:11:11  thomas
+ * Clean up the code a little and lint it.  (Lint complains about all
+ * the regs used in the asm, but I'm not going to "fix" this.)
+ *
+ * Revision 1.3  84/07/05  02:06:54  thomas
+ * Minor fixes.
+ *
+ * Revision 1.2  84/07/05  00:27:27  thomas
+ * Add variable bit length output.
+ *
+ */
+static char rcs_ident[] = "$Header: /home/fenix2/docs/ebbe/cvsroot/wcet_tool/WCETBench/ThomasL/compress95b.c,v 1.1 2000/01/21 10:32:42 jakob Exp $";
+
+#include <stdio.h>
+#include <ctype.h>
+#ifdef VMS
+#include <types.h>
+#include <stat.h>
+#define unlink delete
+#else
+#include <sys/types.h>
+#include <sys/stat.h>
+#endif  /* VMS  */
+
+#define ARGVAL() (*++(*argv) || (--argc && *++argv))
+
+int n_bits;				/* number of bits/code */
+int maxbits = BITS;			/* user settable max # bits/code */
+code_int maxcode;			/* maximum code, given n_bits */
+code_int maxmaxcode = 1 << BITS;	/* should NEVER generate this code */
+#ifdef COMPATIBLE		/* But wrong! */
+# define MAXCODE(n_bits)	(1 << (n_bits) - 1)
+#else
+# define MAXCODE(n_bits)	((1 << (n_bits)) - 1)
+#endif /* COMPATIBLE */
+
+#ifdef XENIX_16
+count_int htab0[8192];
+count_int htab1[8192];
+count_int htab2[8192];
+count_int htab3[8192];
+count_int htab4[8192];
+count_int htab5[8192];
+count_int htab6[8192];
+count_int htab7[8192];
+count_int htab8[HSIZE-65536];
+count_int * htab[9] = {
+	htab0, htab1, htab2, htab3, htab4, htab5, htab6, htab7, htab8 };
+
+#define htabof(i)	(htab[(i) >> 13][(i) & 0x1fff])
+unsigned short code0tab[16384];
+unsigned short code1tab[16384];
+unsigned short code2tab[16384];
+unsigned short code3tab[16384];
+unsigned short code4tab[16384];
+unsigned short * codetab[5] = {
+	code0tab, code1tab, code2tab, code3tab, code4tab };
+
+#define codetabof(i)	(codetab[(i) >> 14][(i) & 0x3fff])
+
+#else	/* Normal machine */
+extern count_int htab [HSIZE];
+extern unsigned short codetab [HSIZE];
+#define htabof(i)	htab[i]
+#define codetabof(i)	codetab[i]
+#endif	/* XENIX_16 */
+code_int hsize = HSIZE;			/* for dynamic table sizing */
+count_int fsize;
+
+/*
+ * To save much memory, we overlay the table used by compress() with those
+ * used by decompress().  The tab_prefix table is the same size and type
+ * as the codetab.  The tab_suffix table needs 2**BITS characters.  We
+ * get this from the beginning of htab.  The output stack uses the rest
+ * of htab, and contains characters.  There is plenty of room for any
+ * possible stack (stack used to be 8000 characters).
+ */
+
+#define tab_prefixof(i)	codetabof(i)
+#ifdef XENIX_16
+# define tab_suffixof(i)	((char_type *)htab[(i)>>15])[(i) & 0x7fff]
+# define de_stack		((char_type *)(htab2))
+#else	/* Normal machine */
+# define tab_suffixof(i)	((char_type *)(htab))[i]
+# define de_stack		((char_type *)&tab_suffixof(1<<BITS))
+#endif	/* XENIX_16 */
+
+code_int free_ent = 0;			/* first unused entry */
+int exit_stat = 0;
+
+code_int getcode();
+
+int nomagic = 1;	/* Use a 3-byte magic number header, unless old file */
+int zcat_flg = 0;	/* Write output on stdout, suppress messages */
+int quiet = 1;		/* don't tell me about compression */
+
+/*
+ * block compression parameters -- after all codes are used up,
+ * and compression rate changes, start over.
+ */
+int block_compress = BLOCK_MASK;
+int clear_flg = 0;
+long int ratio = 0;
+#define CHECK_GAP 10000	/* ratio check interval */
+count_int checkpoint = CHECK_GAP;
+/*
+ * the next two codes should not be changed lightly, as they must not
+ * lie within the contiguous general code space.
+ */ 
+#define FIRST	257	/* first free entry */
+#define	CLEAR	256	/* table clear output code */
+
+int force = 0;
+char ofname [100];
+#ifdef DEBUG
+int verbose = 0;
+#endif /* DEBUG */
+
+int do_decomp = 0;
+
+
+int InCnt;
+int apsim_InCnt;
+unsigned char *InBuff;
+unsigned char *OutBuff;
+
+/*****************************************************************
+ * TAG( main )
+ *
+ * Algorithm from "A Technique for High Performance Data Compression",
+ * Terry A. Welch, IEEE Computer Vol 17, No 6 (June 1984), pp 8-19.
+ *
+ * Usage: compress [-dfvc] [-b bits] [file ...]
+ * Inputs:
+ *	-d:	    If given, decompression is done instead.
+ *
+ *      -c:         Write output on stdout, don't remove original.
+ *
+ *      -b:         Parameter limits the max number of bits/code.
+ *
+ *	-f:	    Forces output file to be generated, even if one already
+ *		    exists, and even if no space is saved by compressing.
+ *		    If -f is not used, the user will be prompted if stdin is
+ *		    a tty, otherwise, the output file will not be overwritten.
+ *
+ *      -v:	    Write compression statistics
+ *
+ * 	file ...:   Files to be compressed.  If none specified, stdin
+ *		    is used.
+ * Outputs:
+ *	file.Z:	    Compressed form of file with same mode, owner, and utimes
+ * 	or stdout   (if stdin used as input)
+ *
+ * Assumptions:
+ *	When filenames are given, replaces with the compressed version
+ *	(.Z suffix) only if the file decreases in size.
+ * Algorithm:
+ * 	Modified Lempel-Ziv method (LZW).  Basically finds common
+ * substrings and replaces them with a variable size code.  This is
+ * deterministic, and can be done on the fly.  Thus, the decompression
+ * procedure needs no input table, but tracks the way the table was built.
+ *
+ *
+ * Changed from main to spec_select_action,
+ *	Jeff Reilly - 	1/15/95 SPEC
+ */
+
+spec_select_action(char* from_buf, int from_count, int action, char* to_buf)
+{
+00400468 <spec_select_action> addiu $29,$29,-96
+00400470 <spec_select_action+0x8> sw $31,92($29)
+00400478 <spec_select_action+0x10> sw $30,88($29)
+00400480 <spec_select_action+0x18> addu $30,$0,$29
+00400488 <spec_select_action+0x20> sw $4,96($30)
+00400490 <spec_select_action+0x28> sw $5,100($30)
+00400498 <spec_select_action+0x30> sw $6,104($30)
+004004a0 <spec_select_action+0x38> sw $7,108($30)
+../m_cache/compress/compress.c:441
+    char *cp, *rindex(), *malloc();
+    struct stat statbuf;
+#ifdef SYSV
+    void onintr(), oops();
+#else
+    int onintr(), oops();
+#endif  /* SYSV */
+
+
+
+#ifdef COMPATIBLE
+    nomagic = 1;	/* Original didn't have a magic number */
+#endif /* COMPATIBLE */
+
+
+    if(maxbits < INIT_BITS) maxbits = INIT_BITS;
+004004a8 <spec_select_action+0x40> lw $2,-32768($28)
+004004b0 <spec_select_action+0x48> slti $3,$2,9
+004004b8 <spec_select_action+0x50> beq $3,$0,004004d0 <spec_select_action+0x68>
+004004c0 <spec_select_action+0x58> addiu $2,$0,9
+004004c8 <spec_select_action+0x60> sw $2,-32768($28)
+../m_cache/compress/compress.c:442
+    if (maxbits > BITS) maxbits = BITS;
+004004d0 <spec_select_action+0x68> lw $2,-32768($28)
+004004d8 <spec_select_action+0x70> slti $3,$2,17
+004004e0 <spec_select_action+0x78> bne $3,$0,004004f8 <spec_select_action+0x90>
+004004e8 <spec_select_action+0x80> addiu $2,$0,16
+004004f0 <spec_select_action+0x88> sw $2,-32768($28)
+../m_cache/compress/compress.c:443
+    maxmaxcode = 1 << maxbits;
+004004f8 <spec_select_action+0x90> addiu $2,$0,1
+00400500 <spec_select_action+0x98> lw $3,-32768($28)
+00400508 <spec_select_action+0xa0> sllv $2,$2,$3
+00400510 <spec_select_action+0xa8> sw $2,-32764($28)
+../m_cache/compress/compress.c:445
+
+    InCnt = from_count;
+00400518 <spec_select_action+0xb0> lw $2,100($30)
+00400520 <spec_select_action+0xb8> sw $2,-32508($28)
+../m_cache/compress/compress.c:446
+    apsim_InCnt = IN_COUNT + 3;
+00400528 <spec_select_action+0xc0> addiu $2,$0,53
+00400530 <spec_select_action+0xc8> sw $2,-32524($28)
+../m_cache/compress/compress.c:447
+    InBuff = (unsigned char *)from_buf;
+00400538 <spec_select_action+0xd0> lw $2,96($30)
+00400540 <spec_select_action+0xd8> sw $2,-32528($28)
+../m_cache/compress/compress.c:448
+    OutBuff = (unsigned char *)to_buf;
+00400548 <spec_select_action+0xe0> lw $2,108($30)
+00400550 <spec_select_action+0xe8> sw $2,-32520($28)
+../m_cache/compress/compress.c:449
+    do_decomp = action;
+00400558 <spec_select_action+0xf0> lw $2,104($30)
+00400560 <spec_select_action+0xf8> sw $2,-32716($28)
+../m_cache/compress/compress.c:451
+
+	if (do_decomp == 0) {
+00400568 <spec_select_action+0x100> lw $2,-32716($28)
+00400570 <spec_select_action+0x108> bne $2,$0,00400588 <spec_select_action+0x120>
+../m_cache/compress/compress.c:452
+		compress();
+00400578 <spec_select_action+0x110> jal 00400668 <compress>
+../m_cache/compress/compress.c:456
+#ifdef DEBUG
+		if(verbose)		dump_tab();
+#endif /* DEBUG */
+	} else {
+00400580 <spec_select_action+0x118> j 00400618 <spec_select_action+0x1b0>
+../m_cache/compress/compress.c:458
+	    /* Check the magic number */
+	    if (nomagic == 0) {
+00400588 <spec_select_action+0x120> lw $2,-32748($28)
+00400590 <spec_select_action+0x128> bne $2,$0,00400610 <spec_select_action+0x1a8>
+../m_cache/compress/compress.c:466
+/*
+		if ((getbyte() != (magic_header[0] & 0xFF))
+		 || (getbyte() != (magic_header[1] & 0xFF))) {
+		    fprintf(stderr, "stdin: not in compressed format\n");
+		    exit(1);
+		}
+*/
+		maxbits = getbyte();	/* set -b from file */
+00400598 <spec_select_action+0x130> jal 00401d10 <getbyte>
+004005a0 <spec_select_action+0x138> sw $2,-32768($28)
+../m_cache/compress/compress.c:467
+		block_compress = maxbits & BLOCK_MASK;
+004005a8 <spec_select_action+0x140> lw $2,-32768($28)
+004005b0 <spec_select_action+0x148> andi $3,$2,128
+004005b8 <spec_select_action+0x150> sw $3,-32736($28)
+../m_cache/compress/compress.c:468
+		maxbits &= BIT_MASK;
+004005c0 <spec_select_action+0x158> lw $2,-32768($28)
+004005c8 <spec_select_action+0x160> andi $3,$2,31
+004005d0 <spec_select_action+0x168> sw $3,-32768($28)
+../m_cache/compress/compress.c:469
+		maxmaxcode = 1 << maxbits;
+004005d8 <spec_select_action+0x170> addiu $2,$0,1
+004005e0 <spec_select_action+0x178> lw $3,-32768($28)
+004005e8 <spec_select_action+0x180> sllv $2,$2,$3
+004005f0 <spec_select_action+0x188> sw $2,-32764($28)
+../m_cache/compress/compress.c:470
+		fsize = 100000;		/* assume stdin large for USERMEM */
+004005f8 <spec_select_action+0x190> lui $2,1
+00400600 <spec_select_action+0x198> ori $2,$2,34464
+00400608 <spec_select_action+0x1a0> sw $2,-32500($28)
+../m_cache/compress/compress.c:481
+/*
+		if(maxbits > BITS) {
+			fprintf(stderr,
+			"stdin: compressed with %d bits, can only handle %d bits\n",
+			maxbits, BITS);
+			exit(1);
+		}
+*/
+	    }
+#ifndef DEBUG
+	    decompress();
+00400610 <spec_select_action+0x1a8> jal 00401168 <decompress>
+../m_cache/compress/compress.c:489
+#else
+	    if (debug == 0)	decompress();
+	    else		printcodes();
+	    if (verbose)	dump_tab();
+#endif /* DEBUG */
+	}
+
+    return( OutBuff - (unsigned char *)to_buf );
+00400618 <spec_select_action+0x1b0> lw $2,-32520($28)
+00400620 <spec_select_action+0x1b8> lw $4,108($30)
+00400628 <spec_select_action+0x1c0> subu $3,$2,$4
+00400630 <spec_select_action+0x1c8> addu $2,$0,$3
+00400638 <spec_select_action+0x1d0> j 00400640 <spec_select_action+0x1d8>
+../m_cache/compress/compress.c:490
+}
+00400640 <spec_select_action+0x1d8> addu $29,$0,$30
+00400648 <spec_select_action+0x1e0> lw $31,92($29)
+00400650 <spec_select_action+0x1e8> lw $30,88($29)
+00400658 <spec_select_action+0x1f0> addiu $29,$29,96
+00400660 <spec_select_action+0x1f8> jr $31
+compress():
+../m_cache/compress/compress.c:513
+
+static int offset;
+long int in_count = 1;			/* length of input */
+long int bytes_out;			/* length of compressed output */
+long int out_count = 0;			/* # of codes output (for debugging) */
+
+/*
+ * compress (Originally: stdin to stdout -- Changed by SPEC to: memory to memory)
+ *
+ * Algorithm:  use open addressing double hashing (no chaining) on the 
+ * prefix code / next character combination.  We do a variant of Knuth's
+ * algorithm D (vol. 3, sec. 6.4) along with G. Knott's relatively-prime
+ * secondary probe.  Here, the modular division first probe is gives way
+ * to a faster exclusive-or manipulation.  Also do block compression with
+ * an adaptive reset, whereby the code table is cleared when the compression
+ * ratio decreases, but after the table fills.  The variable-length output
+ * codes are re-sized at this point, and a special CLEAR code is generated
+ * for the decompressor.  Late addition:  construct the table according to
+ * file size for noticeable speed improvement on small files.  Please direct
+ * questions about this implementation to ames!jaw.
+ */
+
+compress() {
+00400668 <compress> addiu $29,$29,-64
+00400670 <compress+0x8> sw $31,56($29)
+00400678 <compress+0x10> sw $30,52($29)
+00400680 <compress+0x18> sw $22,48($29)
+00400688 <compress+0x20> sw $21,44($29)
+00400690 <compress+0x28> sw $20,40($29)
+00400698 <compress+0x30> sw $19,36($29)
+004006a0 <compress+0x38> sw $18,32($29)
+004006a8 <compress+0x40> sw $17,28($29)
+004006b0 <compress+0x48> sw $16,24($29)
+004006b8 <compress+0x50> addu $30,$0,$29
+../m_cache/compress/compress.c:515
+    register long fcode;
+    register code_int i = 0;
+004006c0 <compress+0x58> addu $17,$0,$0
+../m_cache/compress/compress.c:527
+    register int c;
+    register code_int ent;
+#ifdef XENIX_16
+    register code_int disp;
+#else	/* Normal machine */
+    register int disp;
+#endif
+    register code_int hsize_reg;
+    register int hshift;
+
+#ifndef COMPATIBLE
+    if (nomagic == 0) {
+004006c8 <compress+0x60> lw $2,-32748($28)
+004006d0 <compress+0x68> bne $2,$0,00400750 <compress+0xe8>
+../m_cache/compress/compress.c:528
+	putbyte(magic_header[0]); putbyte(magic_header[1]);
+004006d8 <compress+0x70> lui $2,4096
+004006e0 <compress+0x78> lbu $2,96($2)
+004006e8 <compress+0x80> addu $4,$0,$2
+004006f0 <compress+0x88> jal 00401de0 <putbyte>
+004006f8 <compress+0x90> lui $2,4096
+00400700 <compress+0x98> lbu $2,97($2)
+00400708 <compress+0xa0> addu $4,$0,$2
+00400710 <compress+0xa8> jal 00401de0 <putbyte>
+../m_cache/compress/compress.c:529
+	putbyte((char)(maxbits | block_compress));
+00400718 <compress+0xb0> lbu $2,-32768($28)
+00400720 <compress+0xb8> lbu $3,-32736($28)
+00400728 <compress+0xc0> or $2,$2,$3
+00400730 <compress+0xc8> sll $3,$2,0x18
+00400738 <compress+0xd0> sra $2,$3,0x18
+00400740 <compress+0xd8> addu $4,$0,$2
+00400748 <compress+0xe0> jal 00401de0 <putbyte>
+../m_cache/compress/compress.c:533
+    }
+#endif /* COMPATIBLE */
+
+    offset = 0;
+00400750 <compress+0xe8> sw $0,-32576($28)
+../m_cache/compress/compress.c:534
+    bytes_out = 3;		/* includes 3-byte header mojo */
+00400758 <compress+0xf0> addiu $2,$0,3
+00400760 <compress+0xf8> sw $2,-32516($28)
+../m_cache/compress/compress.c:535
+    out_count = 0;
+00400768 <compress+0x100> sw $0,-32708($28)
+../m_cache/compress/compress.c:536
+    clear_flg = 0;
+00400770 <compress+0x108> sw $0,-32732($28)
+../m_cache/compress/compress.c:537
+    ratio = 0;
+00400778 <compress+0x110> sw $0,-32728($28)
+../m_cache/compress/compress.c:538
+    in_count = 1;
+00400780 <compress+0x118> addiu $2,$0,1
+00400788 <compress+0x120> sw $2,-32712($28)
+../m_cache/compress/compress.c:539
+    checkpoint = CHECK_GAP;
+00400790 <compress+0x128> addiu $2,$0,10000
+00400798 <compress+0x130> sw $2,-32724($28)
+../m_cache/compress/compress.c:540
+    maxcode = MAXCODE(n_bits = INIT_BITS);
+004007a0 <compress+0x138> addiu $2,$0,9
+004007a8 <compress+0x140> sw $2,-32512($28)
+004007b0 <compress+0x148> addiu $3,$0,1
+004007b8 <compress+0x150> sll $2,$3,0x9
+004007c0 <compress+0x158> addiu $3,$2,-1
+004007c8 <compress+0x160> sw $3,-32504($28)
+../m_cache/compress/compress.c:541
+    free_ent = ((block_compress) ? FIRST : 256 );
+004007d0 <compress+0x168> lw $2,-32736($28)
+004007d8 <compress+0x170> beq $2,$0,004007f0 <compress+0x188>
+004007e0 <compress+0x178> addiu $2,$0,257
+004007e8 <compress+0x180> j 004007f8 <compress+0x190>
+004007f0 <compress+0x188> addiu $2,$0,256
+004007f8 <compress+0x190> sw $2,-32756($28)
+../m_cache/compress/compress.c:543
+
+    ent = getbyte ();
+00400800 <compress+0x198> jal 00401d10 <getbyte>
+00400808 <compress+0x1a0> addu $19,$0,$2
+../m_cache/compress/compress.c:545
+
+    hshift = 0;
+00400810 <compress+0x1a8> addu $22,$0,$0
+../m_cache/compress/compress.c:546
+    for ( fcode = (long) hsize;  fcode < 65536L; fcode *= 2L )
+00400818 <compress+0x1b0> lw $16,-32760($28)
+00400820 <compress+0x1b8> ori $2,$0,65535
+00400828 <compress+0x1c0> slt $3,$2,$16
+00400830 <compress+0x1c8> beq $3,$0,00400840 <compress+0x1d8>
+00400838 <compress+0x1d0> j 00400868 <compress+0x200>
+../m_cache/compress/compress.c:547
+    	hshift++;
+00400840 <compress+0x1d8> addiu $22,$22,1
+../m_cache/compress/compress.c:546
+00400848 <compress+0x1e0> addu $2,$0,$16
+00400850 <compress+0x1e8> sll $3,$2,0x1
+00400858 <compress+0x1f0> addu $16,$0,$3
+00400860 <compress+0x1f8> j 00400820 <compress+0x1b8>
+../m_cache/compress/compress.c:548
+    hshift = 8 - hshift;		/* set hash code range bound */
+00400868 <compress+0x200> addiu $2,$0,8
+00400870 <compress+0x208> subu $22,$2,$22
+../m_cache/compress/compress.c:550
+
+    hsize_reg = hsize;
+00400878 <compress+0x210> lw $21,-32760($28)
+../m_cache/compress/compress.c:551
+    cl_hash( (count_int) hsize_reg);		/* clear hash table */
+00400880 <compress+0x218> addu $4,$0,$21
+00400888 <compress+0x220> jal 00401ba0 <cl_hash>
+../m_cache/compress/compress.c:553
+
+    while ( InCnt > 0 )           /* apsim_loop 11 0 */
+00400890 <compress+0x228> lw $2,-32508($28)
+00400898 <compress+0x230> bgtz $2,004008a8 <compress+0x240>
+004008a0 <compress+0x238> j 00400bf8 <compress+0x590>
+../m_cache/compress/compress.c:555
+    {
+        int apsim_bound111 = 0;
+004008a8 <compress+0x240> sw $0,16($30)
+../m_cache/compress/compress.c:557
+      
+        c = getbyte();   // decrements InCnt
+004008b0 <compress+0x248> jal 00401d10 <getbyte>
+004008b8 <compress+0x250> addu $18,$0,$2
+../m_cache/compress/compress.c:559
+
+	in_count++;
+004008c0 <compress+0x258> lw $3,-32712($28)
+004008c8 <compress+0x260> addiu $2,$3,1
+004008d0 <compress+0x268> addu $3,$0,$2
+004008d8 <compress+0x270> sw $3,-32712($28)
+../m_cache/compress/compress.c:560
+	fcode = (long) (((long) c << maxbits) + ent);
+004008e0 <compress+0x278> lw $2,-32768($28)
+004008e8 <compress+0x280> sllv $16,$18,$2
+004008f0 <compress+0x288> addu $16,$16,$19
+../m_cache/compress/compress.c:561
+ 	i = ((c << hshift) ^ ent);	/* xor hashing */
+004008f8 <compress+0x290> sllv $17,$18,$22
+00400900 <compress+0x298> xor $17,$17,$19
+../m_cache/compress/compress.c:563
+
+	if ( htabof (i) == fcode ) {
+00400908 <compress+0x2a0> addu $2,$0,$17
+00400910 <compress+0x2a8> sll $3,$2,0x2
+00400918 <compress+0x2b0> lui $4,4100
+00400920 <compress+0x2b8> addiu $4,$4,1376
+00400928 <compress+0x2c0> addu $2,$3,$4
+00400930 <compress+0x2c8> lw $3,0($2)
+00400938 <compress+0x2d0> bne $3,$16,00400980 <compress+0x318>
+../m_cache/compress/compress.c:564
+	    ent = codetabof (i);
+00400940 <compress+0x2d8> addu $2,$0,$17
+00400948 <compress+0x2e0> sll $3,$2,0x1
+00400950 <compress+0x2e8> lui $4,4100
+00400958 <compress+0x2f0> addiu $4,$4,2528
+00400960 <compress+0x2f8> addu $2,$3,$4
+00400968 <compress+0x300> lhu $19,0($2)
+../m_cache/compress/compress.c:565
+	    continue;
+00400970 <compress+0x308> j 00400890 <compress+0x228>
+../m_cache/compress/compress.c:566
+	} else if ( (long)htabof (i) < 0 )	/* empty slot */
+00400978 <compress+0x310> j 004009c0 <compress+0x358>
+00400980 <compress+0x318> addu $2,$0,$17
+00400988 <compress+0x320> sll $3,$2,0x2
+00400990 <compress+0x328> lui $4,4100
+00400998 <compress+0x330> addiu $4,$4,1376
+004009a0 <compress+0x338> addu $2,$3,$4
+004009a8 <compress+0x340> lw $3,0($2)
+004009b0 <compress+0x348> bgez $3,004009c0 <compress+0x358>
+../m_cache/compress/compress.c:567
+	    goto nomatch;
+004009b8 <compress+0x350> j 00400af0 <compress+0x488>
+../m_cache/compress/compress.c:568
+ 	disp = hsize_reg - i;		/* secondary hash (after G. Knott) */
+004009c0 <compress+0x358> subu $20,$21,$17
+../m_cache/compress/compress.c:569
+	if ( i == 0 )
+004009c8 <compress+0x360> bne $17,$0,004009d8 <compress+0x370>
+../m_cache/compress/compress.c:570
+	    disp = 1;
+004009d0 <compress+0x368> addiu $20,$0,1
+004009d8 <compress+0x370> nop 
+../m_cache/compress/compress.c:572
+probe:
+	if ( (i -= disp) < 0 )			 /* apsim_loop 111 11 */
+004009e0 <compress+0x378> subu $17,$17,$20
+004009e8 <compress+0x380> addu $2,$0,$17
+004009f0 <compress+0x388> bgez $2,00400a00 <compress+0x398>
+../m_cache/compress/compress.c:573
+	    i += hsize_reg;
+004009f8 <compress+0x390> addu $17,$17,$21
+../m_cache/compress/compress.c:575
+
+	if ( htabof (i) == fcode ) {
+00400a00 <compress+0x398> addu $2,$0,$17
+00400a08 <compress+0x3a0> sll $3,$2,0x2
+00400a10 <compress+0x3a8> lui $4,4100
+00400a18 <compress+0x3b0> addiu $4,$4,1376
+00400a20 <compress+0x3b8> addu $2,$3,$4
+00400a28 <compress+0x3c0> lw $3,0($2)
+00400a30 <compress+0x3c8> bne $3,$16,00400a70 <compress+0x408>
+../m_cache/compress/compress.c:576
+	    ent = codetabof (i);
+00400a38 <compress+0x3d0> addu $2,$0,$17
+00400a40 <compress+0x3d8> sll $3,$2,0x1
+00400a48 <compress+0x3e0> lui $4,4100
+00400a50 <compress+0x3e8> addiu $4,$4,2528
+00400a58 <compress+0x3f0> addu $2,$3,$4
+00400a60 <compress+0x3f8> lhu $19,0($2)
+../m_cache/compress/compress.c:577
+	    continue;
+00400a68 <compress+0x400> j 00400890 <compress+0x228>
+../m_cache/compress/compress.c:579
+	}
+	if ( (long)htabof (i) > 0 && ++apsim_bound111 < in_count ) 
+00400a70 <compress+0x408> addu $2,$0,$17
+00400a78 <compress+0x410> sll $3,$2,0x2
+00400a80 <compress+0x418> lui $4,4100
+00400a88 <compress+0x420> addiu $4,$4,1376
+00400a90 <compress+0x428> addu $2,$3,$4
+00400a98 <compress+0x430> lw $3,0($2)
+00400aa0 <compress+0x438> blez $3,00400ae8 <compress+0x480>
+00400aa8 <compress+0x440> lw $2,16($30)
+00400ab0 <compress+0x448> addiu $3,$2,1
+00400ab8 <compress+0x450> addu $2,$0,$3
+00400ac0 <compress+0x458> sw $2,16($30)
+00400ac8 <compress+0x460> lw $3,-32712($28)
+00400ad0 <compress+0x468> slt $2,$2,$3
+00400ad8 <compress+0x470> beq $2,$0,00400ae8 <compress+0x480>
+../m_cache/compress/compress.c:580
+	    goto probe;
+00400ae0 <compress+0x478> j 004009e0 <compress+0x378>
+00400ae8 <compress+0x480> nop 
+../m_cache/compress/compress.c:583
+nomatch:
+	/*output( (code_int) ent );*/		 /* apsim_loop 112 11 */
+	out_count++;
+00400af0 <compress+0x488> lw $3,-32708($28)
+00400af8 <compress+0x490> addiu $2,$3,1
+00400b00 <compress+0x498> addu $3,$0,$2
+00400b08 <compress+0x4a0> sw $3,-32708($28)
+../m_cache/compress/compress.c:584
+ 	ent = c;
+00400b10 <compress+0x4a8> addu $19,$0,$18
+../m_cache/compress/compress.c:588
+#ifdef SIGNED_COMPARE_SLOW
+	if ( (unsigned) free_ent < (unsigned) maxmaxcode)
+#else
+	if ( free_ent < maxmaxcode )
+00400b18 <compress+0x4b0> lw $2,-32756($28)
+00400b20 <compress+0x4b8> lw $3,-32764($28)
+00400b28 <compress+0x4c0> slt $2,$2,$3
+00400b30 <compress+0x4c8> beq $2,$0,00400bb8 <compress+0x550>
+../m_cache/compress/compress.c:591
+#endif
+	{
+ 	    codetabof (i) = free_ent++;	        /* apsim_unknown codetab */
+00400b38 <compress+0x4d0> addu $2,$0,$17
+00400b40 <compress+0x4d8> sll $3,$2,0x1
+00400b48 <compress+0x4e0> lui $4,4100
+00400b50 <compress+0x4e8> addiu $4,$4,2528
+00400b58 <compress+0x4f0> addu $2,$3,$4
+00400b60 <compress+0x4f8> lw $3,-32756($28)
+00400b68 <compress+0x500> addiu $4,$3,1
+00400b70 <compress+0x508> sw $4,-32756($28)
+00400b78 <compress+0x510> sh $3,0($2)
+../m_cache/compress/compress.c:592
+	    htabof (i) = fcode;			/* apsim_unknown htab */
+00400b80 <compress+0x518> addu $2,$0,$17
+00400b88 <compress+0x520> sll $3,$2,0x2
+00400b90 <compress+0x528> lui $4,4100
+00400b98 <compress+0x530> addiu $4,$4,1376
+00400ba0 <compress+0x538> addu $2,$3,$4
+00400ba8 <compress+0x540> sw $16,0($2)
+../m_cache/compress/compress.c:593
+	}
+00400bb0 <compress+0x548> j 00400bf0 <compress+0x588>
+../m_cache/compress/compress.c:594
+	else if ( (count_int)in_count >= checkpoint && block_compress )
+00400bb8 <compress+0x550> lw $2,-32712($28)
+00400bc0 <compress+0x558> lw $3,-32724($28)
+00400bc8 <compress+0x560> slt $2,$2,$3
+00400bd0 <compress+0x568> bne $2,$0,00400bf0 <compress+0x588>
+00400bd8 <compress+0x570> lw $2,-32736($28)
+00400be0 <compress+0x578> beq $2,$0,00400bf0 <compress+0x588>
+../m_cache/compress/compress.c:595
+	    cl_block ();
+00400be8 <compress+0x580> jal 004019a8 <cl_block>
+../m_cache/compress/compress.c:596
+    }
+00400bf0 <compress+0x588> j 00400890 <compress+0x228>
+../m_cache/compress/compress.c:626
+    /*
+     * Put out the final code.
+     */
+/*    output( (code_int)ent );
+    out_count++;
+    output( (code_int)-1 ); */
+
+    /*
+     * Print out stats on stderr
+     */
+/*
+    if(zcat_flg == 0 && !quiet) {
+#ifdef DEBUG
+	fprintf( stderr,
+		"%ld chars in, %ld codes (%ld bytes) out, compression factor: ",
+		in_count, out_count, bytes_out );
+	prratio( stderr, in_count, bytes_out );
+	fprintf( stderr, "\n");
+	fprintf( stderr, "\tCompression as in compact: " );
+	prratio( stderr, in_count-bytes_out, in_count );
+	fprintf( stderr, "\n");
+	fprintf( stderr, "\tLargest code (of last block) was %d (%d bits)\n",
+		free_ent - 1, n_bits );
+#else
+	fprintf( stderr, "Compression: " );
+	prratio( stderr, in_count-bytes_out, in_count );
+#endif
+    }
+*/
+    if(bytes_out > in_count)	/* exit(2) if no savings */
+00400bf8 <compress+0x590> lw $2,-32516($28)
+00400c00 <compress+0x598> lw $3,-32712($28)
+00400c08 <compress+0x5a0> slt $2,$3,$2
+00400c10 <compress+0x5a8> beq $2,$0,00400c28 <compress+0x5c0>
+../m_cache/compress/compress.c:627
+	exit_stat = 2;
+00400c18 <compress+0x5b0> addiu $2,$0,2
+00400c20 <compress+0x5b8> sw $2,-32752($28)
+../m_cache/compress/compress.c:628
+    return;
+00400c28 <compress+0x5c0> j 00400c30 <compress+0x5c8>
+../m_cache/compress/compress.c:629
+}
+00400c30 <compress+0x5c8> addu $29,$0,$30
+00400c38 <compress+0x5d0> lw $31,56($29)
+00400c40 <compress+0x5d8> lw $30,52($29)
+00400c48 <compress+0x5e0> lw $22,48($29)
+00400c50 <compress+0x5e8> lw $21,44($29)
+00400c58 <compress+0x5f0> lw $20,40($29)
+00400c60 <compress+0x5f8> lw $19,36($29)
+00400c68 <compress+0x600> lw $18,32($29)
+00400c70 <compress+0x608> lw $17,28($29)
+00400c78 <compress+0x610> lw $16,24($29)
+00400c80 <compress+0x618> addiu $29,$29,64
+00400c88 <compress+0x620> jr $31
+output():
+../m_cache/compress/compress.c:655
+
+/*****************************************************************
+ * TAG( output )
+ *
+ * Output the given code.
+ * Inputs:
+ * 	code:	A n_bits-bit integer.  If == -1, then EOF.  This assumes
+ *		that n_bits =< (long)wordsize - 1.
+ * Outputs:
+ * 	Outputs code to the file.
+ * Assumptions:
+ *	Chars are 8 bits long.
+ * Algorithm:
+ * 	Maintain a BITS character long buffer (so that 8 codes will
+ * fit in it exactly).  Use the VAX insv instruction to insert each
+ * code in turn.  When the buffer fills up empty it and start over.
+ */
+
+
+extern char buf[BITS];
+
+char_type lmask[9] = {0xff, 0xfe, 0xfc, 0xf8, 0xf0, 0xe0, 0xc0, 0x80, 0x00};
+char_type rmask[9] = {0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff};
+
+output( code )
+code_int  code;
+00400c90 <output> addiu $29,$29,-40
+00400c98 <output+0x8> sw $31,32($29)
+00400ca0 <output+0x10> sw $30,28($29)
+00400ca8 <output+0x18> sw $18,24($29)
+00400cb0 <output+0x20> sw $17,20($29)
+00400cb8 <output+0x28> sw $16,16($29)
+00400cc0 <output+0x30> addu $30,$0,$29
+00400cc8 <output+0x38> sw $4,40($30)
+../m_cache/compress/compress.c:665
+{
+#ifdef DEBUG
+    static int col = 0;
+#endif /* DEBUG */
+
+    /*
+     * On the VAX, it is important to have the register declarations
+     * in exactly the order given, or the asm will break.
+     */
+    register int r_off = offset, bits= n_bits;
+00400cd0 <output+0x40> lw $16,-32576($28)
+00400cd8 <output+0x48> lw $17,-32512($28)
+../m_cache/compress/compress.c:666
+    register char * bp = buf;
+00400ce0 <output+0x50> lui $18,4100
+00400ce8 <output+0x58> addiu $18,$18,3056
+../m_cache/compress/compress.c:673
+
+#ifdef DEBUG
+	if ( verbose )
+	    fprintf( stderr, "%5d%c", code,
+		    (col+=6) >= 74 ? (col = 0, '\n') : ' ' );
+#endif /* DEBUG */
+    if ( code >= 0 ) {
+00400cf0 <output+0x60> lw $2,40($30)
+00400cf8 <output+0x68> bltz $2,00401078 <output+0x3e8>
+../m_cache/compress/compress.c:680
+/* 
+ * byte/bit numbering on the VAX is simulated by the following code
+ */
+	/*
+	 * Get to the first byte.
+	 */
+	bp += (r_off >> 3);
+00400d00 <output+0x70> sra $2,$16,0x3
+00400d08 <output+0x78> addu $18,$18,$2
+../m_cache/compress/compress.c:681
+	r_off &= 7;
+00400d10 <output+0x80> andi $16,$16,7
+../m_cache/compress/compress.c:686
+	/*
+	 * Since code is always >= 8 bits, only need to mask the first
+	 * hunk on the left.
+	 */
+	*bp = (*bp & rmask[r_off]) | (code << r_off) & lmask[r_off];  /* apsim_unknown buf */
+00400d18 <output+0x88> lbu $2,0($18)
+00400d20 <output+0x90> lui $3,4096
+00400d28 <output+0x98> addu $3,$3,$16
+00400d30 <output+0xa0> lbu $3,232($3)
+00400d38 <output+0xa8> and $2,$2,$3
+00400d40 <output+0xb0> lw $4,40($30)
+00400d48 <output+0xb8> sllv $3,$4,$16
+00400d50 <output+0xc0> addu $4,$0,$3
+00400d58 <output+0xc8> lui $3,4096
+00400d60 <output+0xd0> addu $3,$3,$16
+00400d68 <output+0xd8> lbu $3,220($3)
+00400d70 <output+0xe0> and $4,$4,$3
+00400d78 <output+0xe8> addu $3,$0,$4
+00400d80 <output+0xf0> or $2,$2,$3
+00400d88 <output+0xf8> sb $2,0($18)
+../m_cache/compress/compress.c:687
+	bp++;
+00400d90 <output+0x100> addiu $18,$18,1
+../m_cache/compress/compress.c:688
+	bits -= (8 - r_off);
+00400d98 <output+0x108> addiu $17,$17,-8
+00400da0 <output+0x110> addu $17,$17,$16
+../m_cache/compress/compress.c:689
+	code >>= 8 - r_off;
+00400da8 <output+0x118> addiu $3,$0,8
+00400db0 <output+0x120> subu $2,$3,$16
+00400db8 <output+0x128> lw $3,40($30)
+00400dc0 <output+0x130> srav $2,$3,$2
+00400dc8 <output+0x138> sw $2,40($30)
+../m_cache/compress/compress.c:691
+	/* Get any 8 bit parts in the middle (<=1 for up to 16 bits). */
+	if ( bits >= 8 ) {
+00400dd0 <output+0x140> slti $2,$17,8
+00400dd8 <output+0x148> bne $2,$0,00400e18 <output+0x188>
+../m_cache/compress/compress.c:692
+	    *bp++ = code;  /* apsim_unknown buf */
+00400de0 <output+0x150> lbu $2,40($30)
+00400de8 <output+0x158> sb $2,0($18)
+00400df0 <output+0x160> addiu $18,$18,1
+../m_cache/compress/compress.c:693
+	    code >>= 8;
+00400df8 <output+0x168> lw $2,40($30)
+00400e00 <output+0x170> sra $3,$2,0x8
+00400e08 <output+0x178> sw $3,40($30)
+../m_cache/compress/compress.c:694
+	    bits -= 8;
+00400e10 <output+0x180> addiu $17,$17,-8
+../m_cache/compress/compress.c:697
+	}
+	/* Last bits. */
+	if(bits)
+00400e18 <output+0x188> beq $17,$0,00400e30 <output+0x1a0>
+../m_cache/compress/compress.c:698
+	    *bp = code;			 /* apsim_unknown buf */
+00400e20 <output+0x190> lbu $2,40($30)
+00400e28 <output+0x198> sb $2,0($18)
+../m_cache/compress/compress.c:699
+	offset += n_bits;
+00400e30 <output+0x1a0> lw $2,-32576($28)
+00400e38 <output+0x1a8> lw $3,-32512($28)
+00400e40 <output+0x1b0> addu $2,$2,$3
+00400e48 <output+0x1b8> sw $2,-32576($28)
+../m_cache/compress/compress.c:700
+	if ( offset == (n_bits << 3) ) {
+00400e50 <output+0x1c0> lw $3,-32512($28)
+00400e58 <output+0x1c8> sll $2,$3,0x3
+00400e60 <output+0x1d0> lw $3,-32576($28)
+00400e68 <output+0x1d8> bne $3,$2,00400f18 <output+0x288>
+../m_cache/compress/compress.c:701
+	    bp = buf;
+00400e70 <output+0x1e0> lui $18,4100
+00400e78 <output+0x1e8> addiu $18,$18,3056
+../m_cache/compress/compress.c:702
+	    bits = n_bits;
+00400e80 <output+0x1f0> lw $17,-32512($28)
+../m_cache/compress/compress.c:703
+	    bytes_out += bits;
+00400e88 <output+0x1f8> lw $2,-32516($28)
+00400e90 <output+0x200> addu $3,$2,$17
+00400e98 <output+0x208> sw $3,-32516($28)
+../m_cache/compress/compress.c:705
+	    do
+		putbyte(*bp++);
+00400ea0 <output+0x210> lb $2,0($18)
+00400ea8 <output+0x218> addiu $18,$18,1
+00400eb0 <output+0x220> addu $4,$0,$2
+00400eb8 <output+0x228> jal 00401de0 <putbyte>
+../m_cache/compress/compress.c:706
+	    while(--bits && (bp - buf < BITS));
+00400ec0 <output+0x230> addiu $17,$17,-1
+00400ec8 <output+0x238> beq $17,$0,00400f00 <output+0x270>
+00400ed0 <output+0x240> lui $3,4100
+00400ed8 <output+0x248> addiu $3,$3,3056
+00400ee0 <output+0x250> subu $2,$18,$3
+00400ee8 <output+0x258> slti $3,$2,16
+00400ef0 <output+0x260> bne $3,$0,00400f08 <output+0x278>
+00400ef8 <output+0x268> j 00400f00 <output+0x270>
+00400f00 <output+0x270> j 00400f10 <output+0x280>
+00400f08 <output+0x278> j 00400ea0 <output+0x210>
+../m_cache/compress/compress.c:707
+	    offset = 0;
+00400f10 <output+0x280> sw $0,-32576($28)
+../m_cache/compress/compress.c:714
+	}
+
+	/*
+	 * If the next entry is going to be too big for the code size,
+	 * then increase it, if possible.
+	 */
+	if ( free_ent > maxcode || (clear_flg > 0))
+00400f18 <output+0x288> lw $2,-32756($28)
+00400f20 <output+0x290> lw $3,-32504($28)
+00400f28 <output+0x298> slt $2,$3,$2
+00400f30 <output+0x2a0> bne $2,$0,00400f50 <output+0x2c0>
+00400f38 <output+0x2a8> lw $2,-32732($28)
+00400f40 <output+0x2b0> bgtz $2,00400f50 <output+0x2c0>
+00400f48 <output+0x2b8> j 00401070 <output+0x3e0>
+../m_cache/compress/compress.c:720
+	{
+	    /*
+	     * Write the whole buffer, because the input side won't
+	     * discover the size increase until after it has read it.
+	     */
+	    if ( offset > 0 ) {
+00400f50 <output+0x2c0> lw $2,-32576($28)
+00400f58 <output+0x2c8> blez $2,00400fa0 <output+0x310>
+../m_cache/compress/compress.c:721
+		writebytes( buf, n_bits );
+00400f60 <output+0x2d0> lui $4,4100
+00400f68 <output+0x2d8> addiu $4,$4,3056
+00400f70 <output+0x2e0> lw $5,-32512($28)
+00400f78 <output+0x2e8> jal 00401fd0 <writebytes>
+../m_cache/compress/compress.c:722
+		bytes_out += n_bits;
+00400f80 <output+0x2f0> lw $2,-32516($28)
+00400f88 <output+0x2f8> lw $3,-32512($28)
+00400f90 <output+0x300> addu $2,$2,$3
+00400f98 <output+0x308> sw $2,-32516($28)
+../m_cache/compress/compress.c:724
+	    }
+	    offset = 0;
+00400fa0 <output+0x310> sw $0,-32576($28)
+../m_cache/compress/compress.c:726
+
+	    if ( clear_flg ) {
+00400fa8 <output+0x318> lw $2,-32732($28)
+00400fb0 <output+0x320> beq $2,$0,00400ff8 <output+0x368>
+../m_cache/compress/compress.c:727
+    	        maxcode = MAXCODE (n_bits = INIT_BITS);
+00400fb8 <output+0x328> addiu $2,$0,9
+00400fc0 <output+0x330> sw $2,-32512($28)
+00400fc8 <output+0x338> addiu $3,$0,1
+00400fd0 <output+0x340> sll $2,$3,0x9
+00400fd8 <output+0x348> addiu $3,$2,-1
+00400fe0 <output+0x350> sw $3,-32504($28)
+../m_cache/compress/compress.c:728
+	        clear_flg = 0;
+00400fe8 <output+0x358> sw $0,-32732($28)
+../m_cache/compress/compress.c:729
+	    }
+00400ff0 <output+0x360> j 00401070 <output+0x3e0>
+../m_cache/compress/compress.c:731
+	    else {
+	    	n_bits++;
+00400ff8 <output+0x368> lw $3,-32512($28)
+00401000 <output+0x370> addiu $2,$3,1
+00401008 <output+0x378> addu $3,$0,$2
+00401010 <output+0x380> sw $3,-32512($28)
+../m_cache/compress/compress.c:732
+	    	if ( n_bits == maxbits )
+00401018 <output+0x388> lw $2,-32512($28)
+00401020 <output+0x390> lw $3,-32768($28)
+00401028 <output+0x398> bne $2,$3,00401048 <output+0x3b8>
+../m_cache/compress/compress.c:733
+		    maxcode = maxmaxcode;
+00401030 <output+0x3a0> lw $2,-32764($28)
+00401038 <output+0x3a8> sw $2,-32504($28)
+00401040 <output+0x3b0> j 00401070 <output+0x3e0>
+../m_cache/compress/compress.c:735
+	    	else
+		    maxcode = MAXCODE(n_bits);
+00401048 <output+0x3b8> addiu $2,$0,1
+00401050 <output+0x3c0> lw $3,-32512($28)
+00401058 <output+0x3c8> sllv $2,$2,$3
+00401060 <output+0x3d0> addiu $3,$2,-1
+00401068 <output+0x3d8> sw $3,-32504($28)
+../m_cache/compress/compress.c:744
+	    }
+#ifdef DEBUG
+	    if ( debug ) {
+		fprintf( stderr, "\nChange to %d bits\n", n_bits );
+		col = 0;
+	    }
+#endif /* DEBUG */
+	}
+    } else {
+00401070 <output+0x3e0> j 00401128 <output+0x498>
+../m_cache/compress/compress.c:748
+	/*
+	 * At EOF, write the rest of the buffer.
+	 */
+	if ( offset > 0 )
+00401078 <output+0x3e8> lw $2,-32576($28)
+00401080 <output+0x3f0> blez $2,004010d8 <output+0x448>
+../m_cache/compress/compress.c:749
+	    writebytes( buf, ((offset + 7) / 8) );
+00401088 <output+0x3f8> lw $2,-32576($28)
+00401090 <output+0x400> addiu $3,$2,7
+00401098 <output+0x408> addu $2,$0,$3
+004010a0 <output+0x410> bgez $2,004010b0 <output+0x420>
+004010a8 <output+0x418> addiu $2,$2,7
+004010b0 <output+0x420> sra $2,$2,0x3
+004010b8 <output+0x428> lui $4,4100
+004010c0 <output+0x430> addiu $4,$4,3056
+004010c8 <output+0x438> addu $5,$0,$2
+004010d0 <output+0x440> jal 00401fd0 <writebytes>
+../m_cache/compress/compress.c:750
+	bytes_out += (offset + 7) / 8;
+004010d8 <output+0x448> lw $2,-32576($28)
+004010e0 <output+0x450> addiu $3,$2,7
+004010e8 <output+0x458> addu $2,$0,$3
+004010f0 <output+0x460> bgez $2,00401100 <output+0x470>
+004010f8 <output+0x468> addiu $2,$2,7
+00401100 <output+0x470> sra $2,$2,0x3
+00401108 <output+0x478> lw $3,-32516($28)
+00401110 <output+0x480> addu $2,$3,$2
+00401118 <output+0x488> sw $2,-32516($28)
+../m_cache/compress/compress.c:751
+	offset = 0;
+00401120 <output+0x490> sw $0,-32576($28)
+../m_cache/compress/compress.c:757
+#ifdef DEBUG
+	if ( verbose )
+	    fprintf( stderr, "\n" );
+#endif /* DEBUG */
+    }
+}
+00401128 <output+0x498> addu $29,$0,$30
+00401130 <output+0x4a0> lw $31,32($29)
+00401138 <output+0x4a8> lw $30,28($29)
+00401140 <output+0x4b0> lw $18,24($29)
+00401148 <output+0x4b8> lw $17,20($29)
+00401150 <output+0x4c0> lw $16,16($29)
+00401158 <output+0x4c8> addiu $29,$29,40
+00401160 <output+0x4d0> jr $31
+decompress():
+../m_cache/compress/compress.c:766
+
+/*
+ * Decompress stdin to stdout.  This routine adapts to the codes in the
+ * file building the "string" table on-the-fly; requiring no table to
+ * be stored in the compressed file.  The tables used herein are shared
+ * with those of the compress() routine.  See the definitions above.
+ */
+
+decompress() {
+00401168 <decompress> addiu $29,$29,-56
+00401170 <decompress+0x8> sw $31,48($29)
+00401178 <decompress+0x10> sw $30,44($29)
+00401180 <decompress+0x18> sw $20,40($29)
+00401188 <decompress+0x20> sw $19,36($29)
+00401190 <decompress+0x28> sw $18,32($29)
+00401198 <decompress+0x30> sw $17,28($29)
+004011a0 <decompress+0x38> sw $16,24($29)
+004011a8 <decompress+0x40> addu $30,$0,$29
+../m_cache/compress/compress.c:774
+    register char_type *stackp;
+    register int finchar;
+    register code_int dcode, oldcode, incode;
+
+    /*
+     * As above, initialize the first 256 entries in the table.
+     */
+    maxcode = MAXCODE(n_bits = INIT_BITS);
+004011b0 <decompress+0x48> addiu $2,$0,9
+004011b8 <decompress+0x50> sw $2,-32512($28)
+004011c0 <decompress+0x58> addiu $3,$0,1
+004011c8 <decompress+0x60> sll $2,$3,0x9
+004011d0 <decompress+0x68> addiu $3,$2,-1
+004011d8 <decompress+0x70> sw $3,-32504($28)
+../m_cache/compress/compress.c:775
+    for ( dcode = 255; dcode >= 0; dcode-- ) {
+004011e0 <decompress+0x78> addiu $18,$0,255
+004011e8 <decompress+0x80> bgez $18,004011f8 <decompress+0x90>
+004011f0 <decompress+0x88> j 00401250 <decompress+0xe8>
+../m_cache/compress/compress.c:776
+	tab_prefixof(dcode) = 0;
+004011f8 <decompress+0x90> addu $2,$0,$18
+00401200 <decompress+0x98> sll $3,$2,0x1
+00401208 <decompress+0xa0> lui $4,4100
+00401210 <decompress+0xa8> addiu $4,$4,2528
+00401218 <decompress+0xb0> addu $2,$3,$4
+00401220 <decompress+0xb8> sh $0,0($2)
+../m_cache/compress/compress.c:777
+	tab_suffixof(dcode) = (char_type)dcode;
+00401228 <decompress+0xc0> lui $1,4100
+00401230 <decompress+0xc8> addu $1,$1,$18
+00401238 <decompress+0xd0> sb $18,1376($1)
+../m_cache/compress/compress.c:775
+00401240 <decompress+0xd8> addiu $18,$18,-1
+00401248 <decompress+0xe0> j 004011e8 <decompress+0x80>
+../m_cache/compress/compress.c:779
+    }
+    free_ent = ((block_compress) ? FIRST : 256 );
+00401250 <decompress+0xe8> lw $2,-32736($28)
+00401258 <decompress+0xf0> beq $2,$0,00401270 <decompress+0x108>
+00401260 <decompress+0xf8> addiu $2,$0,257
+00401268 <decompress+0x100> j 00401278 <decompress+0x110>
+00401270 <decompress+0x108> addiu $2,$0,256
+00401278 <decompress+0x110> sw $2,-32756($28)
+../m_cache/compress/compress.c:781
+
+    finchar = oldcode = getcode();
+00401280 <decompress+0x118> jal 00401648 <getcode>
+00401288 <decompress+0x120> addu $19,$0,$2
+00401290 <decompress+0x128> addu $2,$0,$19
+00401298 <decompress+0x130> addu $17,$0,$2
+../m_cache/compress/compress.c:782
+    if(oldcode == -1)	/* EOF already? */
+004012a0 <decompress+0x138> addiu $2,$0,-1
+004012a8 <decompress+0x140> bne $19,$2,004012b8 <decompress+0x150>
+../m_cache/compress/compress.c:783
+	return;			/* Get out of here */
+004012b0 <decompress+0x148> j 004015f8 <decompress+0x490>
+../m_cache/compress/compress.c:784
+    putbyte( (char)finchar );		/* first code must be 8 bits = char */
+004012b8 <decompress+0x150> sll $3,$17,0x18
+004012c0 <decompress+0x158> sra $2,$3,0x18
+004012c8 <decompress+0x160> addu $4,$0,$2
+004012d0 <decompress+0x168> jal 00401de0 <putbyte>
+../m_cache/compress/compress.c:785
+    stackp = de_stack;
+004012d8 <decompress+0x170> lui $16,4101
+004012e0 <decompress+0x178> addiu $16,$16,1376
+../m_cache/compress/compress.c:787
+
+    while ( (dcode = getcode()) > -1 )
+004012e8 <decompress+0x180> jal 00401648 <getcode>
+004012f0 <decompress+0x188> addu $18,$0,$2
+004012f8 <decompress+0x190> addu $2,$0,$18
+00401300 <decompress+0x198> slti $3,$2,0
+00401308 <decompress+0x1a0> beq $3,$0,00401318 <decompress+0x1b0>
+00401310 <decompress+0x1a8> j 004015f8 <decompress+0x490>
+../m_cache/compress/compress.c:789
+      {
+	int apsim_bound121 = 0;
+00401318 <decompress+0x1b0> sw $0,16($30)
+../m_cache/compress/compress.c:791
+
+	if ( (dcode == CLEAR) && block_compress ) {
+00401320 <decompress+0x1b8> addiu $2,$0,256
+00401328 <decompress+0x1c0> bne $18,$2,004013e8 <decompress+0x280>
+00401330 <decompress+0x1c8> lw $2,-32736($28)
+00401338 <decompress+0x1d0> beq $2,$0,004013e8 <decompress+0x280>
+../m_cache/compress/compress.c:792
+	    for ( dcode = 255; dcode >= 0; dcode-- )
+00401340 <decompress+0x1d8> addiu $18,$0,255
+00401348 <decompress+0x1e0> bgez $18,00401358 <decompress+0x1f0>
+00401350 <decompress+0x1e8> j 00401398 <decompress+0x230>
+../m_cache/compress/compress.c:793
+		tab_prefixof(dcode) = 0;
+00401358 <decompress+0x1f0> addu $2,$0,$18
+00401360 <decompress+0x1f8> sll $3,$2,0x1
+00401368 <decompress+0x200> lui $4,4100
+00401370 <decompress+0x208> addiu $4,$4,2528
+00401378 <decompress+0x210> addu $2,$3,$4
+00401380 <decompress+0x218> sh $0,0($2)
+../m_cache/compress/compress.c:792
+00401388 <decompress+0x220> addiu $18,$18,-1
+00401390 <decompress+0x228> j 00401348 <decompress+0x1e0>
+../m_cache/compress/compress.c:794
+	    clear_flg = 1;
+00401398 <decompress+0x230> addiu $2,$0,1
+004013a0 <decompress+0x238> sw $2,-32732($28)
+../m_cache/compress/compress.c:795
+	    free_ent = FIRST - 1;
+004013a8 <decompress+0x240> addiu $2,$0,256
+004013b0 <decompress+0x248> sw $2,-32756($28)
+../m_cache/compress/compress.c:796
+	    if ( (dcode = getcode ()) == -1 )	/* O, untimely death! */
+004013b8 <decompress+0x250> jal 00401648 <getcode>
+004013c0 <decompress+0x258> addu $18,$0,$2
+004013c8 <decompress+0x260> addu $2,$0,$18
+004013d0 <decompress+0x268> addiu $3,$0,-1
+004013d8 <decompress+0x270> bne $2,$3,004013e8 <decompress+0x280>
+../m_cache/compress/compress.c:797
+		break;
+004013e0 <decompress+0x278> j 004015f8 <decompress+0x490>
+../m_cache/compress/compress.c:799
+	}
+	incode = dcode;
+004013e8 <decompress+0x280> addu $20,$0,$18
+../m_cache/compress/compress.c:803
+	/*
+	 * Special case for KwKwK string.
+	 */
+	if ( dcode >= free_ent ) {
+004013f0 <decompress+0x288> lw $2,-32756($28)
+004013f8 <decompress+0x290> slt $3,$18,$2
+00401400 <decompress+0x298> bne $3,$0,00401428 <decompress+0x2c0>
+../m_cache/compress/compress.c:804
+            *stackp++ = finchar;
+00401408 <decompress+0x2a0> addu $2,$0,$17
+00401410 <decompress+0x2a8> sb $2,0($16)
+00401418 <decompress+0x2b0> addiu $16,$16,1
+../m_cache/compress/compress.c:805
+	    dcode = oldcode;
+00401420 <decompress+0x2b8> addu $18,$0,$19
+../m_cache/compress/compress.c:811
+	}
+
+	/*
+	 * Generate output characters in reverse order
+	 */
+	while ( dcode >= 256 && apsim_bound121++ < free_ent - 256)
+00401428 <decompress+0x2c0> slti $2,$18,256
+00401430 <decompress+0x2c8> bne $2,$0,00401478 <decompress+0x310>
+00401438 <decompress+0x2d0> lw $2,16($30)
+00401440 <decompress+0x2d8> addiu $3,$2,1
+00401448 <decompress+0x2e0> sw $3,16($30)
+00401450 <decompress+0x2e8> lw $4,-32756($28)
+00401458 <decompress+0x2f0> addiu $3,$4,-256
+00401460 <decompress+0x2f8> slt $2,$2,$3
+00401468 <decompress+0x300> bne $2,$0,00401480 <decompress+0x318>
+00401470 <decompress+0x308> j 00401478 <decompress+0x310>
+00401478 <decompress+0x310> j 004014e0 <decompress+0x378>
+../m_cache/compress/compress.c:813
+	{
+	    *stackp++ = tab_suffixof(dcode);
+00401480 <decompress+0x318> lui $2,4100
+00401488 <decompress+0x320> addu $2,$2,$18
+00401490 <decompress+0x328> lbu $2,1376($2)
+00401498 <decompress+0x330> sb $2,0($16)
+004014a0 <decompress+0x338> addiu $16,$16,1
+../m_cache/compress/compress.c:814
+	    dcode = tab_prefixof(dcode);
+004014a8 <decompress+0x340> addu $2,$0,$18
+004014b0 <decompress+0x348> sll $3,$2,0x1
+004014b8 <decompress+0x350> lui $4,4100
+004014c0 <decompress+0x358> addiu $4,$4,2528
+004014c8 <decompress+0x360> addu $2,$3,$4
+004014d0 <decompress+0x368> lhu $18,0($2)
+../m_cache/compress/compress.c:815
+	}
+004014d8 <decompress+0x370> j 00401428 <decompress+0x2c0>
+../m_cache/compress/compress.c:816
+	*stackp++ = finchar = tab_suffixof(dcode);
+004014e0 <decompress+0x378> lui $17,4100
+004014e8 <decompress+0x380> addu $17,$17,$18
+004014f0 <decompress+0x388> lbu $17,1376($17)
+004014f8 <decompress+0x390> addu $3,$0,$17
+00401500 <decompress+0x398> addu $2,$0,$3
+00401508 <decompress+0x3a0> sb $2,0($16)
+00401510 <decompress+0x3a8> addiu $16,$16,1
+../m_cache/compress/compress.c:822
+
+	/*
+	 * And put them out in forward order
+	 */
+	do
+	    putbyte ( *--stackp );
+00401518 <decompress+0x3b0> addiu $16,$16,-1
+00401520 <decompress+0x3b8> lbu $2,0($16)
+00401528 <decompress+0x3c0> addu $4,$0,$2
+00401530 <decompress+0x3c8> jal 00401de0 <putbyte>
+../m_cache/compress/compress.c:823
+	while ( stackp > de_stack );
+00401538 <decompress+0x3d0> lui $2,4101
+00401540 <decompress+0x3d8> addiu $2,$2,1376
+00401548 <decompress+0x3e0> sltu $3,$2,$16
+00401550 <decompress+0x3e8> bne $3,$0,00401560 <decompress+0x3f8>
+00401558 <decompress+0x3f0> j 00401568 <decompress+0x400>
+00401560 <decompress+0x3f8> j 00401518 <decompress+0x3b0>
+../m_cache/compress/compress.c:828
+
+	/*
+	 * Generate the new entry.
+	 */
+	if ( (dcode=free_ent) < maxmaxcode ) {
+00401568 <decompress+0x400> lw $18,-32756($28)
+00401570 <decompress+0x408> addu $2,$0,$18
+00401578 <decompress+0x410> lw $3,-32764($28)
+00401580 <decompress+0x418> slt $2,$2,$3
+00401588 <decompress+0x420> beq $2,$0,004015e8 <decompress+0x480>
+../m_cache/compress/compress.c:829
+	    tab_prefixof(dcode) = (unsigned short)oldcode;
+00401590 <decompress+0x428> addu $2,$0,$18
+00401598 <decompress+0x430> sll $3,$2,0x1
+004015a0 <decompress+0x438> lui $4,4100
+004015a8 <decompress+0x440> addiu $4,$4,2528
+004015b0 <decompress+0x448> addu $2,$3,$4
+004015b8 <decompress+0x450> sh $19,0($2)
+../m_cache/compress/compress.c:830
+	    tab_suffixof(dcode) = finchar;
+004015c0 <decompress+0x458> lui $1,4100
+004015c8 <decompress+0x460> addu $1,$1,$18
+004015d0 <decompress+0x468> sb $17,1376($1)
+../m_cache/compress/compress.c:831
+	    free_ent = dcode+1;
+004015d8 <decompress+0x470> addiu $2,$18,1
+004015e0 <decompress+0x478> sw $2,-32756($28)
+../m_cache/compress/compress.c:836
+	} 
+	/*
+	 * Remember previous code.
+	 */
+	oldcode = incode;
+004015e8 <decompress+0x480> addu $19,$0,$20
+../m_cache/compress/compress.c:837
+    }
+004015f0 <decompress+0x488> j 004012e8 <decompress+0x180>
+../m_cache/compress/compress.c:838
+}
+004015f8 <decompress+0x490> addu $29,$0,$30
+00401600 <decompress+0x498> lw $31,48($29)
+00401608 <decompress+0x4a0> lw $30,44($29)
+00401610 <decompress+0x4a8> lw $20,40($29)
+00401618 <decompress+0x4b0> lw $19,36($29)
+00401620 <decompress+0x4b8> lw $18,32($29)
+00401628 <decompress+0x4c0> lw $17,28($29)
+00401630 <decompress+0x4c8> lw $16,24($29)
+00401638 <decompress+0x4d0> addiu $29,$29,56
+00401640 <decompress+0x4d8> jr $31
+getcode():
+../m_cache/compress/compress.c:851
+
+/*****************************************************************
+ * TAG( getcode )
+ *
+ * Read one code from the standard input.  If EOF, return -1.
+ * Inputs:
+ * 	stdin
+ * Outputs:
+ * 	code or -1 is returned.
+ */
+
+code_int
+getcode() {
+00401648 <getcode> addiu $29,$29,-40
+00401650 <getcode+0x8> sw $31,36($29)
+00401658 <getcode+0x10> sw $30,32($29)
+00401660 <getcode+0x18> sw $19,28($29)
+00401668 <getcode+0x20> sw $18,24($29)
+00401670 <getcode+0x28> sw $17,20($29)
+00401678 <getcode+0x30> sw $16,16($29)
+00401680 <getcode+0x38> addu $30,$0,$29
+../m_cache/compress/compress.c:860
+    /*
+     * On the VAX, it is important to have the register declarations
+     * in exactly the order given, or the asm will break.
+     */
+    register code_int codeget;
+    static int offsetget = 0, sizeget = 0;
+    static char_type bufget[BITS];
+    register int r_offget, bitsget;
+    register char_type *bpget = bufget;
+00401688 <getcode+0x40> lui $19,4096
+00401690 <getcode+0x48> addiu $19,$19,1232
+../m_cache/compress/compress.c:862
+
+    if ( clear_flg > 0 || offsetget >= sizeget || free_ent > maxcode ) {
+00401698 <getcode+0x50> lw $2,-32732($28)
+004016a0 <getcode+0x58> bgtz $2,004016f0 <getcode+0xa8>
+004016a8 <getcode+0x60> lw $2,-32704($28)
+004016b0 <getcode+0x68> lw $3,-32700($28)
+004016b8 <getcode+0x70> slt $2,$2,$3
+004016c0 <getcode+0x78> beq $2,$0,004016f0 <getcode+0xa8>
+004016c8 <getcode+0x80> lw $2,-32756($28)
+004016d0 <getcode+0x88> lw $3,-32504($28)
+004016d8 <getcode+0x90> slt $2,$3,$2
+004016e0 <getcode+0x98> bne $2,$0,004016f0 <getcode+0xa8>
+004016e8 <getcode+0xa0> j 00401850 <getcode+0x208>
+../m_cache/compress/compress.c:868
+	/*
+	 * If the next entry will be too big for the current code
+	 * size, then we must increase the size.  This implies reading
+	 * a new buffer full, too.
+	 */
+	if ( free_ent > maxcode ) {
+004016f0 <getcode+0xa8> lw $2,-32756($28)
+004016f8 <getcode+0xb0> lw $3,-32504($28)
+00401700 <getcode+0xb8> slt $2,$3,$2
+00401708 <getcode+0xc0> beq $2,$0,00401788 <getcode+0x140>
+../m_cache/compress/compress.c:869
+	    n_bits++;
+00401710 <getcode+0xc8> lw $3,-32512($28)
+00401718 <getcode+0xd0> addiu $2,$3,1
+00401720 <getcode+0xd8> addu $3,$0,$2
+00401728 <getcode+0xe0> sw $3,-32512($28)
+../m_cache/compress/compress.c:870
+	    if ( n_bits == maxbits )
+00401730 <getcode+0xe8> lw $2,-32512($28)
+00401738 <getcode+0xf0> lw $3,-32768($28)
+00401740 <getcode+0xf8> bne $2,$3,00401760 <getcode+0x118>
+../m_cache/compress/compress.c:871
+		maxcode = maxmaxcode;	/* won't get any bigger now */
+00401748 <getcode+0x100> lw $2,-32764($28)
+00401750 <getcode+0x108> sw $2,-32504($28)
+00401758 <getcode+0x110> j 00401788 <getcode+0x140>
+../m_cache/compress/compress.c:873
+	    else
+		maxcode = MAXCODE(n_bits);
+00401760 <getcode+0x118> addiu $2,$0,1
+00401768 <getcode+0x120> lw $3,-32512($28)
+00401770 <getcode+0x128> sllv $2,$2,$3
+00401778 <getcode+0x130> addiu $3,$2,-1
+00401780 <getcode+0x138> sw $3,-32504($28)
+../m_cache/compress/compress.c:875
+	}
+	if ( clear_flg > 0) {
+00401788 <getcode+0x140> lw $2,-32732($28)
+00401790 <getcode+0x148> blez $2,004017d0 <getcode+0x188>
+../m_cache/compress/compress.c:876
+    	    maxcode = MAXCODE (n_bits = INIT_BITS);
+00401798 <getcode+0x150> addiu $2,$0,9
+004017a0 <getcode+0x158> sw $2,-32512($28)
+004017a8 <getcode+0x160> addiu $3,$0,1
+004017b0 <getcode+0x168> sll $2,$3,0x9
+004017b8 <getcode+0x170> addiu $3,$2,-1
+004017c0 <getcode+0x178> sw $3,-32504($28)
+../m_cache/compress/compress.c:877
+	    clear_flg = 0;
+004017c8 <getcode+0x180> sw $0,-32732($28)
+../m_cache/compress/compress.c:879
+	}
+	sizeget = readbytes( bufget, n_bits );
+004017d0 <getcode+0x188> lui $4,4096
+004017d8 <getcode+0x190> addiu $4,$4,1232
+004017e0 <getcode+0x198> lw $5,-32512($28)
+004017e8 <getcode+0x1a0> jal 00401e50 <readbytes>
+004017f0 <getcode+0x1a8> sw $2,-32700($28)
+../m_cache/compress/compress.c:880
+	if ( sizeget <= 0 )
+004017f8 <getcode+0x1b0> lw $2,-32700($28)
+00401800 <getcode+0x1b8> bgtz $2,00401818 <getcode+0x1d0>
+../m_cache/compress/compress.c:881
+	    return -1;			/* end of file */
+00401808 <getcode+0x1c0> addiu $2,$0,-1
+00401810 <getcode+0x1c8> j 00401960 <getcode+0x318>
+../m_cache/compress/compress.c:882
+	offsetget = 0;
+00401818 <getcode+0x1d0> sw $0,-32704($28)
+../m_cache/compress/compress.c:884
+	/* Round size down to integral number of codes */
+	sizeget = (sizeget << 3) - (n_bits - 1);
+00401820 <getcode+0x1d8> lw $3,-32700($28)
+00401828 <getcode+0x1e0> sll $2,$3,0x3
+00401830 <getcode+0x1e8> addiu $3,$2,1
+00401838 <getcode+0x1f0> lw $2,-32512($28)
+00401840 <getcode+0x1f8> subu $3,$3,$2
+00401848 <getcode+0x200> sw $3,-32700($28)
+../m_cache/compress/compress.c:886
+    }
+    r_offget = offsetget;
+00401850 <getcode+0x208> lw $17,-32704($28)
+../m_cache/compress/compress.c:887
+    bitsget = n_bits;
+00401858 <getcode+0x210> lw $18,-32512($28)
+../m_cache/compress/compress.c:891
+	/*
+	 * Get to the first byte.
+	 */
+	bpget += (r_offget >> 3);
+00401860 <getcode+0x218> sra $2,$17,0x3
+00401868 <getcode+0x220> addu $19,$19,$2
+../m_cache/compress/compress.c:892
+	r_offget &= 7;
+00401870 <getcode+0x228> andi $17,$17,7
+../m_cache/compress/compress.c:897
+	/* Get first part (low order bits) */
+#ifdef NO_UCHAR
+	codeget = ((*bpget++ >> r_offget) & rmask[8 - r_offget]) & 0xff;
+#else
+	codeget = (*bpget++ >> r_offget);
+00401878 <getcode+0x230> lbu $16,0($19)
+00401880 <getcode+0x238> srav $16,$16,$17
+00401888 <getcode+0x240> addiu $19,$19,1
+../m_cache/compress/compress.c:899
+#endif /* NO_UCHAR */
+	bitsget -= (8 - r_offget);
+00401890 <getcode+0x248> addiu $18,$18,-8
+00401898 <getcode+0x250> addu $18,$18,$17
+../m_cache/compress/compress.c:900
+	r_offget = 8 - r_offget;		/* now, offset into code word 
+004018a0 <getcode+0x258> addiu $2,$0,8
+004018a8 <getcode+0x260> subu $17,$2,$17
+../m_cache/compress/compress.c:903
+*/
+	/* Get any 8 bit parts in the middle (<=1 for up to 16 bits). */
+	if ( bitsget >= 8 ) {
+004018b0 <getcode+0x268> slti $2,$18,8
+004018b8 <getcode+0x270> bne $2,$0,004018f0 <getcode+0x2a8>
+../m_cache/compress/compress.c:907
+#ifdef NO_UCHAR
+	    codeget |= (*bpget++ & 0xff) << r_offget;
+#else
+	    codeget |= *bpget++ << r_offget;
+004018c0 <getcode+0x278> lbu $2,0($19)
+004018c8 <getcode+0x280> sllv $3,$2,$17
+004018d0 <getcode+0x288> or $16,$16,$3
+004018d8 <getcode+0x290> addiu $19,$19,1
+../m_cache/compress/compress.c:909
+#endif /* NO_UCHAR */
+	    r_offget += 8;
+004018e0 <getcode+0x298> addiu $17,$17,8
+../m_cache/compress/compress.c:910
+	    bitsget -= 8;
+004018e8 <getcode+0x2a0> addiu $18,$18,-8
+../m_cache/compress/compress.c:913
+	}
+	/* high order bits. */
+	codeget |= (*bpget & rmask[bitsget]) << r_offget;
+004018f0 <getcode+0x2a8> lbu $2,0($19)
+004018f8 <getcode+0x2b0> lui $3,4096
+00401900 <getcode+0x2b8> addu $3,$3,$18
+00401908 <getcode+0x2c0> lbu $3,232($3)
+00401910 <getcode+0x2c8> and $2,$2,$3
+00401918 <getcode+0x2d0> andi $3,$2,255
+00401920 <getcode+0x2d8> sllv $2,$3,$17
+00401928 <getcode+0x2e0> or $16,$16,$2
+../m_cache/compress/compress.c:914
+    offsetget += n_bits;
+00401930 <getcode+0x2e8> lw $2,-32704($28)
+00401938 <getcode+0x2f0> lw $3,-32512($28)
+00401940 <getcode+0x2f8> addu $2,$2,$3
+00401948 <getcode+0x300> sw $2,-32704($28)
+../m_cache/compress/compress.c:916
+
+    return codeget;
+00401950 <getcode+0x308> addu $2,$0,$16
+00401958 <getcode+0x310> j 00401960 <getcode+0x318>
+../m_cache/compress/compress.c:917
+}
+00401960 <getcode+0x318> addu $29,$0,$30
+00401968 <getcode+0x320> lw $31,36($29)
+00401970 <getcode+0x328> lw $30,32($29)
+00401978 <getcode+0x330> lw $19,28($29)
+00401980 <getcode+0x338> lw $18,24($29)
+00401988 <getcode+0x340> lw $17,20($29)
+00401990 <getcode+0x348> lw $16,16($29)
+00401998 <getcode+0x350> addiu $29,$29,40
+004019a0 <getcode+0x358> jr $31
+cl_block():
+../m_cache/compress/compress.c:1067
+
+
+//char *
+//rindex(s, c)		/* For those who don't have it in libc.a */
+//register char *s, c;
+//{
+//	char *p;
+//	for (p = NULL; *s; s++)
+//	    if (*s == c)
+//		p = s;
+//	return(p);
+//}
+
+//#ifdef DEBUG
+//printcodes()
+//{
+    /*
+     * Just print out codes from input file.  For debugging.
+     */
+//    code_int code;
+//    int col = 0, bits;
+
+//    bits = n_bits = INIT_BITS;
+//    maxcode = MAXCODE(n_bits);
+//    free_ent = ((block_compress) ? FIRST : 256 );
+//    while ( ( code = getcode() ) >= 0 ) {
+//	if ( (code == CLEAR) && block_compress ) {
+//   	    free_ent = FIRST - 1;
+//   	    clear_flg = 1;
+//	}
+//	else if ( free_ent < maxmaxcode )
+//	    free_ent++;
+//	if ( bits != n_bits ) {
+//	    fprintf(stderr, "\nChange to %d bits\n", n_bits );
+//	    bits = n_bits;
+//	    col = 0;
+//	}
+//	fprintf(stderr, "%5d%c", code, (col+=6) >= 74 ? (col = 0, '\n') : ' ' );
+//    }
+//    putc( '\n', stderr );
+//    exit( 0 );
+//}
+
+code_int sorttab[1<<BITS];	/* sorted pointers into htab */
+
+//dump_tab()	/* dump string table */
+//{
+//    register int i, first;
+//   register ent;
+//#define STACK_SIZE	15000
+//    int stack_top = STACK_SIZE;
+//    register c;
+//
+//   if(do_decomp == 0) {	/* compressing */
+//	register int flag = 1;
+//
+//	for(i=0; i<hsize; i++) {	/* build sort pointers */
+//		if((long)htabof(i) >= 0) {
+//			sorttab[codetabof(i)] = i;
+//		}
+//	}
+//	first = block_compress ? FIRST : 256;
+//	for(i = first; i < free_ent; i++) {
+//		fprintf(stderr, "%5d: \"", i);
+//		de_stack[--stack_top] = '\n';
+//		de_stack[--stack_top] = '"';
+//		stack_top = in_stack((htabof(sorttab[i])>>maxbits)&0xff, 
+//                                     stack_top);
+//		for(ent=htabof(sorttab[i]) & ((1<<maxbits)-1);
+//		    ent > 256;
+//		    ent=htabof(sorttab[ent]) & ((1<<maxbits)-1)) {
+//			stack_top = in_stack(htabof(sorttab[ent]) >> maxbits,
+//						stack_top);
+//		}
+//		stack_top = in_stack(ent, stack_top);
+//		fwrite( &de_stack[stack_top], 1, STACK_SIZE-stack_top, stderr);
+//	   	stack_top = STACK_SIZE;
+//	}
+//   } else if(!debug) {	/* decompressing */
+//
+//       for ( i = 0; i < free_ent; i++ ) {
+//	   ent = i;
+//	   c = tab_suffixof(ent);
+//	   if ( isascii(c) && isprint(c) )
+//	       fprintf( stderr, "%5d: %5d/'%c'  \"",
+//			   ent, tab_prefixof(ent), c );
+//	   else
+//	       fprintf( stderr, "%5d: %5d/\\%03o \"",
+//			   ent, tab_prefixof(ent), c );
+//	   de_stack[--stack_top] = '\n';
+//	   de_stack[--stack_top] = '"';
+//	   for ( ; ent != NULL;
+//		   ent = (ent >= FIRST ? tab_prefixof(ent) : NULL) ) {
+//	       stack_top = in_stack(tab_suffixof(ent), stack_top);
+//	   }
+//	   fwrite( &de_stack[stack_top], 1, STACK_SIZE - stack_top, stderr );
+//	   stack_top = STACK_SIZE;
+//       }
+//    }
+//}
+
+//int
+//in_stack(c, stack_top)
+//	register c, stack_top;
+//{
+//	if ( (isascii(c) && isprint(c) && c != '\\') || c == ' ' ) {
+//	    de_stack[--stack_top] = c;
+//	} else {
+//	    switch( c ) {
+//	    case '\n': de_stack[--stack_top] = 'n'; break;
+//	    case '\t': de_stack[--stack_top] = 't'; break;
+//	    case '\b': de_stack[--stack_top] = 'b'; break;
+//	    case '\f': de_stack[--stack_top] = 'f'; break;
+//	    case '\r': de_stack[--stack_top] = 'r'; break;
+//	    case '\\': de_stack[--stack_top] = '\\'; break;
+//	    default:
+//	 	de_stack[--stack_top] = '0' + c % 8;
+//	 	de_stack[--stack_top] = '0' + (c / 8) % 8;
+//	 	de_stack[--stack_top] = '0' + c / 64;
+//	 	break;
+//	    }
+//	    de_stack[--stack_top] = '\\';
+//	}
+//	return stack_top;
+//}
+//#endif /* DEBUG */
+
+
+//#ifdef SYSV
+//void
+//#endif  /* SYSV */
+//onintr ( )
+//{
+//    unlink ( ofname );
+//    exit ( 1 );
+//}
+
+//#ifdef SYSV
+//void
+//#endif  /* SYSV */
+//oops ( )	/* wild pointer -- assume bad input */
+//{
+//   if ( do_decomp == 1 ) 
+//    	fprintf ( stderr, "uncompress: corrupt input\n" );
+//    unlink ( ofname );
+//    exit ( 1 );
+//}
+
+cl_block ()		/* table clear for block compress */
+{
+004019a8 <cl_block> addiu $29,$29,-32
+004019b0 <cl_block+0x8> sw $31,24($29)
+004019b8 <cl_block+0x10> sw $30,20($29)
+004019c0 <cl_block+0x18> sw $16,16($29)
+004019c8 <cl_block+0x20> addu $30,$0,$29
+../m_cache/compress/compress.c:1070
+    register long int rat;
+
+    checkpoint = in_count + CHECK_GAP;
+004019d0 <cl_block+0x28> lw $2,-32712($28)
+004019d8 <cl_block+0x30> addiu $3,$2,10000
+004019e0 <cl_block+0x38> sw $3,-32724($28)
+../m_cache/compress/compress.c:1079
+#ifdef DEBUG
+	if ( debug ) {
+    		fprintf ( stderr, "count: %ld, ratio: ", in_count );
+     		prratio ( stderr, in_count, bytes_out );
+		fprintf ( stderr, "\n");
+	}
+#endif /* DEBUG */
+
+    if(in_count > 0x007fffff) {	/* shift will overflow */
+004019e8 <cl_block+0x40> lw $2,-32712($28)
+004019f0 <cl_block+0x48> lui $3,127
+004019f8 <cl_block+0x50> ori $3,$3,65535
+00401a00 <cl_block+0x58> slt $2,$3,$2
+00401a08 <cl_block+0x60> beq $2,$0,00401aa0 <cl_block+0xf8>
+../m_cache/compress/compress.c:1080
+	rat = bytes_out >> 8;
+00401a10 <cl_block+0x68> lw $2,-32516($28)
+00401a18 <cl_block+0x70> sra $16,$2,0x8
+../m_cache/compress/compress.c:1081
+	if(rat == 0) {		/* Don't divide by zero */
+00401a20 <cl_block+0x78> bne $16,$0,00401a40 <cl_block+0x98>
+../m_cache/compress/compress.c:1082
+	    rat = 0x7fffffff;
+00401a28 <cl_block+0x80> lui $16,32767
+00401a30 <cl_block+0x88> ori $16,$16,65535
+../m_cache/compress/compress.c:1083
+	} else {
+00401a38 <cl_block+0x90> j 00401a98 <cl_block+0xf0>
+../m_cache/compress/compress.c:1084
+	    rat = in_count / rat;
+00401a40 <cl_block+0x98> lw $3,-32712($28)
+00401a48 <cl_block+0xa0> div $0,$3,$16
+00401a50 <cl_block+0xa8> bne $16,$0,00401a60 <cl_block+0xb8>
+00401a58 <cl_block+0xb0> break 
+00401a60 <cl_block+0xb8> addiu $1,$0,-1
+00401a68 <cl_block+0xc0> bne $16,$1,00401a88 <cl_block+0xe0>
+00401a70 <cl_block+0xc8> lui $1,32768
+00401a78 <cl_block+0xd0> bne $3,$1,00401a88 <cl_block+0xe0>
+00401a80 <cl_block+0xd8> break 
+00401a88 <cl_block+0xe0> mflo $2
+00401a90 <cl_block+0xe8> addu $16,$0,$2
+../m_cache/compress/compress.c:1086
+	}
+    } else {
+00401a98 <cl_block+0xf0> j 00401b00 <cl_block+0x158>
+../m_cache/compress/compress.c:1087
+	rat = (in_count << 8) / bytes_out;	/* 8 fractional bits */
+00401aa0 <cl_block+0xf8> lw $2,-32712($28)
+00401aa8 <cl_block+0x100> sll $16,$2,0x8
+00401ab0 <cl_block+0x108> lw $2,-32516($28)
+00401ab8 <cl_block+0x110> div $0,$16,$2
+00401ac0 <cl_block+0x118> bne $2,$0,00401ad0 <cl_block+0x128>
+00401ac8 <cl_block+0x120> break 
+00401ad0 <cl_block+0x128> addiu $1,$0,-1
+00401ad8 <cl_block+0x130> bne $2,$1,00401af8 <cl_block+0x150>
+00401ae0 <cl_block+0x138> lui $1,32768
+00401ae8 <cl_block+0x140> bne $16,$1,00401af8 <cl_block+0x150>
+00401af0 <cl_block+0x148> break 
+00401af8 <cl_block+0x150> mflo $16
+../m_cache/compress/compress.c:1089
+    }
+    if ( rat > ratio ) {
+00401b00 <cl_block+0x158> lw $2,-32728($28)
+00401b08 <cl_block+0x160> slt $3,$2,$16
+00401b10 <cl_block+0x168> beq $3,$0,00401b28 <cl_block+0x180>
+../m_cache/compress/compress.c:1090
+	ratio = rat;
+00401b18 <cl_block+0x170> sw $16,-32728($28)
+../m_cache/compress/compress.c:1091
+    } else {
+00401b20 <cl_block+0x178> j 00401b70 <cl_block+0x1c8>
+../m_cache/compress/compress.c:1092
+	ratio = 0;
+00401b28 <cl_block+0x180> sw $0,-32728($28)
+../m_cache/compress/compress.c:1097
+#ifdef DEBUG
+	if(verbose)
+		dump_tab();	/* dump string table */
+#endif
+ 	cl_hash ( (count_int) hsize );
+00401b30 <cl_block+0x188> lw $4,-32760($28)
+00401b38 <cl_block+0x190> jal 00401ba0 <cl_hash>
+../m_cache/compress/compress.c:1098
+	free_ent = FIRST;
+00401b40 <cl_block+0x198> addiu $2,$0,257
+00401b48 <cl_block+0x1a0> sw $2,-32756($28)
+../m_cache/compress/compress.c:1099
+	clear_flg = 1;
+00401b50 <cl_block+0x1a8> addiu $2,$0,1
+00401b58 <cl_block+0x1b0> sw $2,-32732($28)
+../m_cache/compress/compress.c:1100
+	output ( (code_int) CLEAR );
+00401b60 <cl_block+0x1b8> addiu $4,$0,256
+00401b68 <cl_block+0x1c0> jal 00400c90 <output>
+../m_cache/compress/compress.c:1106
+#ifdef DEBUG
+	if(debug)
+    		fprintf ( stderr, "clear\n" );
+#endif /* DEBUG */
+    }
+}
+00401b70 <cl_block+0x1c8> addu $29,$0,$30
+00401b78 <cl_block+0x1d0> lw $31,24($29)
+00401b80 <cl_block+0x1d8> lw $30,20($29)
+00401b88 <cl_block+0x1e0> lw $16,16($29)
+00401b90 <cl_block+0x1e8> addiu $29,$29,32
+00401b98 <cl_block+0x1f0> jr $31
+cl_hash():
+../m_cache/compress/compress.c:1109
+
+cl_hash(hsizecl)		/* reset code table */
+	register count_int hsizecl;
+00401ba0 <cl_hash> addiu $29,$29,-8
+00401ba8 <cl_hash+0x8> sw $30,0($29)
+00401bb0 <cl_hash+0x10> addu $30,$0,$29
+00401bb8 <cl_hash+0x18> addu $2,$0,$4
+../m_cache/compress/compress.c:1112
+{
+#ifndef XENIX_16	/* Normal machine */
+	register count_int *htab_p = htab+hsize;
+00401bc0 <cl_hash+0x20> lw $4,-32760($28)
+00401bc8 <cl_hash+0x28> addu $5,$0,$4
+00401bd0 <cl_hash+0x30> sll $4,$5,0x2
+00401bd8 <cl_hash+0x38> lui $5,4100
+00401be0 <cl_hash+0x40> addiu $5,$5,1376
+00401be8 <cl_hash+0x48> addu $3,$4,$5
+../m_cache/compress/compress.c:1119
+#else
+	register j;
+	register long k = hsize;
+	register count_int *htab_p;
+#endif
+	register long icl;
+	register long m1 = -1;
+00401bf0 <cl_hash+0x50> addiu $5,$0,-1
+../m_cache/compress/compress.c:1131
+
+#ifdef XENIX_16
+    for(j=0; j<=8 && k>=0; j++,k-=8192) {
+	icl = 8192;
+	if(k < 8192) {
+		icl = k;
+	}
+	htab_p = &(htab[j][icl]);
+	icl -= 16;
+	if(icl > 0) {
+#else
+	icl = hsize - 16;
+00401bf8 <cl_hash+0x58> lw $6,-32760($28)
+00401c00 <cl_hash+0x60> addiu $4,$6,-16
+../m_cache/compress/compress.c:1134
+#endif
+ 	do {				/* might use Sys V memset(3) here */
+		*(htab_p-16) = m1;
+00401c08 <cl_hash+0x68> sw $5,-64($3)
+../m_cache/compress/compress.c:1135
+		*(htab_p-15) = m1;
+00401c10 <cl_hash+0x70> sw $5,-60($3)
+../m_cache/compress/compress.c:1136
+		*(htab_p-14) = m1;
+00401c18 <cl_hash+0x78> sw $5,-56($3)
+../m_cache/compress/compress.c:1137
+		*(htab_p-13) = m1;
+00401c20 <cl_hash+0x80> sw $5,-52($3)
+../m_cache/compress/compress.c:1138
+		*(htab_p-12) = m1;
+00401c28 <cl_hash+0x88> sw $5,-48($3)
+../m_cache/compress/compress.c:1139
+		*(htab_p-11) = m1;
+00401c30 <cl_hash+0x90> sw $5,-44($3)
+../m_cache/compress/compress.c:1140
+		*(htab_p-10) = m1;
+00401c38 <cl_hash+0x98> sw $5,-40($3)
+../m_cache/compress/compress.c:1141
+		*(htab_p-9) = m1;
+00401c40 <cl_hash+0xa0> sw $5,-36($3)
+../m_cache/compress/compress.c:1142
+		*(htab_p-8) = m1;
+00401c48 <cl_hash+0xa8> sw $5,-32($3)
+../m_cache/compress/compress.c:1143
+		*(htab_p-7) = m1;
+00401c50 <cl_hash+0xb0> sw $5,-28($3)
+../m_cache/compress/compress.c:1144
+		*(htab_p-6) = m1;
+00401c58 <cl_hash+0xb8> sw $5,-24($3)
+../m_cache/compress/compress.c:1145
+		*(htab_p-5) = m1;
+00401c60 <cl_hash+0xc0> sw $5,-20($3)
+../m_cache/compress/compress.c:1146
+		*(htab_p-4) = m1;
+00401c68 <cl_hash+0xc8> sw $5,-16($3)
+../m_cache/compress/compress.c:1147
+		*(htab_p-3) = m1;
+00401c70 <cl_hash+0xd0> sw $5,-12($3)
+../m_cache/compress/compress.c:1148
+		*(htab_p-2) = m1;
+00401c78 <cl_hash+0xd8> sw $5,-8($3)
+../m_cache/compress/compress.c:1149
+		*(htab_p-1) = m1;
+00401c80 <cl_hash+0xe0> sw $5,-4($3)
+../m_cache/compress/compress.c:1150
+		htab_p -= 16;
+00401c88 <cl_hash+0xe8> addiu $3,$3,-64
+../m_cache/compress/compress.c:1151
+	} while ((icl -= 16) >= 0);
+00401c90 <cl_hash+0xf0> addiu $4,$4,-16
+00401c98 <cl_hash+0xf8> addu $6,$0,$4
+00401ca0 <cl_hash+0x100> bgez $6,00401cb0 <cl_hash+0x110>
+00401ca8 <cl_hash+0x108> j 00401cb8 <cl_hash+0x118>
+00401cb0 <cl_hash+0x110> j 00401c08 <cl_hash+0x68>
+../m_cache/compress/compress.c:1156
+#ifdef XENIX_16
+	}
+    }
+#endif
+    	for ( icl += 16; icl > 0; icl-- )
+00401cb8 <cl_hash+0x118> addiu $4,$4,16
+00401cc0 <cl_hash+0x120> bgtz $4,00401cd0 <cl_hash+0x130>
+00401cc8 <cl_hash+0x128> j 00401cf0 <cl_hash+0x150>
+../m_cache/compress/compress.c:1157
+		*--htab_p = m1;
+00401cd0 <cl_hash+0x130> addiu $3,$3,-4
+00401cd8 <cl_hash+0x138> sw $5,0($3)
+../m_cache/compress/compress.c:1156
+00401ce0 <cl_hash+0x140> addiu $4,$4,-1
+00401ce8 <cl_hash+0x148> j 00401cc0 <cl_hash+0x120>
+../m_cache/compress/compress.c:1158
+}
+00401cf0 <cl_hash+0x150> addu $29,$0,$30
+00401cf8 <cl_hash+0x158> lw $30,0($29)
+00401d00 <cl_hash+0x160> addiu $29,$29,8
+00401d08 <cl_hash+0x168> jr $31
+getbyte():
+../m_cache/compress/compress.c:1208
+
+//prratio(stream, num, den)
+//FILE *stream;
+//long int num, den;
+//{
+//	register int q;			/* Doesn't need to be long */
+//
+//	if(num > 214748L) {		/* 2147483647/10000 */
+//		q = num / (den / 10000L);
+//	} else {
+//		q = 10000L * num / den;		/* Long calculations, though */
+//	}
+//	if (q < 0) {
+//		putc('-', stream);
+//		q = -q;
+//	}
+//	fprintf(stream, "%d.%02d%%", q / 100, q % 100);
+//}
+
+//version()
+//{
+//	fprintf(stderr, "%s\n", rcs_ident);
+//	fprintf(stderr, "Options: ");
+//#ifdef NO_UCHAR
+//	fprintf(stderr, "NO_UCHAR, ");
+//#endif
+//#ifdef SIGNED_COMPARE_SLOW
+//	fprintf(stderr, "SIGNED_COMPARE_SLOW, ");
+//#endif
+//#ifdef XENIX_16
+//	fprintf(stderr, "XENIX_16, ");
+//#endif
+//#ifdef COMPATIBLE
+//	fprintf(stderr, "COMPATIBLE, ");
+//#endif
+//#ifdef DEBUG
+//	fprintf(stderr, "DEBUG, ");
+//#endif
+//#ifdef BSD4_2
+//	fprintf(stderr, "BSD4_2, ");
+//#endif
+//	fprintf(stderr, "BITS = %d\n", BITS);
+//}
+
+
+
+
+/* SPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPECSPEC */
+getbyte()
+{
+00401d10 <getbyte> addiu $29,$29,-8
+00401d18 <getbyte+0x8> sw $30,0($29)
+00401d20 <getbyte+0x10> addu $30,$0,$29
+../m_cache/compress/compress.c:1209
+	if( InCnt > 0 && apsim_InCnt-- > 0) {
+00401d28 <getbyte+0x18> lw $2,-32508($28)
+00401d30 <getbyte+0x20> blez $2,00401db0 <getbyte+0xa0>
+00401d38 <getbyte+0x28> lw $2,-32524($28)
+00401d40 <getbyte+0x30> addiu $3,$2,-1
+00401d48 <getbyte+0x38> sw $3,-32524($28)
+00401d50 <getbyte+0x40> blez $2,00401db0 <getbyte+0xa0>
+../m_cache/compress/compress.c:1210
+		InCnt--;
+00401d58 <getbyte+0x48> lw $3,-32508($28)
+00401d60 <getbyte+0x50> addiu $2,$3,-1
+00401d68 <getbyte+0x58> addu $3,$0,$2
+00401d70 <getbyte+0x60> sw $3,-32508($28)
+../m_cache/compress/compress.c:1211
+		return( (unsigned int)*InBuff++ );
+00401d78 <getbyte+0x68> lw $2,-32528($28)
+00401d80 <getbyte+0x70> addiu $3,$2,1
+00401d88 <getbyte+0x78> sw $3,-32528($28)
+00401d90 <getbyte+0x80> lbu $3,0($2)
+00401d98 <getbyte+0x88> addu $2,$0,$3
+00401da0 <getbyte+0x90> j 00401dc0 <getbyte+0xb0>
+../m_cache/compress/compress.c:1212
+	} else {
+00401da8 <getbyte+0x98> j 00401dc0 <getbyte+0xb0>
+../m_cache/compress/compress.c:1213
+		return( -1 );
+00401db0 <getbyte+0xa0> addiu $2,$0,-1
+00401db8 <getbyte+0xa8> j 00401dc0 <getbyte+0xb0>
+../m_cache/compress/compress.c:1215
+	}
+}
+00401dc0 <getbyte+0xb0> addu $29,$0,$30
+00401dc8 <getbyte+0xb8> lw $30,0($29)
+00401dd0 <getbyte+0xc0> addiu $29,$29,8
+00401dd8 <getbyte+0xc8> jr $31
+putbyte():
+../m_cache/compress/compress.c:1218
+
+putbyte( cput )
+char cput;
+00401de0 <putbyte> addiu $29,$29,-16
+00401de8 <putbyte+0x8> sw $30,8($29)
+00401df0 <putbyte+0x10> addu $30,$0,$29
+00401df8 <putbyte+0x18> addu $2,$0,$4
+00401e00 <putbyte+0x20> sb $2,0($30)
+../m_cache/compress/compress.c:1220
+{
+	*OutBuff++ = cput;       		 /* apsim_unknown 
+00401e08 <putbyte+0x28> lw $3,-32520($28)
+00401e10 <putbyte+0x30> addiu $4,$3,1
+00401e18 <putbyte+0x38> sw $4,-32520($28)
+00401e20 <putbyte+0x40> lbu $4,0($30)
+00401e28 <putbyte+0x48> sb $4,0($3)
+../m_cache/compress/compress.c:1222
+comp_text_buffer */
+}
+00401e30 <putbyte+0x50> addu $29,$0,$30
+00401e38 <putbyte+0x58> lw $30,8($29)
+00401e40 <putbyte+0x60> addiu $29,$29,16
+00401e48 <putbyte+0x68> jr $31
+readbytes():
+../m_cache/compress/compress.c:1225
+
+readbytes( bufr, nr )
+char *bufr;
+00401e50 <readbytes> addiu $29,$29,-16
+00401e58 <readbytes+0x8> sw $30,8($29)
+00401e60 <readbytes+0x10> addu $30,$0,$29
+00401e68 <readbytes+0x18> sw $4,16($30)
+00401e70 <readbytes+0x20> sw $5,20($30)
+../m_cache/compress/compress.c:1230
+int nr;
+{
+	int ir;
+
+	if( InCnt <= 0 )
+00401e78 <readbytes+0x28> lw $2,-32508($28)
+00401e80 <readbytes+0x30> bgtz $2,00401e98 <readbytes+0x48>
+../m_cache/compress/compress.c:1231
+		return( -1 );
+00401e88 <readbytes+0x38> addiu $2,$0,-1
+00401e90 <readbytes+0x40> j 00401fb0 <readbytes+0x160>
+../m_cache/compress/compress.c:1233
+
+	if( nr > InCnt )
+00401e98 <readbytes+0x48> lw $2,20($30)
+00401ea0 <readbytes+0x50> lw $3,-32508($28)
+00401ea8 <readbytes+0x58> slt $2,$3,$2
+00401eb0 <readbytes+0x60> beq $2,$0,00401ec8 <readbytes+0x78>
+../m_cache/compress/compress.c:1234
+		nr = InCnt;
+00401eb8 <readbytes+0x68> lw $2,-32508($28)
+00401ec0 <readbytes+0x70> sw $2,20($30)
+../m_cache/compress/compress.c:1236
+
+	for( ir=0; ir<nr && /* apsim */ ir < BITS ; ir++ ) {
+00401ec8 <readbytes+0x78> sw $0,0($30)
+00401ed0 <readbytes+0x80> lw $2,0($30)
+00401ed8 <readbytes+0x88> lw $3,20($30)
+00401ee0 <readbytes+0x90> slt $2,$2,$3
+00401ee8 <readbytes+0x98> beq $2,$0,00401f10 <readbytes+0xc0>
+00401ef0 <readbytes+0xa0> lw $2,0($30)
+00401ef8 <readbytes+0xa8> slti $3,$2,16
+00401f00 <readbytes+0xb0> bne $3,$0,00401f18 <readbytes+0xc8>
+00401f08 <readbytes+0xb8> j 00401f10 <readbytes+0xc0>
+00401f10 <readbytes+0xc0> j 00401fa0 <readbytes+0x150>
+../m_cache/compress/compress.c:1237
+		bufr[ir] = *InBuff++;
+00401f18 <readbytes+0xc8> lw $2,16($30)
+00401f20 <readbytes+0xd0> lw $3,0($30)
+00401f28 <readbytes+0xd8> addu $2,$2,$3
+00401f30 <readbytes+0xe0> lw $3,-32528($28)
+00401f38 <readbytes+0xe8> addiu $4,$3,1
+00401f40 <readbytes+0xf0> sw $4,-32528($28)
+00401f48 <readbytes+0xf8> lbu $3,0($3)
+00401f50 <readbytes+0x100> sb $3,0($2)
+../m_cache/compress/compress.c:1238
+		InCnt--;
+00401f58 <readbytes+0x108> lw $3,-32508($28)
+00401f60 <readbytes+0x110> addiu $2,$3,-1
+00401f68 <readbytes+0x118> addu $3,$0,$2
+00401f70 <readbytes+0x120> sw $3,-32508($28)
+../m_cache/compress/compress.c:1236
+00401f78 <readbytes+0x128> lw $3,0($30)
+00401f80 <readbytes+0x130> addiu $2,$3,1
+00401f88 <readbytes+0x138> addu $3,$0,$2
+00401f90 <readbytes+0x140> sw $3,0($30)
+00401f98 <readbytes+0x148> j 00401ed0 <readbytes+0x80>
+../m_cache/compress/compress.c:1241
+	}
+
+	return( ir );
+00401fa0 <readbytes+0x150> lw $2,0($30)
+00401fa8 <readbytes+0x158> j 00401fb0 <readbytes+0x160>
+../m_cache/compress/compress.c:1242
+}
+00401fb0 <readbytes+0x160> addu $29,$0,$30
+00401fb8 <readbytes+0x168> lw $30,8($29)
+00401fc0 <readbytes+0x170> addiu $29,$29,16
+00401fc8 <readbytes+0x178> jr $31
+writebytes():
+../m_cache/compress/compress.c:1245
+
+writebytes( bufw, nw )
+char *bufw;
+00401fd0 <writebytes> addiu $29,$29,-16
+00401fd8 <writebytes+0x8> sw $30,8($29)
+00401fe0 <writebytes+0x10> addu $30,$0,$29
+00401fe8 <writebytes+0x18> sw $4,16($30)
+00401ff0 <writebytes+0x20> sw $5,20($30)
+../m_cache/compress/compress.c:1250
+int nw;
+{
+	int iw;
+
+	for( iw=0; iw<nw && /*apsim*/ iw < BITS ; iw++ )
+00401ff8 <writebytes+0x28> sw $0,0($30)
+00402000 <writebytes+0x30> lw $2,0($30)
+00402008 <writebytes+0x38> lw $3,20($30)
+00402010 <writebytes+0x40> slt $2,$2,$3
+00402018 <writebytes+0x48> beq $2,$0,00402040 <writebytes+0x70>
+00402020 <writebytes+0x50> lw $2,0($30)
+00402028 <writebytes+0x58> slti $3,$2,16
+00402030 <writebytes+0x60> bne $3,$0,00402048 <writebytes+0x78>
+00402038 <writebytes+0x68> j 00402040 <writebytes+0x70>
+00402040 <writebytes+0x70> j 004020b0 <writebytes+0xe0>
+../m_cache/compress/compress.c:1251
+		*OutBuff++ = bufw[iw];       		 /* apsim_unknown 
+00402048 <writebytes+0x78> lw $2,-32520($28)
+00402050 <writebytes+0x80> addiu $3,$2,1
+00402058 <writebytes+0x88> sw $3,-32520($28)
+00402060 <writebytes+0x90> lw $3,16($30)
+00402068 <writebytes+0x98> lw $4,0($30)
+00402070 <writebytes+0xa0> addu $3,$3,$4
+00402078 <writebytes+0xa8> lbu $4,0($3)
+00402080 <writebytes+0xb0> sb $4,0($2)
+../m_cache/compress/compress.c:1250
+00402088 <writebytes+0xb8> lw $3,0($30)
+00402090 <writebytes+0xc0> addiu $2,$3,1
+00402098 <writebytes+0xc8> addu $3,$0,$2
+004020a0 <writebytes+0xd0> sw $3,0($30)
+004020a8 <writebytes+0xd8> j 00402000 <writebytes+0x30>
+../m_cache/compress/compress.c:1253
+comp_text_buffer */
+}
+004020b0 <writebytes+0xe0> addu $29,$0,$30
+004020b8 <writebytes+0xe8> lw $30,8($29)
+004020c0 <writebytes+0xf0> addiu $29,$29,16
+004020c8 <writebytes+0xf8> jr $31

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ x$1 != x ]
+then
+	gcc -g -D_PRINT -D_DEBUG -o opt main.c -lm
+else	
+	gcc -g -D_PRINT -o opt main.c -lm
+fi	
