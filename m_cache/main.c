@@ -173,12 +173,11 @@ int main(int argc, char **argv ) {
   regionmode = 0;
 
   /* For private L2 cache analysis */		  
-  if(argc > 5)
-  {
+  if(argc > 5) {
 		g_private = atoi(argv[5]);  
-  }
-  else
-		g_private = 0;  
+  } else {
+		g_private = 0;
+	}
 
   /* sudiptac :: Allocate the latest start time structure for 
 	* all the cores */
@@ -196,22 +195,22 @@ int main(int argc, char **argv ) {
 
   /* Allocate memory for capturing conflicting task information */		  
   numConflictTask = (char *)CALLOC(numConflictTask, cache_L2.ns, sizeof(char),
-		  "numConflictTask");
+		                               "numConflictTask");
   numConflictMSC = (char *)CALLOC(numConflictMSC, cache_L2.ns, sizeof(char), 
-		  "numConflictMSC");
+	                            	  "numConflictMSC");
 
   /* Reset/initialize allocated memory */ 		  
-  for(n = 0; n < cache_L2.ns; n++)
-  {
+  for(n = 0; n < cache_L2.ns; n++) {
 	  numConflictTask[n] = 0;
 	  numConflictMSC[n] = 0;
   }
+  
   /* find out: (1) size of each cache line, (2) number of cache sets,
 	* (3) associativity */
   if(debug)  
-	dumpCacheConfig();
+    dumpCacheConfig();
   if(debug) 
-	dumpCacheConfig_L2();
+    dumpCacheConfig_L2();
 
   /* Start reading the interference file and build the intereference 
 	* information */
@@ -221,77 +220,75 @@ int main(int argc, char **argv ) {
   STARTTIME;
  
   /* Read the entire file containing the interference information */		  
-  while(fscanf(interferPath, "%s\n", interferFileName)!= EOF)
-  {
-    if(num_msc == 0)
-    {
+  while(fscanf(interferPath, "%s\n", interferFileName)!= EOF) {
+    if(num_msc == 0) {
         msc = (MSC**)CALLOC(msc, 1, sizeof(MSC*), "MSC*");
-    }
-    else
-    {
+    } else {
         msc = (MSC**)REALLOC(msc, (num_msc + 1) * sizeof(MSC*), "MSC*");
     }
     num_msc++;
     
     interferFile = fopen(interferFileName,"r");
 
-	 /* Read number of tasks */	   
+	  /* Read number of tasks */	   
     fscanf(interferFile, "%d\n", &num_task);
     
-	 /* Allocate memory for this MSC */
+	  /* Allocate memory for this MSC */
     msc[num_msc -1] = (MSC*)CALLOC(msc[num_msc -1], 1, sizeof(MSC), "MSC");
 
     strcpy(msc[num_msc -1]->msc_name, interferFileName);
     msc[num_msc -1]->num_task = num_task;
 
-	 /* Allocate memory for all tasks in the MSC and intereference data 
-	  * structure */
+	  /* Allocate memory for all tasks in the MSC and intereference data 
+	   * structure */
     msc[num_msc -1]->taskList = (task_t*)CALLOC(msc[num_msc -1], num_task,
 		  sizeof(task_t), "taskList");
     msc[num_msc -1]->interferInfo = (int**)CALLOC(msc[num_msc -1]->interferInfo,
 		  num_task, sizeof(int*), "interferInfo*");
 
-	 /* Get/set names of all tasks in the MSC */	  
-    for(i = 0; i < num_task; i ++)
-	 {
-        fscanf(interferFile, "%s\n", &(msc[num_msc -1]->taskList[i].task_name));
-		  /* sudiptac ::: Read also the successor info. Needed for WCET analysis
-			* in presence of shared bus */
-		  fscanf(interferFile, "%d", &(msc[num_msc - 1]->taskList[i].numSuccs));
-		  nSuccs = msc[num_msc - 1]->taskList[i].numSuccs;
-		  /* Allocate memory for successor List */
-		  msc[num_msc - 1]->taskList[i].succList = (uint *)
-					 malloc(nSuccs * sizeof(uint));
-		  if(!msc[num_msc - 1]->taskList[i].succList)	
-			 prerr("Error: Out of Memory");		 	 
-		  /* Now read all successor id-s of this task in the same MSC. Task id-s
-			* are ordered in topological order */
-		  for(si = 0; si < nSuccs; si++)
-			  fscanf(interferFile, "%d", &(msc[num_msc - 1]->taskList[i].succList[si]));	
-		  fscanf(interferFile, "\n"); 	  
-	 }	  
+    /* Get/set names of all tasks in the MSC */	  
+    for(i = 0; i < num_task; i ++) {
+     
+     fscanf(interferFile, "%s\n", &(msc[num_msc -1]->taskList[i].task_name));
+     /* sudiptac ::: Read also the successor info. Needed for WCET analysis
+      * in presence of shared bus */
+     fscanf(interferFile, "%d", &(msc[num_msc - 1]->taskList[i].numSuccs));
+     nSuccs = msc[num_msc - 1]->taskList[i].numSuccs;
+     
+     /* Allocate memory for successor List */
+     msc[num_msc - 1]->taskList[i].succList = 
+       (uint *)malloc(nSuccs * sizeof(uint));
+     if(!msc[num_msc - 1]->taskList[i].succList)	
+       prerr("Error: Out of Memory");
+     
+     /* Now read all successor id-s of this task in the same MSC. Task id-s
+      * are ordered in topological order */
+     for(si = 0; si < nSuccs; si++) {
+       fscanf(interferFile, "%d", &(msc[num_msc - 1]->taskList[i].succList[si]));
+     }
+     
+     fscanf(interferFile, "\n"); 	  
+    }	  
     
-	 fscanf(interferFile, "\n");   
+	  fscanf(interferFile, "\n");   
    
-	 /* Set other parameters of the tasks */	  
-    for(i = 0; i < num_task; i ++)
-    {
-        msc[num_msc -1]->taskList[i].task_id = i;
-        msc[num_msc -1]->interferInfo[i] = (int*)CALLOC(msc[num_msc -1]->
-				interferInfo[i], num_task, sizeof(int), "interferInfo");
-		  
-		  /* Set the intereference info of task "i" i.e. all ("j" < num_task)
-			* are set to "1" if task "i" interefere with "j" in this msc in the
-			* timeline */
-        for(j = 0; j < num_task; j++)
-        {
-            fscanf(interferFile, "%d ", &(msc[num_msc -1]->interferInfo[i][j]));
-            /* printf("msc[%d]->interfer[%d][%d] = %d\n", num_msc -1, i, j,
-				 * msc[num_msc -1]->interferInfo[i][j]); */
-        }
-        fscanf(interferFile, "\n");
+    /* Set other parameters of the tasks */	  
+    for(i = 0; i < num_task; i ++) {
+     msc[num_msc -1]->taskList[i].task_id = i;
+     msc[num_msc -1]->interferInfo[i] = (int*)CALLOC(msc[num_msc -1]->
+       interferInfo[i], num_task, sizeof(int), "interferInfo");
+      
+     /* Set the intereference info of task "i" i.e. all ("j" < num_task)
+      * are set to "1" if task "i" interefere with "j" in this msc in the
+      * timeline */
+     for(j = 0; j < num_task; j++) {
+       fscanf(interferFile, "%d ", &(msc[num_msc -1]->interferInfo[i][j]));
+       /* printf("msc[%d]->interfer[%d][%d] = %d\n", num_msc -1, i, j,
+       * msc[num_msc -1]->interferInfo[i][j]); */
+     }
+     fscanf(interferFile, "\n");
     }
-	 /* All done ::: close the interference file */
+    /* All done ::: close the interference file */
     fclose(interferFile);
 
 	 /* Now go through all the tasks to read their CFG and build 

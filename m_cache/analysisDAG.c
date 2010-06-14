@@ -57,213 +57,210 @@ int analyseDAGFunction(procedure *proc, int index)
 
   // print_cfg();
 
-    p        =  proc;
-    topo     = p->topo;
-    num_topo = p->num_topo;
+  p        =  proc;
+  topo     = p->topo;
+  num_topo = p->num_topo;
 
   // store temporary calculations, index corresponding to bblist for ease of locating
 
 
-    // ****** THE REGION TRANSITION IS NOT CORRECTLY & COMPLETELY ADAPTED HERE YET **********
+  // ****** THE REGION TRANSITION IS NOT CORRECTLY & COMPLETELY ADAPTED HERE YET **********
 
-    wcet_arr  = (ull*)  CALLOC( wcet_arr,  p->num_bb, sizeof(ull), "wcet_arr" );
-   // tmp_wpath = (char*) CALLOC( tmp_wpath, p->num_bb, sizeof(char), "tmp_wpath" );
+  wcet_arr  = (ull*)  CALLOC( wcet_arr,  p->num_bb, sizeof(ull), "wcet_arr" );
+  // tmp_wpath = (char*) CALLOC( tmp_wpath, p->num_bb, sizeof(char), "tmp_wpath" );
 
-    for( i = 0; i < num_topo; i++ ) {
-      bb = topo[i];
-      bb = p->bblist[bb->bbid];
-      // printf( "bb %d-%d: ", bb->pid, bb->bbid );
-      // printBlock( bb );
+  for( i = 0; i < num_topo; i++ ) {
+    bb = topo[i];
+    bb = p->bblist[bb->bbid];
+    // printf( "bb %d-%d: ", bb->pid, bb->bbid );
+    // printBlock( bb );
 
-      // if dummy block, ignore
-      if( bb->startaddr == -1 )
-	continue;
+    // if dummy block, ignore
+    if( bb->startaddr == -1 )
+      continue;
 
-      // if nested loophead, directly use the wcet of loop (should have been calculated)
-      if( bb->is_loophead) 
-      {
-		lpn = p->loops[ bb->loopid ];
+    // if nested loophead, directly use the wcet of loop (should have been calculated)
+    if( bb->is_loophead) {
+      lpn = p->loops[ bb->loopid ];
 		
-		wcet_arr[ bb->bbid ] = lpn->wcet[index * 2] + lpn->wcet[index * 2 + 1];
+      wcet_arr[ bb->bbid ] = lpn->wcet[index * 2] + lpn->wcet[index * 2 + 1];
 
-	// add wcet at loopexit ???
-		wcet_arr[ bb->bbid ] += wcet_arr[ lpn->loopexit->bbid ];
-	//if(print)
-		{
-			printf("wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid]);
-		}
-
-      } // end if nested loophead
-
-      else {
-	  //cost of this bb
-		wcet_arr[ bb->bbid ] = bb->chmc_L2[index]->wcost;
-	  
-	//if(print)
-		{
-			printf("wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid]);
-		}
-
-	//---- successors ----
-	switch( bb->num_outgoing ) {
-
-	case 0:
-	  break;
-
-	case 1:	 // just add the weight of successor
-	  wcet_arr[ bb->bbid ] += wcet_arr[ bb->outgoing[0] ];
-	//if(print)
-		{
-			printf("wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid]);
-		}
-	  break;
-
-	case 2:  // choose heaviest
-	  if(bb->loopid != p->bblist[bb->outgoing[0]]->loopid)
-	  	max = 1;
-	  else if(bb->loopid != p->bblist[bb->outgoing[1]]->loopid)
-	  	max = 0;
-	  
-	 else
-	 {
-	 	if( wcet_arr[ bb->outgoing[0] ] >= wcet_arr[ bb->outgoing[1] ] )
-	    		max = 0;
-	  	else
-	    		max = 1;
-	 }
-	  wcet_arr[ bb->bbid ] += wcet_arr[ bb->outgoing[max] ];
-	//if(print)
-		{
-			printf("wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid]);
-		}
-
-	  
-	 // tmp_wpath[ bb->bbid ] = max;
-	  break;
-
-	default:
-	  printf( "Invalid number of outgoing edges at %d-%d\n", bb->pid, bb->bbid );
-	  exit(1);
-
-	} // end switch
-
-	// called procedure
-	if( bb->callpid != -1 ) {
-	//add cost of the procedure
-  	 	wcet_arr[ bb->bbid ] += bb->proc_ptr->wcet[index];
-
-	  printf( "bb %d-%d procedure call %d wcet: %Lu\n", bb->pid, bb->bbid,
-		  bb->callpid, p->wcet[index] ); fflush( stdout );
-
-	//if(print)
-		{
-			printf("wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid]);
-		}
-
-
-	/*
-	  // region transition
-	  if( regionmode && bb->regid != -1 ) {
-	    id = procs[bb->callpid]->bblist[0]->regid;
-	    if( id != -1 && bb->regid != id ) {
-	      printf( "region transition %d-%d(%d) procedure call %d(%d) cost: %u\n",
-		      bb->pid, bb->bbid, bb->regid, bb->callpid, id, regioncost[id] ); fflush( stdout );
-	      wcet_arr[ bb->bbid ] += regioncost[id];
-	    }
-	    // procedure call typically ends the bb
-	    id = procs[bb->callpid]->bblist[ procs[bb->callpid]->num_bb - 1 ]->regid;
-	    if( id != -1 && bb->regid != id ) {
-	      printf( "region transition %d-%d(%d) procedure return %d(%d) cost: %u\n",
-		      bb->pid, bb->bbid, bb->regid, bb->callpid, id, regioncost[bb->regid] ); fflush( stdout );
-	      wcet_arr[ bb->bbid ] += regioncost[bb->regid];
-	    }
-	  }
-	  */
-	}
-      } // end else loophead
-    } // end for
-
-
-    // once more traverse cfg following the wcet path, collect wpvar and wpath
-/* 
-    wpath = (char*) MALLOC( wpath, sizeof(char), "wpath" );
-    wpath[0] = '\0';
-
-    i = num_topo - 1;
- 
-    while( 1 ) {
-      bb = topo[i];
-      bb = p->bblist[bb->bbid];
-      // printf( "bb %d-%d: ", bb->pid, bb->bbid );
-      // printBlock( bb );
-      // printf( "cost: %d\n", wcet_arr[bb->bbid] );
-
-      // wpath
-      if( bb->bbid != topo[num_topo-1]->bbid )
-	sprintf( fn, "-%d", bb->bbid );
-      else
-	sprintf( fn, "%d", bb->bbid );
-      wpath = (char*) REALLOC( wpath, (strlen(wpath) + strlen(fn) + 1) * sizeof(char), "wpath" );
-      strcat( wpath, fn );
-
-      // for loading frequency calculation in dynamic locking
-      if( bb->startaddr != -1 ) {
-
-	// ignore nested loophead
-	if( bb->is_loophead && ( objtype == PROC || bb->loopid != lp->lpid ));
-	else {
-	  freq = 1;
-	  if( objtype == LOOP ) {
-	    freq *= lp->loopbound;
-	    if( !lp->is_dowhile && bb->bbid == lp->loophead->bbid )
-	      freq++;
-	  }
-	  fprintf( stderr, "%d %d %d\n", p->pid, bb->bbid, freq );
-
-	  if( bb->callpid != -1 )
-	    fprintf( stderr, "P%d\n", bb->callpid );
-	}
+      // add wcet at loopexit ???
+      wcet_arr[ bb->bbid ] += wcet_arr[ lpn->loopexit->bbid ];
+      //if(print)
+      {
+        printf("wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid]);
       }
 
-      if( !bb->num_outgoing )
-	break;
+    // end if nested loophead
+    } else {
+      //cost of this bb
+      wcet_arr[ bb->bbid ] = bb->chmc_L2[index]->wcost;
+	  
+      //if(print)
+      {
+        printf("wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid]);
+      }
 
-      i = getblock( bb->outgoing[ tmp_wpath[ bb->bbid ] ], topo, 0, i-1 );
+      //---- successors ----
+      switch( bb->num_outgoing ) {
+
+        case 0:
+          break;
+      
+        case 1:	 // just add the weight of successor
+          wcet_arr[ bb->bbid ] += wcet_arr[ bb->outgoing[0] ];
+          //if(print)
+          {
+            printf("wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid]);
+          }
+          break;
+      
+        case 2:  // choose heaviest
+          if(bb->loopid != p->bblist[bb->outgoing[0]]->loopid)
+            max = 1;
+          else if(bb->loopid != p->bblist[bb->outgoing[1]]->loopid)
+            max = 0;
+          else {
+            if( wcet_arr[ bb->outgoing[0] ] >= wcet_arr[ bb->outgoing[1] ] )
+              max = 0;
+            else
+              max = 1;
+          }
+          wcet_arr[ bb->bbid ] += wcet_arr[ bb->outgoing[max] ];
+          //if(print)
+          {
+            printf("wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid]);
+          }
+ 
+          // tmp_wpath[ bb->bbid ] = max;
+          break;
+      
+        default:
+          printf( "Invalid number of outgoing edges at %d-%d\n", bb->pid, bb->bbid );
+          exit(1);
+      
+      } // end switch
+
+      // called procedure
+      if( bb->callpid != -1 ) {
+        //add cost of the procedure
+        wcet_arr[ bb->bbid ] += bb->proc_ptr->wcet[index];
+
+        printf( "bb %d-%d procedure call %d wcet: %Lu\n", bb->pid, bb->bbid,
+                bb->callpid, p->wcet[index] ); fflush( stdout );
+
+        //if(print)
+        {
+          printf("wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid]);
+        }
+
+        /*
+        // region transition
+        if( regionmode && bb->regid != -1 ) {
+          id = procs[bb->callpid]->bblist[0]->regid;
+          if( id != -1 && bb->regid != id ) {
+            printf( "region transition %d-%d(%d) procedure call %d(%d) cost: %u\n",
+              bb->pid, bb->bbid, bb->regid, bb->callpid, id, regioncost[id] ); fflush( stdout );
+            wcet_arr[ bb->bbid ] += regioncost[id];
+          }
+          // procedure call typically ends the bb
+          id = procs[bb->callpid]->bblist[ procs[bb->callpid]->num_bb - 1 ]->regid;
+          if( id != -1 && bb->regid != id ) {
+            printf( "region transition %d-%d(%d) procedure return %d(%d) cost: %u\n",
+              bb->pid, bb->bbid, bb->regid, bb->callpid, id, regioncost[bb->regid] ); fflush( stdout );
+            wcet_arr[ bb->bbid ] += regioncost[bb->regid];
+          }
+        }
+        */
+      }
+    } // end else loophead
+  } // end for
+
+
+  // once more traverse cfg following the wcet path, collect wpvar and wpath
+  /* 
+  wpath = (char*) MALLOC( wpath, sizeof(char), "wpath" );
+  wpath[0] = '\0';
+
+  i = num_topo - 1;
+
+  while( 1 ) {
+    bb = topo[i];
+    bb = p->bblist[bb->bbid];
+    // printf( "bb %d-%d: ", bb->pid, bb->bbid );
+    // printBlock( bb );
+    // printf( "cost: %d\n", wcet_arr[bb->bbid] );
+
+    // wpath
+    if( bb->bbid != topo[num_topo-1]->bbid )
+      sprintf( fn, "-%d", bb->bbid );
+    else
+      sprintf( fn, "%d", bb->bbid );
+      
+    wpath = (char*) REALLOC( wpath, (strlen(wpath) + strlen(fn) + 1) * sizeof(char), "wpath" );
+    strcat( wpath, fn );
+
+    // for loading frequency calculation in dynamic locking
+    if( bb->startaddr != -1 ) {
+
+      // ignore nested loophead
+      if( bb->is_loophead && ( objtype == PROC || bb->loopid != lp->lpid ))
+        ;
+      else {
+        freq = 1;
+        if( objtype == LOOP ) {
+          freq *= lp->loopbound;
+          if( !lp->is_dowhile && bb->bbid == lp->loophead->bbid )
+            freq++;
+        }
+        
+        fprintf( stderr, "%d %d %d\n", p->pid, bb->bbid, freq );
+
+        if( bb->callpid != -1 )
+          fprintf( stderr, "P%d\n", bb->callpid );
+      }
     }
+
+    if( !bb->num_outgoing )
+      break;
+
+    i = getblock( bb->outgoing[ tmp_wpath[ bb->bbid ] ], topo, 0, i-1 );
+  }
 */
 
-
-    // record wcet, wpath, wpvar
-       p->wcet[index] = wcet_arr[ topo[num_topo-1]->bbid ];
+  // record wcet, wpath, wpvar
+  p->wcet[index] = wcet_arr[ topo[num_topo-1]->bbid ];
 	
-	//if(print)
-		{
-			printf("p->wcet[%d] = %Lu\n",index, p->wcet[index]);
-		}
+  //if(print)
+	{
+	  printf("p->wcet[%d] = %Lu\n",index, p->wcet[index]);
+	}
 
-      //if( p->wpath == NULL || strlen( p->wpath ) < strlen( wpath ))
+  //if( p->wpath == NULL || strlen( p->wpath ) < strlen( wpath ))
 	//p->wpath = (char*) REALLOC( p->wpath, (strlen(wpath) + 1) * sizeof(char), "proc wpath" );
-      //strcpy( p->wpath, wpath );
-      //free( wpath );
+  //strcpy( p->wpath, wpath );
+  //free( wpath );
 
 	/*
-      // cost of reload if the back edge is a region transition
-      if( regionmode && lp->loophead->regid != lp->loopsink->regid ) {
-	//
-	//printf( "add reload cost for back-edge %d(%d)-->%d(%d): %d * %u\n",
-	 //       lp->loophead->bbid, lp->loophead->regid, lp->loopsink->bbid, lp->loopsink->regid,
-	 //       lp->loopbound-1, regioncost[lp->loophead->regid] ); fflush( stdout );
-        //
-	lp->wcet += (lp->loopbound - 1) * regioncost[lp->loophead->regid];
-      }
+  // cost of reload if the back edge is a region transition
+  if( regionmode && lp->loophead->regid != lp->loopsink->regid ) {
+    //printf( "add reload cost for back-edge %d(%d)-->%d(%d): %d * %u\n",
+    //       lp->loophead->bbid, lp->loophead->regid, lp->loopsink->bbid, lp->loopsink->regid,
+    //       lp->loopbound-1, regioncost[lp->loophead->regid] ); fflush( stdout );
+    
+    lp->wcet += (lp->loopbound - 1) * regioncost[lp->loophead->regid];
+  }
 
-      if( lp->wpath == NULL || strlen( lp->wpath ) < strlen( wpath ))
-	lp->wpath = (char*) REALLOC( lp->wpath, (strlen(wpath) + 1) * sizeof(char), "loop wpath" );
-      strcpy( lp->wpath, wpath );
-      free( wpath );
+  if( lp->wpath == NULL || strlen( lp->wpath ) < strlen( wpath ))
+	  lp->wpath = (char*) REALLOC( lp->wpath, (strlen(wpath) + 1) * sizeof(char), 
+	                               "loop wpath" );
+    strcpy( lp->wpath, wpath );
+    free( wpath );
 	*/  
-    free( wcet_arr );
-   //free( tmp_wpath );
+  
+  free( wcet_arr );
+  //free( tmp_wpath );
 
   return 0;
 }
@@ -297,250 +294,239 @@ int analyseDAGLoop(procedure *proc, loop *lop, int index )
 
   // print_cfg();
 
-    lp       =  lop;
-    p        = proc;
-    topo     = lp->topo;
-    num_topo = lp->num_topo;
+  lp       =  lop;
+  p        = proc;
+  topo     = lp->topo;
+  num_topo = lp->num_topo;
 
   // store temporary calculations, index corresponding to bblist for ease of locating
 
 
-    // ****** THE REGION TRANSITION IS NOT CORRECTLY & COMPLETELY ADAPTED HERE YET **********
+  // ****** THE REGION TRANSITION IS NOT CORRECTLY & COMPLETELY ADAPTED HERE YET **********
 
-    wcet_arr_1  = (ull*)  CALLOC( wcet_arr_1,  p->num_bb, sizeof(ull), "wcet_arr_1");
-    wcet_arr_2  = (ull*)  CALLOC( wcet_arr_2,  p->num_bb, sizeof(ull), "wcet_arr_2");
-  
-   // tmp_wpath = (char*) CALLOC( tmp_wpath, p->num_bb, sizeof(char), "tmp_wpath" );
+  wcet_arr_1  = (ull*)  CALLOC( wcet_arr_1,  p->num_bb, sizeof(ull), "wcet_arr_1");
+  wcet_arr_2  = (ull*)  CALLOC( wcet_arr_2,  p->num_bb, sizeof(ull), "wcet_arr_2");
 
-    for( i = 0; i < num_topo; i++ ) 
-   {
-      bb = topo[i];
-      bb = p->bblist[bb->bbid];
-      // printf( "bb %d-%d: ", bb->pid, bb->bbid );
-      // printBlock( bb );
+  // tmp_wpath = (char*) CALLOC( tmp_wpath, p->num_bb, sizeof(char), "tmp_wpath" );
 
-      // if dummy block, ignore
-      if( bb->startaddr == -1 )
-	continue;
+  for( i = 0; i < num_topo; i++ ) {
+    bb = topo[i];
+    bb = p->bblist[bb->bbid];
+    // printf( "bb %d-%d: ", bb->pid, bb->bbid );
+    // printBlock( bb );
 
-      // if nested loophead, directly use the wcet of loop (should have been calculated)
-      if( bb->is_loophead && (bb->loopid != lp->lpid)) 
+    // if dummy block, ignore
+    if( bb->startaddr == -1 )
+      continue;
+
+    // if nested loophead, directly use the wcet of loop (should have been calculated)
+    if( bb->is_loophead && (bb->loopid != lp->lpid)) {
+      lpn = p->loops[ bb->loopid ];
+		
+      wcet_arr_1[ bb->bbid ] = lpn->wcet[index * 2];
+      wcet_arr_2[ bb->bbid ] = lpn->wcet[index * 2 + 1] * (lp->loopbound -1);
+
+      // add wcet at loopexit ?????????????????????
+      //wcet_arr_1[ bb->bbid ] += wcet_arr_1[ lpn->loopexit->bbid ];
+      wcet_arr_2[ bb->bbid ] += wcet_arr_2[ lpn->loopexit->bbid ];
+
+      //if(print)
       {
-		lpn = p->loops[ bb->loopid ];
-		
-		wcet_arr_1[ bb->bbid ] = lpn->wcet[index * 2];
-		wcet_arr_2[ bb->bbid ] = lpn->wcet[index * 2 + 1] * (lp->loopbound -1);
+        printf("wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid]);
+        printf("wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid]);
+      }
 
-	// add wcet at loopexit ?????????????????????
-		//wcet_arr_1[ bb->bbid ] += wcet_arr_1[ lpn->loopexit->bbid ];
-		wcet_arr_2[ bb->bbid ] += wcet_arr_2[ lpn->loopexit->bbid ];
-
-	//if(print)
-		{
-			printf("wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid]);
-			printf("wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid]);
-		}
-
-
-      } // end if nested loophead
-
-      else {
-	  //cost of this bb
+    // end if nested loophead
+    } else {
+      //cost of this bb
 	  
-	//cost of bb excluding loophead of other loops
-		wcet_arr_1[ bb->bbid ] += bb->chmc_L2[index * 2]->wcost;
-		wcet_arr_2[ bb->bbid ] += bb->chmc_L2[index * 2 + 1]->wcost * (lp->loopbound -1);
-		//if(bb->is_loophead)
+      //cost of bb excluding loophead of other loops
+      wcet_arr_1[ bb->bbid ] += bb->chmc_L2[index * 2]->wcost;
+      wcet_arr_2[ bb->bbid ] += bb->chmc_L2[index * 2 + 1]->wcost * (lp->loopbound -1);
+      //if(bb->is_loophead)
 			//wcet_arr[ bb->bbid ] += bb->chmc_L2[index]->wcost;
-	//if(print)
-		{
-			printf("wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid]);
-			printf("wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid]);
-		}
+			//if(print)
+			{
+			  printf("wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid]);
+			  printf("wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid]);
+			}
 
-	//---- successors ----
-	switch( bb->num_outgoing ) {
+			//---- successors ----
+			switch( bb->num_outgoing ) {
 
-	case 0:
-	  break;
+        case 0:
+          break;
+  
+        case 1:	 // just add the weight of successor
+          wcet_arr_1[ bb->bbid ] += wcet_arr_1[ bb->outgoing[0] ];
+          wcet_arr_2[ bb->bbid ] += wcet_arr_2[ bb->outgoing[0] ];
+          //if(print)
+          {
+            printf("wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid]);
+            printf("wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid]);
+          }
+          break;
+  
+        case 2:  // choose heaviest
+  
+          //what is exit? real exit?
+          if(bb->loopid > p->bblist[bb->outgoing[0]]->loopid) {
+            max1 = 1;
+            max2 = 1;
+          } else if(bb->loopid > p->bblist[bb->outgoing[1]]->loopid) {
+            max1 = 0;
+            max2 = 0;
+          } else {
+            if( wcet_arr_1[ bb->outgoing[0] ] >= wcet_arr_1[ bb->outgoing[1] ] )
+              max1 = 0;
+            else
+              max1 = 1;
+      
+            if( wcet_arr_2[ bb->outgoing[0] ] >= wcet_arr_2[ bb->outgoing[1] ] )
+              max2 = 0;
+            else
+              max2 = 1;
+          }
+          wcet_arr_1[ bb->bbid ] += wcet_arr_1[ bb->outgoing[max1] ];
+          wcet_arr_2[ bb->bbid ] += wcet_arr_2[ bb->outgoing[max2] ];
+          //if(print)
+          {
+            printf("wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid]);
+            printf("wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid]);
+          }
+          // tmp_wpath[ bb->bbid ] = max;
+          break;
+  
+        default:
+          printf( "Invalid number of outgoing edges at %d-%d\n", bb->pid, bb->bbid );
+          exit(1);
 
-	case 1:	 // just add the weight of successor
-	  wcet_arr_1[ bb->bbid ] += wcet_arr_1[ bb->outgoing[0] ];
-	  wcet_arr_2[ bb->bbid ] += wcet_arr_2[ bb->outgoing[0] ];
-	//if(print)
-		{
-			printf("wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid]);
-			printf("wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid]);
-		}
-	  
-	  break;
+			} // end switch
 
-	case 2:  // choose heaviest
-
-	//what is exit? real exit?
-	  if(bb->loopid > p->bblist[bb->outgoing[0]]->loopid)
-	  {
-	  	max1 = 1;
-		max2 = 1;
-	  }
-	  else if(bb->loopid > p->bblist[bb->outgoing[1]]->loopid)
-	  {
-	  	max1 = 0;
-		max2 = 0;
-	  }
-	  
-	 else
-	 {
-	 	if( wcet_arr_1[ bb->outgoing[0] ] >= wcet_arr_1[ bb->outgoing[1] ] )
-	    		max1 = 0;
-	  	else
-	    		max1 = 1;
-		
-	 	if( wcet_arr_2[ bb->outgoing[0] ] >= wcet_arr_2[ bb->outgoing[1] ] )
-	    		max2 = 0;
-	  	else
-	    		max2 = 1;
-	 }
-	  wcet_arr_1[ bb->bbid ] += wcet_arr_1[ bb->outgoing[max1] ];
-	  wcet_arr_2[ bb->bbid ] += wcet_arr_2[ bb->outgoing[max2] ];
-	//if(print)
-		{
-			printf("wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid]);
-			printf("wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid]);
-		}
-	 // tmp_wpath[ bb->bbid ] = max;
-	  break;
-
-	default:
-	  printf( "Invalid number of outgoing edges at %d-%d\n", bb->pid, bb->bbid );
-	  exit(1);
-
-	} // end switch
-
-	// called procedure
-	if( bb->callpid != -1 ) {
-	//add cost of the procedure
-	  	wcet_arr_1[ bb->bbid ] += bb->proc_ptr->wcet[index * 2];
-	  	wcet_arr_2[ bb->bbid ] += bb->proc_ptr->wcet[index * 2 + 1] * (lp->loopbound -1);
-	
-	  printf( "bb %d-%d procedure call %d wcet: 1 %Lu	2 %Lu\n", bb->pid, bb->bbid,
-		  bb->callpid, p->wcet[index * 2], p->wcet[index * 2 + 1]); fflush( stdout );
-	//if(print)
-		{
-			printf("wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid]);
-			printf("wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid]);
-		}
-
-	/*
-	  // region transition
-	  if( regionmode && bb->regid != -1 ) {
-	    id = procs[bb->callpid]->bblist[0]->regid;
-	    if( id != -1 && bb->regid != id ) {
-	      printf( "region transition %d-%d(%d) procedure call %d(%d) cost: %u\n",
-		      bb->pid, bb->bbid, bb->regid, bb->callpid, id, regioncost[id] ); fflush( stdout );
-	      wcet_arr[ bb->bbid ] += regioncost[id];
-	    }
-	    // procedure call typically ends the bb
-	    id = procs[bb->callpid]->bblist[ procs[bb->callpid]->num_bb - 1 ]->regid;
-	    if( id != -1 && bb->regid != id ) {
-	      printf( "region transition %d-%d(%d) procedure return %d(%d) cost: %u\n",
-		      bb->pid, bb->bbid, bb->regid, bb->callpid, id, regioncost[bb->regid] ); fflush( stdout );
-	      wcet_arr[ bb->bbid ] += regioncost[bb->regid];
-	    }
-	  }
-	  */
-	}
-      } // end else loophead
-    } // end for
-
+      // called procedure
+      if( bb->callpid != -1 ) {
+        //add cost of the procedure
+        wcet_arr_1[ bb->bbid ] += bb->proc_ptr->wcet[index * 2];
+        wcet_arr_2[ bb->bbid ] += bb->proc_ptr->wcet[index * 2 + 1] * (lp->loopbound -1);
+      
+        printf( "bb %d-%d procedure call %d wcet: 1 %Lu	2 %Lu\n", bb->pid, bb->bbid,
+          bb->callpid, p->wcet[index * 2], p->wcet[index * 2 + 1]); fflush( stdout );
+        //if(print)
+        {
+          printf("wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid]);
+          printf("wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid]);
+        }
+    
+        /*
+        // region transition
+        if( regionmode && bb->regid != -1 ) {
+          id = procs[bb->callpid]->bblist[0]->regid;
+          if( id != -1 && bb->regid != id ) {
+            printf( "region transition %d-%d(%d) procedure call %d(%d) cost: %u\n",
+              bb->pid, bb->bbid, bb->regid, bb->callpid, id, regioncost[id] ); fflush( stdout );
+            wcet_arr[ bb->bbid ] += regioncost[id];
+          }
+          // procedure call typically ends the bb
+          id = procs[bb->callpid]->bblist[ procs[bb->callpid]->num_bb - 1 ]->regid;
+          if( id != -1 && bb->regid != id ) {
+            printf( "region transition %d-%d(%d) procedure return %d(%d) cost: %u\n",
+              bb->pid, bb->bbid, bb->regid, bb->callpid, id, regioncost[bb->regid] ); fflush( stdout );
+            wcet_arr[ bb->bbid ] += regioncost[bb->regid];
+          }
+        }
+        */
+      }
+    } // end else loophead
+  } // end for
 
     // once more traverse cfg following the wcet path, collect wpvar and wpath
 /* 
-    wpath = (char*) MALLOC( wpath, sizeof(char), "wpath" );
-    wpath[0] = '\0';
+  wpath = (char*) MALLOC( wpath, sizeof(char), "wpath" );
+  wpath[0] = '\0';
 
-    i = num_topo - 1;
- 
-    while( 1 ) {
-      bb = topo[i];
-      bb = p->bblist[bb->bbid];
-      // printf( "bb %d-%d: ", bb->pid, bb->bbid );
-      // printBlock( bb );
-      // printf( "cost: %d\n", wcet_arr[bb->bbid] );
+  i = num_topo - 1;
 
-      // wpath
-      if( bb->bbid != topo[num_topo-1]->bbid )
-	sprintf( fn, "-%d", bb->bbid );
-      else
-	sprintf( fn, "%d", bb->bbid );
-      wpath = (char*) REALLOC( wpath, (strlen(wpath) + strlen(fn) + 1) * sizeof(char), "wpath" );
-      strcat( wpath, fn );
+  while( 1 ) {
+    bb = topo[i];
+    bb = p->bblist[bb->bbid];
+    // printf( "bb %d-%d: ", bb->pid, bb->bbid );
+    // printBlock( bb );
+    // printf( "cost: %d\n", wcet_arr[bb->bbid] );
 
-      // for loading frequency calculation in dynamic locking
-      if( bb->startaddr != -1 ) {
+    // wpath
+    if( bb->bbid != topo[num_topo-1]->bbid )
+      sprintf( fn, "-%d", bb->bbid );
+    else
+      sprintf( fn, "%d", bb->bbid );
+    wpath = (char*) REALLOC( wpath, (strlen(wpath) + strlen(fn) + 1) * sizeof(char), "wpath" );
+    strcat( wpath, fn );
 
-	// ignore nested loophead
-	if( bb->is_loophead && ( objtype == PROC || bb->loopid != lp->lpid ));
-	else {
-	  freq = 1;
-	  if( objtype == LOOP ) {
-	    freq *= lp->loopbound;
-	    if( !lp->is_dowhile && bb->bbid == lp->loophead->bbid )
-	      freq++;
-	  }
-	  fprintf( stderr, "%d %d %d\n", p->pid, bb->bbid, freq );
+    // for loading frequency calculation in dynamic locking
+    if( bb->startaddr != -1 ) {
 
-	  if( bb->callpid != -1 )
-	    fprintf( stderr, "P%d\n", bb->callpid );
-	}
+      // ignore nested loophead
+      if( bb->is_loophead && ( objtype == PROC || bb->loopid != lp->lpid ))
+        ;
+      else {
+        freq = 1;
+        if( objtype == LOOP ) {
+          freq *= lp->loopbound;
+          if( !lp->is_dowhile && bb->bbid == lp->loophead->bbid )
+            freq++;
+        }
+        
+        fprintf( stderr, "%d %d %d\n", p->pid, bb->bbid, freq );
+
+        if( bb->callpid != -1 )
+          fprintf( stderr, "P%d\n", bb->callpid );
       }
-
-      if( !bb->num_outgoing )
-	break;
-
-      i = getblock( bb->outgoing[ tmp_wpath[ bb->bbid ] ], topo, 0, i-1 );
     }
+
+    if( !bb->num_outgoing )
+      break;
+
+    i = getblock( bb->outgoing[ tmp_wpath[ bb->bbid ] ], topo, 0, i-1 );
+  }
 */
 
 
-    // record wcet, wpath, wpvar
-      lp->wcet[index] = wcet_arr_1[ topo[num_topo-1]->bbid ];
-      lp->wcet[index + 1] = wcet_arr_2[ topo[num_topo-1]->bbid ];
+  // record wcet, wpath, wpvar
+  lp->wcet[index] = wcet_arr_1[ topo[num_topo-1]->bbid ];
+  lp->wcet[index + 1] = wcet_arr_2[ topo[num_topo-1]->bbid ];
 
-      if( !lp->is_dowhile ) 
-    {
-	// one extra execution of loophead ?????????????????
-	lp->wcet[index] += p->bblist[lp->loophead->bbid]->chmc_L2[index * 2 + 1]->wcost;
-	if( lp->loophead->callpid != -1 )
-	  lp->wcet[index]  += p->bblist[lp->loophead->bbid]->proc_ptr->wcet[index];
-      	}
+  if( !lp->is_dowhile ) {
+    // one extra execution of loophead ?????????????????
+    lp->wcet[index] += p->bblist[lp->loophead->bbid]->chmc_L2[index * 2 + 1]->wcost;
+    if( lp->loophead->callpid != -1 )
+      lp->wcet[index]  += p->bblist[lp->loophead->bbid]->proc_ptr->wcet[index];
+  }
 
-	//if(print)
-		{
-			printf("lp->wcet[%d] = %Lu\n", index, lp->wcet[index]);
-			printf("lp->wcet[%d] = %Lu\n", index+1, lp->wcet[index + 1]);
-		}
+  //if(print)
+  {
+    printf("lp->wcet[%d] = %Lu\n", index, lp->wcet[index]);
+    printf("lp->wcet[%d] = %Lu\n", index+1, lp->wcet[index + 1]);
+  }
 
 	/*
-      // cost of reload if the back edge is a region transition
-      if( regionmode && lp->loophead->regid != lp->loopsink->regid ) {
-	//
-	//printf( "add reload cost for back-edge %d(%d)-->%d(%d): %d * %u\n",
-	 //       lp->loophead->bbid, lp->loophead->regid, lp->loopsink->bbid, lp->loopsink->regid,
-	 //       lp->loopbound-1, regioncost[lp->loophead->regid] ); fflush( stdout );
-        //
-	lp->wcet += (lp->loopbound - 1) * regioncost[lp->loophead->regid];
-      }
+  // cost of reload if the back edge is a region transition
+  if( regionmode && lp->loophead->regid != lp->loopsink->regid ) {
+	
+    //printf( "add reload cost for back-edge %d(%d)-->%d(%d): %d * %u\n",
+    //       lp->loophead->bbid, lp->loophead->regid, lp->loopsink->bbid, lp->loopsink->regid,
+    //       lp->loopbound-1, regioncost[lp->loophead->regid] ); fflush( stdout );
+    lp->wcet += (lp->loopbound - 1) * regioncost[lp->loophead->regid];
+  }
 
-      if( lp->wpath == NULL || strlen( lp->wpath ) < strlen( wpath ))
-	lp->wpath = (char*) REALLOC( lp->wpath, (strlen(wpath) + 1) * sizeof(char), "loop wpath" );
-      strcpy( lp->wpath, wpath );
-      free( wpath );
+  if( lp->wpath == NULL || strlen( lp->wpath ) < strlen( wpath ))
+	  lp->wpath = (char*) REALLOC( lp->wpath, (strlen(wpath) + 1) * sizeof(char), 
+	                               "loop wpath" );
+  strcpy( lp->wpath, wpath );
+  free( wpath );
 	*/  
 
-    free( wcet_arr_1 );
-    free( wcet_arr_2 );
-   //free( tmp_wpath );
+  free( wcet_arr_1 );
+  free( wcet_arr_2 );
+  //free( tmp_wpath );
   return 0;
 }
 
@@ -562,17 +548,18 @@ int analyseProc( procedure *p ) {
 
     // printf( "Analysis loop %d-%d\n", p->pid, lp->lpid ); fflush( stdout );
     // printLoop( lp ); fflush( stdout );
-	for(j = 0; j < (1<<lp->level); j++)
-		analyseDAGLoop(p, lp, j*2);
-    // printf( "WCET: %d\n\n", lp->wcet );
+    for(j = 0; j < (1<<lp->level); j++)
+      analyseDAGLoop(p, lp, j*2);
+      // printf( "WCET: %d\n\n", lp->wcet );
   }
 
   // analyse procedure
   // printf( "Analysis proc %d\n", p->pid ); fflush( stdout );
   // printProc( p ); fflush( stdout );
 
-for(j = 0; j < p->num_cost; j++)
-  analyseDAGFunction( p, j);
+  for(j = 0; j < p->num_cost; j++)
+    analyseDAGFunction( p, j);
+  
   // printf( "WCET: %d\n\n", p->wcet );
 }
 
@@ -592,26 +579,27 @@ int analysis_dag(MSC *msc) {
 
   cycle_time(0);
 
-for(k = 0; k < msc->num_task; k++)
-{
-  // analyse each procedure in reverse topological order of call graph
-  for( i = 0; i < msc->taskList[k].num_proc; i++ )
-  	for(j = 0; j < msc->taskList[k].proc_cg_ptr[i].num_proc; j++)
-  	{
+  for(k = 0; k < msc->num_task; k++) {
+    // analyse each procedure in reverse topological order of call graph
+    for( i = 0; i < msc->taskList[k].num_proc; i++ ) {
+      for(j = 0; j < msc->taskList[k].proc_cg_ptr[i].num_proc; j++) {
     		analyseProc(msc->taskList[k].proc_cg_ptr[i].proc[j]);
-	}
-  // for loading frequency calculation in dynamic locking
- // fprintf( stderr, "P%d\n", main_id );
-	msc->taskList[k].wcet = msc->taskList[k].main_copy->wcet[0];
-	//if(print)
-	{
-		printf("msc->taskList[%d].wcet = %Lu\n", k, msc->taskList[k].wcet);
-	}
+    	}
+    }
+    
+    // for loading frequency calculation in dynamic locking
+    // fprintf( stderr, "P%d\n", main_id );
+    msc->taskList[k].wcet = msc->taskList[k].main_copy->wcet[0];
+    //if(print)
+    {
+      printf("msc->taskList[%d].wcet = %Lu\n", k, msc->taskList[k].wcet);
+    }
 
-
-}
+  }
+  
   t = cycle_time(1);
-  printf( "\nTime taken (analysis): %f ms\n", t/CYCLES_PER_MSEC ); fflush( stdout );
+  printf( "\nTime taken (analysis): %f ms\n", t/CYCLES_PER_MSEC );
+  fflush( stdout );
 
   return 0;
 }
