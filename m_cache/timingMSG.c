@@ -510,7 +510,7 @@ int timingEstimate_synch() {
   fclose( ilpf );
 
   // solve ilp
-  system( "cplex < wcrtsyn.ilp > wcrtsyn.sol" );
+  system( "tools/cplex < wcrtsyn.ilp > wcrtsyn.sol" );
 
   // read solution
   system( "grep Objective wcrtsyn.sol | awk '{print $NF}' > wcrtsyn.val" );

@@ -479,7 +479,7 @@ int analysis_ilp() {
     // printf( "Time taken (analysis-formulation): %f ms (%f Mcycles)\n", t/CYCLES_PER_MSEC, t/1000000 );
 
     // solve ilp
-    sprintf( proc, "cplex < %s.ailp%d > %s.ais%d", filename, p->pid, filename, p->pid );
+    sprintf( proc, "tools/cplex < %s.ailp%d > %s.ais%d", filename, p->pid, filename, p->pid );
 
     // start timing for solution
     cycle_time(0);
