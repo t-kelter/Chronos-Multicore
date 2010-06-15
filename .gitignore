@@ -1,3 +1,16 @@
 core
 opt
 *.o
+*.swp
+
+simplesim-3.0/libexo/libexo.a
+simplesim-3.0/sim-bpred
+simplesim-3.0/sim-cache
+simplesim-3.0/sim-eio
+simplesim-3.0/sim-fast
+simplesim-3.0/sim-outorder
+simplesim-3.0/sim-profile
+simplesim-3.0/sim-safe
+simplesim-3.0/sysprobe
+ss_smt/libexo.a
+ss_smt/sysprobe
