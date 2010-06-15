@@ -1,0 +1,31 @@
+### cfg
+
+No problems here
+
+### m_cache
+
+Why is the interference information hidden in a file whose only content is a path to another file? One could use the path to that file as the command line argument then, directly.
+
+### simplesim-3.0:
+
+Building the simulator with "make config-pisa && make" works. But then "make sim-tests" (as proposed by the README) won't work, most probably because the Makefile isn't the original one? Anyways simulation does not work either, trying to invoke "simulate Benchmarks/swim.ss" leads to the generation of some output, but then the execution hangs at:
+
+warning: syscall: sigvec ignored
+warning: syscall: sigvec ignored
+warning: syscall: sigvec ignored
+warning: syscall: sigvec ignored
+warning: syscall: sigvec ignored
+ SPEC benchmark 102.swim
+
+### ss_smt:
+
+Invoking "make" fails with 
+
+/app/unido-i12/x86_64/binutils/2.19/bin/ld: errno: TLS definition in /lib/libc.so.6 section .tbss mismatches non-TLS reference in eval.o
+/lib/libc.so.6: could not read symbols: Bad value
+
+I'm not sure whether this is just a local error, but in case you stumbled over it too, you might be able to help me out here.
+
+### test
+
+What's the purpose of this folder?
