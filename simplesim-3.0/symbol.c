@@ -1,1 +1,0 @@
-target-pisa/symbol.c
