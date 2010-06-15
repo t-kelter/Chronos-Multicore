@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
 
 int initSched( sched_t *sc ) {
 
@@ -252,13 +252,6 @@ int readMSG() {
 int readEdgeBounds() {
 
   FILE *fptr = openfext( dgname, "eb", "r" );
-
-  /* FIXME: Always check whether the file is opened properly
-	* or not and then exit unexpectedly */
-  if(!fptr)
-  {
-	  exit(-1);	  
-  }
 
   int src, dst, bound;
   char token[24];
