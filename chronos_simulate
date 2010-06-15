@@ -1,0 +1,10 @@
+./sim-outorder -bpred perfect -cache:dl1 none -cache:il1 il1:8:32:2:l -issue:inorder true -issue:wrongpath false -cache:il2  il2:8:32:4:l -cache:dl2 none -mem:lat 30 2 -mem:width 32 $1
+
+
+#./sim-outorder -bpred perfect -cache:dl1 none -cache:il1 il1:8:32:2:l -issue:inorder true -cache:il2  il2:8:64:2:l -cache:il2lat 10 -cache:dl2 none -mem:lat 30 2 -mem:width 32 $1
+#./sim-outorder -bpred perfect -cache:dl1 dl1:32:32:1:l -cache:il1 il1:64:32:1:l -issue:inorder true -cache:il2 none -cache:dl2 none -issue:wrongpath false -mem:lat 30 2 -mem:width 32 $1
+#./sim-outorder -bpred perfect -cache:il1 il1:64:32:2:l -issue:inorder true -cache:il2 none -cache:dl2 none -mem:lat 30 2 -mem:width 32 $1
+#./sim-outorder -bpred perfect -cache:dl1 dl1:32:32:4:l -cache:il1 il1:8:32:4:l -cache:il2 dl2  -cache:dl2 ul2:32:64:8:l -issue:inorder true -issue:wrongpath false -cache:il2lat 2 -cache:dl2lat 2 -mem:lat 6 2 -mem:width 64 $1
+#./sim-outorder -bpred perfect -cache:dl1 dl1:32:32:4:l -cache:il1 il1:8:32:4:l -cache:il2 il2:32:64:8:l  -cache:dl2 dl2:32:64:8:l -issue:inorder true -issue:wrongpath false -cache:il2lat 2 -cache:dl2lat 2 -mem:lat 6 2 -mem:width 64 $1
+#./sim-outorder -bpred perfect -cache:dl1 dl1:32:32:4:l -cache:il1 il1:8:32:4:l -cache:il2 il2:16:64:16:l -cache:dl2 none -issue:inorder true -issue:wrongpath false -cache:il2lat 2  -mem:lat 6 2 -mem:width 64 $1
+#./sim-outorder -bpred perfect -cache:dl1 none -cache:il1 il1:8:32:4:l -issue:wrongpath false -issue:inorder true -mem:lat 6 2 -mem:width 32 $1
