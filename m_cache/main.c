@@ -150,7 +150,6 @@ int main(int argc, char **argv ) {
     exit(0);
   }	 
 
-
   times_iteration = 0;
 
   /* sudiptac :: Reset debugging mode */

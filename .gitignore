@@ -1,8 +1,9 @@
 core
-opt
 *.o
 *.swp
 
+m_cache/opt
+m_cache/wcrt/timing
 simplesim-3.0/libexo/libexo.a
 simplesim-3.0/sim-bpred
 simplesim-3.0/sim-cache
