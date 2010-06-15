@@ -9,4 +9,4 @@ all:
 	$(CC) $(CCFLAGS) $(DEBUG) -o $(EXECUTABLE) $(SOURCES);
 
 clean:
-	rm -rf $(EXECUTABLE);
+	rm -rf $(EXECUTABLE) core;
