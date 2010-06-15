@@ -84,13 +84,15 @@ buildcfg()
 compile()
 {
   declare SOURCE=$1.c
+  declare EXECUTABLE=$1
+  declare DISASSEMBLY=$1.dis
+  declare SYMBOLS=$1.sym
+
   if [ -f "$SOURCE" ]; then
-    ${SIMPLESCALAR_GCC_PATH}/bin/sslittle-na-sstrix-gcc -g              \
-      -o $SOURCE $SOURCE.c                                           && \
-    ${SIMPLESCALAR_GCC_PATH}/bin/sslittle-na-sstrix-objdump -dlS        \ 
-      --disassemble-zeroes --prefix-addresses $SOURCE >& $SOURCE.dis && \
-    ${SIMPLESCALAR_GCC_PATH}/bin/sslittle-na-sstrix-objdump             \
-      -t $SOURCE >& $SOURCE.sym
+    ${SIMPLESCALAR_GCC_PATH}/bin/sslittle-na-sstrix-gcc -g -o $EXECUTABLE $SOURCE     && \
+    ${SIMPLESCALAR_GCC_PATH}/bin/sslittle-na-sstrix-objdump -dlS --disassemble-zeroes    \
+      --prefix-addresses $EXECUTABLE >& $DISASSEMBLY                                  && \
+    ${SIMPLESCALAR_GCC_PATH}/bin/sslittle-na-sstrix-objdump -t $EXECUTABLE >& $SYMBOLS
     return $?
   else
     return 1;
