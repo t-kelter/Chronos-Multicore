@@ -1563,8 +1563,8 @@ sim_check_options(struct opt_odb_t *odb,        /* options database */
   {
        if (sscanf(cache_il1_opt, "%[^:]:%d:%d:%d:%d:%c",
 		   name, &il1_banks_num, &csize, &l1bsize, &assoc, &c) != 6)
-	   fatal(0,"bad l1 I-cache parms: 
-                 <name>:<nbanks>:<csize>:<bsize>:<assoc>:<repl>");
+	   fatal(0,"bad l1 I-cache parms: "
+                 "<name>:<nbanks>:<csize>:<bsize>:<assoc>:<repl>");
 
        if ( (il1_banks_num <= 0) || ((IL1_MODULE_WIDTH % il1_banks_num) !=0) ||
             (IL1_MODULE_WIDTH < il1_banks_num) )
@@ -1745,15 +1745,15 @@ sim_check_options(struct opt_odb_t *odb,        /* options database */
           fatal(sn,"number of memory system ports must be greater than zero");
 
   if (res_memport > MAX_INSTS_PER_CLASS)
-          fatal(sn,"number of memory system ports must be <= 
-          MAX_INSTS_PER_CLASS");
+          fatal(sn,"number of memory system ports must be <= "
+          "MAX_INSTS_PER_CLASS");
   
   if (res_fpalu < 1)
           fatal(sn,"number of floating point ALU's must be greater than zero");
 
   if (res_fpalu > MAX_INSTS_PER_CLASS)
-          fatal(sn,"number of floating point ALU's must be <= 
-          MAX_INSTS_PER_CLASS");
+          fatal(sn,"number of floating point ALU's must be <= "
+          "MAX_INSTS_PER_CLASS");
 
   if (res_fpmult < 1)
           fatal(sn,"number of floating point multiplier/dividers must be > zero");
@@ -1766,8 +1766,8 @@ sim_check_options(struct opt_odb_t *odb,        /* options database */
             fatal(sn,"number of divmult functional units must be greater than zero");
   
   if (res_divmult > MAX_INSTS_PER_CLASS)
-            fatal(sn,"number of divmult functional units must be <= 
-                  MAX_INSTS_PER_CLASS");
+            fatal(sn,"number of divmult functional units must be <= "
+                  "MAX_INSTS_PER_CLASS");
 
 
   if (!mystricmp(fu_pool_type, "hetero"))
@@ -1811,8 +1811,8 @@ sim_check_options(struct opt_odb_t *odb,        /* options database */
               fatal(sn,"number of homogeneous functional units must be greater than zero");
   
            if (res_homo > MAX_INSTS_PER_CLASS)
-               fatal(sn,"number of homogeneous functional units must be 
-                    <= MAX_INSTS_PER_CLASS");
+               fatal(sn,"number of homogeneous functional units must be "
+                    "<= MAX_INSTS_PER_CLASS");
       }
 
   }
