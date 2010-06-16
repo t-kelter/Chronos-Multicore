@@ -6,6 +6,8 @@ No problems here
 
 Why is the interference information hidden in a file whose only content is a path to another file? One could use the path to that file as the command line argument then, directly.
 
+What is the exact meaning of the dependency infromation in the msc files?
+
 ### simplesim-3.0:
 
 No problems here
