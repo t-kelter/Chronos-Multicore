@@ -159,8 +159,8 @@ int main(int argc, char **argv ) {
   regionmode = 0;
 
   /* For private L2 cache analysis */		  
-  if(argc > 5) {
-    g_private = atoi(argv[5]);  
+  if(argc > 6) {
+    g_private = atoi(argv[6]);  
   } else {
     g_private = 0;
   }
@@ -172,8 +172,8 @@ int main(int argc, char **argv ) {
     prerr("Error: Out of memory");
   memset(latest, 0, num_core * sizeof(ull)); 	  
 
-  if( argc > 5 )
-    debug  = atoi( argv[5] );
+  if( argc > 6 )
+    debug  = atoi( argv[6] );
 
   /* Set the basic parameters of L1 and L2 instruction caches */		  
   set_cache_basic(cache_config);
@@ -416,7 +416,7 @@ int main(int argc, char **argv ) {
 
     /* Now write the intereference info to a file which would be 
      * passed to the WCRT module in the next iteration */
-    sprintf(proc, "interfere/conflictTaskMSC_%d", num_msc - 1);
+    sprintf(proc, "conflictTaskMSC_%d", num_msc - 1);
     conflictMSC = fopen(proc, "w");
 
     sum = 0;
