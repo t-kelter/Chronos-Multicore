@@ -37,11 +37,11 @@ int main( int argc, char **argv ) {
   procedure *p;
 
   if( argc < 2 ) {
-    printf( "\nUsage: opt <filename> [debug_on]\n" ), exit(1);}
+    printf( "\nUsage: opt <filename> <TDMA schedule file> [debug_on]\n" ), exit(1);}
 
   filename = argv[1];
-  if( argc > 2 )
-    debug  = atoi( argv[2] );
+  if( argc > 3 )
+    debug  = atoi( argv[3] );
 
   if(debug) {		  
   printf( "\nReading CFG...\n" ); fflush( stdout );
@@ -81,7 +81,7 @@ int main( int argc, char **argv ) {
   printf( "\nInitial WCET estimation with shared bus...\n" );
   
   /* Set the TDMA bus schedule */
-  setSchedule("TDMA_bus_sched.db");
+  setSchedule(argv[2]);
 
   /* Do L1 cache analysis */
   /* {

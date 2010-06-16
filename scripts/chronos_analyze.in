@@ -1,9 +1,9 @@
 #! /bin/sh
 
 # Check parameters
-declare -r USAGE="\nUsage: $0 <interference config file> <l1 cache config file> <l2 cache config file> <number of cores>\n\nThis script invokes the Chronos analyzer for the given benchmark and configuration."
+declare -r USAGE="\nUsage: $0 <interference config file> <l1 cache config file> <l2 cache config file> <number of cores> <TDMA schedule file>\n\nThis script invokes the Chronos analyzer for the given benchmark and configuration."
 
-if (( $# != 4 )); then
+if (( $# != 5 )); then
   echo -e $USAGE;
   exit 1;
 fi;
@@ -12,6 +12,7 @@ declare    INTERFERENCE_FILE=$1
 declare    L1_CACHE_CONFIG=$2
 declare    L2_CACHE_CONFIG=$3
 declare -i NUMBER_OF_CORES=$4
+declare    TDMA_SCHEDULE_FILE=$5
 
 # Do the call
-@CHRONOS_DIR@/m_cache/opt $INTERFERENCE_FILE $L1_CACHE_CONFIG $L2_CACHE_CONFIG $NUMBER_OF_CORES
+@CHRONOS_DIR@/m_cache/opt $INTERFERENCE_FILE $L1_CACHE_CONFIG $L2_CACHE_CONFIG $NUMBER_OF_CORES $TDMA_SCHEDULE_FILE

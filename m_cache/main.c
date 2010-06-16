@@ -154,6 +154,7 @@ int main(int argc, char **argv ) {
   cache_config = argv[2];
   cache_config_L2 = argv[3];
   num_core = atoi( argv[4] );
+  const char * const tdma_bus_schedule_file = argv[5];
   infeas   = 0;
   regionmode = 0;
 
@@ -399,11 +400,11 @@ int main(int argc, char **argv ) {
     /* CAUTION: In presence of shared bus these two function changes
      * to account for the bus delay */
     /* analysis_dag_WCET(msc[num_msc -1]); */
-    /* compute_bus_WCET_MSC(msc[num_msc -1]); */
+    /* compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file); */
     g_shared_bus = 1;
     /* For calculation with shared bus */
     start = getticks();
-    compute_bus_WCET_MSC(msc[num_msc -1]); 
+    compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file); 
     end = getticks();
     /* analysis_dag_BCET(msc[num_msc -1]); */
     /* compute_bus_BCET_MSC(msc[num_msc -1]); */
@@ -521,7 +522,7 @@ int main(int argc, char **argv ) {
      {
      pathDAG(msc[i]);
      analysis_dag_WCET(msc[i]); 
-     compute_bus_WCET_MSC(msc[num_msc -1]); */
+     compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file); */
   /* analysis_dag_BCET(msc[i]); */
   /* compute_bus_BCET_MSC(msc[num_msc -1]); */
   /* resetHitMiss_L2(msc[i]); */
@@ -658,7 +659,7 @@ int main(int argc, char **argv ) {
        * CAUTION: In presence of shared bus these two 
        * procedures are going to change */
       /* analysis_dag_WCET(msc[i]); */
-      compute_bus_WCET_MSC(msc[num_msc -1]); 
+      compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file); 
       /* analysis_dag_BCET(msc[i]); */
       compute_bus_BCET_MSC(msc[num_msc -1]); 
       /* FIXME: What's this function doing here ? */

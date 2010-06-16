@@ -2291,13 +2291,13 @@ static void reset_all_task(MSC* msc)
 
 /* Analyze worst case execution time of all the tasks inside 
  * a MSC. The MSC is given by the argument */
-void compute_bus_WCET_MSC(MSC *msc) {
+void compute_bus_WCET_MSC(MSC *msc, const char *tdma_bus_schedule_file) {
   int i, j, k;
   ull start_time = 0;
   procedure* proc;
   		  
   /* Set the global TDMA bus schedule */		  
-  setSchedule("TDMA_bus_sched.db");
+  setSchedule(tdma_bus_schedule_file);
 
   /* Reset the latest time of all cores */
   memset(latest, 0, num_core * sizeof(ull)); 

@@ -2,9 +2,12 @@ core
 *.o
 *.swp
 
-autom4te.cache/
+Makefile
+Makefile.in
 aclocal.m4
+autom4te.cache/
 cfg/.deps/
+cfg/Makefile
 cfg/Makefile.in
 config.h
 config.h.in
@@ -14,12 +17,14 @@ configure
 depcomp
 install-sh
 m_cache/.deps/
+m_cache/Makefile
 m_cache/Makefile.in
+m_cache/opt
+m_cache/optdebug
 m_cache/wcrt/.deps/
+m_cache/wcrt/Makefile
 m_cache/wcrt/Makefile.in
+m_cache/wcrt/timing
 missing
 scripts/
 stamp-h1
-
-m_cache/opt
-m_cache/wcrt/timing

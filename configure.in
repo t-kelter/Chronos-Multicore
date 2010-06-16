@@ -104,6 +104,13 @@ AC_CONFIG_FILES([
 
 AC_OUTPUT
 
+# We must modify the generated script files to be executable
+for script in scripts/chronos_analyze scripts/chronos_compile scripts/chronos_simulate; do
+  if test -f $script; then
+    chmod u+x $script;
+  fi;
+done;
+
 # Check whether the user omitted any of the simulators and warn him in this case
 # Do this at the end of the configure, so that the user will actually see the warning
 if test ! "$SIM_SINGLECORE"; then
