@@ -7,6 +7,7 @@ autom4te.cache/
 cfg/.deps/
 cfg/Makefile
 cfg/Makefile.in
+cfg/main
 config.h
 config.h.in
 config.log
