@@ -1,10 +1,66 @@
-./sim-outorder -bpred perfect -cache:dl1 none -cache:il1 il1:8:32:2:l -issue:inorder true -issue:wrongpath false -cache:il2  il2:8:32:4:l -cache:dl2 none -mem:lat 30 2 -mem:width 32 $1
+#!/bin/sh
 
+# Check parameters
+declare -r USAGE="\nUsage: $0 [-sbm] <simple scalar executable>\n\nThis script starts the simulation of the given executable on a single core (default, option \"-s\"), a bus-aware single-core (option \"-b\") or a multicore (option \"-m\") simulator."
 
-#./sim-outorder -bpred perfect -cache:dl1 none -cache:il1 il1:8:32:2:l -issue:inorder true -cache:il2  il2:8:64:2:l -cache:il2lat 10 -cache:dl2 none -mem:lat 30 2 -mem:width 32 $1
-#./sim-outorder -bpred perfect -cache:dl1 dl1:32:32:1:l -cache:il1 il1:64:32:1:l -issue:inorder true -cache:il2 none -cache:dl2 none -issue:wrongpath false -mem:lat 30 2 -mem:width 32 $1
-#./sim-outorder -bpred perfect -cache:il1 il1:64:32:2:l -issue:inorder true -cache:il2 none -cache:dl2 none -mem:lat 30 2 -mem:width 32 $1
-#./sim-outorder -bpred perfect -cache:dl1 dl1:32:32:4:l -cache:il1 il1:8:32:4:l -cache:il2 dl2  -cache:dl2 ul2:32:64:8:l -issue:inorder true -issue:wrongpath false -cache:il2lat 2 -cache:dl2lat 2 -mem:lat 6 2 -mem:width 64 $1
-#./sim-outorder -bpred perfect -cache:dl1 dl1:32:32:4:l -cache:il1 il1:8:32:4:l -cache:il2 il2:32:64:8:l  -cache:dl2 dl2:32:64:8:l -issue:inorder true -issue:wrongpath false -cache:il2lat 2 -cache:dl2lat 2 -mem:lat 6 2 -mem:width 64 $1
-#./sim-outorder -bpred perfect -cache:dl1 dl1:32:32:4:l -cache:il1 il1:8:32:4:l -cache:il2 il2:16:64:16:l -cache:dl2 none -issue:inorder true -issue:wrongpath false -cache:il2lat 2  -mem:lat 6 2 -mem:width 64 $1
-#./sim-outorder -bpred perfect -cache:dl1 none -cache:il1 il1:8:32:4:l -issue:wrongpath false -issue:inorder true -mem:lat 6 2 -mem:width 32 $1
+declare -ri TYPE_SINGLECORE=0
+declare -ri TYPE_BUS_AWARE=1
+declare -ri TYPE_MULTICORE=2
+
+declare -i SIMULATION_TYPE=$TYPE_SINGLECORE
+
+while getopts ':sbm' opt; do
+  case "$opt" in
+    s)   SIMULATION_TYPE=TYPE_SINGLECORE ;;
+    b)   SIMULATION_TYPE=TYPE_BUS_AWARE ;;
+    m)   SIMULATION_TYPE=TYPE_MULTICORE ;;
+    \?)  echo -e $usage
+         exit 1 ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+declare EXECUTABLE=$1
+shift 1
+if [ ! -f "$EXECUTABLE" ]; then
+  echo "Input file \"$EXECUTABLE\" does not exist!";
+  exit 1;
+fi;
+
+# Set configuration parameters
+declare -r SIMULATOR_DIR_SINGLECORE=/home/kelter/chronos/tools/simplescalar/simulator/original/simplesim-3.0
+declare -r SIMULATOR_DIR_BUS_AWARE=/home/kelter/chronos/tools/simplescalar/simulator/shared_bus/simplesim-3.0
+declare -r SIMULATOR_DIR_SMT=/home/kelter/chronos/tools/simplescalar/simulator/smt/
+
+# Set machine configuration (TODO: Let the caller influence this)
+declare CACHE_CONFIG="-cache:dl1 none -cache:il1 il1:8:32:2:l -cache:il2  il2:8:32:4:l -cache:dl2 none"
+declare BRANCH_CONFIG="-bpred perfect"
+declare ISSUE_CONFIG="-issue:inorder true -issue:wrongpath false"
+declare MEM_CONFIG="-mem:lat 30 2 -mem:width 32"
+
+# Further Options
+# -cache:il2  il2:8:64:2:l -cache:il2lat 10
+# -cache:dl1 dl1:32:32:1:l -cache:il1 il1:64:32:1:l -cache:il2 none -cache:dl2 none
+# -cache:il1 il1:64:32:2:l 
+# -cache:dl1 dl1:32:32:4:l -cache:il1 il1:8:32:4:l -cache:il2 dl2  -cache:dl2 ul2:32:64:8:l -cache:il2lat 2 -cache:dl2lat 2 -mem:lat 6 2 -mem:width 64
+# -cache:il2 il2:32:64:8:l -cache:dl2 dl2:32:64:8:l 
+# -cache:dl1 dl1:32:32:4:l -cache:il1 il1:8:32:4:l -cache:il2 il2:16:64:16:l
+
+# Call the desired simulator
+case "$SIMULATION_TYPE" in
+  $TYPE_SINGLECORE)
+    $SIMULATOR_DIR_SINGLECORE/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $EXECUTABLE
+    ;;
+  $TYPE_BUS_AWARE)
+    $SIMULATOR_DIR_BUS_AWARE/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $EXECUTABLE
+    ;;
+  $TYPE_MULTICORE)
+    echo "Not yet implemented!";
+    exit 1;
+    $SIMULATOR_DIR_SMT/ss_smt ... # TODO: Insert correct call here
+    ;;
+  *)
+    echo "Internal error: Invalid simulator type!";
+    exit 1;
+    ;;
+esac
