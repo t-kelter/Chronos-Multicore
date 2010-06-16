@@ -516,7 +516,13 @@ int timingEstimate_synch() {
 
   // solve ilp
   /* sudiptac ::: Changed */
-  system( "./solve wcrtsyn.ilp > wcrtsyn.sol" );
+  const char *lp_solve_dir = "/home/kelter/chronos/tools/lp_solve/";
+  char lp_solve_call[200];
+  strcpy( lp_solve_call, lp_solve_dir );
+  strcat( lp_solve_call, "/lp_solve -rxli " );
+  strcat( lp_solve_call, lp_solve_dir );
+  strcat( lp_solve_call, "/xli_CPLEX wcrtsyn.ilp > wcrtsyn.sol" );
+  system( lp_solve_call );
 
   // read solution ::: sudiptac :: CHANGED
   system( "grep objective wcrtsyn.sol | awk '{print $NF}' > wcrtsyn.val" );

@@ -37,6 +37,7 @@ declare CACHE_CONFIG="-cache:dl1 none -cache:il1 il1:8:32:2:l -cache:il2  il2:8:
 declare BRANCH_CONFIG="-bpred perfect"
 declare ISSUE_CONFIG="-issue:inorder true -issue:wrongpath false"
 declare MEM_CONFIG="-mem:lat 30 2 -mem:width 32"
+declare BUS_CONFIG="-bus:tdma_schedule /home/kelter/chronos/multicore/iterative/m_cache/TDMA_bus_sched.db"
 
 # Further Options
 # -cache:il2  il2:8:64:2:l -cache:il2lat 10
@@ -52,7 +53,7 @@ case "$SIMULATION_TYPE" in
     $SIMULATOR_DIR_SINGLECORE/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $EXECUTABLE
     ;;
   $TYPE_BUS_AWARE)
-    $SIMULATOR_DIR_BUS_AWARE/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $EXECUTABLE
+    $SIMULATOR_DIR_BUS_AWARE/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $BUS_CONFIG $EXECUTABLE
     ;;
   $TYPE_MULTICORE)
     echo "Not yet implemented!";
