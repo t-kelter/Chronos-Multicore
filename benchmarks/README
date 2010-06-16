@@ -1,0 +1,12 @@
+The benchmarks are split up into two folders:
+
+* singlecore
+  This folder holds all the source code for the benchmarks and the 
+  compiled code / analysis results / etc. if that was already generated
+
+* multicore
+  This folder onyl contains information about the used multicore
+  architectures (especially about used bus schedules and cache
+  configurations) and about the multicore test cases which are
+  composed of multiple singlecore test cases which are mapped onto
+  the different processors with optional precedence constraints.

@@ -1,0 +1,20 @@
+These are the multicore benchmarks used for simulation and analysis in Chronos.
+All relevant information is stored in the subfolders, which are:
+
+* schedules
+  Holds all possible TDMA schedules. These can then be used in simulation and
+  analysis to form a complete system.
+
+* caches
+  Holds all the known cache configurations. These can then be used in simulation and
+  analysis to form a complete system.
+
+* setups
+  This folder holds the configurations of full systems, together with the 
+  description of the benchmarks for the single cores (taken from the singlecore
+  folder) and their dependencies.
+
+To invoke the analyzer or the simulator one does need 
+a) a schedule file
+b) cache config files (one for each level)
+c) a setup file that describes the application to be executed

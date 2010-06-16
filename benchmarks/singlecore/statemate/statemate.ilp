@@ -1,0 +1,6 @@
+enter Q
+optimize
+set logfile ../benchmarks/statemate/statemate.sol
+display solution objective
+display solution variables -
+quit

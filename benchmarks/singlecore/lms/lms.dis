@@ -1,0 +1,102 @@
+start_addr
+00400140 <__start> lw        $16,0($29)
+00400148 <__start+0x8> lui       $28,4097
+00400150 <__start+0x10> addiu     $28,$28,-32032
+00400158 <__start+0x18> addiu     $17,$29,4
+00400160 <__start+0x20> addiu     $3,$17,4
+00400168 <__start+0x28> sll       $2,$16,0x2
+00400170 <__start+0x30> addu      $3,$3,$2
+00400178 <__start+0x38> addu      $18,$0,$3
+00400180 <__start+0x40> sw        $18,-32476($28)
+00400188 <__start+0x48> addiu     $29,$29,-24
+00400190 <__start+0x50> addu      $4,$0,$16
+00400198 <__start+0x58> addu      $5,$0,$17
+004001a0 <__start+0x60> addu      $6,$0,$18
+004001a8 <__start+0x68> jal       00400ca0 <__libc_init> 
+004001b0 <__start+0x70> sw        $0,-32480($28)
+004001b8 <__start+0x78> addu      $4,$0,$16
+004001c0 <__start+0x80> addu      $5,$0,$17
+004001c8 <__start+0x88> addu      $6,$0,$18
+004001d0 <__start+0x90> jal       00400870 <main> 
+004001d8 <__start+0x98> addu      $4,$0,$2
+004001e0 <__start+0xa0> jal       00400cd0 <exit> 
+004001e8 <__start+0xa8> nop       
+    ...
+rand():
+lms.c:66
+004001f0 <rand> lw        $3,-32764($28)
+004001f8 <rand+0x8> lui       $2,16838
+00400200 <rand+0x10> ori       $2,$2,20077
+00400208 <rand+0x18> mult      $3,$2
+00400210 <rand+0x20> mflo      $2
+00400218 <rand+0x28> addiu     $2,$2,12345
+00400220 <rand+0x30> sw        $2,-32764($28)
+lms.c:67
+00400228 <rand+0x38> srl       $2,$2,0x10
+00400230 <rand+0x40> andi      $2,$2,32767
+lms.c:68
+00400238 <rand+0x48> jr        $31
+log():
+lms.c:73
+00400240 <log> l.s       $f0,-32760($28)
+00400248 <log+0x8> jr        $31
+fabs():
+lms.c:80
+00400250 <fabs> mtc1      $0,$f0
+00400258 <fabs+0x8> c.le.s    $f0,$f12
+00400260 <fabs+0x10> bc1f      00400278
+00400268 <fabs+0x18> mov.s     $f0,$f12
+00400270 <fabs+0x20> j         00400280
+lms.c:81
+00400278 <fabs+0x28> neg.s     $f0,$f12
+lms.c:83
+00400280 <fabs+0x30> jr        $31
+sqrt():
+lms.c:88
+00400288 <sqrt> l.s       $f0,-32756($28)
+lms.c:87
+00400290 <sqrt+0x8> addiu     $29,$29,-56
+00400298 <sqrt+0x10> s.d       $f22,40($29)
+004002a0 <sqrt+0x18> cvt.s.d   $f22,$f12
+004002a8 <sqrt+0x20> s.d       $f20,32($29)
+lms.c:88
+004002b0 <sqrt+0x28> div.s     $f20,$f22,$f0
+lms.c:87
+004002b8 <sqrt+0x30> s.d       $f24,48($29)
+lms.c:93
+004002c0 <sqrt+0x38> l.d       $f24,-32752($28)
+lms.c:87
+004002c8 <sqrt+0x40> sw        $17,20($29)
+lms.c:98
+004002d0 <sqrt+0x48> mtc1      $0,$f0
+lms.c:97
+004002d8 <sqrt+0x50> addu      $17,$0,$0
+lms.c:87
+004002e0 <sqrt+0x58> sw        $31,24($29)
+lms.c:98
+004002e8 <sqrt+0x60> c.eq.s    $f22,$f0
+lms.c:87
+004002f0 <sqrt+0x68> sw        $16,16($29)
+lms.c:98
+004002f8 <sqrt+0x70> bc1f      00400310
+00400300 <sqrt+0x78> mov.s     $f20,$f0
+00400308 <sqrt+0x80> j         004003b0
+lms.c:100
+00400310 <sqrt+0x88> addiu     $16,$0,1
+lms.c:102
+00400318 <sqrt+0x90> bne       $17,$0,00400398
+lms.c:103
+00400320 <sqrt+0x98> mul.s     $f0,$f20,$f20
+00400328 <sqrt+0xa0> sub.s     $f0,$f22,$f0
+00400330 <sqrt+0xa8> cvt.d.s   $f2,$f20
+00400338 <sqrt+0xb0> add.d     $f2,$f2,$f2
+00400340 <sqrt+0xb8> cvt.d.s   $f0,$f0
+00400348 <sqrt+0xc0> div.d     $f0,$f0,$f2
+00400350 <sqrt+0xc8> cvt.s.d   $f0,$f0
+lms.c:104
+00400358 <sqrt+0xd0> add.s     $f20,$f20,$f0
+lms.c:105
+00400360 <sqrt+0xd8> mul.s     $f12,$f20,$f20
+lms.c:106
+00400368 <sqrt+0xe0> sub.s     $f12,$f22,$f12
+00400370 <sqrt+0xe8> jal       00400250

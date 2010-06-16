@@ -1,0 +1,819 @@
+start_addr
+00400140 <__start> lw        $16,0($29)
+00400148 <__start+0x8> lui       $28,4097
+00400150 <__start+0x10> addiu     $28,$28,-32032
+00400158 <__start+0x18> addiu     $17,$29,4
+00400160 <__start+0x20> addiu     $3,$17,4
+00400168 <__start+0x28> sll       $2,$16,0x2
+00400170 <__start+0x30> addu      $3,$3,$2
+00400178 <__start+0x38> addu      $18,$0,$3
+00400180 <__start+0x40> sw        $18,-32636($28)
+00400188 <__start+0x48> addiu     $29,$29,-24
+00400190 <__start+0x50> addu      $4,$0,$16
+00400198 <__start+0x58> addu      $5,$0,$17
+004001a0 <__start+0x60> addu      $6,$0,$18
+004001a8 <__start+0x68> jal       00401390 <__libc_init> 
+004001b0 <__start+0x70> sw        $0,-32640($28)
+004001b8 <__start+0x78> addu      $4,$0,$16
+004001c0 <__start+0x80> addu      $5,$0,$17
+004001c8 <__start+0x88> addu      $6,$0,$18
+004001d0 <__start+0x90> jal       00401298 <main> 
+004001d8 <__start+0x98> addu      $4,$0,$2
+004001e0 <__start+0xa0> jal       004013c0 <exit> 
+004001e8 <__start+0xa8> nop       
+    ...
+bounded_copy():
+mergesort_ce3.c:54
+004001f0 <bounded_copy> addiu     $29,$29,-40
+004001f8 <bounded_copy+0x8> lw        $9,56($29)
+mergesort_ce3.c:56
+00400200 <bounded_copy+0x10> sll       $2,$5,0x2
+00400208 <bounded_copy+0x18> addu      $2,$4,$2
+00400210 <bounded_copy+0x20> sra       $2,$2,0x5
+00400218 <bounded_copy+0x28> andi      $8,$2,31
+00400220 <bounded_copy+0x30> sll       $2,$7,0x2
+00400228 <bounded_copy+0x38> addu      $2,$6,$2
+00400230 <bounded_copy+0x40> sra       $2,$2,0x5
+00400238 <bounded_copy+0x48> andi      $2,$2,31
+00400240 <bounded_copy+0x50> bne       $8,$2,00400408
+mergesort_ce3.c:57
+00400248 <bounded_copy+0x58> lui       $3,4096
+00400250 <bounded_copy+0x60> addiu     $3,$3,10208
+00400258 <bounded_copy+0x68> sra       $2,$3,0x5
+00400260 <bounded_copy+0x70> andi      $2,$2,31
+00400268 <bounded_copy+0x78> bne       $8,$2,00400340
+mergesort_ce3.c:59
+00400270 <bounded_copy+0x80> addu      $8,$0,$0
+00400278 <bounded_copy+0x88> blez      $9,004002d0
+00400280 <bounded_copy+0x90> addiu     $3,$3,32
+mergesort_ce3.c:60
+00400288 <bounded_copy+0x98> addu      $2,$7,$8
+00400290 <bounded_copy+0xa0> sll       $2,$2,0x2
+00400298 <bounded_copy+0xa8> addu      $2,$2,$6
+004002a0 <bounded_copy+0xb0> lw        $2,0($2)
+mergesort_ce3.c:59
+004002a8 <bounded_copy+0xb8> addiu     $8,$8,1
+mergesort_ce3.c:60
+004002b0 <bounded_copy+0xc0> sw        $2,0($3)
+mergesort_ce3.c:59
+004002b8 <bounded_copy+0xc8> addiu     $3,$3,4
+004002c0 <bounded_copy+0xd0> slt       $2,$8,$9
+004002c8 <bounded_copy+0xd8> bne       $2,$0,00400288
+mergesort_ce3.c:62
+004002d0 <bounded_copy+0xe0> addu      $8,$0,$0
+004002d8 <bounded_copy+0xe8> blez      $9,00400470
+004002e0 <bounded_copy+0xf0> lui       $6,4096
+004002e8 <bounded_copy+0xf8> addiu     $6,$6,10240
+mergesort_ce3.c:63
+004002f0 <bounded_copy+0x100> lw        $3,0($6)
+004002f8 <bounded_copy+0x108> addu      $2,$5,$8
+mergesort_ce3.c:62
+00400300 <bounded_copy+0x110> addiu     $8,$8,1
+mergesort_ce3.c:63
+00400308 <bounded_copy+0x118> sll       $2,$2,0x2
+00400310 <bounded_copy+0x120> addu      $2,$2,$4
+mergesort_ce3.c:62
+00400318 <bounded_copy+0x128> addiu     $6,$6,4
+mergesort_ce3.c:63
+00400320 <bounded_copy+0x130> sw        $3,0($2)
+mergesort_ce3.c:62
+00400328 <bounded_copy+0x138> slt       $2,$8,$9
+00400330 <bounded_copy+0x140> bne       $2,$0,004002f0
+mergesort_ce3.c:65
+00400338 <bounded_copy+0x148> j         00400470
+mergesort_ce3.c:67
+00400340 <bounded_copy+0x150> addu      $8,$0,$0
+00400348 <bounded_copy+0x158> blez      $9,00400398
+mergesort_ce3.c:68
+00400350 <bounded_copy+0x160> addu      $2,$7,$8
+00400358 <bounded_copy+0x168> sll       $2,$2,0x2
+00400360 <bounded_copy+0x170> addu      $2,$2,$6
+00400368 <bounded_copy+0x178> lw        $2,0($2)
+mergesort_ce3.c:67
+00400370 <bounded_copy+0x180> addiu     $8,$8,1
+mergesort_ce3.c:68
+00400378 <bounded_copy+0x188> sw        $2,0($3)
+mergesort_ce3.c:67
+00400380 <bounded_copy+0x190> addiu     $3,$3,4
+00400388 <bounded_copy+0x198> slt       $2,$8,$9
+00400390 <bounded_copy+0x1a0> bne       $2,$0,00400350
+mergesort_ce3.c:70
+00400398 <bounded_copy+0x1a8> addu      $8,$0,$0
+004003a0 <bounded_copy+0x1b0> blez      $9,00400470
+004003a8 <bounded_copy+0x1b8> lui       $6,4096
+004003b0 <bounded_copy+0x1c0> addiu     $6,$6,10208
+mergesort_ce3.c:71
+004003b8 <bounded_copy+0x1c8> lw        $3,0($6)
+004003c0 <bounded_copy+0x1d0> addu      $2,$5,$8
+mergesort_ce3.c:70
+004003c8 <bounded_copy+0x1d8> addiu     $8,$8,1
+mergesort_ce3.c:71
+004003d0 <bounded_copy+0x1e0> sll       $2,$2,0x2
+004003d8 <bounded_copy+0x1e8> addu      $2,$2,$4
+mergesort_ce3.c:70
+004003e0 <bounded_copy+0x1f0> addiu     $6,$6,4
+mergesort_ce3.c:71
+004003e8 <bounded_copy+0x1f8> sw        $3,0($2)
+mergesort_ce3.c:70
+004003f0 <bounded_copy+0x200> slt       $2,$8,$9
+004003f8 <bounded_copy+0x208> bne       $2,$0,004003b8
+mergesort_ce3.c:75
+00400400 <bounded_copy+0x210> j         00400470
+mergesort_ce3.c:77
+00400408 <bounded_copy+0x218> addu      $8,$0,$0
+00400410 <bounded_copy+0x220> blez      $9,00400470
+mergesort_ce3.c:78
+00400418 <bounded_copy+0x228> addu      $3,$5,$8
+00400420 <bounded_copy+0x230> addu      $2,$7,$8
+mergesort_ce3.c:77
+00400428 <bounded_copy+0x238> addiu     $8,$8,1
+mergesort_ce3.c:78
+00400430 <bounded_copy+0x240> sll       $2,$2,0x2
+00400438 <bounded_copy+0x248> addu      $2,$2,$6
+00400440 <bounded_copy+0x250> lw        $2,0($2)
+00400448 <bounded_copy+0x258> sll       $3,$3,0x2
+00400450 <bounded_copy+0x260> addu      $3,$3,$4
+00400458 <bounded_copy+0x268> sw        $2,0($3)
+mergesort_ce3.c:77
+00400460 <bounded_copy+0x270> slt       $2,$8,$9
+00400468 <bounded_copy+0x278> bne       $2,$0,00400418
+mergesort_ce3.c:81
+00400470 <bounded_copy+0x280> addiu     $29,$29,40
+00400478 <bounded_copy+0x288> jr        $31
+enqueue():
+mergesort_ce3.c:84
+00400480 <enqueue> lw        $3,16($29)
+mergesort_ce3.c:87
+00400488 <enqueue+0x8> lw        $2,0($3)
+00400490 <enqueue+0x10> addiu     $2,$2,1
+00400498 <enqueue+0x18> addu      $8,$0,$2
+mergesort_ce3.c:88
+004004a0 <enqueue+0x20> sll       $2,$8,0x2
+mergesort_ce3.c:87
+004004a8 <enqueue+0x28> sw        $8,0($3)
+mergesort_ce3.c:88
+004004b0 <enqueue+0x30> addu      $3,$2,$6
+mergesort_ce3.c:89
+004004b8 <enqueue+0x38> addu      $2,$2,$7
+mergesort_ce3.c:88
+004004c0 <enqueue+0x40> sw        $4,0($3)
+mergesort_ce3.c:89
+004004c8 <enqueue+0x48> sw        $5,0($2)
+mergesort_ce3.c:90
+004004d0 <enqueue+0x50> blez      $8,00400580
+004004d8 <enqueue+0x58> srl       $2,$8,0x1f
+004004e0 <enqueue+0x60> addu      $2,$8,$2
+004004e8 <enqueue+0x68> sra       $11,$2,0x1
+004004f0 <enqueue+0x70> sll       $4,$11,0x2
+004004f8 <enqueue+0x78> addu      $10,$4,$6
+00400500 <enqueue+0x80> sll       $3,$8,0x2
+00400508 <enqueue+0x88> addu      $9,$3,$6
+00400510 <enqueue+0x90> lw        $8,0($10)
+00400518 <enqueue+0x98> lw        $5,0($9)
+00400520 <enqueue+0xa0> slt       $2,$5,$8
+00400528 <enqueue+0xa8> beq       $2,$0,00400580
+mergesort_ce3.c:94
+00400530 <enqueue+0xb0> addu      $4,$4,$7
+mergesort_ce3.c:92
+00400538 <enqueue+0xb8> sw        $5,0($10)
+mergesort_ce3.c:93
+00400540 <enqueue+0xc0> sw        $8,0($9)
+mergesort_ce3.c:94
+00400548 <enqueue+0xc8> lw        $5,0($4)
+mergesort_ce3.c:95
+00400550 <enqueue+0xd0> addu      $3,$3,$7
+00400558 <enqueue+0xd8> lw        $2,0($3)
+mergesort_ce3.c:97
+00400560 <enqueue+0xe0> addu      $8,$0,$11
+mergesort_ce3.c:95
+00400568 <enqueue+0xe8> sw        $2,0($4)
+mergesort_ce3.c:96
+00400570 <enqueue+0xf0> sw        $5,0($3)
+mergesort_ce3.c:98
+00400578 <enqueue+0xf8> bgtz      $8,004004d8
+mergesort_ce3.c:99
+00400580 <enqueue+0x100> jr        $31
+dequeue():
+mergesort_ce3.c:100
+00400588 <dequeue> addiu     $29,$29,-8
+mergesort_ce3.c:104
+00400590 <dequeue+0x8> lw        $2,0($6)
+mergesort_ce3.c:100
+00400598 <dequeue+0x10> lw        $11,24($29)
+mergesort_ce3.c:104
+004005a0 <dequeue+0x18> sw        $2,0($4)
+mergesort_ce3.c:105
+004005a8 <dequeue+0x20> lw        $2,0($7)
+004005b0 <dequeue+0x28> sw        $2,0($5)
+mergesort_ce3.c:106
+004005b8 <dequeue+0x30> lw        $2,0($11)
+004005c0 <dequeue+0x38> sll       $2,$2,0x2
+004005c8 <dequeue+0x40> addu      $2,$2,$6
+004005d0 <dequeue+0x48> lw        $2,0($2)
+004005d8 <dequeue+0x50> sw        $2,0($6)
+mergesort_ce3.c:107
+004005e0 <dequeue+0x58> lw        $2,0($11)
+004005e8 <dequeue+0x60> sll       $2,$2,0x2
+004005f0 <dequeue+0x68> addu      $2,$2,$7
+004005f8 <dequeue+0x70> lw        $2,0($2)
+00400600 <dequeue+0x78> sw        $2,0($7)
+mergesort_ce3.c:108
+00400608 <dequeue+0x80> lw        $2,0($11)
+mergesort_ce3.c:110
+00400610 <dequeue+0x88> addiu     $4,$0,1
+mergesort_ce3.c:108
+00400618 <dequeue+0x90> addiu     $2,$2,-1
+00400620 <dequeue+0x98> sw        $2,0($11)
+mergesort_ce3.c:111
+00400628 <dequeue+0xa0> blez      $2,00400720
+00400630 <dequeue+0xa8> addu      $10,$0,$6
+00400638 <dequeue+0xb0> addu      $9,$0,$7
+00400640 <dequeue+0xb8> addu      $12,$0,$0
+mergesort_ce3.c:112
+00400648 <dequeue+0xc0> lw        $2,0($11)
+00400650 <dequeue+0xc8> addiu     $5,$4,1
+00400658 <dequeue+0xd0> slt       $2,$2,$5
+00400660 <dequeue+0xd8> bne       $2,$0,004006a0
+00400668 <dequeue+0xe0> sll       $2,$4,0x2
+00400670 <dequeue+0xe8> addu      $2,$2,$6
+00400678 <dequeue+0xf0> lw        $3,0($2)
+00400680 <dequeue+0xf8> lw        $2,4($2)
+00400688 <dequeue+0x100> slt       $2,$2,$3
+00400690 <dequeue+0x108> beq       $2,$0,004006a0
+mergesort_ce3.c:113
+00400698 <dequeue+0x110> addu      $4,$0,$5
+mergesort_ce3.c:115
+004006a0 <dequeue+0x118> sll       $8,$4,0x2
+004006a8 <dequeue+0x120> addu      $5,$8,$6
+004006b0 <dequeue+0x128> lw        $3,0($10)
+004006b8 <dequeue+0x130> lw        $4,0($5)
+004006c0 <dequeue+0x138> slt       $2,$4,$3
+004006c8 <dequeue+0x140> beq       $2,$0,00400720
+mergesort_ce3.c:119
+004006d0 <dequeue+0x148> addu      $2,$8,$7
+mergesort_ce3.c:117
+004006d8 <dequeue+0x150> sw        $3,0($5)
+mergesort_ce3.c:118
+004006e0 <dequeue+0x158> sw        $4,0($10)
+mergesort_ce3.c:120
+004006e8 <dequeue+0x160> lw        $3,0($9)
+mergesort_ce3.c:119
+004006f0 <dequeue+0x168> lw        $4,0($2)
+mergesort_ce3.c:120
+004006f8 <dequeue+0x170> sw        $3,0($2)
+mergesort_ce3.c:121
+00400700 <dequeue+0x178> sw        $4,0($9)
+mergesort_ce3.c:125
+00400708 <dequeue+0x180> lw        $2,0($11)
+00400710 <dequeue+0x188> addiu     $4,$12,1
+00400718 <dequeue+0x190> bgtz      $2,00400648
+mergesort_ce3.c:126
+00400720 <dequeue+0x198> addiu     $29,$29,8
+00400728 <dequeue+0x1a0> jr        $31
+merge_sort():
+mergesort_ce3.c:128
+00400730 <merge_sort> addiu     $29,$29,-192
+00400738 <merge_sort+0x8> sw        $20,168($29)
+mergesort_ce3.c:152
+00400740 <merge_sort+0x10> addiu     $20,$0,128
+mergesort_ce3.c:128
+00400748 <merge_sort+0x18> sw        $18,160($29)
+mergesort_ce3.c:150
+00400750 <merge_sort+0x20> lui       $18,4096
+00400758 <merge_sort+0x28> addiu     $18,$18,9184
+mergesort_ce3.c:128
+00400760 <merge_sort+0x30> sw        $19,164($29)
+mergesort_ce3.c:151
+00400768 <merge_sort+0x38> addiu     $19,$18,512
+mergesort_ce3.c:128
+00400770 <merge_sort+0x40> sw        $31,188($29)
+00400778 <merge_sort+0x48> sw        $30,184($29)
+00400780 <merge_sort+0x50> sw        $23,180($29)
+00400788 <merge_sort+0x58> sw        $22,176($29)
+00400790 <merge_sort+0x60> sw        $21,172($29)
+00400798 <merge_sort+0x68> sw        $17,156($29)
+004007a0 <merge_sort+0x70> sw        $16,152($29)
+004007a8 <merge_sort+0x78> sw        $4,56($29)
+mergesort_ce3.c:154
+004007b0 <merge_sort+0x80> blez      $4,00400b68
+004007b8 <merge_sort+0x88> addiu     $23,$0,8
+004007c0 <merge_sort+0x90> addu      $22,$0,$0
+mergesort_ce3.c:155
+004007c8 <merge_sort+0x98> addu      $30,$0,$22
+mergesort_ce3.c:156
+004007d0 <merge_sort+0xa0> addu      $16,$0,$0
+004007d8 <merge_sort+0xa8> blez      $20,00400828
+mergesort_ce3.c:157
+004007e0 <merge_sort+0xb0> addu      $4,$0,$18
+004007e8 <merge_sort+0xb8> addu      $5,$0,$16
+004007f0 <merge_sort+0xc0> lw        $6,-32620($28)
+004007f8 <merge_sort+0xc8> addu      $7,$30,$16
+mergesort_ce3.c:156
+00400800 <merge_sort+0xd0> addiu     $16,$16,8
+mergesort_ce3.c:157
+00400808 <merge_sort+0xd8> sw        $23,16($29)
+00400810 <merge_sort+0xe0> jal       004001f0 <bounded_copy> 
+mergesort_ce3.c:156
+00400818 <merge_sort+0xe8> slt       $2,$16,$20
+00400820 <merge_sort+0xf0> bne       $2,$0,004007e0
+mergesort_ce3.c:163
+00400828 <merge_sort+0xf8> addiu     $11,$0,1
+mergesort_ce3.c:164
+00400830 <merge_sort+0x100> slt       $2,$11,$20
+00400838 <merge_sort+0x108> beq       $2,$0,00400af0
+mergesort_ce3.c:166
+00400840 <merge_sort+0x110> addu      $21,$0,$0
+00400848 <merge_sort+0x118> blez      $20,00400ad8
+mergesort_ce3.c:167
+00400850 <merge_sort+0x120> mult      $21,$11
+00400858 <merge_sort+0x128> mflo      $12
+mergesort_ce3.c:168
+00400860 <merge_sort+0x130> addiu     $2,$21,1
+00400868 <merge_sort+0x138> mult      $2,$11
+00400870 <merge_sort+0x140> mflo      $3
+mergesort_ce3.c:169
+00400878 <merge_sort+0x148> addiu     $2,$21,2
+00400880 <merge_sort+0x150> mult      $2,$11
+mergesort_ce3.c:174
+00400888 <merge_sort+0x158> addu      $17,$0,$0
+mergesort_ce3.c:170
+00400890 <merge_sort+0x160> addu      $21,$0,$2
+mergesort_ce3.c:169
+00400898 <merge_sort+0x168> mflo      $2
+mergesort_ce3.c:173
+004008a0 <merge_sort+0x170> addu      $16,$0,$12
+mergesort_ce3.c:168
+004008a8 <merge_sort+0x178> addiu     $9,$3,-1
+mergesort_ce3.c:169
+004008b0 <merge_sort+0x180> addiu     $10,$2,-1
+mergesort_ce3.c:175
+004008b8 <merge_sort+0x188> slt       $2,$9,$16
+004008c0 <merge_sort+0x190> bne       $2,$0,004009e8
+004008c8 <merge_sort+0x198> addu      $6,$0,$19
+004008d0 <merge_sort+0x1a0> sll       $2,$3,0x2
+004008d8 <merge_sort+0x1a8> addu      $8,$2,$18
+004008e0 <merge_sort+0x1b0> sll       $2,$16,0x2
+004008e8 <merge_sort+0x1b8> addu      $7,$2,$18
+004008f0 <merge_sort+0x1c0> slt       $2,$10,$3
+004008f8 <merge_sort+0x1c8> bne       $2,$0,00400978
+mergesort_ce3.c:176
+00400900 <merge_sort+0x1d0> lw        $5,0($7)
+00400908 <merge_sort+0x1d8> lw        $4,0($8)
+00400910 <merge_sort+0x1e0> slt       $2,$4,$5
+00400918 <merge_sort+0x1e8> bne       $2,$0,00400940
+mergesort_ce3.c:177
+00400920 <merge_sort+0x1f0> sw        $5,0($6)
+mergesort_ce3.c:178
+00400928 <merge_sort+0x1f8> addiu     $7,$7,4
+00400930 <merge_sort+0x200> addiu     $16,$16,1
+mergesort_ce3.c:179
+00400938 <merge_sort+0x208> j         00400958
+mergesort_ce3.c:181
+00400940 <merge_sort+0x210> sw        $4,0($6)
+mergesort_ce3.c:182
+00400948 <merge_sort+0x218> addiu     $8,$8,4
+00400950 <merge_sort+0x220> addiu     $3,$3,1
+mergesort_ce3.c:184
+00400958 <merge_sort+0x228> addiu     $6,$6,4
+00400960 <merge_sort+0x230> addiu     $17,$17,1
+mergesort_ce3.c:185
+00400968 <merge_sort+0x238> slt       $2,$9,$16
+00400970 <merge_sort+0x240> beq       $2,$0,004008f0
+mergesort_ce3.c:186
+00400978 <merge_sort+0x248> slt       $2,$9,$16
+00400980 <merge_sort+0x250> bne       $2,$0,004009e8
+00400988 <merge_sort+0x258> sll       $2,$16,0x2
+00400990 <merge_sort+0x260> addu      $5,$2,$18
+00400998 <merge_sort+0x268> sll       $2,$17,0x2
+004009a0 <merge_sort+0x270> addu      $4,$2,$19
+mergesort_ce3.c:187
+004009a8 <merge_sort+0x278> lw        $2,0($5)
+mergesort_ce3.c:188
+004009b0 <merge_sort+0x280> addiu     $17,$17,1
+004009b8 <merge_sort+0x288> addiu     $16,$16,1
+mergesort_ce3.c:187
+004009c0 <merge_sort+0x290> sw        $2,0($4)
+mergesort_ce3.c:188
+004009c8 <merge_sort+0x298> addiu     $4,$4,4
+004009d0 <merge_sort+0x2a0> addiu     $5,$5,4
+mergesort_ce3.c:189
+004009d8 <merge_sort+0x2a8> slt       $2,$9,$16
+004009e0 <merge_sort+0x2b0> beq       $2,$0,004009a8
+mergesort_ce3.c:190
+004009e8 <merge_sort+0x2b8> slt       $2,$10,$3
+004009f0 <merge_sort+0x2c0> bne       $2,$0,00400a50
+004009f8 <merge_sort+0x2c8> sll       $2,$3,0x2
+00400a00 <merge_sort+0x2d0> addu      $5,$2,$18
+00400a08 <merge_sort+0x2d8> sll       $2,$17,0x2
+00400a10 <merge_sort+0x2e0> addu      $4,$2,$19
+mergesort_ce3.c:191
+00400a18 <merge_sort+0x2e8> lw        $2,0($5)
+mergesort_ce3.c:192
+00400a20 <merge_sort+0x2f0> addiu     $3,$3,1
+mergesort_ce3.c:191
+00400a28 <merge_sort+0x2f8> sw        $2,0($4)
+mergesort_ce3.c:192
+00400a30 <merge_sort+0x300> addiu     $4,$4,4
+00400a38 <merge_sort+0x308> addiu     $5,$5,4
+mergesort_ce3.c:193
+00400a40 <merge_sort+0x310> slt       $2,$10,$3
+00400a48 <merge_sort+0x318> beq       $2,$0,00400a18
+mergesort_ce3.c:195
+00400a50 <merge_sort+0x320> addu      $16,$0,$12
+00400a58 <merge_sort+0x328> slt       $2,$10,$16
+00400a60 <merge_sort+0x330> bne       $2,$0,00400ab8
+00400a68 <merge_sort+0x338> sll       $2,$16,0x2
+00400a70 <merge_sort+0x340> addu      $4,$2,$18
+00400a78 <merge_sort+0x348> addu      $3,$0,$19
+mergesort_ce3.c:196
+00400a80 <merge_sort+0x350> lw        $2,0($3)
+mergesort_ce3.c:195
+00400a88 <merge_sort+0x358> addiu     $16,$16,1
+mergesort_ce3.c:196
+00400a90 <merge_sort+0x360> addiu     $3,$3,4
+00400a98 <merge_sort+0x368> sw        $2,0($4)
+mergesort_ce3.c:195
+00400aa0 <merge_sort+0x370> addiu     $4,$4,4
+00400aa8 <merge_sort+0x378> slt       $2,$10,$16
+00400ab0 <merge_sort+0x380> beq       $2,$0,00400a80
+mergesort_ce3.c:198
+00400ab8 <merge_sort+0x388> mult      $21,$11
+00400ac0 <merge_sort+0x390> mflo      $2
+00400ac8 <merge_sort+0x398> slt       $2,$2,$20
+00400ad0 <merge_sort+0x3a0> bne       $2,$0,00400850
+mergesort_ce3.c:199
+00400ad8 <merge_sort+0x3a8> sll       $11,$11,0x1
+mergesort_ce3.c:200
+00400ae0 <merge_sort+0x3b0> slt       $2,$11,$20
+00400ae8 <merge_sort+0x3b8> bne       $2,$0,00400840
+mergesort_ce3.c:201
+00400af0 <merge_sort+0x3c0> addu      $16,$0,$0
+00400af8 <merge_sort+0x3c8> blez      $20,00400b48
+mergesort_ce3.c:202
+00400b00 <merge_sort+0x3d0> addu      $5,$30,$16
+00400b08 <merge_sort+0x3d8> addu      $6,$0,$18
+00400b10 <merge_sort+0x3e0> lw        $4,-32620($28)
+00400b18 <merge_sort+0x3e8> addu      $7,$0,$16
+mergesort_ce3.c:201
+00400b20 <merge_sort+0x3f0> addiu     $16,$16,8
+mergesort_ce3.c:202
+00400b28 <merge_sort+0x3f8> sw        $23,16($29)
+00400b30 <merge_sort+0x400> jal       004001f0 <bounded_copy> 
+mergesort_ce3.c:201
+00400b38 <merge_sort+0x408> slt       $2,$16,$20
+00400b40 <merge_sort+0x410> bne       $2,$0,00400b00
+mergesort_ce3.c:210
+00400b48 <merge_sort+0x418> lw        $13,56($29)
+mergesort_ce3.c:209
+00400b50 <merge_sort+0x420> addu      $22,$22,$20
+mergesort_ce3.c:210
+00400b58 <merge_sort+0x428> slt       $2,$22,$13
+00400b60 <merge_sort+0x430> bne       $2,$0,004007c8
+mergesort_ce3.c:225
+00400b68 <merge_sort+0x438> addiu     $5,$0,8
+mergesort_ce3.c:227
+00400b70 <merge_sort+0x440> addu      $16,$0,$0
+00400b78 <merge_sort+0x448> addiu     $4,$29,24
+00400b80 <merge_sort+0x450> lui       $14,4096
+00400b88 <merge_sort+0x458> addiu     $14,$14,9184
+00400b90 <merge_sort+0x460> addiu     $3,$14,32
+mergesort_ce3.c:228
+00400b98 <merge_sort+0x468> sw        $3,0($4)
+mergesort_ce3.c:229
+00400ba0 <merge_sort+0x470> addiu     $3,$3,32
+00400ba8 <merge_sort+0x478> addiu     $5,$5,8
+mergesort_ce3.c:227
+00400bb0 <merge_sort+0x480> addiu     $4,$4,4
+00400bb8 <merge_sort+0x488> addiu     $16,$16,1
+00400bc0 <merge_sort+0x490> slti      $2,$16,4
+00400bc8 <merge_sort+0x498> bne       $2,$0,00400b98
+mergesort_ce3.c:232
+00400bd0 <merge_sort+0x4a0> sll       $4,$5,0x2
+mergesort_ce3.c:233
+00400bd8 <merge_sort+0x4a8> addiu     $5,$5,4
+mergesort_ce3.c:234
+00400be0 <merge_sort+0x4b0> sll       $3,$5,0x2
+mergesort_ce3.c:235
+00400be8 <merge_sort+0x4b8> addiu     $5,$5,4
+mergesort_ce3.c:232
+00400bf0 <merge_sort+0x4c0> lui       $2,4096
+00400bf8 <merge_sort+0x4c8> addiu     $2,$2,9184
+00400c00 <merge_sort+0x4d0> addu      $4,$4,$2
+mergesort_ce3.c:234
+00400c08 <merge_sort+0x4d8> addu      $22,$3,$2
+mergesort_ce3.c:240
+00400c10 <merge_sort+0x4e0> lw        $13,56($29)
+mergesort_ce3.c:236
+00400c18 <merge_sort+0x4e8> sll       $3,$5,0x2
+00400c20 <merge_sort+0x4f0> addu      $3,$3,$2
+mergesort_ce3.c:232
+00400c28 <merge_sort+0x4f8> sw        $4,64($29)
+mergesort_ce3.c:236
+00400c30 <merge_sort+0x500> sw        $3,72($29)
+mergesort_ce3.c:240
+00400c38 <merge_sort+0x508> slt       $2,$20,$13
+00400c40 <merge_sort+0x510> beq       $2,$0,00401238
+00400c48 <merge_sort+0x518> addiu     $23,$29,24
+00400c50 <merge_sort+0x520> addiu     $14,$29,40
+00400c58 <merge_sort+0x528> sw        $14,88($29)
+00400c60 <merge_sort+0x530> lui       $13,4095
+00400c68 <merge_sort+0x538> ori       $13,$13,65535
+00400c70 <merge_sort+0x540> sw        $13,128($29)
+mergesort_ce3.c:242
+00400c78 <merge_sort+0x548> lw        $14,56($29)
+00400c80 <merge_sort+0x550> addu      $21,$0,$0
+00400c88 <merge_sort+0x558> blez      $14,00401218
+00400c90 <merge_sort+0x560> sll       $13,$20,0x2
+00400c98 <merge_sort+0x568> sw        $13,80($29)
+00400ca0 <merge_sort+0x570> sw        $0,144($29)
+mergesort_ce3.c:243
+00400ca8 <merge_sort+0x578> lw        $30,144($29)
+mergesort_ce3.c:251
+00400cb0 <merge_sort+0x580> addiu     $2,$0,-1
+mergesort_ce3.c:252
+00400cb8 <merge_sort+0x588> lw        $19,64($29)
+00400cc0 <merge_sort+0x590> lw        $18,144($29)
+00400cc8 <merge_sort+0x598> addu      $16,$0,$0
+00400cd0 <merge_sort+0x5a0> addu      $17,$0,$23
+mergesort_ce3.c:251
+00400cd8 <merge_sort+0x5a8> sw        $2,40($29)
+mergesort_ce3.c:253
+00400ce0 <merge_sort+0x5b0> addiu     $14,$0,8
+00400ce8 <merge_sort+0x5b8> sw        $14,16($29)
+00400cf0 <merge_sort+0x5c0> lw        $4,0($17)
+00400cf8 <merge_sort+0x5c8> addu      $5,$0,$0
+00400d00 <merge_sort+0x5d0> lw        $6,-32620($28)
+00400d08 <merge_sort+0x5d8> addu      $7,$0,$18
+mergesort_ce3.c:252
+00400d10 <merge_sort+0x5e0> addu      $18,$18,$20
+mergesort_ce3.c:253
+00400d18 <merge_sort+0x5e8> jal       004001f0 <bounded_copy> 
+mergesort_ce3.c:255
+00400d20 <merge_sort+0x5f0> addu      $5,$0,$16
+mergesort_ce3.c:254
+00400d28 <merge_sort+0x5f8> addiu     $13,$0,1
+00400d30 <merge_sort+0x600> sw        $13,0($19)
+mergesort_ce3.c:255
+00400d38 <merge_sort+0x608> lw        $2,0($17)
+00400d40 <merge_sort+0x610> lw        $7,72($29)
+00400d48 <merge_sort+0x618> lw        $14,88($29)
+00400d50 <merge_sort+0x620> addu      $6,$0,$22
+mergesort_ce3.c:252
+00400d58 <merge_sort+0x628> addiu     $19,$19,4
+mergesort_ce3.c:255
+00400d60 <merge_sort+0x630> sw        $14,16($29)
+00400d68 <merge_sort+0x638> lw        $4,0($2)
+mergesort_ce3.c:252
+00400d70 <merge_sort+0x640> addiu     $16,$16,1
+00400d78 <merge_sort+0x648> addiu     $17,$17,4
+mergesort_ce3.c:255
+00400d80 <merge_sort+0x650> jal       00400480 <enqueue> 
+mergesort_ce3.c:252
+00400d88 <merge_sort+0x658> slti      $2,$16,4
+00400d90 <merge_sort+0x660> bne       $2,$0,00400ce0
+mergesort_ce3.c:258
+00400d98 <merge_sort+0x668> sw        $0,-32624($28)
+mergesort_ce3.c:259
+00400da0 <merge_sort+0x670> lw        $2,0($22)
+00400da8 <merge_sort+0x678> lw        $13,128($29)
+00400db0 <merge_sort+0x680> beq       $2,$13,004010e0
+mergesort_ce3.c:260
+00400db8 <merge_sort+0x688> addiu     $4,$29,44
+00400dc0 <merge_sort+0x690> lw        $7,72($29)
+00400dc8 <merge_sort+0x698> lw        $14,88($29)
+00400dd0 <merge_sort+0x6a0> addiu     $5,$29,48
+00400dd8 <merge_sort+0x6a8> addu      $6,$0,$22
+00400de0 <merge_sort+0x6b0> sw        $14,16($29)
+00400de8 <merge_sort+0x6b8> jal       00400588 <dequeue> 
+mergesort_ce3.c:261
+00400df0 <merge_sort+0x6c0> lw        $5,-32624($28)
+00400df8 <merge_sort+0x6c8> addu      $3,$0,$5
+00400e00 <merge_sort+0x6d0> bgez      $5,00400e10
+00400e08 <merge_sort+0x6d8> addiu     $3,$5,7
+mergesort_ce3.c:262
+00400e10 <merge_sort+0x6e0> addiu     $2,$5,1
+mergesort_ce3.c:261
+00400e18 <merge_sort+0x6e8> sra       $3,$3,0x3
+00400e20 <merge_sort+0x6f0> sll       $3,$3,0x3
+00400e28 <merge_sort+0x6f8> subu      $3,$5,$3
+00400e30 <merge_sort+0x700> lw        $4,44($29)
+00400e38 <merge_sort+0x708> sll       $3,$3,0x2
+00400e40 <merge_sort+0x710> lui       $13,4096
+00400e48 <merge_sort+0x718> addiu     $13,$13,9184
+00400e50 <merge_sort+0x720> addu      $3,$3,$13
+mergesort_ce3.c:262
+00400e58 <merge_sort+0x728> sw        $2,-32624($28)
+mergesort_ce3.c:264
+00400e60 <merge_sort+0x730> andi      $2,$2,7
+mergesort_ce3.c:261
+00400e68 <merge_sort+0x738> sw        $4,0($3)
+mergesort_ce3.c:264
+00400e70 <merge_sort+0x740> bne       $2,$0,00400eb8
+mergesort_ce3.c:265
+00400e78 <merge_sort+0x748> addiu     $5,$5,-7
+00400e80 <merge_sort+0x750> lw        $4,-32616($28)
+00400e88 <merge_sort+0x758> lui       $6,4096
+00400e90 <merge_sort+0x760> addiu     $6,$6,9184
+00400e98 <merge_sort+0x768> addu      $7,$0,$0
+00400ea0 <merge_sort+0x770> addiu     $14,$0,8
+00400ea8 <merge_sort+0x778> sw        $14,16($29)
+00400eb0 <merge_sort+0x780> jal       004001f0 <bounded_copy> 
+mergesort_ce3.c:267
+00400eb8 <merge_sort+0x788> lw        $4,48($29)
+00400ec0 <merge_sort+0x790> lw        $13,64($29)
+00400ec8 <merge_sort+0x798> sll       $3,$4,0x2
+00400ed0 <merge_sort+0x7a0> addu      $5,$3,$13
+00400ed8 <merge_sort+0x7a8> lw        $8,0($5)
+00400ee0 <merge_sort+0x7b0> andi      $2,$8,7
+00400ee8 <merge_sort+0x7b8> bne       $2,$0,00401018
+mergesort_ce3.c:268
+00400ef0 <merge_sort+0x7c0> slt       $2,$8,$20
+00400ef8 <merge_sort+0x7c8> beq       $2,$0,00401000
+mergesort_ce3.c:269
+00400f00 <merge_sort+0x7d0> mult      $4,$20
+00400f08 <merge_sort+0x7d8> addiu     $14,$0,8
+00400f10 <merge_sort+0x7e0> addu      $2,$3,$23
+00400f18 <merge_sort+0x7e8> sw        $14,16($29)
+00400f20 <merge_sort+0x7f0> lw        $4,0($2)
+00400f28 <merge_sort+0x7f8> mflo      $2
+00400f30 <merge_sort+0x800> lw        $6,-32620($28)
+00400f38 <merge_sort+0x808> addu      $5,$0,$0
+00400f40 <merge_sort+0x810> addu      $7,$30,$2
+00400f48 <merge_sort+0x818> addu      $7,$7,$8
+00400f50 <merge_sort+0x820> jal       004001f0 <bounded_copy> 
+mergesort_ce3.c:271
+00400f58 <merge_sort+0x828> lw        $2,48($29)
+00400f60 <merge_sort+0x830> lw        $13,64($29)
+00400f68 <merge_sort+0x838> sll       $2,$2,0x2
+00400f70 <merge_sort+0x840> addu      $6,$2,$13
+00400f78 <merge_sort+0x848> lw        $4,0($6)
+00400f80 <merge_sort+0x850> addu      $3,$2,$23
+00400f88 <merge_sort+0x858> addu      $5,$0,$4
+00400f90 <merge_sort+0x860> bgez      $4,00400fa0
+00400f98 <merge_sort+0x868> addiu     $5,$4,7
+00400fa0 <merge_sort+0x870> sra       $2,$5,0x3
+00400fa8 <merge_sort+0x878> sll       $2,$2,0x3
+00400fb0 <merge_sort+0x880> lw        $3,0($3)
+00400fb8 <merge_sort+0x888> subu      $2,$4,$2
+00400fc0 <merge_sort+0x890> sll       $2,$2,0x2
+00400fc8 <merge_sort+0x898> addu      $2,$2,$3
+00400fd0 <merge_sort+0x8a0> lw        $3,0($2)
+mergesort_ce3.c:272
+00400fd8 <merge_sort+0x8a8> lw        $2,0($6)
+00400fe0 <merge_sort+0x8b0> addiu     $2,$2,1
+mergesort_ce3.c:271
+00400fe8 <merge_sort+0x8b8> sw        $3,44($29)
+mergesort_ce3.c:272
+00400ff0 <merge_sort+0x8c0> sw        $2,0($6)
+mergesort_ce3.c:273
+00400ff8 <merge_sort+0x8c8> j         00401090
+mergesort_ce3.c:274
+00401000 <merge_sort+0x8d0> lw        $14,128($29)
+00401008 <merge_sort+0x8d8> sw        $14,44($29)
+mergesort_ce3.c:275
+00401010 <merge_sort+0x8e0> j         00401090
+mergesort_ce3.c:279
+00401018 <merge_sort+0x8e8> addu      $2,$0,$8
+00401020 <merge_sort+0x8f0> addu      $3,$3,$23
+00401028 <merge_sort+0x8f8> bgez      $8,00401038
+00401030 <merge_sort+0x900> addiu     $2,$8,7
+00401038 <merge_sort+0x908> sra       $2,$2,0x3
+00401040 <merge_sort+0x910> sll       $2,$2,0x3
+00401048 <merge_sort+0x918> lw        $3,0($3)
+00401050 <merge_sort+0x920> subu      $2,$8,$2
+00401058 <merge_sort+0x928> sll       $2,$2,0x2
+00401060 <merge_sort+0x930> addu      $2,$2,$3
+00401068 <merge_sort+0x938> lw        $3,0($2)
+mergesort_ce3.c:280
+00401070 <merge_sort+0x940> lw        $2,0($5)
+00401078 <merge_sort+0x948> addiu     $2,$2,1
+mergesort_ce3.c:279
+00401080 <merge_sort+0x950> sw        $3,44($29)
+mergesort_ce3.c:280
+00401088 <merge_sort+0x958> sw        $2,0($5)
+mergesort_ce3.c:282
+00401090 <merge_sort+0x960> lw        $13,88($29)
+00401098 <merge_sort+0x968> lw        $7,72($29)
+004010a0 <merge_sort+0x970> sw        $13,16($29)
+004010a8 <merge_sort+0x978> lw        $4,44($29)
+004010b0 <merge_sort+0x980> lw        $5,48($29)
+004010b8 <merge_sort+0x988> addu      $6,$0,$22
+004010c0 <merge_sort+0x990> jal       00400480 <enqueue> 
+mergesort_ce3.c:283
+004010c8 <merge_sort+0x998> lw        $2,0($22)
+004010d0 <merge_sort+0x9a0> lw        $14,128($29)
+004010d8 <merge_sort+0x9a8> bne       $2,$14,00400db8
+mergesort_ce3.c:284
+004010e0 <merge_sort+0x9b0> lw        $2,-32624($28)
+004010e8 <merge_sort+0x9b8> lw        $4,-32616($28)
+004010f0 <merge_sort+0x9c0> addu      $5,$0,$2
+004010f8 <merge_sort+0x9c8> bgez      $2,00401108
+00401100 <merge_sort+0x9d0> addiu     $5,$2,7
+00401108 <merge_sort+0x9d8> sra       $5,$5,0x3
+00401110 <merge_sort+0x9e0> sll       $5,$5,0x3
+00401118 <merge_sort+0x9e8> subu      $5,$2,$5
+00401120 <merge_sort+0x9f0> sw        $5,16($29)
+00401128 <merge_sort+0x9f8> subu      $5,$2,$5
+00401130 <merge_sort+0xa00> lui       $6,4096
+00401138 <merge_sort+0xa08> addiu     $6,$6,9184
+00401140 <merge_sort+0xa10> addu      $7,$0,$0
+00401148 <merge_sort+0xa18> jal       004001f0 <bounded_copy> 
+mergesort_ce3.c:286
+00401150 <merge_sort+0xa20> lw        $13,80($29)
+00401158 <merge_sort+0xa28> addu      $17,$0,$0
+00401160 <merge_sort+0xa30> blez      $13,004011c0
+00401168 <merge_sort+0xa38> sll       $16,$20,0x2
+mergesort_ce3.c:287
+00401170 <merge_sort+0xa40> addu      $5,$30,$17
+00401178 <merge_sort+0xa48> lw        $4,-32620($28)
+00401180 <merge_sort+0xa50> lw        $6,-32616($28)
+00401188 <merge_sort+0xa58> addu      $7,$0,$17
+mergesort_ce3.c:286
+00401190 <merge_sort+0xa60> addiu     $17,$17,8
+mergesort_ce3.c:287
+00401198 <merge_sort+0xa68> addiu     $14,$0,8
+004011a0 <merge_sort+0xa70> sw        $14,16($29)
+004011a8 <merge_sort+0xa78> jal       004001f0 <bounded_copy> 
+mergesort_ce3.c:286
+004011b0 <merge_sort+0xa80> slt       $2,$17,$16
+004011b8 <merge_sort+0xa88> bne       $2,$0,00401170
+mergesort_ce3.c:289
+004011c0 <merge_sort+0xa90> addiu     $21,$21,1
+mergesort_ce3.c:295
+004011c8 <merge_sort+0xa98> sll       $2,$21,0x2
+004011d0 <merge_sort+0xaa0> mult      $20,$2
+mergesort_ce3.c:289
+004011d8 <merge_sort+0xaa8> lw        $13,144($29)
+004011e0 <merge_sort+0xab0> lw        $14,80($29)
+004011e8 <merge_sort+0xab8> addu      $13,$13,$14
+004011f0 <merge_sort+0xac0> sw        $13,144($29)
+mergesort_ce3.c:295
+004011f8 <merge_sort+0xac8> lw        $13,56($29)
+00401200 <merge_sort+0xad0> mflo      $2
+00401208 <merge_sort+0xad8> slt       $2,$2,$13
+00401210 <merge_sort+0xae0> bne       $2,$0,00400ca8
+mergesort_ce3.c:297
+00401218 <merge_sort+0xae8> lw        $14,56($29)
+mergesort_ce3.c:296
+00401220 <merge_sort+0xaf0> sll       $20,$20,0x2
+mergesort_ce3.c:297
+00401228 <merge_sort+0xaf8> slt       $2,$20,$14
+00401230 <merge_sort+0xb00> bne       $2,$0,00400c78
+mergesort_ce3.c:298
+00401238 <merge_sort+0xb08> lw        $31,188($29)
+00401240 <merge_sort+0xb10> lw        $30,184($29)
+00401248 <merge_sort+0xb18> lw        $23,180($29)
+00401250 <merge_sort+0xb20> lw        $22,176($29)
+00401258 <merge_sort+0xb28> lw        $21,172($29)
+00401260 <merge_sort+0xb30> lw        $20,168($29)
+00401268 <merge_sort+0xb38> lw        $19,164($29)
+00401270 <merge_sort+0xb40> lw        $18,160($29)
+00401278 <merge_sort+0xb48> lw        $17,156($29)
+00401280 <merge_sort+0xb50> lw        $16,152($29)
+00401288 <merge_sort+0xb58> addiu     $29,$29,192
+00401290 <merge_sort+0xb60> jr        $31
+main():
+mergesort_ce3.c:299
+00401298 <main> addiu     $29,$29,-24
+mergesort_ce3.c:304
+004012a0 <main+0x8> addiu     $3,$0,1
+mergesort_ce3.c:307
+004012a8 <main+0x10> addiu     $5,$0,2047
+mergesort_ce3.c:305
+004012b0 <main+0x18> lui       $2,4096
+004012b8 <main+0x20> addiu     $2,$2,960
+004012c0 <main+0x28> sw        $2,-32620($28)
+mergesort_ce3.c:306
+004012c8 <main+0x30> lui       $2,4096
+004012d0 <main+0x38> addiu     $2,$2,10272
+mergesort_ce3.c:299
+004012d8 <main+0x40> sw        $31,16($29)
+mergesort_ce3.c:306
+004012e0 <main+0x48> sw        $2,-32616($28)
+mergesort_ce3.c:309
+004012e8 <main+0x50> addiu     $3,$3,7
+004012f0 <main+0x58> sll       $2,$3,0x2
+004012f8 <main+0x60> addu      $2,$2,$3
+00401300 <main+0x68> sll       $2,$2,0x2
+00401308 <main+0x70> subu      $2,$2,$3
+00401310 <main+0x78> sll       $4,$2,0x1
+00401318 <main+0x80> addu      $2,$0,$4
+00401320 <main+0x88> bgez      $4,00401330
+00401328 <main+0x90> addiu     $2,$4,2047
+00401330 <main+0x98> sra       $3,$2,0xb
+00401338 <main+0xa0> sll       $2,$3,0xb
+00401340 <main+0xa8> subu      $3,$4,$2
+mergesort_ce3.c:307
+00401348 <main+0xb0> addiu     $5,$5,-1
+00401350 <main+0xb8> bgez      $5,004012e8
+mergesort_ce3.c:318
+00401358 <main+0xc0> addiu     $4,$0,2048
+00401360 <main+0xc8> jal       00400730 <merge_sort> 
+mergesort_ce3.c:326
+00401368 <main+0xd0> addu      $2,$0,$0
+mergesort_ce3.c:327
+00401370 <main+0xd8> lw        $31,16($29)
+00401378 <main+0xe0> addiu     $29,$29,24
+00401380 <main+0xe8> jr        $31
+00401388 <main+0xf0> nop       
+end_addr

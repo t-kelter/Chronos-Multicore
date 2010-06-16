@@ -1,0 +1,13 @@
+4
+/home/kelter/chronos/benchmarks/singlecore/fir/fir
+0
+/home/kelter/chronos/benchmarks/singlecore/matmult/matmult
+0
+/home/kelter/chronos/benchmarks/singlecore/jfdcint/jfdcint
+0
+/home/kelter/chronos/benchmarks/singlecore/statemate/statemate
+0 
+0 1 1 1  
+1 0 1 1
+1 1 0 1
+1 1 1 0

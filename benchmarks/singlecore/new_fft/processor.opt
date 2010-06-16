@@ -1,0 +1,1 @@
+-cache:il1 il1:64:32:2:l -cache:dl1 dl1:64:32:2:l -cache:il2 none -cache:dl2 none -cache:dl2 none -bpred perfect -mem:lat 30 2 -issue:inorder true  

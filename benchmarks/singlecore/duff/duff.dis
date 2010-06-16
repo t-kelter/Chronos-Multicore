@@ -1,0 +1,134 @@
+start_addr
+00400140 <__start> lw        $16,0($29)
+00400148 <__start+0x8> lui       $28,4097
+00400150 <__start+0x10> addiu     $28,$28,-32000
+00400158 <__start+0x18> addiu     $17,$29,4
+00400160 <__start+0x20> addiu     $3,$17,4
+00400168 <__start+0x28> sll       $2,$16,0x2
+00400170 <__start+0x30> addu      $3,$3,$2
+00400178 <__start+0x38> addu      $18,$0,$3
+00400180 <__start+0x40> sw        $18,-32636($28)
+00400188 <__start+0x48> addiu     $29,$29,-24
+00400190 <__start+0x50> addu      $4,$0,$16
+00400198 <__start+0x58> addu      $5,$0,$17
+004001a0 <__start+0x60> addu      $6,$0,$18
+004001a8 <__start+0x68> jal       00400480 <__libc_init> 
+004001b0 <__start+0x70> sw        $0,-32640($28)
+004001b8 <__start+0x78> addu      $4,$0,$16
+004001c0 <__start+0x80> addu      $5,$0,$17
+004001c8 <__start+0x88> addu      $6,$0,$18
+004001d0 <__start+0x90> jal       004003f0 <main> 
+004001d8 <__start+0x98> addu      $4,$0,$2
+004001e0 <__start+0xa0> jal       004004b0 <exit> 
+004001e8 <__start+0xa8> nop       
+    ...
+duffcopy():
+duff.c:25
+004001f0 <duffcopy> addiu     $2,$6,7
+004001f8 <duffcopy+0x8> addu      $3,$0,$2
+00400200 <duffcopy+0x10> bgez      $2,00400210
+00400208 <duffcopy+0x18> addiu     $3,$6,14
+00400210 <duffcopy+0x20> sra       $7,$3,0x3
+duff.c:26
+00400218 <duffcopy+0x28> addu      $3,$0,$6
+00400220 <duffcopy+0x30> bgez      $6,00400230
+00400228 <duffcopy+0x38> addu      $3,$0,$2
+00400230 <duffcopy+0x40> sra       $2,$3,0x3
+00400238 <duffcopy+0x48> sll       $2,$2,0x3
+00400240 <duffcopy+0x50> subu      $6,$6,$2
+00400248 <duffcopy+0x58> sltiu     $2,$6,8
+00400250 <duffcopy+0x60> beq       $2,$0,00400390
+00400258 <duffcopy+0x68> sll       $2,$6,0x2
+00400260 <duffcopy+0x70> lui       $1,4096
+00400268 <duffcopy+0x78> addu      $1,$1,$2
+00400270 <duffcopy+0x80> lw        $2,0($1)
+00400278 <duffcopy+0x88> jr        $2
+duff.c:27
+00400280 <duffcopy+0x90> lbu       $2,0($5)
+00400288 <duffcopy+0x98> addiu     $5,$5,1
+00400290 <duffcopy+0xa0> sb        $2,0($4)
+00400298 <duffcopy+0xa8> addiu     $4,$4,1
+duff.c:28
+004002a0 <duffcopy+0xb0> lbu       $2,0($5)
+004002a8 <duffcopy+0xb8> addiu     $5,$5,1
+004002b0 <duffcopy+0xc0> sb        $2,0($4)
+004002b8 <duffcopy+0xc8> addiu     $4,$4,1
+duff.c:29
+004002c0 <duffcopy+0xd0> lbu       $2,0($5)
+004002c8 <duffcopy+0xd8> addiu     $5,$5,1
+004002d0 <duffcopy+0xe0> sb        $2,0($4)
+004002d8 <duffcopy+0xe8> addiu     $4,$4,1
+duff.c:30
+004002e0 <duffcopy+0xf0> lbu       $2,0($5)
+004002e8 <duffcopy+0xf8> addiu     $5,$5,1
+004002f0 <duffcopy+0x100> sb        $2,0($4)
+004002f8 <duffcopy+0x108> addiu     $4,$4,1
+duff.c:31
+00400300 <duffcopy+0x110> lbu       $2,0($5)
+00400308 <duffcopy+0x118> addiu     $5,$5,1
+00400310 <duffcopy+0x120> sb        $2,0($4)
+00400318 <duffcopy+0x128> addiu     $4,$4,1
+duff.c:32
+00400320 <duffcopy+0x130> lbu       $2,0($5)
+00400328 <duffcopy+0x138> addiu     $5,$5,1
+00400330 <duffcopy+0x140> sb        $2,0($4)
+00400338 <duffcopy+0x148> addiu     $4,$4,1
+duff.c:33
+00400340 <duffcopy+0x150> lbu       $2,0($5)
+00400348 <duffcopy+0x158> addiu     $5,$5,1
+00400350 <duffcopy+0x160> sb        $2,0($4)
+00400358 <duffcopy+0x168> addiu     $4,$4,1
+duff.c:34
+00400360 <duffcopy+0x170> lbu       $2,0($5)
+duff.c:35
+00400368 <duffcopy+0x178> addiu     $7,$7,-1
+duff.c:34
+00400370 <duffcopy+0x180> addiu     $5,$5,1
+00400378 <duffcopy+0x188> sb        $2,0($4)
+00400380 <duffcopy+0x190> addiu     $4,$4,1
+duff.c:35
+00400388 <duffcopy+0x198> bgtz      $7,00400280
+duff.c:37
+00400390 <duffcopy+0x1a0> jr        $31
+initialize():
+duff.c:41
+00400398 <initialize> addiu     $29,$29,-8
+duff.c:43
+004003a0 <initialize+0x8> addu      $3,$0,$0
+004003a8 <initialize+0x10> blez      $5,004003e0
+duff.c:45
+004003b0 <initialize+0x18> subu      $2,$5,$3
+004003b8 <initialize+0x20> sb        $2,0($4)
+duff.c:43
+004003c0 <initialize+0x28> addiu     $4,$4,1
+004003c8 <initialize+0x30> addiu     $3,$3,1
+004003d0 <initialize+0x38> slt       $2,$3,$5
+004003d8 <initialize+0x40> bne       $2,$0,004003b0
+duff.c:47
+004003e0 <initialize+0x48> addiu     $29,$29,8
+004003e8 <initialize+0x50> jr        $31
+main():
+duff.c:54
+004003f0 <main> addiu     $29,$29,-24
+004003f8 <main+0x8> sw        $16,16($29)
+duff.c:55
+00400400 <main+0x10> lui       $16,4096
+00400408 <main+0x18> addiu     $16,$16,976
+00400410 <main+0x20> addu      $4,$0,$16
+00400418 <main+0x28> addiu     $5,$0,100
+duff.c:54
+00400420 <main+0x30> sw        $31,20($29)
+duff.c:55
+00400428 <main+0x38> jal       00400398 <initialize> 
+duff.c:56
+00400430 <main+0x40> addu      $4,$0,$16
+00400438 <main+0x48> lui       $5,4096
+00400440 <main+0x50> addiu     $5,$5,1088
+00400448 <main+0x58> addiu     $6,$0,43
+00400450 <main+0x60> jal       004001f0 <duffcopy> 
+00400458 <main+0x68> lw        $31,20($29)
+00400460 <main+0x70> lw        $16,16($29)
+00400468 <main+0x78> addiu     $29,$29,24
+00400470 <main+0x80> jr        $31
+00400478 <main+0x88> nop       
+end_addr

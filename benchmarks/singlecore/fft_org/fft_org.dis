@@ -1,0 +1,370 @@
+start_addr
+00400140 <__start> lw        $16,0($29)
+00400148 <__start+0x8> lui       $28,4097
+00400150 <__start+0x10> addiu     $28,$28,-31984
+00400158 <__start+0x18> addiu     $17,$29,4
+00400160 <__start+0x20> addiu     $3,$17,4
+00400168 <__start+0x28> sll       $2,$16,0x2
+00400170 <__start+0x30> addu      $3,$3,$2
+00400178 <__start+0x38> addu      $18,$0,$3
+00400180 <__start+0x40> sw        $18,-32028($28)
+00400188 <__start+0x48> addiu     $29,$29,-24
+00400190 <__start+0x50> addu      $4,$0,$16
+00400198 <__start+0x58> addu      $5,$0,$17
+004001a0 <__start+0x60> addu      $6,$0,$18
+004001a8 <__start+0x68> jal       00400920 <__libc_init> 
+004001b0 <__start+0x70> sw        $0,-32032($28)
+004001b8 <__start+0x78> addu      $4,$0,$16
+004001c0 <__start+0x80> addu      $5,$0,$17
+004001c8 <__start+0x88> addu      $6,$0,$18
+004001d0 <__start+0x90> jal       004002d8 <main> 
+004001d8 <__start+0x98> addu      $4,$0,$2
+004001e0 <__start+0xa0> jal       00400950 <exit> 
+004001e8 <__start+0xa8> nop       
+    ...
+NumberOfBitsNeeded():
+fft_org2.c:57
+004001f0 <NumberOfBitsNeeded> sltiu     $2,$4,2
+004001f8 <NumberOfBitsNeeded+0x8> beq       $2,$0,00400220
+00400200 <NumberOfBitsNeeded+0x10> addu      $2,$0,$0
+00400208 <NumberOfBitsNeeded+0x18> j         00400260
+fft_org2.c:61
+00400210 <NumberOfBitsNeeded+0x20> addu      $2,$0,$3
+00400218 <NumberOfBitsNeeded+0x28> j         00400260
+fft_org2.c:58
+00400220 <NumberOfBitsNeeded+0x30> addu      $3,$0,$0
+00400228 <NumberOfBitsNeeded+0x38> addiu     $5,$0,1
+fft_org2.c:60
+00400230 <NumberOfBitsNeeded+0x40> sllv      $2,$5,$3
+00400238 <NumberOfBitsNeeded+0x48> and       $2,$4,$2
+00400240 <NumberOfBitsNeeded+0x50> bne       $2,$0,00400210
+fft_org2.c:58
+00400248 <NumberOfBitsNeeded+0x58> addiu     $3,$3,1
+00400250 <NumberOfBitsNeeded+0x60> sltiu     $2,$3,32
+00400258 <NumberOfBitsNeeded+0x68> bne       $2,$0,00400230
+fft_org2.c:63
+00400260 <NumberOfBitsNeeded+0x70> jr        $31
+ReverseBits():
+fft_org2.c:66
+00400268 <ReverseBits> addiu     $29,$29,-8
+fft_org2.c:69
+00400270 <ReverseBits+0x8> addu      $6,$0,$0
+00400278 <ReverseBits+0x10> addu      $3,$0,$0
+00400280 <ReverseBits+0x18> beq       $5,$0,004002c0
+fft_org2.c:71
+00400288 <ReverseBits+0x20> sll       $2,$3,0x1
+00400290 <ReverseBits+0x28> andi      $3,$4,1
+00400298 <ReverseBits+0x30> or        $3,$2,$3
+fft_org2.c:72
+004002a0 <ReverseBits+0x38> srl       $4,$4,0x1
+fft_org2.c:69
+004002a8 <ReverseBits+0x40> addiu     $6,$6,1
+004002b0 <ReverseBits+0x48> sltu      $2,$6,$5
+004002b8 <ReverseBits+0x50> bne       $2,$0,00400288
+fft_org2.c:75
+004002c0 <ReverseBits+0x58> addu      $2,$0,$3
+fft_org2.c:76
+004002c8 <ReverseBits+0x60> addiu     $29,$29,8
+004002d0 <ReverseBits+0x68> jr        $31
+main():
+fft_org2.c:79
+004002d8 <main> addiu     $29,$29,-4216
+004002e0 <main+0x8> sw        $30,4192($29)
+fft_org2.c:91
+004002e8 <main+0x10> addiu     $30,$0,6
+fft_org2.c:79
+004002f0 <main+0x18> sw        $21,4180($29)
+fft_org2.c:95
+004002f8 <main+0x20> addu      $21,$0,$0
+fft_org2.c:79
+00400300 <main+0x28> sw        $23,4188($29)
+fft_org2.c:96
+00400308 <main+0x30> addiu     $23,$0,256
+fft_org2.c:79
+00400310 <main+0x38> sw        $17,4164($29)
+fft_org2.c:98
+00400318 <main+0x40> addu      $17,$0,$0
+fft_org2.c:79
+00400320 <main+0x48> sw        $20,4176($29)
+fft_org2.c:98
+00400328 <main+0x50> lui       $20,4194
+00400330 <main+0x58> ori       $20,$20,19923
+fft_org2.c:79
+00400338 <main+0x60> sw        $19,4172($29)
+fft_org2.c:98
+00400340 <main+0x68> addiu     $19,$29,16
+fft_org2.c:79
+00400348 <main+0x70> sw        $18,4168($29)
+fft_org2.c:98
+00400350 <main+0x78> addiu     $18,$0,5893
+fft_org2.c:79
+00400358 <main+0x80> sw        $16,4160($29)
+fft_org2.c:98
+00400360 <main+0x88> addiu     $16,$0,3549
+fft_org2.c:79
+00400368 <main+0x90> sw        $31,4196($29)
+00400370 <main+0x98> sw        $22,4184($29)
+00400378 <main+0xa0> s.d       $f22,4208($29)
+00400380 <main+0xa8> s.d       $f20,4200($29)
+fft_org2.c:99
+00400388 <main+0xb0> multu     $16,$20
+00400390 <main+0xb8> mfhi      $3
+00400398 <main+0xc0> mflo      $2
+fft_org2.c:100
+004003a0 <main+0xc8> multu     $18,$20
+004003a8 <main+0xd0> mfhi      $5
+004003b0 <main+0xd8> mflo      $4
+fft_org2.c:99
+004003b8 <main+0xe0> srl       $2,$3,0x0
+004003c0 <main+0xe8> addu      $3,$0,$0
+004003c8 <main+0xf0> srl       $3,$2,0x6
+004003d0 <main+0xf8> sll       $2,$3,0x5
+004003d8 <main+0x100> subu      $2,$2,$3
+004003e0 <main+0x108> sll       $2,$2,0x2
+004003e8 <main+0x110> addu      $2,$2,$3
+004003f0 <main+0x118> sll       $2,$2,0x3
+004003f8 <main+0x120> subu      $3,$16,$2
+fft_org2.c:101
+00400400 <main+0x128> mtc1      $3,$f20
+00400408 <main+0x130> cvt.d.w   $f20,$f20
+fft_org2.c:100
+00400410 <main+0x138> srl       $4,$5,0x0
+00400418 <main+0x140> addu      $5,$0,$0
+00400420 <main+0x148> srl       $4,$4,0x6
+00400428 <main+0x150> sll       $2,$4,0x5
+00400430 <main+0x158> subu      $2,$2,$4
+00400438 <main+0x160> sll       $2,$2,0x2
+00400440 <main+0x168> addu      $2,$2,$4
+00400448 <main+0x170> sll       $2,$2,0x3
+00400450 <main+0x178> subu      $4,$18,$2
+fft_org2.c:101
+00400458 <main+0x180> mtc1      $4,$f12
+00400460 <main+0x188> cvt.d.w   $f12,$f12
+00400468 <main+0x190> jal       00400af0 <sin> 
+00400470 <main+0x198> mul.d     $f20,$f20,$f0
+fft_org2.c:98
+00400478 <main+0x1a0> addiu     $17,$17,1
+00400480 <main+0x1a8> addiu     $16,$16,91
+fft_org2.c:102
+00400488 <main+0x1b0> sw        $0,1024($19)
+fft_org2.c:98
+00400490 <main+0x1b8> addiu     $18,$18,83
+fft_org2.c:101
+00400498 <main+0x1c0> cvt.w.d   $f0,$f20
+004004a0 <main+0x1c8> s.s       $f0,0($19)
+fft_org2.c:98
+004004a8 <main+0x1d0> addiu     $19,$19,4
+004004b0 <main+0x1d8> sltiu     $2,$17,256
+004004b8 <main+0x1e0> bne       $2,$0,00400388
+fft_org2.c:104
+004004c0 <main+0x1e8> beq       $21,$0,004004d0
+fft_org2.c:105
+004004c8 <main+0x1f0> subu      $30,$0,$30
+fft_org2.c:107
+004004d0 <main+0x1f8> addu      $4,$0,$23
+004004d8 <main+0x200> jal       004001f0 <NumberOfBitsNeeded> 
+fft_org2.c:113
+004004e0 <main+0x208> addu      $17,$0,$0
+fft_org2.c:107
+004004e8 <main+0x210> addu      $19,$0,$2
+fft_org2.c:113
+004004f0 <main+0x218> beq       $23,$0,00400570
+004004f8 <main+0x220> addiu     $16,$29,16
+00400500 <main+0x228> addu      $18,$0,$16
+fft_org2.c:115
+00400508 <main+0x230> addu      $4,$0,$17
+00400510 <main+0x238> addu      $5,$0,$19
+00400518 <main+0x240> jal       00400268 <ReverseBits> 
+fft_org2.c:116
+00400520 <main+0x248> lw        $3,0($16)
+00400528 <main+0x250> sll       $2,$2,0x2
+00400530 <main+0x258> addu      $2,$2,$18
+00400538 <main+0x260> sw        $3,2048($2)
+fft_org2.c:117
+00400540 <main+0x268> lw        $3,1024($16)
+fft_org2.c:113
+00400548 <main+0x270> addiu     $17,$17,1
+00400550 <main+0x278> addiu     $16,$16,4
+fft_org2.c:117
+00400558 <main+0x280> sw        $3,3072($2)
+fft_org2.c:113
+00400560 <main+0x288> sltu      $2,$17,$23
+00400568 <main+0x290> bne       $2,$0,00400508
+fft_org2.c:124
+00400570 <main+0x298> addiu     $19,$0,1
+fft_org2.c:125
+00400578 <main+0x2a0> addiu     $18,$0,2
+00400580 <main+0x2a8> sltiu     $2,$23,2
+00400588 <main+0x2b0> bne       $2,$0,004008a8
+00400590 <main+0x2b8> addiu     $20,$29,16
+fft_org2.c:127
+00400598 <main+0x2c0> div       $30,$18
+004005a0 <main+0x2c8> bne       $18,$0,004005b0
+004005a8 <main+0x2d0> break     00000007
+004005b0 <main+0x2d8> addiu     $1,$0,-1
+004005b8 <main+0x2e0> bne       $18,$1,004005d8
+004005c0 <main+0x2e8> lui       $1,32768
+004005c8 <main+0x2f0> bne       $30,$1,004005d8
+004005d0 <main+0x2f8> break     00000006
+004005d8 <main+0x300> mflo      $16
+fft_org2.c:136
+004005e0 <main+0x308> addu      $17,$0,$0
+fft_org2.c:128
+004005e8 <main+0x310> sll       $2,$16,0x1
+004005f0 <main+0x318> subu      $2,$0,$2
+004005f8 <main+0x320> mtc1      $2,$f22
+00400600 <main+0x328> cvt.d.w   $f22,$f22
+00400608 <main+0x330> mov.d     $f12,$f22
+00400610 <main+0x338> jal       00400af0 <sin> 
+fft_org2.c:129
+00400618 <main+0x340> subu      $16,$0,$16
+00400620 <main+0x348> mtc1      $16,$f20
+00400628 <main+0x350> cvt.d.w   $f20,$f20
+00400630 <main+0x358> mov.d     $f12,$f20
+fft_org2.c:128
+00400638 <main+0x360> cvt.w.d   $f2,$f0
+00400640 <main+0x368> mfc1      $22,$f2
+fft_org2.c:129
+00400648 <main+0x370> jal       00400af0 <sin> 
+fft_org2.c:130
+00400650 <main+0x378> mov.d     $f12,$f22
+fft_org2.c:129
+00400658 <main+0x380> cvt.w.d   $f2,$f0
+00400660 <main+0x388> mfc1      $21,$f2
+fft_org2.c:130
+00400668 <main+0x390> jal       00400ee0 <cos> 
+fft_org2.c:131
+00400670 <main+0x398> mov.d     $f12,$f20
+fft_org2.c:130
+00400678 <main+0x3a0> cvt.w.d   $f2,$f0
+00400680 <main+0x3a8> mfc1      $16,$f2
+fft_org2.c:131
+00400688 <main+0x3b0> jal       00400ee0 <cos> 
+00400690 <main+0x3b8> cvt.w.d   $f2,$f0
+00400698 <main+0x3c0> mfc1      $14,$f2
+fft_org2.c:132
+004006a0 <main+0x3c8> sll       $13,$14,0x1
+fft_org2.c:144
+004006a8 <main+0x3d0> addu      $11,$0,$17
+004006b0 <main+0x3d8> addu      $12,$0,$0
+fft_org2.c:138
+004006b8 <main+0x3e0> sw        $16,4120($29)
+fft_org2.c:139
+004006c0 <main+0x3e8> sw        $14,4116($29)
+fft_org2.c:141
+004006c8 <main+0x3f0> sw        $22,4136($29)
+fft_org2.c:142
+004006d0 <main+0x3f8> sw        $21,4132($29)
+fft_org2.c:144
+004006d8 <main+0x400> beq       $19,$0,00400870
+004006e0 <main+0x408> sll       $2,$17,0x2
+004006e8 <main+0x410> addu      $8,$2,$20
+fft_org2.c:146
+004006f0 <main+0x418> lw        $3,4116($29)
+004006f8 <main+0x420> mult      $13,$3
+fft_org2.c:150
+00400700 <main+0x428> lw        $2,4132($29)
+fft_org2.c:146
+00400708 <main+0x430> mflo      $6
+fft_org2.c:150
+00400710 <main+0x438> mult      $13,$2
+fft_org2.c:146
+00400718 <main+0x440> lw        $4,4120($29)
+fft_org2.c:150
+00400720 <main+0x448> lw        $5,4136($29)
+fft_org2.c:147
+00400728 <main+0x450> sw        $3,4120($29)
+fft_org2.c:151
+00400730 <main+0x458> sw        $2,4136($29)
+fft_org2.c:154
+00400738 <main+0x460> addu      $3,$11,$19
+fft_org2.c:155
+00400740 <main+0x468> sll       $3,$3,0x2
+fft_org2.c:150
+00400748 <main+0x470> mflo      $7
+fft_org2.c:155
+00400750 <main+0x478> addu      $3,$3,$20
+fft_org2.c:146
+00400758 <main+0x480> subu      $4,$6,$4
+00400760 <main+0x488> sw        $4,4112($29)
+fft_org2.c:148
+00400768 <main+0x490> sw        $4,4116($29)
+fft_org2.c:150
+00400770 <main+0x498> subu      $5,$7,$5
+00400778 <main+0x4a0> sw        $5,4128($29)
+fft_org2.c:152
+00400780 <main+0x4a8> sw        $5,4132($29)
+fft_org2.c:155
+00400788 <main+0x4b0> lw        $6,2048($3)
+00400790 <main+0x4b8> mult      $4,$6
+00400798 <main+0x4c0> lw        $2,3072($3)
+004007a0 <main+0x4c8> mflo      $9
+004007a8 <main+0x4d0> mult      $5,$2
+004007b0 <main+0x4d8> mflo      $7
+fft_org2.c:156
+004007b8 <main+0x4e0> mult      $4,$2
+004007c0 <main+0x4e8> mflo      $10
+004007c8 <main+0x4f0> mult      $5,$6
+fft_org2.c:158
+004007d0 <main+0x4f8> lw        $2,2048($8)
+fft_org2.c:156
+004007d8 <main+0x500> mflo      $4
+fft_org2.c:155
+004007e0 <main+0x508> subu      $5,$9,$7
+fft_org2.c:158
+004007e8 <main+0x510> subu      $2,$2,$5
+004007f0 <main+0x518> sw        $2,2048($3)
+fft_org2.c:159
+004007f8 <main+0x520> lw        $2,3072($8)
+fft_org2.c:144
+00400800 <main+0x528> addiu     $12,$12,1
+fft_org2.c:156
+00400808 <main+0x530> addu      $4,$10,$4
+fft_org2.c:159
+00400810 <main+0x538> subu      $2,$2,$4
+00400818 <main+0x540> sw        $2,3072($3)
+fft_org2.c:161
+00400820 <main+0x548> lw        $2,2048($8)
+fft_org2.c:162
+00400828 <main+0x550> lw        $3,3072($8)
+fft_org2.c:144
+00400830 <main+0x558> addiu     $11,$11,1
+fft_org2.c:161
+00400838 <main+0x560> addu      $2,$2,$5
+fft_org2.c:162
+00400840 <main+0x568> addu      $3,$3,$4
+fft_org2.c:161
+00400848 <main+0x570> sw        $2,2048($8)
+fft_org2.c:162
+00400850 <main+0x578> sw        $3,3072($8)
+fft_org2.c:144
+00400858 <main+0x580> addiu     $8,$8,4
+00400860 <main+0x588> sltu      $2,$12,$19
+00400868 <main+0x590> bne       $2,$0,004006f0
+fft_org2.c:136
+00400870 <main+0x598> addu      $17,$17,$18
+00400878 <main+0x5a0> sltu      $2,$23,$17
+00400880 <main+0x5a8> beq       $2,$0,004006a8
+fft_org2.c:166
+00400888 <main+0x5b0> addu      $19,$0,$18
+fft_org2.c:125
+00400890 <main+0x5b8> sll       $18,$18,0x1
+00400898 <main+0x5c0> sltu      $2,$23,$18
+004008a0 <main+0x5c8> beq       $2,$0,00400598
+fft_org2.c:170
+004008a8 <main+0x5d0> lw        $31,4196($29)
+004008b0 <main+0x5d8> lw        $30,4192($29)
+004008b8 <main+0x5e0> lw        $23,4188($29)
+004008c0 <main+0x5e8> lw        $22,4184($29)
+004008c8 <main+0x5f0> lw        $21,4180($29)
+004008d0 <main+0x5f8> lw        $20,4176($29)
+004008d8 <main+0x600> lw        $19,4172($29)
+004008e0 <main+0x608> lw        $18,4168($29)
+004008e8 <main+0x610> lw        $17,4164($29)
+004008f0 <main+0x618> lw        $16,4160($29)
+004008f8 <main+0x620> l.d       $f22,4208($29)
+00400900 <main+0x628> l.d       $f20,4200($29)
+00400908 <main+0x630> addiu     $29,$29,4216
+00400910 <main+0x638> jr        $31
+00400918 <main+0x640> nop       
+end_addr
