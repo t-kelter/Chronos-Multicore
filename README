@@ -1,3 +1,5 @@
+This is the README file for the multicore version of the Chronos timing analyzer.
+
 Source code
 ============
 Source code of the shared cache and bus is in directory "m_cache"
@@ -62,5 +64,3 @@ CAUTION
 The code is not very well written and currently we are trying to merge with 
 our existing chronos tool features. Especially, the portion of sharedcache. 
 Contact me (sudiptac@comp.nus.edu.sg) for any difficulties you face.
-
-

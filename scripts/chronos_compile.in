@@ -8,10 +8,6 @@ if (( $# != 1 )); then
   exit 1;
 fi;
 
-# Set parameters
-declare CHRONOS_PATH=/home/kelter/chronos/multicore/iterative
-declare SIMPLESCALAR_GCC_PATH=/home/kelter/chronos/simplescalar/gcc
-
 # Extracts source code part of the assembly.
 # (i.e. discards compiler-generated functions, except the initializer at the very beginning)
 # For purpose of variable mapping. Initializer section needed to calculate base address.
@@ -66,7 +62,7 @@ getarg()
 # Builds the CFG of the given disassembly
 buildcfg()
 {
-  declare MAIN=${CHRONOS_PATH}/cfg/main
+  declare MAIN=@CHRONOS_DIR@/cfg/main
 
   # Build the CFG
   arg=`head -1 $1.arg`
@@ -89,10 +85,10 @@ compile()
   declare SYMBOLS=$1.sym
 
   if [ -f "$SOURCE" ]; then
-    ${SIMPLESCALAR_GCC_PATH}/bin/sslittle-na-sstrix-gcc -g -o $EXECUTABLE $SOURCE     && \
-    ${SIMPLESCALAR_GCC_PATH}/bin/sslittle-na-sstrix-objdump -dlS --disassemble-zeroes    \
-      --prefix-addresses $EXECUTABLE >& $DISASSEMBLY                                  && \
-    ${SIMPLESCALAR_GCC_PATH}/bin/sslittle-na-sstrix-objdump -t $EXECUTABLE >& $SYMBOLS
+    @SS_GCC@/sslittle-na-sstrix-gcc -g -o $EXECUTABLE $SOURCE      && \
+    @SS_GCC@/sslittle-na-sstrix-objdump -dlS --disassemble-zeroes     \
+      --prefix-addresses $EXECUTABLE >& $DISASSEMBLY               && \
+    @SS_GCC@/sslittle-na-sstrix-objdump -t $EXECUTABLE >& $SYMBOLS
     return $?
   else
     return 1;

@@ -27,11 +27,6 @@ if [ ! -f "$EXECUTABLE" ]; then
   exit 1;
 fi;
 
-# Set configuration parameters
-declare -r SIMULATOR_DIR_SINGLECORE=/home/kelter/chronos/tools/simplescalar/simulator/original/simplesim-3.0
-declare -r SIMULATOR_DIR_BUS_AWARE=/home/kelter/chronos/tools/simplescalar/simulator/shared_bus/simplesim-3.0
-declare -r SIMULATOR_DIR_SMT=/home/kelter/chronos/tools/simplescalar/simulator/smt/
-
 # Set machine configuration (TODO: Let the caller influence this)
 declare CACHE_CONFIG="-cache:dl1 none -cache:il1 il1:8:32:2:l -cache:il2  il2:8:32:4:l -cache:dl2 none"
 declare BRANCH_CONFIG="-bpred perfect"
@@ -50,15 +45,15 @@ declare BUS_CONFIG="-bus:tdma_schedule /home/kelter/chronos/multicore/iterative/
 # Call the desired simulator
 case "$SIMULATION_TYPE" in
   $TYPE_SINGLECORE)
-    $SIMULATOR_DIR_SINGLECORE/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $EXECUTABLE
+    @SIM_SINGLECORE@/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $EXECUTABLE
     ;;
   $TYPE_BUS_AWARE)
-    $SIMULATOR_DIR_BUS_AWARE/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $BUS_CONFIG $EXECUTABLE
+    @SIM_SHAREDBUS@/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $BUS_CONFIG $EXECUTABLE
     ;;
   $TYPE_MULTICORE)
     echo "Not yet implemented!";
     exit 1;
-    $SIMULATOR_DIR_SMT/ss_smt ... # TODO: Insert correct call here
+    @SIM_MULTICORE@/ss_smt ... # TODO: Insert correct call here
     ;;
   *)
     echo "Internal error: Invalid simulator type!";

@@ -2,25 +2,21 @@
 #include <stdio.h>
 //#include <conio.h>
 #include <time.h>
-#include "header.h"
 
+#include "header.h"
 #include "cycle_time.c"
 #include "cycle_time.h"
-
 #include "analysis.h"
 #include "infeasible.h"
-
 #include "handler.c"
 #include "dump.c"
 #include "block.c"
 #include "parseCFG.c"
 #include "loopdetect.c"
-
 //#include "infeasible.c"
 //#include "findConflicts.c"
 #include "path.c"
 //#include "DAG_WCET.c"
-
 #include "topo.c"
 //#include "analysisILP.c"
 #include "analysisDAG_WCET.c"
@@ -30,7 +26,6 @@
 #include "analysisCacheL2.c"
 #include "updateCacheL2.c"
 #include "pathDAG.c"
-
 /* For bus-aware WCET calculation */
 #include "busSchedule.c"
 
@@ -122,6 +117,8 @@ int analysis() {
 }
 
 */
+
+// For debugging purposes we 
 int main(int argc, char **argv ) {
 
   FILE *file, *hitmiss_statistic, *file_wei, *file_private, *wcrt;
@@ -139,17 +136,6 @@ int main(int argc, char **argv ) {
   uint nSuccs;
   int si;
   ticks start,end;
-
-  if( argc < 4 ) {
-    /* printf( "\nUsage: ianalysis <filename> <method> <infeas_on> <regionmode> [debug_on]\n" ), exit(1); */
-    /* printf( "\nUsage: ianalysis <interferePath> <cache_config> <cache_L2_config> <no of core> [debug_on]\n" ), exit(1); */
-
-    /* sudiptac ::: FOR DEBUGGING */
-    g_optimized = 1;		  
-    main_unused(argc,argv);
-    exit(0);
-  }	 
-
   times_iteration = 0;
 
   /* sudiptac :: Reset debugging mode */
@@ -761,11 +747,14 @@ int main(int argc, char **argv ) {
 
   /* to generate xls file */
 
-  sprintf(hitmiss, "interfere/%d-%s-%s-hitmiss.res", num_core, 
-      cache_config, cache_config_L2);
+  // The base path of all final output files. Individual files only add a suffix
+  char finalStatsBasename[200];
+  sprintf( finalStatsBasename, "%s-%s-%s-%i", interferePathName,
+    basename( cache_config ), basename( cache_config_L2 ), num_core );
+  
+  sprintf(hitmiss, "%s-hitmiss.res", finalStatsBasename);
   hitmiss_statistic = fopen(hitmiss, "w");
-  sprintf(hitmiss, "interfere/%d-%s-%s-wcrt.res", num_core,
-      cache_config, cache_config_L2);
+  sprintf(hitmiss, "%s-wcrt.res", finalStatsBasename);
   wcrt = fopen(hitmiss, "w");
 
   for(i = 1; i <= num_msc; i ++) {
@@ -862,20 +851,23 @@ int main(int argc, char **argv ) {
   /* Get the final WCRT value */	  
   /* I guess the condition should be based on number of 
    * iterations --- not the number of cores */
+  char summary1[200];
+  sprintf( summary1, "%s.1.WCRT", finalStatsBasename );
+  char summary2[200];
+  sprintf( summary2, "%s.2.WCRT", finalStatsBasename );
+  
   if(times_iteration > 1) {
-    file = fopen("interfere/2.WCRT", "r");
-    if(!file)
-      prerr("Error: File interfere/2.WCRT opening failed");
+    file = fopen(summary2, "r");
     fscanf(file, "%Lu", &wcet_our);
     fprintf(wcrt,"our %Lu\n", wcet_our);
     fclose(file);
   } else {
-    file = fopen("interfere/1.WCRT", "r");
+    file = openfile(summary1, "r");
     fscanf(file, "%Lu", &wcet_our);
     fprintf(wcrt,"our %Lu\n", wcet_our);
     fclose(file);
   }
-  file = fopen("interfere/1.WCRT", "r");
+  file = openfile(summary1, "r");
   fscanf(file, "%Lu", &wcet_wei);
   fprintf(wcrt,"wei %Lu\n", wcet_wei);
   fprintf(wcrt,"differ %Lu\n", wcet_wei - wcet_our);
@@ -889,82 +881,5 @@ int main(int argc, char **argv ) {
 
   printf("%d core, No change in interfere now, exit\n", num_core);
 
-  return 0;
-}
-
-
-
-int main_unused( int argc, char **argv ) {
-
-  int i, j;
-  procedure *p;
-
-  if( argc < 2 ) {
-    printf( "\nUsage: opt <filename> [debug_on]\n" ), exit(1);}
-
-  filename = argv[1];
-  if( argc > 2 )
-    debug  = atoi( argv[2] );
-
-  if(debug) {		  
-  printf( "\nReading CFG...\n" ); fflush( stdout );
-  }
-  procs     = NULL;
-  num_procs = 0;
-  proc_cg   = NULL;
-  /* Reading the control flow graph */
-  read_cfg();
-  if( debug ) 
-	 print_cfg();
-
-  if(debug)		  
-  {
-		printf( "\nReading assembly instructions...\n" ); 
-		fflush(stdout); 
-  }		
-  readInstr();
-  if( debug ) print_instrlist();
-
-  if(debug)	{	  
-  printf( "\nDetecting loops...\n" ); fflush( stdout );
-  }
-  detect_loops();
-  if( debug ) print_loops();
-
-  if(debug) {		  
-  printf( "\nConstructing topological order of procedures and loops...\n" ); fflush( stdout );
-  }
-  topo_sort();
-  if( debug ) print_topo();
-  
-  /* Compute incoming edge info for each basic block */
-  calculate_incoming();
-
-  /* sudiptac: Use bus aware path-based WCET computation */
-  printf( "\nInitial WCET estimation with shared bus...\n" );
-  
-  /* Set the TDMA bus schedule */
-  setSchedule("TDMA_bus_sched.db");
-
-  /* Do L1 cache analysis */
-  /* {
-	  int top_func;	  
-	  
-	  assert(proc_cg);
-	  top_func = proc_cg[num_procs - 1];
-	  main_copy = procs[top_func];
-	  set_cache_basic("l1");
-	  cacheAnalysis();
-  }*/ 
-  /* FIXME: start time set to zero, core set to zero */
-  ncore = 0;
-  g_testing_mode = 1;
-  /* Compute with shared bus */
-  g_shared_bus = 1;
-  computeWCET(0);
-  /* Compute without shared bus */
-  g_shared_bus = 0;
-  computeWCET(0);
-  		  
   return 0;
 }

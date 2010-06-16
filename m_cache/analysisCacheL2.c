@@ -86,8 +86,7 @@ set_cache_basic_L2(char * configFile)
   int ns, na, ls, cmp, i;
   char path[ MAX_LEN ];
 
-  sprintf(path, "cache_config/%s.config", configFile);
-  fptr = fopen(path, "r" );
+  fptr = fopen(configFile, "r" );
   fscanf( fptr, "%d %d %d %d", &ns, &na, &ls, &cmp);
   
     cache_L2.ns = ns;

@@ -1,0 +1,6 @@
+2010-06-16:
+* Moved all simulators into a separate repository/module
+* Moved all benchmarks shared by the different Chronos versions into a separate repository
+* Added autotool support for setting all paths (to lp_solve, to simple scalar gcc, etc.)
+* All input files for Chronos must now be specified directly (<path>/l1.config instead of l1 for caches for example). This enables a separation of the analyzer and its input files/benchmarks
+* Rewrote the scripts for simulating, compiling and analyzing with Chronos
