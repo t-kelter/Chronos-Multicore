@@ -1,7 +1,5 @@
-core
 *.o
 *.swp
-
 Makefile
 Makefile.in
 aclocal.m4
@@ -14,7 +12,9 @@ config.h.in
 config.log
 config.status
 configure
+core
 depcomp
+install
 install-sh
 m_cache/.deps/
 m_cache/Makefile
