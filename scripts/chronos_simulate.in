@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Check parameters
 declare -r USAGE="\nUsage: $0 [-sbm] <simple scalar executable>\n\nThis script starts the simulation of the given executable on a single core (default, option \"-s\"), a bus-aware single-core (option \"-b\") or a multicore (option \"-m\") simulator."

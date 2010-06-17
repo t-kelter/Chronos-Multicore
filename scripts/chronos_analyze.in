@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 
 # Check parameters
 declare -r USAGE="\nUsage: $0 <interference config file> <l1 cache config file> <l2 cache config file> <number of cores> <TDMA schedule file>\n\nThis script invokes the Chronos analyzer for the given benchmark and configuration."

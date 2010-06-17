@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Check parameters
 declare USAGE="\nUsage: $0 <benchmark_name>\n\nThis script compiles the given benchmark with the simplescalar gcc and does further preprocessing needed for the analysis with Chronos."
