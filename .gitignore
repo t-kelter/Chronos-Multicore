@@ -15,9 +15,7 @@ config.log
 config.status
 configure
 core
-depcomp
 install
-install-sh
 m_cache/.deps/
 m_cache/Makefile
 m_cache/Makefile.in
@@ -27,6 +25,5 @@ m_cache/wcrt/.deps/
 m_cache/wcrt/Makefile
 m_cache/wcrt/Makefile.in
 m_cache/wcrt/timing
-missing
 scripts/
 stamp-h1
