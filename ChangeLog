@@ -1,3 +1,6 @@
+2010-06-17:
+* Guarded all fopen calls with an if, to check whether opening was successful and abort otherwise
+
 2010-06-16:
 * Moved all simulators into a separate repository/module
 * Moved all benchmarks shared by the different Chronos versions into a separate repository

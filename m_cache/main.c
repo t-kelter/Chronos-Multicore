@@ -3,6 +3,7 @@
 //#include <conio.h>
 #include <time.h>
 
+#include "config.h"
 #include "header.h"
 #include "cycle_time.c"
 #include "cycle_time.h"
@@ -150,7 +151,7 @@ int main(int argc, char **argv ) {
   /* Compute with shared bus */
   g_shared_bus = 1;
   /* For independent tasks running on multiple cores */
-  g_independent_task = 1;
+  g_independent_task = 0;
   /* For no bus modeling */
   g_no_bus_modeling = 0;
   /* Set optimized mode */
@@ -447,7 +448,7 @@ int main(int argc, char **argv ) {
     fprintf(conflictMSC, "%f", sum/cache_L2.ns);
     fclose(conflictMSC);
 
-    /* Initializing conflicting information */	  
+    /* Initializing conflicting information */
     for(n = 0; n < cache_L2.ns; n++) {
       numConflictMSC[n] = 0;
     }
@@ -605,26 +606,16 @@ int main(int argc, char **argv ) {
     flag = 0;
     printf("Call wcrt analysis the %d time\n", times_iteration);
 
-    if(num_core == 2)
-      sprintf(proc, "./wcrt/timing interfere/simple_test.cf interfere/simple_test.pd interfere/simple_test.msg %d", times_iteration);
-    else if(num_core == 4)
-      sprintf(proc, "./wcrt/timing interfere/simple_test.cf interfere/simple_test.pd interfere/simple_test.msg %d", times_iteration );
-    else if(num_core == 1)
-      sprintf(proc, "./wcrt/timing interfere/simple_test.cf interfere/simple_test.pd interfere/simple_test.msg %d", times_iteration );
-    else
-      printf("num of core error!\n"), exit(1);
-
-    /* A simple test first. CAUTION: MUST be removed after intial
-     * testing is done */  
-    /* if(num_core == 2)
-       sprintf(proc, "./wcrt/timing interfere/simple_test.cf interfere/simple_test.pd \
-       interfere/simple_test.msg %d", times_iteration, times_iteration);
-       else {
-       printf("Number of core error!\n");
-       exit(-11); 
-       } */
-
-    system(proc);
+    if(num_core == 1 || 
+       num_core == 2 ||
+       num_core == 4) {
+      sprintf(proc, "%s/m_cache/wcrt/timing simple_test.cf simple_test.pd "
+        "simple_test.msg %d", CHRONOS_PATH, times_iteration);
+      system(proc);
+    } else {
+      fprintf(stderr, "Invalid number of cores!\n");
+      exit(1);
+    }
 
     /* Open and get the new interference file */  
     sprintf(interferFileName, "%s_%d", interferePathName, times_iteration);

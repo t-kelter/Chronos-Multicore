@@ -6,8 +6,9 @@ AC_INIT(Chronos Multicore Analyzer, 0.1, sudiptac@comp.nus.edu.sg)
 AC_CONFIG_SRCDIR([m_cache/header.h])
 AC_CONFIG_HEADER([config.h])
 
-CHRONOS_DIR=$(pwd)
-AC_SUBST(CHRONOS_DIR)
+CHRONOS_PATH=$(pwd)
+AC_SUBST(CHRONOS_PATH)
+AC_DEFINE_UNQUOTED([CHRONOS_PATH], ["$CHRONOS_PATH"], [Define to the path where Chronos is built.])
 
 
 ##### Check external dependencies (User supplied) ##### 

@@ -62,7 +62,7 @@ getarg()
 # Builds the CFG of the given disassembly
 buildcfg()
 {
-  declare MAIN=@CHRONOS_DIR@/cfg/main
+  declare MAIN=@CHRONOS_PATH@/cfg/main
 
   # Build the CFG
   arg=`head -1 $1.arg`
