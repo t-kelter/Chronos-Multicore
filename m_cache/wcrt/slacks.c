@@ -40,35 +40,38 @@ generateWeiConflict(chart_t *msc)
 
 }
 
-static int
-writeWeiConflict()
+static int writeWeiConflict()
 {
-		
 	printf("writing interfere of Wei now...\n");
 
-	char name[20];
+	char name[200];
  	int i, k, j, ix, kx, len, mscNum = numCharts;
 	FILE *interfereFile, *interferePath;
 	task_t* task;
 	uint nSuccs;
 	int si;
 
-	sprintf(name, "interferePath");
+	sprintf(name, "%s.interferePath", resultFileBaseName);
 	interferePath = fopen(name, "w");
-	for( j = 1; j <= mscNum; j++)
-	{
-
-		sprintf(name, "interfere/msc%d", j);
-
+  if( !interferePath ) {
+    fprintf( stderr, "Failed to open file %s.\n", name );
+    exit(1);
+  }
+	
+	for( j = 1; j <= mscNum; j++) {
+		sprintf(name, "%s.msc%d", resultFileBaseName, j);
 		fprintf(interferePath, "%s\n", name);
-		//fprintf(interferePath, "\n");	
 		
 		len = msg[j-1].topoListLen;
 		
 		interfereFile = fopen(name,"w");
+    if( !interfereFile ) {
+      fprintf( stderr, "Failed to open file %s.\n", name );
+      exit(1);
+    }
+  
 		fprintf(interfereFile, "%d\n", msg[j-1].topoListLen);
-		for(i = 0; i < len; i++)
-		{
+		for(i = 0; i < len; i++) {
 			fprintf(interfereFile, "%s\n", taskList[msg[j-1].topoList[i]]->tname);
 			/* sudiptac :: Dump the successor id in the MSC also. This is needed
 			 * for WCET analysis in presence of shared bus */
@@ -77,8 +80,7 @@ writeWeiConflict()
 			 task = (taskList[msg[j-1].topoList[i]]);
 			 nSuccs = task->numSuccs;
 			 fprintf(interfereFile, "%d ", nSuccs);
-			 for(si = 0; si < nSuccs; si++)
-			 {
+			 for(si = 0; si < nSuccs; si++) {
 				fprintf(interfereFile, "%d ", get_msc_id(&msg[j-1],
 					task->succList[si]));  
 			 }
@@ -216,19 +218,27 @@ int writeInterference()
 		printf("writing interference now...\n");
 		fflush (stdout);
 
-		sprintf(name, "interferePath_%s", times_iteration);
+		sprintf(name, "%s.interferePath_%s", resultFileBaseName, times_iteration);
 		interferePath = fopen(name, "w");
-		for( j = 1; j <= mscNum; j++)
-		{
-			sprintf(name, "interfere/%s_msc%d", times_iteration, j);
+    if( !interferePath ) {
+      fprintf( stderr, "Failed to open file %s.\n", name );
+      exit(1);
+    }
+    
+		for( j = 1; j <= mscNum; j++) {
+		  sprintf(name, "%s.%s_msc%d", resultFileBaseName, times_iteration, j);
 			fprintf(interferePath, "%s\n", name);
 			
 			len = msg[j-1].topoListLen;
 			
 			interfereFile = fopen(name,"w");
+      if( !interfereFile ) {
+        fprintf( stderr, "Failed to open file %s.\n", name );
+        exit(1);
+      }
+      
 			fprintf(interfereFile, "%d \n", msg[j-1].topoListLen);
-			for(i = 0; i < len; i++)
-			{
+			for(i = 0; i < len; i++) {
 				fprintf(interfereFile, "%s\n", taskList[msg[j-1].topoList[i]]->tname);
 				/* sudiptac :: Dump the successor id in the MSC also. This is needed
 				 * for WCET analysis in presence of shared bus */
