@@ -9,11 +9,94 @@ AC_CONFIG_HEADER([config.h])
 CHRONOS_DIR=$(pwd)
 AC_SUBST(CHRONOS_DIR)
 
+
+##### Check external dependencies (User supplied) ##### 
+
+# Single core, non-bus-aware simple scalar simulator
+AC_ARG_WITH(sim-singlecore,
+        AC_HELP_STRING([--with-sim-singlecore],
+               [specify the path to the classical single-core simple scalar simulator (no default value)]),
+               [SIM_SINGLECORE="$withval"], [SIM_SINGLECORE=""])
+# Substitute the path to the simulator in all files that need it
+AC_SUBST(SIM_SINGLECORE)
+
+# Check whether the user omitted an important switch and warn him in this case
+if test ! "$SIM_SINGLECORE"; then
+  AC_MSG_WARN([--with-sim-singlecore was not specified: The single core simulator will be unavailable!]);
+elif test ! -d "$SIM_SINGLECORE"; then
+  AC_MSG_ERROR([The argument to --with-sim-singlecore was no directory! (Only absolute or relative pathnames will work)]);
+fi;
+
+
+# Single core, bus-aware simple scalar simulator
+AC_ARG_WITH(sim-sharedbus,
+        AC_HELP_STRING([--with-sim-sharedbus],
+               [specify the path to the bus-aware single-core simple scalar simulator (no default value)]),
+               [SIM_SHAREDBUS="$withval"], [SIM_SHAREDBUS=""])
+# Substitute the path to the simulator in all files that need it
+AC_SUBST(SIM_SHAREDBUS)
+
+if test ! "$SIM_SHAREDBUS"; then
+  AC_MSG_WARN([--with-sim-sharedbus was not specified: The bus-aware single core simulator will be unavailable!]);
+elif test ! -d "$SIM_SHAREDBUS"; then
+  AC_MSG_ERROR([The argument to --with-sim-sharedbus was no directory! (Only absolute or relative pathnames will work)]);
+fi;
+
+
+# Multicore simple scalar simulator
+AC_ARG_WITH(sim-multicore,
+        AC_HELP_STRING([--with-sim-multicore],
+               [specify the path to the multi-core simple scalar simulator (no default value)]),
+               [SIM_MULTICORE="$withval"], [SIM_MULTICORE=""])
+# Substitute the path to the simulator in all files that need it
+AC_SUBST(SIM_MULTICORE)
+
+if test ! "$SIM_MULTICORE"; then
+  AC_MSG_WARN([--with-sim-multicore was not specified: The multi-core simulator will be unavailable!]);
+elif test ! -d "$SIM_MULTICORE"; then
+  AC_MSG_ERROR([The argument to --with-sim-multicore was no directory! (Only absolute or relative pathnames will work)]);
+fi;
+
+
+# Simple scalar GCC bin-path
+AC_ARG_WITH(ss-gcc,
+        AC_HELP_STRING([--with-ss-gcc],
+               [specify the path to the bin folder of your simple scalar gcc (no default value)]),
+               [SS_GCC="$withval"], [SS_GCC=""])
+# Substitute the path to the simulator in all files that need it
+AC_SUBST(SS_GCC)
+
+if test ! "$SS_GCC"; then
+  AC_MSG_WARN([--with-ss-gcc was not specified: The simple scalar compiler will be unavailable!]);
+elif test ! -d "$SS_GCC"; then
+  AC_MSG_ERROR([The argument to --with-ss-gcc was no directory! (Only absolute or relative pathnames will work)]);
+fi;
+
+
+# Simple scalar GCC bin-path
+AC_ARG_WITH(lp-solve,
+        AC_HELP_STRING([--with-lp-solve],
+               [specify the path to the lp_solve folder (no default value)]),
+               [LP_SOLVE="$withval"], [LP_SOLVE=""])
+# Supply the path to lp_solve in a define
+AC_DEFINE_UNQUOTED([LP_SOLVE_PATH], ["$LP_SOLVE"], [Define to the path of lp_solve.])
+
+if test ! "$LP_SOLVE"; then
+  AC_MSG_ERROR([--with-lp-solve was not specified: Chronos will not work without an ILP solver!]);
+elif test ! -d "$LP_SOLVE"; then
+  AC_MSG_ERROR([The argument to --with-lp-solve was no directory! (Only absolute or relative pathnames will work)]);
+fi;
+
+
+
+##### Continue with usual autoconf invocations #####
+
 # Tell automake to generate makefiles
 AM_INIT_AUTOMAKE
 
 # Checks for programs.
 AC_PROG_CC
+AM_PROG_CC_C_O
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
@@ -49,44 +132,6 @@ else
   CFLAGS="-O0 -g -Wall"
 fi
 
-
-
-# #### Check configuration parameters (User supplied) #### 
-
-# Single core, non-bus-aware simple scalar simulator
-AC_ARG_WITH(sim-singlecore,
-        AC_HELP_STRING([--with-sim-singlecore],
-               [specify the path to the classical single-core simple scalar simulator]),
-               [SIM_SINGLECORE="$withval"], [SIM_SINGLECORE=""])
-# Substitute the path to the simulator in all files that need it
-AC_SUBST(SIM_SINGLECORE)
-
-# Single core, bus-aware simple scalar simulator
-AC_ARG_WITH(sim-sharedbus,
-        AC_HELP_STRING([--with-sim-sharedbus],
-               [specify the path to the bus-aware single-core simple scalar simulator]),
-               [SIM_SHAREDBUS="$withval"], [SIM_SHAREDBUS=""])
-# Substitute the path to the simulator in all files that need it
-AC_SUBST(SIM_SHAREDBUS)
-
-# Multicore simple scalar simulator
-AC_ARG_WITH(sim-multicore,
-        AC_HELP_STRING([--with-sim-multicore],
-               [specify the path to the multi-core simple scalar simulator]),
-               [SIM_MULTICORE="$withval"], [SIM_MULTICORE=""])
-# Substitute the path to the simulator in all files that need it
-AC_SUBST(SIM_MULTICORE)
-
-# Simple scalar GCC bin-path
-AC_ARG_WITH(ss-gcc,
-        AC_HELP_STRING([--with-ss-gcc],
-               [specify the path to the bin folder of your simple scalar gcc]),
-               [SS_GCC="$withval"], [SS_GCC=""])
-# Substitute the path to the simulator in all files that need it
-AC_SUBST(SS_GCC)
-
-
-
 # Specify which Makefiles to construct
 AC_CONFIG_FILES([
   Makefile
@@ -105,28 +150,10 @@ AC_CONFIG_FILES([
 AC_OUTPUT
 
 # We must modify the generated script files to be executable
-for script in scripts/chronos_analyze scripts/chronos_compile scripts/chronos_simulate; do
+for script in scripts/chronos_analyze \
+              scripts/chronos_compile \
+              scripts/chronos_simulate; do
   if test -f $script; then
     chmod u+x $script;
   fi;
 done;
-
-# Check whether the user omitted any of the simulators and warn him in this case
-# Do this at the end of the configure, so that the user will actually see the warning
-if test ! "$SIM_SINGLECORE"; then
-  AC_MSG_WARN([--with-sim-singlecore was not specified: The single core simulator will be unavailable!]);
-elif test ! -d "$SIM_SINGLECORE"; then
-  AC_MSG_ERROR([The argument to --with-sim-singlecore was no directory! (Only absolute or relative pathnames will work)]);
-fi;
-
-if test ! "$SIM_SHAREDBUS"; then
-  AC_MSG_WARN([--with-sim-sharedbus was not specified: The bus-aware single core simulator will be unavailable!]);
-elif test ! -d "$SIM_SHAREDBUS"; then
-  AC_MSG_ERROR([The argument to --with-sim-sharedbus was no directory! (Only absolute or relative pathnames will work)]);
-fi;
-
-if test ! "$SIM_MULTICORE"; then
-  AC_MSG_WARN([--with-sim-multicore was not specified: The multi-core simulator will be unavailable!]);
-elif test ! -d "$SIM_MULTICORE"; then
-  AC_MSG_ERROR([The argument to --with-sim-multicore was no directory! (Only absolute or relative pathnames will work)]);
-fi;

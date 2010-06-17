@@ -72,22 +72,29 @@ int read_bbcosts() {
   if( regionmode ) {
     sprintf( fn, "%s.regs", filename );
     f = fopen( fn, "r" );
-    if( f ) {
-      fscanf( f, "%d", &numregs );
-      regioncost = (uint*) MALLOC( regioncost, numregs * sizeof(uint), "regioncost" );
-      for( r = 0; r < numregs; r++ ) {
-    fscanf( f, "%d %u", &id, &cost );
-    regioncost[id] = cost;
-      }
-      fclose( f );
+    if( !f ) {
+      fprintf(stderr, "Failed to open file: %s\n", fn);
+      exit(1);
     }
+    
+    fscanf( f, "%d", &numregs );
+    regioncost = (uint*) MALLOC( regioncost, numregs * sizeof(uint), "regioncost" );
+    for( r = 0; r < numregs; r++ ) {
+      fscanf( f, "%d %u", &id, &cost );
+      regioncost[id] = cost;
+    }
+    fclose( f );
+    
     sprintf( fn, "%s.bbreg", filename );
     f = fopen( fn, "r" );
-    if( f ) {
-      while( fscanf( f, "%d %d %d", &pid, &bbid, &id ) != EOF )
-    procs[pid]->bblist[bbid]->regid = id;
-      fclose( f );
+    if( !f ) {
+      fprintf(stderr, "Failed to open file: %s\n", fn);
+      exit(1);
     }
+    
+    while( fscanf( f, "%d %d %d", &pid, &bbid, &id ) != EOF )
+      procs[pid]->bblist[bbid]->regid = id;
+    fclose( f );
   }
 
   return 0;
@@ -201,6 +208,10 @@ int main(int argc, char **argv ) {
   /* Start reading the interference file and build the intereference 
    * information */
   interferPath = fopen(interferePathName, "r");
+  if( !interferPath ) {
+    fprintf(stderr, "Failed to open file: %s\n", interferePathName);
+    exit(1);
+  }
 
   /* Monitor time from this point */
   STARTTIME;
@@ -215,6 +226,10 @@ int main(int argc, char **argv ) {
     num_msc++;
 
     interferFile = fopen(interferFileName,"r");
+    if( !interferFile ) {
+      fprintf(stderr, "Failed to open file: %s\n", interferFileName);
+      exit(1);
+    }
 
     /* Read number of tasks */	   
     fscanf(interferFile, "%d\n", &num_task);
@@ -418,6 +433,10 @@ int main(int argc, char **argv ) {
      * passed to the WCRT module in the next iteration */
     sprintf(proc, "conflictTaskMSC_%d", num_msc - 1);
     conflictMSC = fopen(proc, "w");
+    if( !conflictMSC ) {
+      fprintf(stderr, "Failed to open file: %s\n", proc);
+      exit(1);
+    }
 
     sum = 0;
 
@@ -455,8 +474,17 @@ int main(int argc, char **argv ) {
     /* Create the WCET and BCET filename */	  
     sprintf(wbcostPath, "%s_wcetbcet_%d", msc[i-1]->msc_name, times_iteration);
     file = fopen(wbcostPath, "w" );
+    if( !file ) {
+      fprintf(stderr, "Failed to open file: %s\n", wbcostPath);
+      exit(1);
+    }
+    
     sprintf(hitmiss, "%s_hitmiss_statistic_%d", msc[i-1]->msc_name, times_iteration);
     hitmiss_statistic = fopen(hitmiss, "w");
+    if( !hitmiss_statistic ) {
+      fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+      exit(1);
+    }
 
     /* Write WCET of each task in the file */
     for(j = 0; j < msc[i-1]->num_task; j++) {
@@ -505,6 +533,11 @@ int main(int argc, char **argv ) {
   for(i = 1; i <= num_msc; i ++) {
     sprintf(hitmiss, "%s_hitmiss_statistic_wei", msc[i-1]->msc_name);
     hitmiss_statistic = fopen(hitmiss, "w");
+    if( !hitmiss_statistic ) {
+      fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+      exit(1);
+    }
+    
     for(j = 0; j < msc[i-1]->num_task; j++) {
       fprintf(hitmiss_statistic,"%Lu  %Lu %Lu \n",
           msc[i-1]->taskList[j].hit_wcet_L2, 
@@ -533,6 +566,10 @@ int main(int argc, char **argv ) {
      {
      sprintf(hitmiss, "%s_hitmiss_statistic_private", msc[i-1]->msc_name);
      hitmiss_statistic = fopen(hitmiss, "w");
+     if( !hitmiss_statistic ) {
+       fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+       exit(1);
+     }
 
      for(j = 0; j < msc[i-1]->num_task; j++)
      {
@@ -592,11 +629,18 @@ int main(int argc, char **argv ) {
     /* Open and get the new interference file */  
     sprintf(interferFileName, "%s_%d", interferePathName, times_iteration);
     interferPath = fopen(interferFileName, "r");
+    if( !interferPath ) {
+     fprintf(stderr, "Failed to open file: %s\n", interferFileName);
+     exit(1);
+    }
 
     for(i = 0; i < num_msc; i ++) {
       fscanf(interferPath, "%s\n", &interferFileName);
       interferFile = fopen(interferFileName,"r");
-      /* printf("open interfer %s\n", interferFileName); */
+      if( !interferFile ) {
+       fprintf(stderr, "Failed to open file: %s\n", interferFileName);
+       exit(1);
+      }
 
       fscanf(interferFile, "%d\n", &(tmp));
 
@@ -674,9 +718,18 @@ int main(int argc, char **argv ) {
 
       sprintf(wbcostPath, "%s_wcetbcet_%d", msc[i-1]->msc_name, times_iteration);
       file = fopen(wbcostPath, "w" );
+      if( !file ) {
+       fprintf(stderr, "Failed to open file: %s\n", wbcostPath);
+       exit(1);
+      }
+      
       sprintf(hitmiss, "%s_hitmiss_statistic_%d", msc[i-1]->msc_name, 
           times_iteration);
       hitmiss_statistic = fopen(hitmiss, "w");
+      if( !hitmiss_statistic ) {
+       fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+       exit(1);
+      }
 
       for(j = 0; j < msc[i-1]->num_task; j++) {
 
@@ -723,6 +776,11 @@ int main(int argc, char **argv ) {
         {
         sprintf(hitmiss, "%s_hitmiss_statistic_our", msc[i-1]->msc_name);
         hitmiss_statistic = fopen(hitmiss, "w");
+        if( !hitmiss_statistic ) {
+         fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+         exit(1);
+        }
+      
         for(j = 0; j < msc[i-1]->num_task; j++)
         {
         fprintf(hitmiss_statistic,"%Lu %Lu %Lu %Lu\n",
@@ -755,16 +813,33 @@ int main(int argc, char **argv ) {
   
   sprintf(hitmiss, "%s-hitmiss.res", finalStatsBasename);
   hitmiss_statistic = fopen(hitmiss, "w");
+  if( !hitmiss_statistic ) {
+   fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+   exit(1);
+  }
+  
   sprintf(hitmiss, "%s-wcrt.res", finalStatsBasename);
   wcrt = fopen(hitmiss, "w");
+  if( !wcrt ) {
+   fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+   exit(1);
+  }
 
   for(i = 1; i <= num_msc; i ++) {
 
     sprintf(hitmiss, "%s_hitmiss_statistic_wei", msc[i-1]->msc_name);
     file_wei = fopen(hitmiss, "r");
+    if( !file_wei ) {
+     fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+     exit(1);
+    }
 
     sprintf(hitmiss, "%s_hitmiss_statistic_private", msc[i-1]->msc_name);
     file_private = fopen(hitmiss, "r");
+    if( !file_private ) {
+     fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+     exit(1);
+    }
 
     for(j = 0; j < msc[i-1]->num_task; j++) {
       /* task name */
@@ -859,16 +934,31 @@ int main(int argc, char **argv ) {
   
   if(times_iteration > 1) {
     file = fopen(summary2, "r");
+    if( !file ) {
+     fprintf(stderr, "Failed to open file: %s\n", summary2);
+     exit(1);
+    }
+    
     fscanf(file, "%Lu", &wcet_our);
     fprintf(wcrt,"our %Lu\n", wcet_our);
     fclose(file);
   } else {
     file = openfile(summary1, "r");
+    if( !file ) {
+     fprintf(stderr, "Failed to open file: %s\n", summary1);
+     exit(1);
+    }
+    
     fscanf(file, "%Lu", &wcet_our);
     fprintf(wcrt,"our %Lu\n", wcet_our);
     fclose(file);
   }
   file = openfile(summary1, "r");
+  if( !file ) {
+   fprintf(stderr, "Failed to open file: %s\n", summary1);
+   exit(1);
+  }
+  
   fscanf(file, "%Lu", &wcet_wei);
   fprintf(wcrt,"wei %Lu\n", wcet_wei);
   fprintf(wcrt,"differ %Lu\n", wcet_wei - wcet_our);

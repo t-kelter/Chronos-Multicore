@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "config.h"
+
+extern char resultFileBaseName[];
 
 /*
  * Makes a clone of src.
@@ -516,7 +519,7 @@ int timingEstimate_synch() {
 
   // solve ilp
   /* sudiptac ::: Changed */
-  const char *lp_solve_dir = "/home/kelter/chronos/tools/lp_solve/";
+  const char *lp_solve_dir = LP_SOLVE_PATH;
   char lp_solve_call[200];
   strcpy( lp_solve_call, lp_solve_dir );
   strcat( lp_solve_call, "/lp_solve -rxli " );
@@ -539,8 +542,13 @@ int timingEstimate_synch() {
 
   FILE *f;
   char path[MAXLEN];
-  sprintf(path, "interfere/%s.WCRT", times_iteration);
-  f = fopen(path, "w");
+  sprintf(path, "%s.%s.WCRT", resultFileBaseName, times_iteration);
+  f = openfile(path, "w");
+  if( !f ) {
+    fprintf( stderr, "Failed to open file %s.\n", path );
+    exit(1);
+  }
+  
   fprintf(f, "%Lu", (time_t) soln);
 
   return 0;
@@ -604,13 +612,14 @@ int timingEstimate_asynch_acyclic() {
       resetInterference( cx );
 
       if( allocmethod == NONE )
-	timingEstimateMSC( cx );
+        timingEstimateMSC( cx );
       else {
-	resetAllocation( cx );
-	if( allocmethod == SLACK_CRITICAL )
-	  timingAllocMSC_slackCritical( cx );
-	else
-	  timingAllocMSC( cx );
+        resetAllocation( cx );
+        
+        if( allocmethod == SLACK_CRITICAL )
+          timingAllocMSC_slackCritical( cx );
+        else
+          timingAllocMSC( cx );
       }
  
       // recover dependencies
@@ -619,7 +628,7 @@ int timingEstimate_asynch_acyclic() {
       free( succRecord );
 
       if( backtracklen <= 0 )  // done
-	break;
+        break;
 
       prevcx = cx;
 
@@ -639,11 +648,10 @@ int timingEstimate_asynch_acyclic() {
 
       printf( "WCRT[%d]: %Lu\n", numPaths-1, prevcx->wcrt );
       if( prevcx->wcrt > max ) {
-	max = prevcx->wcrt;
-	maxcx = prevcx;
-      }
-      else
-	freeChart( prevcx );
+        max = prevcx->wcrt;
+	      maxcx = prevcx;
+      } else
+        freeChart( prevcx );
 
       continue;
     }
@@ -761,13 +769,13 @@ int timingEstimate_asynch_() {
       resetInterference( cx );
 
       if( allocmethod == NONE )
-	timingEstimateMSC( cx );
+        timingEstimateMSC( cx );
       else {
-	resetAllocation( cx );
-	if( allocmethod == SLACK_CRITICAL )
-	  timingAllocMSC_slackCritical( cx );
-	else
-	  timingAllocMSC( cx );
+        resetAllocation( cx );
+        if( allocmethod == SLACK_CRITICAL )
+          timingAllocMSC_slackCritical( cx );
+        else
+          timingAllocMSC( cx );
       }
  
       // recover dependencies
@@ -776,18 +784,18 @@ int timingEstimate_asynch_() {
       free( succRecord );
 
       if( backtracklen <= 0 )  // done
-	break;
+        break;
 
       // pop backtrack point
       do {
-	popNode( &backpt, &nextsc, &backtrack, &nextsucc, &backtracklen );
-	nextsc = getNextValidSuccId( px, backpt, nextsc );
+        popNode( &backpt, &nextsc, &backtrack, &nextsucc, &backtracklen );
+        nextsc = getNextValidSuccId( px, backpt, nextsc );
       } while( nextsc == -1 );
 
       // next node to explore
       idx = msg[backpt].succList[nextsc];
       if( idx < numCharts )
-	countEdge( px, backpt, idx );
+        countEdge( px, backpt, idx );
 
       // next path
       prevpx = px;
@@ -799,11 +807,10 @@ int timingEstimate_asynch_() {
 
       printf( "WCRT[%d]: %Lu\n", numPaths-1, prevpx->msc->wcrt );
       if( prevpx->msc->wcrt > max ) {
-	max = prevpx->msc->wcrt;
-	maxpx = prevpx;
-      }
-      else
-	freePath( prevpx );
+        max = prevpx->msc->wcrt;
+        maxpx = prevpx;
+      } else
+        freePath( prevpx );
 
       fprintf( pathf, "Path %d\n", numPaths );
       printf( "Path %d\n", numPaths ); fflush( stdout );
@@ -820,18 +827,18 @@ int timingEstimate_asynch_() {
       printf( " X\n\n" ); fflush( stdout );
 
       if( backtracklen <= 0 )  // done
-	break;
+        break;
 
       // pop backtrack point
       do {
-	popNode( &backpt, &nextsc, &backtrack, &nextsucc, &backtracklen );
-	nextsc = getNextValidSuccId( px, backpt, nextsc );
+        popNode( &backpt, &nextsc, &backtrack, &nextsucc, &backtracklen );
+        nextsc = getNextValidSuccId( px, backpt, nextsc );
       } while( nextsc == -1 );
 
       // next node to explore
       idx = msg[backpt].succList[nextsc];
       if( idx < numCharts )
-	countEdge( px, backpt, idx );
+        countEdge( px, backpt, idx );
 
       // next path
       prevpx = px;
@@ -929,7 +936,7 @@ int timingEstimate_asynch() {
 
       interfere = (char**) REALLOC( interfere, numTasks * sizeof(char*), "interfere" );
       for( i = 0; i < numTasks; i++ ) {
-	interfere[i] = (char*) CALLOC( interfere[i], numTasks, sizeof(char), "interfere[i]" );
+        interfere[i] = (char*) CALLOC( interfere[i], numTasks, sizeof(char), "interfere[i]" );
       }
     }
 
@@ -948,9 +955,9 @@ int timingEstimate_asynch() {
     else {
       resetAllocation( cx );
       if( allocmethod == SLACK_CRITICAL )
-	timingAllocMSC_slackCritical( cx );
+        timingAllocMSC_slackCritical( cx );
       else
-	timingAllocMSC( cx );
+        timingAllocMSC( cx );
     }
 
     // recover dependencies
@@ -961,9 +968,9 @@ int timingEstimate_asynch() {
     // recover original taskList and data structures
     if( numTasks > orgNumTasks ) {
       for( i = orgNumTasks; i < numTasks; i++ ) {
-	freeTask( taskList[i] );
-	free( taskList[i] );
-	free( interfere[i] );
+        freeTask( taskList[i] );
+        free( taskList[i] );
+        free( interfere[i] );
       }
       numTasks = orgNumTasks;
     }

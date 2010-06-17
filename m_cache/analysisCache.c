@@ -119,6 +119,11 @@ set_cache_basic(char * configFile)
   char path[ MAX_LEN ];
 
   fptr = fopen(configFile, "r" );
+  if( !fptr ) {
+    fprintf(stderr, "Failed to open file: %s\n", configFile);
+    exit(1);
+  }
+  
   fscanf( fptr, "%d %d %d %d", &ns, &na, &ls, &cmp);
   
     cache.ns = ns;

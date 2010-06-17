@@ -27,10 +27,10 @@ SS_INST_TYPE * readcode(char *fname, int *start, int *end)
     int			    i, j;
     SS_INST_TYPE	    inst, *code;
 
-    pf = fopen(fname, "r");    
+    pf = fopen(fname, "r");
     if (pf == NULL) {
-	fprintf(stderr, "fail to open file: %s\n", fname);
-	exit (1);
+      fprintf(stderr, "Failed to open file: %s\n", fname);
+      exit (1);
     }
 
     ss_init_decoder();

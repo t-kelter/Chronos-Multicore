@@ -15,4 +15,11 @@ declare -i NUMBER_OF_CORES=$4
 declare    TDMA_SCHEDULE_FILE=$5
 
 # Do the call
-@CHRONOS_DIR@/m_cache/opt $INTERFERENCE_FILE $L1_CACHE_CONFIG $L2_CACHE_CONFIG $NUMBER_OF_CORES $TDMA_SCHEDULE_FILE
+declare -r CALL_STRING="@CHRONOS_DIR@/m_cache/opt $INTERFERENCE_FILE $L1_CACHE_CONFIG $L2_CACHE_CONFIG $NUMBER_OF_CORES $TDMA_SCHEDULE_FILE"
+
+eval $CALL_STRING
+if (( $? != 0 )); then
+  echo "";
+  echo "Analyzer failed! Call to reproduce was: ";
+  echo $CALL_STRING;
+fi;

@@ -47,8 +47,10 @@ do_cfg(int argc, char ** argv)
 
     sprintf( fn, "%s.cfg", argv[1] );
     fptr = fopen( fn, "w" );
-    if( !fptr )
-      fprintf( stderr, "Error opening file cfg.\n" ), exit(1);
+    if (fptr == NULL) {
+      fprintf(stderr, "Failed to open file: %s\n", fn);
+      exit (1);
+    }
 
     create_procs(&prog);
     for (i=0; i<prog.nproc; i++) {

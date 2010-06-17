@@ -87,9 +87,7 @@ int main( int argc, char *argv[] ) {
   if( argc < 2 )
     printf( "Usage: ./dp <inputfile>\n" ), exit(1);
 
-  f = fopen( argv[1], "r" );
-  if( !f )
-    printf( "Error opening file %s\n", argv[1] );
+  f = openfile( argv[1], "r" );
 
   fscanf( f, "%d %d", &N, &S );
   // printf( "N: %d   S: %d\n", N, S );

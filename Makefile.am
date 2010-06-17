@@ -1,3 +1,3 @@
 SUBDIRS=cfg m_cache scripts
 
-EXTRA_DIST=autotools.sh
+EXTRA_DIST=autotools.sh test

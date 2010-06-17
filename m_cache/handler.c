@@ -46,8 +46,10 @@ FILE* openfile( char *ext, char *mode ) {
 
   sprintf( fn, "%s.%s", filename, ext );
   fptr = fopen( fn, mode );
-  if( !fptr )
-    printf( "Error opening file %s.\n", fn ), exit(1);
+  if( !fptr ) {
+    fprintf(stderr, "Failed to open file: %s\n", fn);
+    exit(1);
+  }
 
   return fptr;
 }

@@ -4,18 +4,17 @@
 #include "header.h"
 #include "handler.c"
 #include "util.c"
-
 #include "parse.c"
 #include "dump.c"
-
 #include "topo.c"
 #include "timing.c"
 //#include "timing-non-preemptive.c"
 #include "timingMSG.c"
 #include "analysis.c"
-
 #include "alloc.c"
+
 FILE* timefp;
+char resultFileBaseName[200];
 
 
 int main( int argc, char *argv[] ) {
@@ -26,7 +25,8 @@ int main( int argc, char *argv[] ) {
   //time_t wcet, bcet;
 
   if( argc < 3 ) {
-    printf( "Usage: ./mpspm <config_file> <task_desc> <dpd_graph> <times_iteration>\n" );
+    printf( "Usage: %s <config_file> <task_desc> <dpd_graph> <times_iteration>\n", 
+      argv[0] );
     //printf( "<concat_method>: 0 (synchronous) | 1 (asynchronous)\n" );
     //printf( "<alloc_method>:\n" );
     //printf( "  0: NONE (analysis only)\n" );
@@ -45,6 +45,13 @@ int main( int argc, char *argv[] ) {
   //if( argc > 6 )
   // DEBUG = atoi( argv[6] );
 
+  // If the input files had the form <path>/myinput.xy then we will dump the
+  // debug output to <path>/myinput.1.WCRT etc, so this string saves the common
+  // part (<path>/myinput) to facilitate the generation of output file names.
+  strcpy( resultFileBaseName, dirname( cfname ) );
+  strcat( resultFileBaseName, "/" );
+  strcat( resultFileBaseName, basename( cfname ) );
+  
   allocweight = DEFAULT_ALLOCWEIGHT;
   //limitsoln = DEFAULT_LIMITSOLN;
 
@@ -74,8 +81,7 @@ int main( int argc, char *argv[] ) {
     interfere[i] = (char*) CALLOC( interfere[i], numTasks, sizeof(char), "interfere[i]" );
   }
 
-  for(i = 0; i < numCharts; i++)
-  {
+  for(i = 0; i < numCharts; i++) {
 	  generateWeiConflict(&(msg[i]));
   }
   writeWeiConflict();
@@ -86,6 +92,11 @@ int main( int argc, char *argv[] ) {
 	  FILE *taskName;
 	  char taskNameFile[] = "taskNameFile";
 	  taskName = fopen(taskNameFile, "w");
+    if( !taskName ) {
+      fprintf( stderr, "Failed to open file %s.\n", taskNameFile );
+      exit(1);
+    }
+    
 	  for(i = 0; i < numTasks; i ++)
 		  fprintf("%s\n", taskList[i]->tname);
   */
@@ -108,8 +119,7 @@ int main( int argc, char *argv[] ) {
 
   peers = (char **)CALLOC(peers, numTasks, sizeof(char *), "peers");
 
-  for(i = 0; i < numTasks; i++)
-  {
+  for(i = 0; i < numTasks; i++) {
 		peers[i] = (char *)CALLOC(peers[i], numTasks, sizeof(char), "peers[i]");
 		
 		for(j = 0; j < numTasks; j++)
@@ -121,23 +131,25 @@ int main( int argc, char *argv[] ) {
   /* dumpTaskInfo(); */
 
   /* Initialize all-timing info file */		  
-  if(!timefp)	  
-	 timefp = fopen("task_timing.db", "w");
-  if(!timefp)
-  {
-	  fprintf(stdout, "Error: File opening failed\n");
-	  exit(-1);
-  }
+  if(!timefp) {	  
+    char filename[200];
+    strcpy( filename, resultFileBaseName );
+    strcat( filename, ".task_timing.db" );
+	  timefp = fopen(filename, "w");
+    if( !timefp ) {
+      fprintf( stderr, "Failed to open file %s.\n", filename );
+      exit(1);
+    }
+	}
   
   /* printf("Interfere as follow:	\n"); */
   /* Set intereference for each MSC */
-  for(i = 0; i < numCharts; i++)
-  {
-     fprintf(timefp, "MSC ID %d	\n\n", i);
+  for(i = 0; i < numCharts; i++) {
+    fprintf(timefp, "MSC ID %d	\n\n", i);
  	  setInterference(&(msg[i]));
-	 /* resetInterference( &(msg[i]) );
-		 dumpInterference(&(msg[i]));
-	 */
+ 	  /* resetInterference( &(msg[i]) );
+		   dumpInterference(&(msg[i]));
+		*/
   }
   /* Close the timing file */
   fclose(timefp);

@@ -104,11 +104,11 @@ void setSchedule(char* sched_file)
 	segment_p seg;
 
 	fp = fopen(sched_file, "r");
-	if(!fp)
-	{
-		fprintf(stdout, "Internal file opening failed\n");  
-		exit(-1);
-	}	
+  if (fp == NULL) {
+    fprintf(stderr, "Failed to open file: %s\n", sched_file);
+    exit (1);
+  }
+    
 	/******************Type of the file********************************************/ 
 	/*  					(For non-segmented schedule)						 					*/	
 	/* <sched_type> <core_no> <\n> <start_time> <interval> <slot_length> 			*/

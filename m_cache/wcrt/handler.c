@@ -44,8 +44,10 @@ FILE* openfile( char *filename, char *mode ) {
   FILE *fptr;
 
   fptr = fopen( filename, mode );
-  if( !fptr )
-    printf( "Error opening file %s.\n", filename ), exit(1);
+  if( !fptr ) {
+    fprintf( stderr, "Failed to open file %s.\n", filename );
+    exit(1);
+  }
 
   return fptr;
 }

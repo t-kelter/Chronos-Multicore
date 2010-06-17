@@ -87,6 +87,11 @@ set_cache_basic_L2(char * configFile)
   char path[ MAX_LEN ];
 
   fptr = fopen(configFile, "r" );
+  if (fptr == NULL) {
+    fprintf(stderr, "Failed to open file: %s\n", configFile);
+    exit (1);
+  }
+  
   fscanf( fptr, "%d %d %d %d", &ns, &na, &ls, &cmp);
   
     cache_L2.ns = ns;
