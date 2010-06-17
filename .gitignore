@@ -25,5 +25,7 @@ m_cache/wcrt/.deps/
 m_cache/wcrt/Makefile
 m_cache/wcrt/Makefile.in
 m_cache/wcrt/timing
-scripts/
+scripts/chronos_analyze
+scripts/chronos_compile
+scripts/chronos_simulate
 stamp-h1
