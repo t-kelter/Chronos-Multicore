@@ -109,7 +109,7 @@ int readTasks() {
   int actor, pe, priority;
   time_t period;
 
-  FILE *fptr = openfile( pdname, "r" );
+  FILE *fptr = wcrt_openfile( pdname, "r" );
 
   numTasks = 0;
   taskList = NULL;
@@ -166,7 +166,7 @@ int readMSG() {
   task_t *tc;
   sched_t *sc;
 
-  FILE *fptr = openfile( dgname, "r" );
+  FILE *fptr = wcrt_openfile( dgname, "r" );
 
   numCharts = 0;
   msg = NULL;
@@ -341,7 +341,7 @@ int readConfig() {
   spmCapacity = NULL;
   totalcapacity = 0;
 
-  fptr = openfile( cfname, "r" );
+  fptr = wcrt_openfile( cfname, "r" );
   fscanf( fptr, "%s %d %d", tmp, &spm_latency, &off_latency );
 
   while( fscanf( fptr, "%d %d", &pe, &capacity ) != EOF ) {
@@ -409,7 +409,7 @@ int freeChart( chart_t *cx ) {
 }
 
 
-int freePath( path_t *px ) {
+int wcrt_freePath( path_t *px ) {
 
   int i;
 

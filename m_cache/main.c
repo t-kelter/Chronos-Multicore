@@ -5,8 +5,6 @@
 
 #include "config.h"
 #include "header.h"
-#include "cycle_time.c"
-#include "cycle_time.h"
 #include "analysis.h"
 #include "infeasible.h"
 #include "handler.c"
@@ -29,6 +27,8 @@
 #include "pathDAG.c"
 /* For bus-aware WCET calculation */
 #include "busSchedule.c"
+#include "wcrt/wcrt.h"
+#include "wcrt/cycle_time.h"
 
 /* sudiptac:: For performance measurement */
 typedef unsigned long long ticks;
@@ -473,14 +473,14 @@ int main(int argc, char **argv ) {
   for(i = 1; i <= num_msc; i ++) {
 
     /* Create the WCET and BCET filename */	  
-    sprintf(wbcostPath, "%s_wcetbcet_%d", msc[i-1]->msc_name, times_iteration);
+    sprintf(wbcostPath, "msc%d_wcetbcet_%d", i, times_iteration);
     file = fopen(wbcostPath, "w" );
     if( !file ) {
       fprintf(stderr, "Failed to open file: %s (main.c:479)\n", wbcostPath);
       exit(1);
     }
     
-    sprintf(hitmiss, "%s_hitmiss_statistic_%d", msc[i-1]->msc_name, times_iteration);
+    sprintf(hitmiss, "msc%d_hitmiss_statistic_%d", i, times_iteration);
     hitmiss_statistic = fopen(hitmiss, "w");
     if( !hitmiss_statistic ) {
       fprintf(stderr, "Failed to open file: %s (main.c:486)\n", hitmiss);
@@ -532,7 +532,7 @@ int main(int argc, char **argv ) {
 
   /* to get Wei's result */
   for(i = 1; i <= num_msc; i ++) {
-    sprintf(hitmiss, "%s_hitmiss_statistic_wei", msc[i-1]->msc_name);
+    sprintf(hitmiss, "msc%d_hitmiss_statistic_wei", i+1);
     hitmiss_statistic = fopen(hitmiss, "w");
     if( !hitmiss_statistic ) {
       fprintf(stderr, "Failed to open file: %s (main.c:538)\n", hitmiss);
@@ -551,52 +551,6 @@ int main(int argc, char **argv ) {
     fclose(hitmiss_statistic);
   }
 
-  /* To get private L2 result (no shared L2 cache) */
-  /* for(i = 0; i < num_msc; i ++)
-     {
-     pathDAG(msc[i]);
-     analysis_dag_WCET(msc[i]); 
-     compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file); */
-  /* analysis_dag_BCET(msc[i]); */
-  /* compute_bus_BCET_MSC(msc[num_msc -1]); */
-  /* resetHitMiss_L2(msc[i]); */
-  /* } */
-
-  /* Print debugging information for Private L2 cache analysis */	  
-  /* for(i = 1; i <= num_msc; i ++)
-     {
-     sprintf(hitmiss, "%s_hitmiss_statistic_private", msc[i-1]->msc_name);
-     hitmiss_statistic = fopen(hitmiss, "w");
-     if( !hitmiss_statistic ) {
-       fprintf(stderr, "Failed to open file: %s (main.c:571)\n", hitmiss);
-       exit(1);
-     }
-
-     for(j = 0; j < msc[i-1]->num_task; j++)
-     {
-     fprintf(hitmiss_statistic,"%Lu  %Lu \n", 
-     msc[i-1]->taskList[j].hit_wcet_L2,
-     msc[i-1]->taskList[j].unknow_wcet_L2,
-     msc[i-1]->taskList[j].unknow_wcet_L2);
-     fprintf(hitmiss_statistic,"%Lu  %Lu \n",
-     msc[i-1]->taskList[j].hit_bcet_L2, 
-     msc[i-1]->taskList[j].unknow_bcet_L2,
-     msc[i-1]->taskList[j].unknow_bcet_L2);
-     fflush(stdout);
-     }
-
-     fclose(hitmiss_statistic);
-     } */
-  /* All DONE --- PRIVATE L1 + PRIVATE L2 */
-
-  /* FIXME: Anything important? */	  
-  /* analysis();
-   * printf( "\nWCET: %Lu\n\n", procs[ main_id ]->wcet );
-   * if( debug ) print_wcet(); */
-
-  /* This is for small scale testing */	  
-  /* test_cs_op(); */
-
   flag = 1;
 
   /* Yes... Now we have to call the WCRT module to compute WCRT */
@@ -609,9 +563,15 @@ int main(int argc, char **argv ) {
     if(num_core == 1 || 
        num_core == 2 ||
        num_core == 4) {
-      sprintf(proc, "%s/m_cache/wcrt/timing simple_test.cf simple_test.pd "
-        "simple_test.msg %d", CHRONOS_PATH, times_iteration);
-      system(proc);
+    
+    char str_times[10];
+    sprintf( str_times, "%d", times_iteration );
+    char *arguments[5] = { "",
+                           "simple_test.cf",
+                           "simple_test.pd",
+                           "simple_test.msg",
+                           str_times };
+      wcrt_analysis( 5, arguments );
     } else {
       fprintf(stderr, "Invalid number of cores!\n");
       exit(1);
@@ -705,17 +665,18 @@ int main(int argc, char **argv ) {
     times_iteration ++;
 
     /* Write WCET/BCET/hit-miss statistics */
+    // TODO: This is a duplicate of the above code. Rewrite the outmost loop
+    //      (checking 'flag') this to a do-while loop
     for(i = 1; i <= num_msc; i ++) {
 
-      sprintf(wbcostPath, "%s_wcetbcet_%d", msc[i-1]->msc_name, times_iteration);
+      sprintf(wbcostPath, "msc%d_wcetbcet_%d", i, times_iteration);
       file = fopen(wbcostPath, "w" );
       if( !file ) {
        fprintf(stderr, "Failed to open file: %s (main.c:713)\n", wbcostPath);
        exit(1);
       }
       
-      sprintf(hitmiss, "%s_hitmiss_statistic_%d", msc[i-1]->msc_name, 
-          times_iteration);
+      sprintf(hitmiss, "msc%d_hitmiss_statistic_%d", i, times_iteration);
       hitmiss_statistic = fopen(hitmiss, "w");
       if( !hitmiss_statistic ) {
        fprintf(stderr, "Failed to open file: %s (main.c:721)\n", hitmiss);
@@ -761,34 +722,6 @@ int main(int argc, char **argv ) {
       fclose(file);
       fclose(hitmiss_statistic);
     }
-
-    /*  to get our result
-        for(i = 1; i <= num_msc; i ++)
-        {
-        sprintf(hitmiss, "%s_hitmiss_statistic_our", msc[i-1]->msc_name);
-        hitmiss_statistic = fopen(hitmiss, "w");
-        if( !hitmiss_statistic ) {
-         fprintf(stderr, "Failed to open file: %s (main.c:771)\n", hitmiss);
-         exit(1);
-        }
-      
-        for(j = 0; j < msc[i-1]->num_task; j++)
-        {
-        fprintf(hitmiss_statistic,"%Lu %Lu %Lu %Lu\n",
-        msc[i-1]->taskList[j].hit_wcet_L2,
-        msc[i-1]->taskList[j].unknow_wcet_L2,
-        msc[i-1]->taskList[j].miss_wcet_L2,
-        msc[i-1]->taskList[j].wcet);
-        fprintf(hitmiss_statistic,"%Lu %Lu %Lu %Lu\n",
-        msc[i-1]->taskList[j].hit_bcet_L2,
-        msc[i-1]->taskList[j].unknow_bcet_L2,
-        msc[i-1]->taskList[j].miss_bcet_L2,
-        msc[i-1]->taskList[j].bcet);
-        fflush(stdout);
-        }
-        fclose(hitmiss_statistic);
-        }
-     */
   }
 
   STOPTIME;
@@ -798,9 +731,7 @@ int main(int argc, char **argv ) {
   /* to generate xls file */
 
   // The base path of all final output files. Individual files only add a suffix
-  char finalStatsBasename[200];
-  sprintf( finalStatsBasename, "%s-%s-%s-%i", interferePathName,
-    basename( cache_config ), basename( cache_config_L2 ), num_core );
+  char *finalStatsBasename = "simpletest";
   
   sprintf(hitmiss, "%s-hitmiss.res", finalStatsBasename);
   hitmiss_statistic = fopen(hitmiss, "w");
@@ -818,14 +749,14 @@ int main(int argc, char **argv ) {
 
   for(i = 1; i <= num_msc; i ++) {
 
-    sprintf(hitmiss, "%s_hitmiss_statistic_wei", msc[i-1]->msc_name);
+    sprintf(hitmiss, "msc%d_hitmiss_statistic_wei", i);
     file_wei = fopen(hitmiss, "r");
     if( !file_wei ) {
      fprintf(stderr, "Failed to open file: %s (main.c:824)\n", hitmiss);
      exit(1);
     }
 
-    sprintf(hitmiss, "%s_hitmiss_statistic_private", msc[i-1]->msc_name);
+    sprintf(hitmiss, "msc%d_hitmiss_statistic_private", i);
     file_private = fopen(hitmiss, "r");
     if( !file_private ) {
      fprintf(stderr, "Failed to open file: %s (main.c:831)\n", hitmiss);

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "header.h"
 #include "handler.c"
@@ -17,7 +18,7 @@ FILE* timefp;
 char resultFileBaseName[200];
 
 
-int main( int argc, char *argv[] ) {
+int wcrt_analysis( int argc, char **argv ) {
 
   int i, j;
   //char cmd[256];
@@ -48,7 +49,10 @@ int main( int argc, char *argv[] ) {
   // If the input files had the form <path>/myinput.xy then we will dump the
   // debug output to <path>/myinput.1.WCRT etc, so this string saves the common
   // part (<path>/myinput) to facilitate the generation of output file names.
-  sprintf( resultFileBaseName, "%s/%s", dirname( cfname ), basename( cfname ) );
+  
+  // Does not work?
+  // sprintf( resultFileBaseName, "%s/%s", dirname( cfname ), basename( cfname ) );
+  sprintf( resultFileBaseName, "%s", cfname );
   
   allocweight = DEFAULT_ALLOCWEIGHT;
   //limitsoln = DEFAULT_LIMITSOLN;

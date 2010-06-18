@@ -63,8 +63,8 @@ int readCost() {
   //for each MSC, read wcet and bcet from corresponding file
 for(i = 0; i < numCharts; i++)
 {
-	sprintf(filepath, "interfere/msc%d_wcetbcet_%s", i+1, times_iteration);
-  	fptr = openfile( filepath, "r" );
+	sprintf(filepath, "msc%d_wcetbcet_%s", i+1, times_iteration);
+  	fptr = wcrt_openfile( filepath, "r" );
 
 	for(j = 0; j < msg[i].topoListLen; j++)
 	{
@@ -101,7 +101,7 @@ for(i = 0; i < numCharts; i++)
   sprintf( proc, "grep BCET: %s.btrace | tail -1 | awk '{print $NF}' > bt", tc->tname );
   system( proc );
 
-  fptr = openfile( "bt", "r" );
+  fptr = wcrt_openfile( "bt", "r" );
   fscanf( fptr, "%Lu", &bcetval );
   fclose( fptr );
 

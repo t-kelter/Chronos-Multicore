@@ -195,7 +195,7 @@ int colorPartition( int *memberList, int numMembers, char *colorAssg, int **colo
   double t;
 
   // prepare parameter file
-  fptr = openfile( "dopartn.par", "w" );
+  fptr = wcrt_openfile( "dopartn.par", "w" );
   fprintf( fptr, "insnsize %d\n", INSN_SIZE );
   fprintf( fptr, "fetchsize %d\n", FETCH_SIZE );
   fprintf( fptr, "latency_spm %d\n", spm_latency );
@@ -204,7 +204,7 @@ int colorPartition( int *memberList, int numMembers, char *colorAssg, int **colo
   fclose( fptr );
 
   // print task information
-  fptr = openfile( "dopartn.tsk", "w" );
+  fptr = wcrt_openfile( "dopartn.tsk", "w" );
   fprintf( fptr, "%d\n", numMembers );
   for( i = 0; i < numMembers; i++ ) {
     task_t *tx = taskList[memberList[i]];
@@ -226,7 +226,7 @@ int colorPartition( int *memberList, int numMembers, char *colorAssg, int **colo
   system( "sort dopartn.tsk > tmp; mv tmp dopartn.tsk" );
 
   // print task sets based on colors
-  fptr = openfile( "dopartn.split", "w" );
+  fptr = wcrt_openfile( "dopartn.split", "w" );
   for( i = 0; i < numMembers; i++ ) {
     int idx = memberList[i];
     fprintf( fptr, "%d %s\n", colorAssg[i], taskList[idx]->tname );
@@ -239,7 +239,7 @@ int colorPartition( int *memberList, int numMembers, char *colorAssg, int **colo
   STOPTIME;
 
   // read results
-  fptr = openfile( "dopartn.partnspm", "r" );
+  fptr = wcrt_openfile( "dopartn.partnspm", "r" );
   while( fscanf( fptr, "%d %d", &pid, &size ) != EOF ) {
     (*colorShare)[pid] = size;
     // printf( "Color %d share %d bytes\n", pid, (*colorShare)[pid] );
@@ -272,7 +272,7 @@ int colorAllocation( chart_t *msc, overlay_t *ox, char *colorAssg, int numColors
   int *colorshare = (int*) CALLOC( colorshare, numColors, sizeof(int), "colorshare" );
 
   // prepare parameter file
-  fptr = openfile( "doalloc.par", "w" );
+  fptr = wcrt_openfile( "doalloc.par", "w" );
   fprintf( fptr, "insnsize %d\n", INSN_SIZE );
   fprintf( fptr, "fetchsize %d\n", FETCH_SIZE );
   fprintf( fptr, "latency_spm %d\n", spm_latency );
@@ -281,7 +281,7 @@ int colorAllocation( chart_t *msc, overlay_t *ox, char *colorAssg, int numColors
   fclose( fptr );
 
   // prepare list of tasks
-  fptr = openfile( "doalloc.tsc", "w" );
+  fptr = wcrt_openfile( "doalloc.tsc", "w" );
   fprintf( fptr, "%d\n", ox->numOwnerTasks );
 
   if( ox->numOwnerTasks == 1 ) {
@@ -324,7 +324,7 @@ int colorAllocation( chart_t *msc, overlay_t *ox, char *colorAssg, int numColors
   system( "spmcolors doalloc doalloc 1 > ilptrace\n" );
 
   // sanity check
-  fptr = openfile( "doalloc.alloc", "r" );
+  fptr = wcrt_openfile( "doalloc.alloc", "r" );
   if( fscanf( fptr, "%s %d %d %x", tname, &fnid, &bbid, &addr ) == EOF ) {
     // rerun with induced solution
     fclose( fptr );
@@ -338,7 +338,7 @@ int colorAllocation( chart_t *msc, overlay_t *ox, char *colorAssg, int numColors
   system( "grep Area ilptrace | sort" );
 
   system( "grep Area ilptrace | sed '/A/s/Area//' > colorshare" );
-  fptr = openfile( "colorshare", "r" );
+  fptr = wcrt_openfile( "colorshare", "r" );
   while( fscanf( fptr, "%d %lf", &idx, &res ) != EOF )
     colorshare[idx] = (int) res;
   fclose( fptr );
@@ -347,7 +347,7 @@ int colorAllocation( chart_t *msc, overlay_t *ox, char *colorAssg, int numColors
   //ox->memBlockList = NULL;
 
   // read solution
-  fptr = openfile( "doalloc.alloc", "r" );
+  fptr = wcrt_openfile( "doalloc.alloc", "r" );
   while( fscanf( fptr, "%s %d %d %x", tname, &fnid, &bbid, &addr ) != EOF ) {
 
     //printf( "%s %d %d %x\n", tname, fnid, bbid, addr ); fflush( stdout );
@@ -380,7 +380,7 @@ int colorAllocation( chart_t *msc, overlay_t *ox, char *colorAssg, int numColors
   }
 
   // read inserted jumps
-  fptr = openfile( "doalloc.jump", "r" );
+  fptr = wcrt_openfile( "doalloc.jump", "r" );
   while( fscanf( fptr, "%s %d %d %x %d", tname, &fnid, &bbid, &addr, &flag ) != EOF ) {
 
     // find the owner of this insn

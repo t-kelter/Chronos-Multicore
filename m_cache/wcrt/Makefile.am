@@ -1,9 +1,10 @@
-noinst_PROGRAMS=timing
+noinst_LIBRARIES=libwcrt.a
 
 # Only program to build here
-timing_SOURCES=main.c
+libwcrt_a_SOURCES=wcrt.c \
+                  cycle_time.c cycle_time.h
 
-timing_CPPFLAGS=-D_DEBUG
+libwcrt_a_CPPFLAGS=-D_DEBUG
 
 # Additionally remove the core dumps on 'make clean' if there are any
 CLEANFILES=core
@@ -14,8 +15,6 @@ CLEANFILES=core
 EXTRA_DIST=alloc.c \
            analysis.c \
            cluster.c \
-           cycle_time.c \
-           cycle_time.h \
            dp.c \
            dump.c \
            graphcoloring.c \
@@ -30,4 +29,5 @@ EXTRA_DIST=alloc.c \
            timing.c \
            timingMSG.c \
            topo.c \
-           util.c
+           util.c \
+           wcrt.h

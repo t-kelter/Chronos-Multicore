@@ -5,8 +5,7 @@
 #include <stdio.h>
 
 
-#include "cycle_time.h"
-//#include "cycle_time.c"
+#include "wcrt/cycle_time.h"
 
 /* 
  * Time-keeping:

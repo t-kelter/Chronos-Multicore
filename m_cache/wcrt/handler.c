@@ -39,7 +39,7 @@
 /*
  * fopen with error check.
  */
-FILE* openfile( char *filename, char *mode ) {
+FILE* wcrt_openfile( char *filename, char *mode ) {
 
   FILE *fptr;
 
@@ -61,7 +61,7 @@ FILE* openfext( char *filename, char *ext, char *mode ) {
   char fn[80];
 
   sprintf( fn, "%s.%s", filename, ext );
-  return openfile( fn, mode );
+  return wcrt_openfile( fn, mode );
 }
 
 
