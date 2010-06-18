@@ -31,7 +31,7 @@ int doAllocationILP( chart_t *msc, overlay_t *ox, int capacity ) {
   }
 
   // prepare parameter file
-  fptr = openfile( "doalloc.par", "w" );
+  fptr = wcrt_openfile( "doalloc.par", "w" );
   fprintf( fptr, "insnsize %d\n", INSN_SIZE );
   fprintf( fptr, "fetchsize %d\n", FETCH_SIZE );
   fprintf( fptr, "latency_spm %d\n", spm_latency );
@@ -40,7 +40,7 @@ int doAllocationILP( chart_t *msc, overlay_t *ox, int capacity ) {
   fclose( fptr );
 
   // prepare list of tasks
-  fptr = openfile( "doalloc.tsk", "w" );
+  fptr = wcrt_openfile( "doalloc.tsk", "w" );
   fprintf( fptr, "%d\n", ox->numOwnerTasks );
 
   if( ox->numOwnerTasks == 1 ) {
@@ -83,7 +83,7 @@ int doAllocationILP( chart_t *msc, overlay_t *ox, int capacity ) {
   system( "spm doalloc doalloc 1 > ilptrace" );
 
   // sanity check
-  fptr = openfile( "doalloc.alloc", "r" );
+  fptr = wcrt_openfile( "doalloc.alloc", "r" );
   if( fscanf( fptr, "%s %d %d %x", tname, &fnid, &bbid, &addr ) == EOF ) {
     // rerun with induced solution
     fclose( fptr );
@@ -98,7 +98,7 @@ int doAllocationILP( chart_t *msc, overlay_t *ox, int capacity ) {
   //ox->memBlockList = NULL;
   
   // read solution
-  fptr = openfile( "doalloc.alloc", "r" );
+  fptr = wcrt_openfile( "doalloc.alloc", "r" );
   while( fscanf( fptr, "%s %d %d %x", tname, &fnid, &bbid, &addr ) != EOF ) {
     
     //printf( "%s %d %d %x\n", tname, fnid, bbid, addr ); fflush( stdout );
@@ -124,7 +124,7 @@ int doAllocationILP( chart_t *msc, overlay_t *ox, int capacity ) {
   fclose( fptr );
 
   // read inserted jumps
-  fptr = openfile( "doalloc.jump", "r" );
+  fptr = wcrt_openfile( "doalloc.jump", "r" );
   while( fscanf( fptr, "%s %d %d %x %d", tname, &fnid, &bbid, &addr, &flag ) != EOF ) {
     
     // find the owner of this insn

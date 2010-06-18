@@ -39,13 +39,13 @@
 /*
  * fopen with error check.
  */
-FILE* openfile( char *filename, char *mode ) {
+FILE* wcrt_openfile( char *filename, char *mode ) {
 
   FILE *fptr;
 
   fptr = fopen( filename, mode );
   if( !fptr ) {
-    fprintf( stderr, "Failed to open file %s.\n", filename );
+    fprintf( stderr, "Failed to open file %s. (handler.c:48)\n", filename );
     exit(1);
   }
 
@@ -61,7 +61,7 @@ FILE* openfext( char *filename, char *ext, char *mode ) {
   char fn[80];
 
   sprintf( fn, "%s.%s", filename, ext );
-  return openfile( fn, mode );
+  return wcrt_openfile( fn, mode );
 }
 
 

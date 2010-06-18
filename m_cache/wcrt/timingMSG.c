@@ -429,7 +429,7 @@ int timingEstimate_synch() {
     printf( "WCRT[%d]: %Lu\n", i, msg[i].wcrt );
   printf( "\n" );
 
-  ilpf = openfile( "wcrtsyn.ilp", "w" );
+  ilpf = wcrt_openfile( "wcrtsyn.ilp", "w" );
 
   /* sudiptac ::: changing the syntax for using lp_solve */		  
   /* fprintf( ilpf, "enter Q\n" ); */
@@ -530,7 +530,7 @@ int timingEstimate_synch() {
   // read solution ::: sudiptac :: CHANGED
   system( "grep objective wcrtsyn.sol | awk '{print $NF}' > wcrtsyn.val" );
 
-  ilpf = openfile( "wcrtsyn.val", "r" );
+  ilpf = wcrt_openfile( "wcrtsyn.val", "r" );
   fscanf( ilpf, "%le", &soln );
   fclose( ilpf );
 
@@ -543,9 +543,9 @@ int timingEstimate_synch() {
   FILE *f;
   char path[MAXLEN];
   sprintf(path, "%s.%s.WCRT", resultFileBaseName, times_iteration);
-  f = openfile(path, "w");
+  f = wcrt_openfile(path, "w");
   if( !f ) {
-    fprintf( stderr, "Failed to open file %s.\n", path );
+    fprintf( stderr, "Failed to open file %s (timingMSG.c:548).\n", path );
     exit(1);
   }
   
@@ -723,7 +723,7 @@ int timingEstimate_asynch_() {
   // concatenation result
   int numPaths = 0;
 
-  FILE *pathf = openfile( "wcrtasyn.paths", "w" );
+  FILE *pathf = wcrt_openfile( "wcrtasyn.paths", "w" );
   fprintf( pathf, "Path %d\n", numPaths );
   printf( "Path %d\n", numPaths ); fflush( stdout );
 
@@ -810,7 +810,7 @@ int timingEstimate_asynch_() {
         max = prevpx->msc->wcrt;
         maxpx = prevpx;
       } else
-        freePath( prevpx );
+        wcrt_freePath( prevpx );
 
       fprintf( pathf, "Path %d\n", numPaths );
       printf( "Path %d\n", numPaths ); fflush( stdout );
@@ -873,7 +873,7 @@ int timingEstimate_asynch_() {
   free( backtrack );
   free( nextsucc );
 
-  freePath( maxpx );
+  wcrt_freePath( maxpx );
   free( maxpx );
 
   return 0;

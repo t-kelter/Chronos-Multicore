@@ -105,7 +105,7 @@ void setSchedule(char* sched_file)
 
 	fp = fopen(sched_file, "r");
   if (fp == NULL) {
-    fprintf(stderr, "Failed to open file: %s\n", sched_file);
+    fprintf(stderr, "Failed to open file: %s (busSchedule.c:108)\n", sched_file);
     exit (1);
   }
     

@@ -3,8 +3,6 @@
 #include <time.h>
 
 #include "header.h"
-#include "cycle_time.c"
-#include "cycle_time.h"
 #include "analysis.h"
 #include "infeasible.h"
 #include "handler.c"
@@ -27,6 +25,8 @@
 #include "pathDAG.c"
 /* For bus-aware WCET calculation */
 #include "busSchedule.c"
+#include "wcrt/wcrt.h"
+#include "wcrt/cycle_time.h"
 
 /*!
  * This is the main function for a debuggin version of the analyzer.

@@ -90,6 +90,7 @@ typedef struct {
   int  *timeTopoList;      // updating order based on topology and current scheduling, for safe slack insertion
   time_t wcrt;             // WCRT of the chart
   sched_t **PEList;
+  char *msc_name; // The file from which the chart was read
 } chart_t;
 
 typedef struct {
