@@ -91,7 +91,7 @@ int main( int argc, char *argv[] ) {
 	  char taskNameFile[] = "taskNameFile";
 	  taskName = fopen(taskNameFile, "w");
     if( !taskName ) {
-      fprintf( stderr, "Failed to open file %s.\n", taskNameFile );
+      fprintf( stderr, "Failed to open file %s (main.c:94).\n", taskNameFile );
       exit(1);
     }
     
@@ -135,7 +135,7 @@ int main( int argc, char *argv[] ) {
     strcat( filename, ".task_timing.db" );
 	  timefp = fopen(filename, "w");
     if( !timefp ) {
-      fprintf( stderr, "Failed to open file %s.\n", filename );
+      fprintf( stderr, "Failed to open file %s (main.c:138).\n", filename );
       exit(1);
     }
 	}

@@ -88,7 +88,7 @@ set_cache_basic_L2(char * configFile)
 
   fptr = fopen(configFile, "r" );
   if (fptr == NULL) {
-    fprintf(stderr, "Failed to open file: %s\n", configFile);
+    fprintf(stderr, "Failed to open file: %s (analysisCacheL2.c:91)\n", configFile);
     exit (1);
   }
   

@@ -74,7 +74,7 @@ int read_bbcosts() {
     sprintf( fn, "%s.regs", filename );
     f = fopen( fn, "r" );
     if( !f ) {
-      fprintf(stderr, "Failed to open file: %s\n", fn);
+      fprintf(stderr, "Failed to open file: %s (main.c:77)\n", fn);
       exit(1);
     }
     
@@ -89,7 +89,7 @@ int read_bbcosts() {
     sprintf( fn, "%s.bbreg", filename );
     f = fopen( fn, "r" );
     if( !f ) {
-      fprintf(stderr, "Failed to open file: %s\n", fn);
+      fprintf(stderr, "Failed to open file: %s (main.c:92)\n", fn);
       exit(1);
     }
     
@@ -210,7 +210,7 @@ int main(int argc, char **argv ) {
    * information */
   interferPath = fopen(interferePathName, "r");
   if( !interferPath ) {
-    fprintf(stderr, "Failed to open file: %s\n", interferePathName);
+    fprintf(stderr, "Failed to open file: %s (main.c:213)\n", interferePathName);
     exit(1);
   }
 
@@ -228,7 +228,7 @@ int main(int argc, char **argv ) {
 
     interferFile = fopen(interferFileName,"r");
     if( !interferFile ) {
-      fprintf(stderr, "Failed to open file: %s\n", interferFileName);
+      fprintf(stderr, "Failed to open file: %s (main.c:231)\n", interferFileName);
       exit(1);
     }
 
@@ -435,7 +435,7 @@ int main(int argc, char **argv ) {
     sprintf(proc, "conflictTaskMSC_%d", num_msc - 1);
     conflictMSC = fopen(proc, "w");
     if( !conflictMSC ) {
-      fprintf(stderr, "Failed to open file: %s\n", proc);
+      fprintf(stderr, "Failed to open file: %s (main.c:438)\n", proc);
       exit(1);
     }
 
@@ -476,14 +476,14 @@ int main(int argc, char **argv ) {
     sprintf(wbcostPath, "%s_wcetbcet_%d", msc[i-1]->msc_name, times_iteration);
     file = fopen(wbcostPath, "w" );
     if( !file ) {
-      fprintf(stderr, "Failed to open file: %s\n", wbcostPath);
+      fprintf(stderr, "Failed to open file: %s (main.c:479)\n", wbcostPath);
       exit(1);
     }
     
     sprintf(hitmiss, "%s_hitmiss_statistic_%d", msc[i-1]->msc_name, times_iteration);
     hitmiss_statistic = fopen(hitmiss, "w");
     if( !hitmiss_statistic ) {
-      fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+      fprintf(stderr, "Failed to open file: %s (main.c:486)\n", hitmiss);
       exit(1);
     }
 
@@ -535,7 +535,7 @@ int main(int argc, char **argv ) {
     sprintf(hitmiss, "%s_hitmiss_statistic_wei", msc[i-1]->msc_name);
     hitmiss_statistic = fopen(hitmiss, "w");
     if( !hitmiss_statistic ) {
-      fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+      fprintf(stderr, "Failed to open file: %s (main.c:538)\n", hitmiss);
       exit(1);
     }
     
@@ -568,7 +568,7 @@ int main(int argc, char **argv ) {
      sprintf(hitmiss, "%s_hitmiss_statistic_private", msc[i-1]->msc_name);
      hitmiss_statistic = fopen(hitmiss, "w");
      if( !hitmiss_statistic ) {
-       fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+       fprintf(stderr, "Failed to open file: %s (main.c:571)\n", hitmiss);
        exit(1);
      }
 
@@ -621,7 +621,7 @@ int main(int argc, char **argv ) {
     sprintf(interferFileName, "%s_%d", interferePathName, times_iteration);
     interferPath = fopen(interferFileName, "r");
     if( !interferPath ) {
-     fprintf(stderr, "Failed to open file: %s\n", interferFileName);
+     fprintf(stderr, "Failed to open file: %s (main.c:624)\n", interferFileName);
      exit(1);
     }
 
@@ -629,7 +629,7 @@ int main(int argc, char **argv ) {
       fscanf(interferPath, "%s\n", &interferFileName);
       interferFile = fopen(interferFileName,"r");
       if( !interferFile ) {
-       fprintf(stderr, "Failed to open file: %s\n", interferFileName);
+       fprintf(stderr, "Failed to open file: %s (main.c:632)\n", interferFileName);
        exit(1);
       }
 
@@ -710,7 +710,7 @@ int main(int argc, char **argv ) {
       sprintf(wbcostPath, "%s_wcetbcet_%d", msc[i-1]->msc_name, times_iteration);
       file = fopen(wbcostPath, "w" );
       if( !file ) {
-       fprintf(stderr, "Failed to open file: %s\n", wbcostPath);
+       fprintf(stderr, "Failed to open file: %s (main.c:713)\n", wbcostPath);
        exit(1);
       }
       
@@ -718,7 +718,7 @@ int main(int argc, char **argv ) {
           times_iteration);
       hitmiss_statistic = fopen(hitmiss, "w");
       if( !hitmiss_statistic ) {
-       fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+       fprintf(stderr, "Failed to open file: %s (main.c:721)\n", hitmiss);
        exit(1);
       }
 
@@ -768,7 +768,7 @@ int main(int argc, char **argv ) {
         sprintf(hitmiss, "%s_hitmiss_statistic_our", msc[i-1]->msc_name);
         hitmiss_statistic = fopen(hitmiss, "w");
         if( !hitmiss_statistic ) {
-         fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+         fprintf(stderr, "Failed to open file: %s (main.c:771)\n", hitmiss);
          exit(1);
         }
       
@@ -805,14 +805,14 @@ int main(int argc, char **argv ) {
   sprintf(hitmiss, "%s-hitmiss.res", finalStatsBasename);
   hitmiss_statistic = fopen(hitmiss, "w");
   if( !hitmiss_statistic ) {
-   fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+   fprintf(stderr, "Failed to open file: %s (main.c:808)\n", hitmiss);
    exit(1);
   }
   
   sprintf(hitmiss, "%s-wcrt.res", finalStatsBasename);
   wcrt = fopen(hitmiss, "w");
   if( !wcrt ) {
-   fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+   fprintf(stderr, "Failed to open file: %s (main.c:815)\n", hitmiss);
    exit(1);
   }
 
@@ -821,14 +821,14 @@ int main(int argc, char **argv ) {
     sprintf(hitmiss, "%s_hitmiss_statistic_wei", msc[i-1]->msc_name);
     file_wei = fopen(hitmiss, "r");
     if( !file_wei ) {
-     fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+     fprintf(stderr, "Failed to open file: %s (main.c:824)\n", hitmiss);
      exit(1);
     }
 
     sprintf(hitmiss, "%s_hitmiss_statistic_private", msc[i-1]->msc_name);
     file_private = fopen(hitmiss, "r");
     if( !file_private ) {
-     fprintf(stderr, "Failed to open file: %s\n", hitmiss);
+     fprintf(stderr, "Failed to open file: %s (main.c:831)\n", hitmiss);
      exit(1);
     }
 
@@ -926,7 +926,7 @@ int main(int argc, char **argv ) {
   if(times_iteration > 1) {
     file = fopen(summary2, "r");
     if( !file ) {
-     fprintf(stderr, "Failed to open file: %s\n", summary2);
+     fprintf(stderr, "Failed to open file: %s (main.c:929)\n", summary2);
      exit(1);
     }
     
@@ -936,7 +936,7 @@ int main(int argc, char **argv ) {
   } else {
     file = openfile(summary1, "r");
     if( !file ) {
-     fprintf(stderr, "Failed to open file: %s\n", summary1);
+     fprintf(stderr, "Failed to open file: %s (main.c:939)\n", summary1);
      exit(1);
     }
     
@@ -946,7 +946,7 @@ int main(int argc, char **argv ) {
   }
   file = openfile(summary1, "r");
   if( !file ) {
-   fprintf(stderr, "Failed to open file: %s\n", summary1);
+   fprintf(stderr, "Failed to open file: %s (main.c:949)\n", summary1);
    exit(1);
   }
   

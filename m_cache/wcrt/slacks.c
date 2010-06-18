@@ -54,7 +54,7 @@ static int writeWeiConflict()
 	sprintf(name, "%s.interferePath", resultFileBaseName);
 	interferePath = fopen(name, "w");
   if( !interferePath ) {
-    fprintf( stderr, "Failed to open file %s.\n", name );
+    fprintf( stderr, "Failed to open file %s (slacks.c:57).\n", name );
     exit(1);
   }
 	
@@ -66,7 +66,7 @@ static int writeWeiConflict()
 		
 		interfereFile = fopen(name,"w");
     if( !interfereFile ) {
-      fprintf( stderr, "Failed to open file %s.\n", name );
+      fprintf( stderr, "Failed to open file %s (slacks.c:69).\n", name );
       exit(1);
     }
   
@@ -221,7 +221,7 @@ int writeInterference()
 		sprintf(name, "%s.interferePath_%s", resultFileBaseName, times_iteration);
 		interferePath = fopen(name, "w");
     if( !interferePath ) {
-      fprintf( stderr, "Failed to open file %s.\n", name );
+      fprintf( stderr, "Failed to open file %s (slacks.c:224).\n", name );
       exit(1);
     }
     
@@ -233,7 +233,7 @@ int writeInterference()
 			
 			interfereFile = fopen(name,"w");
       if( !interfereFile ) {
-        fprintf( stderr, "Failed to open file %s.\n", name );
+        fprintf( stderr, "Failed to open file %s (slacks.c:236).\n", name );
         exit(1);
       }
       

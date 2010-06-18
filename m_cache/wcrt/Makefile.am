@@ -3,6 +3,8 @@ noinst_PROGRAMS=timing
 # Only program to build here
 timing_SOURCES=main.c
 
+timing_CPPFLAGS=-D_DEBUG
+
 # Additionally remove the core dumps on 'make clean' if there are any
 CLEANFILES=core
 

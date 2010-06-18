@@ -120,7 +120,7 @@ set_cache_basic(char * configFile)
 
   fptr = fopen(configFile, "r" );
   if( !fptr ) {
-    fprintf(stderr, "Failed to open file: %s\n", configFile);
+    fprintf(stderr, "Failed to open file: %s (analysisCache.c:123)\n", configFile);
     exit(1);
   }
   

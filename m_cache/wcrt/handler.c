@@ -45,7 +45,7 @@ FILE* openfile( char *filename, char *mode ) {
 
   fptr = fopen( filename, mode );
   if( !fptr ) {
-    fprintf( stderr, "Failed to open file %s.\n", filename );
+    fprintf( stderr, "Failed to open file %s. (handler.c:48)\n", filename );
     exit(1);
   }
 

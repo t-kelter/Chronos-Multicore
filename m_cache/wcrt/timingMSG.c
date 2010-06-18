@@ -545,7 +545,7 @@ int timingEstimate_synch() {
   sprintf(path, "%s.%s.WCRT", resultFileBaseName, times_iteration);
   f = openfile(path, "w");
   if( !f ) {
-    fprintf( stderr, "Failed to open file %s.\n", path );
+    fprintf( stderr, "Failed to open file %s (timingMSG.c:548).\n", path );
     exit(1);
   }
   
