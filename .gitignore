@@ -30,3 +30,8 @@ scripts/chronos_analyze
 scripts/chronos_compile
 scripts/chronos_simulate
 stamp-h1
+tags
+cfg/tags
+.git/refs/tags
+m_cache/tags
+m_cache/wcrt/tags
