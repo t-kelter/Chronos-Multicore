@@ -563,15 +563,7 @@ int main(int argc, char **argv ) {
     if(num_core == 1 || 
        num_core == 2 ||
        num_core == 4) {
-    
-    char str_times[10];
-    sprintf( str_times, "%d", times_iteration );
-    char *arguments[5] = { "",
-                           "simple_test.cf",
-                           "simple_test.pd",
-                           "simple_test.msg",
-                           str_times };
-      wcrt_analysis( 5, arguments );
+      wcrt_analysis( "simple_test.cf", "simple_test.pd", "simple_test.msg" );
     } else {
       fprintf(stderr, "Invalid number of cores!\n");
       exit(1);

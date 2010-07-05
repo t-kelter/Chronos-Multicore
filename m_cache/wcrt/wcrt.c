@@ -17,34 +17,17 @@
 FILE* timefp;
 char resultFileBaseName[200];
 
-
-int wcrt_analysis( int argc, char **argv ) {
-
+/*! Carries out the WCRT analysis, with the given input files. */
+int wcrt_analysis( char* filename_cf, char *filename_pd, char *filename_dg )
+{
   int i, j;
-  //char cmd[256];
-
   //time_t wcet, bcet;
 
-  if( argc < 3 ) {
-    printf( "Usage: %s <config_file> <task_desc> <dpd_graph> <times_iteration>\n", 
-      argv[0] );
-    //printf( "<concat_method>: 0 (synchronous) | 1 (asynchronous)\n" );
-    //printf( "<alloc_method>:\n" );
-    //printf( "  0: NONE (analysis only)\n" );
-    //printf( "  1: PROFILE_KNAPSACK   2: INTERFERENCE_CLUSTER   3: GRAPH_COLORING   4: CRITICAL_REDUCTION\n" );
-    exit(1);
-  }
-
-  cfname = argv[1];
-  pdname = argv[2];
-  dgname = argv[3];
-  times_iteration = argv[4];
+  cfname = filename_cf;
+  pdname = filename_pd;
+  dgname = filename_dg;
+  
   DEBUG = 0;
-  //concat = atoi( argv[4] );
-  //allocmethod = atoi( argv[5] );
-
-  //if( argc > 6 )
-  // DEBUG = atoi( argv[6] );
 
   // If the input files had the form <path>/myinput.xy then we will dump the
   // debug output to <path>/myinput.1.WCRT etc, so this string saves the common
@@ -67,12 +50,6 @@ int wcrt_analysis( int argc, char **argv ) {
   /* For debugging */
   dumpTaskInfo();
 
-
-  /* for(i = 0; i < numCharts; i++)
-	 printf("%d ", topoMSG[i]);
-	 exit(1);
-  */
-
   /* record of critical path */
   isCritical = (char*) CALLOC( isCritical, numTasks, sizeof(char), "isCritical" );
 
@@ -89,19 +66,6 @@ int wcrt_analysis( int argc, char **argv ) {
   writeWeiConflict();
   printf("Done writing Wei conflict....\n");
   fflush(stdout);
-
-  /*
-	  FILE *taskName;
-	  char taskNameFile[] = "taskNameFile";
-	  taskName = fopen(taskNameFile, "w");
-    if( !taskName ) {
-      fprintf( stderr, "Failed to open file %s (main.c:94).\n", taskNameFile );
-      exit(1);
-    }
-    
-	  for(i = 0; i < numTasks; i ++)
-		  fprintf("%s\n", taskList[i]->tname);
-  */
 
   readCost();
 

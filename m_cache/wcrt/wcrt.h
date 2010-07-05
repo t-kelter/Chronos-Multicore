@@ -6,4 +6,4 @@
    these were two different programs.
 */
 
-int wcrt_analysis( int argc, char **argv );
+int wcrt_analysis( char* filename_cf, char *filename_pd, char *filename_dg );
