@@ -7,13 +7,8 @@
 static void
 freeCacheSet(cache_line_way_t **cache_set);
 
-
 static procedure*
 constructFunctionCall(procedure *pro, task_t *task);
-
-
-static cache_state *
-calculateFunctionCall(int pid, cache_state * before);
 
 static block* 
 copyBlock(block * bb);

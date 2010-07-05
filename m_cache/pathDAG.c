@@ -14,12 +14,8 @@ static void
 pathFunction(procedure *proc)
 {
 	int i, cnt, lp_level, num_blk, copies;
-	char tmp;
 	procedure *p = proc;
 	block *bb;
-
-
-	//printf("pathFunction\n");
 
 	for(i = 0; i < MAX_NEST_LOOP; i++)
 		if(loop_level_arr[i] == INVALID)
@@ -200,11 +196,8 @@ pathLoop(procedure *proc, loop *lp)
 	procedure *p = proc;
 	block *bb;
 	loop *lp_ptr = lp;
-	char tmp;
-	
-	num_blk = lp_ptr->num_topo;
 
-	//printf("pathLoop\n");
+	num_blk = lp_ptr->num_topo;
 
 	for(i = 0; i < MAX_NEST_LOOP; i++)
 		if(loop_level_arr[i] == INVALID)

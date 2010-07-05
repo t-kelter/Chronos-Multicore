@@ -12,12 +12,11 @@
 #include <stdio.h>
 #include "ecoff.h"
 #include "readfile.h"
-
+#include <stdlib.h>
 
 SS_INST_TYPE * readcode(char *fname, int *start, int *end)
 {
     FILE		    *pf;
-    long		    pos;
     struct ecoff_filehdr    fhdr;
     struct ecoff_aouthdr    ahdr;
     struct ecoff_scnhdr	    shdr;

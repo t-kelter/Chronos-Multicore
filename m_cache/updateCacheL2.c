@@ -16,7 +16,7 @@ updateFunctionCall(MSC *msc, int index, procedure* proc);
 static int
 conflictStatistics(MSC *msc, int index, int set_no, int current_addr)
 {
-    int i, j, k, entry, flag = 0, conflict = 0;
+  int i, j, entry, conflict = 0;
 	int *history = NULL, cnt = 0;
 	history = (int *)CALLOC(history, MAX_LEN * 2, sizeof(int), "history int[]");
 	

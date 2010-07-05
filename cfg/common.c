@@ -25,8 +25,9 @@
 
 #include "common.h"
 #include <assert.h>
-
-
+#include <string.h>
+#include <stdlib.h>
+#include <stdint.h>
 
 /* binary search, if not match, return the entry where key will be inserted in front
  */
@@ -66,9 +67,8 @@ void
 my_insert(const void *x, void *base, void *y, int *nelem, int size)
 {
     int	    nbytes;
-    void    *p;
 
-    nbytes = (*nelem) * size - ((int)y - (int)base);
+    nbytes = (*nelem) * size - ((intptr_t)y - (intptr_t)base);
     assert(nbytes >= 0);
     memmove(y+size, y, nbytes);
     memcpy(y, x, size);

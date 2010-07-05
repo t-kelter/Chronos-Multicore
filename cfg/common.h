@@ -50,7 +50,7 @@
 
 #define CHECK_MEM(p) \
 if ((p) == NULL) { \
-    fprintf(stderr, "out of memory\n", __FILE__, __LINE__); \
+    fprintf(stderr, "Out of memory in %s:%d\n", __FILE__, __LINE__); \
     exit(1); \
 }
 

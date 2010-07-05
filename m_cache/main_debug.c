@@ -33,9 +33,6 @@
  */
 int main( int argc, char **argv ) {
 
-  int i, j;
-  procedure *p;
-
   if( argc < 2 ) {
     printf( "\nUsage: opt <filename> <TDMA schedule file> [debug_on]\n" ), exit(1);}
 

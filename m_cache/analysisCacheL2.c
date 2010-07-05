@@ -28,7 +28,6 @@ static cache_state *
 copyCacheState_L2(cache_state *cs);
 
 
-
 //static void dump_cache_line(cache_line_way_t *clw_a);
 /* return log of integer n to the base 2 
 * -1  if n<0 or n!=power(2,m);
@@ -46,11 +45,6 @@ freeAllFunction_L2(procedure *proc);
 
 static void
 freeAllLoop_L2(procedure *proc, loop *lp);
-
-
-
-static char
-isNeverInCacheL2(int addr, cache_line_way_t**may);
 
 static char
 isInCache_L2(int addr, cache_line_way_t**must);

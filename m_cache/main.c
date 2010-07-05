@@ -129,15 +129,12 @@ int analysis() {
 // For debugging purposes we 
 int main(int argc, char **argv ) {
 
-  FILE *file, *hitmiss_statistic, *file_wei, *file_private, *wcrt;
+  FILE *file, *hitmiss_statistic, *wcrt;
   char wbcostPath[MAX_LEN], hitmiss[MAX_LEN];
-  ull hit_statistics, unknow_statistics, miss_statistics, differ;
-  ull hit_statistics_wei, unknow_statistics_wei, wcet_wei, wcet_our;
   int n;
   int i, j, k, flag, tmp;
   int num_task , num_msc;
   num_msc = 0;
-  char char_tmp;
   float sum;
   FILE *interferPath, *interferFile, *conflictMSC;
   char interferFileName[MAX_LEN], proc[2*MAX_LEN];
@@ -251,7 +248,7 @@ int main(int argc, char **argv ) {
     /* Get/set names of all tasks in the MSC */	  
     for(i = 0; i < num_task; i ++) {
 
-      fscanf(interferFile, "%s\n", &(msc[num_msc -1]->taskList[i].task_name));
+      fscanf(interferFile, "%s\n", (char*)&(msc[num_msc -1]->taskList[i].task_name));
       /* sudiptac ::: Read also the successor info. Needed for WCET analysis
        * in presence of shared bus */
       fscanf(interferFile, "%d", &(msc[num_msc - 1]->taskList[i].numSuccs));
@@ -259,7 +256,7 @@ int main(int argc, char **argv ) {
 
       /* Allocate memory for successor List */
       msc[num_msc - 1]->taskList[i].succList = 
-        (uint *)malloc(nSuccs * sizeof(uint));
+        (int*)malloc(nSuccs * sizeof(int));
       if(!msc[num_msc - 1]->taskList[i].succList)	
         prerr("Error: Out of Memory");
 
@@ -578,7 +575,7 @@ int main(int argc, char **argv ) {
     }
 
     for(i = 0; i < num_msc; i ++) {
-      fscanf(interferPath, "%s\n", &interferFileName);
+      fscanf(interferPath, "%s\n", (char*)&interferFileName);
       interferFile = fopen(interferFileName,"r");
       if( !interferFile ) {
        fprintf(stderr, "Failed to open file: %s (main.c:632)\n", interferFileName);
@@ -590,13 +587,13 @@ int main(int argc, char **argv ) {
       /* Go through all the task and set all informations as 
        * previous */
       for(j = 0; j < msc[i]->num_task; j ++) {
-        fscanf(interferFile, "%s\n", &(msc[i]->taskList[j].task_name));
+        fscanf(interferFile, "%s\n", (char*)&(msc[i]->taskList[j].task_name));
         /* sudiptac ::: Read also the successor info. Needed for WCET analysis
          * in presence of shared bus */
         fscanf(interferFile, "%d ", &(msc[i]->taskList[j].numSuccs));
         nSuccs = msc[i]->taskList[j].numSuccs;
         /* Allocate memory for successor List */
-        msc[i]->taskList[j].succList = (uint *) malloc(nSuccs * sizeof(uint));
+        msc[i]->taskList[j].succList = (int*) malloc(nSuccs * sizeof(int));
         if(!msc[i]->taskList[j].succList)	
           prerr("Error: Out of Memory");		 	 
         /* Now read all successor id-s of this task in the same MSC. Task id-s
@@ -734,6 +731,10 @@ int main(int argc, char **argv ) {
   
   /* This is just some statistics used for comparison against an old approach */ 
   
+  // FILE *file_wei, *file_private;
+  // ull hit_statistics, unknow_statistics, miss_statistics, differ;
+  // ull hit_statistics_wei, unknow_statistics_wei;
+  
   // sprintf(hitmiss, "%s-hitmiss.res", finalStatsBasename);
   // hitmiss_statistic = fopen(hitmiss, "w");
   // if( !hitmiss_statistic ) {
@@ -848,6 +849,7 @@ int main(int argc, char **argv ) {
   sprintf( summary1, "%s.cf.1.WCRT", finalStatsBasename );
   char summary2[200];
   sprintf( summary2, "%s.cf.2.WCRT", finalStatsBasename );
+  ull wcet_our, wcet_wei;
   
   if(times_iteration > 1) {
     file = fopen(summary2, "r");

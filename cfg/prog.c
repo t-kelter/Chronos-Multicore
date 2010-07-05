@@ -16,6 +16,8 @@
 #include "common.h"
 #include "prog.h"
 
+#include <stdlib.h>
+
 //extern Prog prog;
 #include "globals.h"
 
