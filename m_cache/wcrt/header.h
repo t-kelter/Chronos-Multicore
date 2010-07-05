@@ -113,7 +113,7 @@ typedef struct {
 char *cfname;
 char *pdname;
 char *dgname;
-char *times_iteration;
+extern int times_iteration; // This is given by the main program
 char allocmethod;
 char concat;
 

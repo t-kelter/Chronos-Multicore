@@ -218,7 +218,7 @@ int writeInterference()
 		printf("writing interference now...\n");
 		fflush (stdout);
 
-		sprintf(name, "%s.interferePath_%s", resultFileBaseName, times_iteration);
+		sprintf(name, "%s.interferePath_%d", resultFileBaseName, times_iteration);
 		interferePath = fopen(name, "w");
     if( !interferePath ) {
       fprintf( stderr, "Failed to open file %s (slacks.c:224).\n", name );
@@ -226,7 +226,7 @@ int writeInterference()
     }
     
 		for( j = 1; j <= mscNum; j++) {
-		  sprintf(name, "%s.%s_msc%d", resultFileBaseName, times_iteration, j);
+		  sprintf(name, "%s.%d_msc%d", resultFileBaseName, times_iteration, j);
 			fprintf(interferePath, "%s\n", name);
 			
 			len = msg[j-1].topoListLen;

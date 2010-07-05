@@ -63,7 +63,7 @@ int readCost() {
   //for each MSC, read wcet and bcet from corresponding file
 for(i = 0; i < numCharts; i++)
 {
-	sprintf(filepath, "msc%d_wcetbcet_%s", i+1, times_iteration);
+	sprintf(filepath, "msc%d_wcetbcet_%d", i+1, times_iteration);
   	fptr = wcrt_openfile( filepath, "r" );
 
 	for(j = 0; j < msg[i].topoListLen; j++)

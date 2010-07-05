@@ -532,7 +532,7 @@ int main(int argc, char **argv ) {
 
   /* to get Wei's result */
   for(i = 1; i <= num_msc; i ++) {
-    sprintf(hitmiss, "msc%d_hitmiss_statistic_wei", i+1);
+    sprintf(hitmiss, "msc%d_hitmiss_statistic_wei", i);
     hitmiss_statistic = fopen(hitmiss, "w");
     if( !hitmiss_statistic ) {
       fprintf(stderr, "Failed to open file: %s (main.c:538)\n", hitmiss);
@@ -570,7 +570,7 @@ int main(int argc, char **argv ) {
     }
 
     /* Open and get the new interference file */  
-    sprintf(interferFileName, "%s_%d", interferePathName, times_iteration);
+    sprintf(interferFileName, "%s.interferePath_%d", "simple_test.cf", times_iteration);
     interferPath = fopen(interferFileName, "r");
     if( !interferPath ) {
      fprintf(stderr, "Failed to open file: %s (main.c:624)\n", interferFileName);
@@ -723,14 +723,7 @@ int main(int argc, char **argv ) {
   /* to generate xls file */
 
   // The base path of all final output files. Individual files only add a suffix
-  char *finalStatsBasename = "simpletest";
-  
-  sprintf(hitmiss, "%s-hitmiss.res", finalStatsBasename);
-  hitmiss_statistic = fopen(hitmiss, "w");
-  if( !hitmiss_statistic ) {
-   fprintf(stderr, "Failed to open file: %s (main.c:808)\n", hitmiss);
-   exit(1);
-  }
+  char *finalStatsBasename = "simple_test";
   
   sprintf(hitmiss, "%s-wcrt.res", finalStatsBasename);
   wcrt = fopen(hitmiss, "w");
@@ -738,98 +731,108 @@ int main(int argc, char **argv ) {
    fprintf(stderr, "Failed to open file: %s (main.c:815)\n", hitmiss);
    exit(1);
   }
-
-  for(i = 1; i <= num_msc; i ++) {
-
-    sprintf(hitmiss, "msc%d_hitmiss_statistic_wei", i);
-    file_wei = fopen(hitmiss, "r");
-    if( !file_wei ) {
-     fprintf(stderr, "Failed to open file: %s (main.c:824)\n", hitmiss);
-     exit(1);
-    }
-
-    sprintf(hitmiss, "msc%d_hitmiss_statistic_private", i);
-    file_private = fopen(hitmiss, "r");
-    if( !file_private ) {
-     fprintf(stderr, "Failed to open file: %s (main.c:831)\n", hitmiss);
-     exit(1);
-    }
-
-    for(j = 0; j < msc[i-1]->num_task; j++) {
-      /* task name */
-      fprintf(hitmiss_statistic, "%s	", msc[i-1]->taskList[j].task_name);
-
-      /* WCET L1 */
-      fprintf(hitmiss_statistic,"%Lu	%Lu	%Lu	", 
-          msc[i-1]->taskList[j].hit_wcet,
-          msc[i-1]->taskList[j].unknow_wcet, 
-          msc[i-1]->taskList[j].miss_wcet);
-      /* hit in L2 */
-      fscanf(file_wei ,"%Lu	", &hit_statistics_wei);
-      fprintf(hitmiss_statistic,"%Lu	", hit_statistics_wei);
-      fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].hit_wcet_L2);
-      /* printf("hit_statistics_wei = %Lu\n", hit_statistics_wei); */
-      fscanf(file_private ,"%Lu	", &hit_statistics);
-      fprintf(hitmiss_statistic,"%Lu	", hit_statistics);
-      /* printf("hit_statistics = %Lu\n", hit_statistics); */
-
-      /* unknow in L2 */
-      fscanf(file_wei ,"%Lu	", &unknow_statistics_wei);
-      fprintf(hitmiss_statistic,"%Lu	", unknow_statistics_wei);
-      fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].unknow_wcet_L2);
-
-      /* printf("unknow_statistics_wei = %Lu\n", unknow_statistics_wei); */
-      fscanf(file_private ,"%Lu	\n", &unknow_statistics);
-      fprintf(hitmiss_statistic,"%Lu	", unknow_statistics);
-      /* printf("unknow_statistics = %Lu\n", unknow_statistics); */
-      /* miss in L2 */
-      fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].miss_wcet_L2);
-      /* difference */
-      /* printf("msc[i-1]->taskList[j].hit_wcet_L2 = %Lu\n", 
-       * msc[i-1]->taskList[j].hit_wcet_L2);
-       * printf("hit_statistics_wei = %Lu\n", hit_statistics_wei); */
-
-      differ = msc[i-1]->taskList[j].hit_wcet_L2 - hit_statistics_wei;
-      fprintf(hitmiss_statistic,"%Lu	", differ);
-
-      /* printf("differ = %Lu\n", differ); */
-      /* Our WCET */
-      fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].wcet);
-      /* wei's WCET */
-      fscanf(file_wei ,"%Lu	", &wcet_wei);
-      fscanf(file_wei, "\n");
-      fprintf(hitmiss_statistic,"%Lu	", wcet_wei);
-
-      /* BCET L1 */
-      fprintf(hitmiss_statistic,"%Lu	%Lu	%Lu	",
-          msc[i-1]->taskList[j].hit_bcet,
-          msc[i-1]->taskList[j].unknow_bcet,
-          msc[i-1]->taskList[j].miss_bcet);
-      /* hit in L2 */
-      fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].hit_bcet_L2);
-      fscanf(file_wei ,"%Lu	", &hit_statistics_wei);
-      fprintf(hitmiss_statistic,"%Lu	", hit_statistics_wei);
-      fscanf(file_private ,"%Lu	", &hit_statistics);
-      fprintf(hitmiss_statistic,"%Lu	", hit_statistics);
-      /* unknow in L2 */
-      fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].unknow_bcet_L2);
-      fscanf(file_wei ,"%Lu	", &unknow_statistics_wei);
-      fprintf(hitmiss_statistic,"%Lu	", unknow_statistics_wei);
-      fscanf(file_private ,"%Lu	\n", &unknow_statistics);
-      fprintf(hitmiss_statistic,"%Lu	", unknow_statistics);
-      /* miss in L2 */
-      fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].miss_bcet_L2);
-      /* our bcet */
-      fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].bcet);
-      /* wei's bcet */
-      fscanf(file_wei ,"%Lu	\n", &wcet_wei);
-      fprintf(hitmiss_statistic,"%Lu	\n", wcet_wei);
-      fflush(stdout);
-    }
-
-    fclose(file_private);
-    fclose(file_wei);
-  }
+  
+  /* This is just some statistics used for comparison against an old approach */ 
+  
+  // sprintf(hitmiss, "%s-hitmiss.res", finalStatsBasename);
+  // hitmiss_statistic = fopen(hitmiss, "w");
+  // if( !hitmiss_statistic ) {
+   // fprintf(stderr, "Failed to open file: %s (main.c:808)\n", hitmiss);
+   // exit(1);
+  // }
+// 
+  // for(i = 1; i <= num_msc; i ++) {
+// 
+    // sprintf(hitmiss, "msc%d_hitmiss_statistic_wei", i);
+    // file_wei = fopen(hitmiss, "r");
+    // if( !file_wei ) {
+     // fprintf(stderr, "Failed to open file: %s (main.c:824)\n", hitmiss);
+     // exit(1);
+    // }
+// 
+    // sprintf(hitmiss, "msc%d_hitmiss_statistic_private", i);
+    // file_private = fopen(hitmiss, "r");
+    // if( !file_private ) {
+     // fprintf(stderr, "Failed to open file: %s (main.c:831)\n", hitmiss);
+     // exit(1);
+    // }
+// 
+    // for(j = 0; j < msc[i-1]->num_task; j++) {
+      // /* task name */
+      // fprintf(hitmiss_statistic, "%s	", msc[i-1]->taskList[j].task_name);
+// 
+      // /* WCET L1 */
+      // fprintf(hitmiss_statistic,"%Lu	%Lu	%Lu	", 
+          // msc[i-1]->taskList[j].hit_wcet,
+          // msc[i-1]->taskList[j].unknow_wcet, 
+          // msc[i-1]->taskList[j].miss_wcet);
+      // /* hit in L2 */
+      // fscanf(file_wei ,"%Lu	", &hit_statistics_wei);
+      // fprintf(hitmiss_statistic,"%Lu	", hit_statistics_wei);
+      // fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].hit_wcet_L2);
+      // /* printf("hit_statistics_wei = %Lu\n", hit_statistics_wei); */
+      // fscanf(file_private ,"%Lu	", &hit_statistics);
+      // fprintf(hitmiss_statistic,"%Lu	", hit_statistics);
+      // /* printf("hit_statistics = %Lu\n", hit_statistics); */
+// 
+      // /* unknow in L2 */
+      // fscanf(file_wei ,"%Lu	", &unknow_statistics_wei);
+      // fprintf(hitmiss_statistic,"%Lu	", unknow_statistics_wei);
+      // fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].unknow_wcet_L2);
+// 
+      // /* printf("unknow_statistics_wei = %Lu\n", unknow_statistics_wei); */
+      // fscanf(file_private ,"%Lu	\n", &unknow_statistics);
+      // fprintf(hitmiss_statistic,"%Lu	", unknow_statistics);
+      // /* printf("unknow_statistics = %Lu\n", unknow_statistics); */
+      // /* miss in L2 */
+      // fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].miss_wcet_L2);
+      // /* difference */
+      // /* printf("msc[i-1]->taskList[j].hit_wcet_L2 = %Lu\n", 
+       // * msc[i-1]->taskList[j].hit_wcet_L2);
+       // * printf("hit_statistics_wei = %Lu\n", hit_statistics_wei); */
+// 
+      // differ = msc[i-1]->taskList[j].hit_wcet_L2 - hit_statistics_wei;
+      // fprintf(hitmiss_statistic,"%Lu	", differ);
+// 
+      // /* printf("differ = %Lu\n", differ); */
+      // /* Our WCET */
+      // fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].wcet);
+      // /* wei's WCET */
+      // fscanf(file_wei ,"%Lu	", &wcet_wei);
+      // fscanf(file_wei, "\n");
+      // fprintf(hitmiss_statistic,"%Lu	", wcet_wei);
+// 
+      // /* BCET L1 */
+      // fprintf(hitmiss_statistic,"%Lu	%Lu	%Lu	",
+          // msc[i-1]->taskList[j].hit_bcet,
+          // msc[i-1]->taskList[j].unknow_bcet,
+          // msc[i-1]->taskList[j].miss_bcet);
+      // /* hit in L2 */
+      // fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].hit_bcet_L2);
+      // fscanf(file_wei ,"%Lu	", &hit_statistics_wei);
+      // fprintf(hitmiss_statistic,"%Lu	", hit_statistics_wei);
+      // fscanf(file_private ,"%Lu	", &hit_statistics);
+      // fprintf(hitmiss_statistic,"%Lu	", hit_statistics);
+      // /* unknow in L2 */
+      // fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].unknow_bcet_L2);
+      // fscanf(file_wei ,"%Lu	", &unknow_statistics_wei);
+      // fprintf(hitmiss_statistic,"%Lu	", unknow_statistics_wei);
+      // fscanf(file_private ,"%Lu	\n", &unknow_statistics);
+      // fprintf(hitmiss_statistic,"%Lu	", unknow_statistics);
+      // /* miss in L2 */
+      // fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].miss_bcet_L2);
+      // /* our bcet */
+      // fprintf(hitmiss_statistic,"%Lu	", msc[i-1]->taskList[j].bcet);
+      // /* wei's bcet */
+      // fscanf(file_wei ,"%Lu	\n", &wcet_wei);
+      // fprintf(hitmiss_statistic,"%Lu	\n", wcet_wei);
+      // fflush(stdout);
+    // }
+// 
+    // fclose(file_private);
+    // fclose(file_wei);
+  // }
+  // fclose(hitmiss_statistic);
 
   sum = 0;
   for(i = 0; i < cache_L2.ns; i ++)
@@ -842,9 +845,9 @@ int main(int argc, char **argv ) {
   /* I guess the condition should be based on number of 
    * iterations --- not the number of cores */
   char summary1[200];
-  sprintf( summary1, "%s.1.WCRT", finalStatsBasename );
+  sprintf( summary1, "%s.cf.1.WCRT", finalStatsBasename );
   char summary2[200];
-  sprintf( summary2, "%s.2.WCRT", finalStatsBasename );
+  sprintf( summary2, "%s.cf.2.WCRT", finalStatsBasename );
   
   if(times_iteration > 1) {
     file = fopen(summary2, "r");
@@ -857,7 +860,7 @@ int main(int argc, char **argv ) {
     fprintf(wcrt,"our %Lu\n", wcet_our);
     fclose(file);
   } else {
-    file = openfile(summary1, "r");
+    file = fopen(summary1, "r");
     if( !file ) {
      fprintf(stderr, "Failed to open file: %s (main.c:939)\n", summary1);
      exit(1);
@@ -867,7 +870,7 @@ int main(int argc, char **argv ) {
     fprintf(wcrt,"our %Lu\n", wcet_our);
     fclose(file);
   }
-  file = openfile(summary1, "r");
+  file = fopen(summary1, "r");
   if( !file ) {
    fprintf(stderr, "Failed to open file: %s (main.c:949)\n", summary1);
    exit(1);
@@ -881,7 +884,6 @@ int main(int argc, char **argv ) {
   fprintf(wcrt,"average conflict tasks/set  %f\n", sum/cache_L2.ns);
 
   fclose(file);
-  fclose(hitmiss_statistic);
   fclose(wcrt);
 
   printf("%d core, No change in interfere now, exit\n", num_core);
