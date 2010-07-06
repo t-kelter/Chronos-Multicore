@@ -42,32 +42,13 @@
 
 SS_INST_TYPE	INST_NOP;
 
-static int
-is_ctrl(SS_INST_TYPE *inst);
-static SS_ADDR_TYPE
-callee_addr(SS_INST_TYPE *inst, SS_ADDR_TYPE pc);
-static void
-build_call_edges(Prog *prog);
-static int
-cmp_proc_sa(const void *key, const void *datum);
-static void
-reset_procs_flags(Prog *prog);
-void
-dump_procs(Proc *procs, int nproc);
-void
-dump_bbs(Proc *proc);
-
-
-
-
-static int
-scan_procs(Prog *prog, SS_ADDR_TYPE *psa);
-
-static void
-create_procs_basic(Prog *prog, SS_ADDR_TYPE *psa, int nproc);
-
-static void
-build_call_edges(Prog *prog);
+static int is_ctrl(SS_INST_TYPE *inst);
+static SS_ADDR_TYPE callee_addr(SS_INST_TYPE *inst, SS_ADDR_TYPE pc);
+static void build_call_edges(Prog *prog);
+static int cmp_proc_sa(const void *key, const void *datum);
+static int scan_procs(Prog *prog, SS_ADDR_TYPE *psa);
+static void create_procs_basic(Prog *prog, SS_ADDR_TYPE *psa, int nproc);
+static void build_call_edges(Prog *prog);
 
 /* create procedures for a program */
 void create_procs(Prog *prog)
@@ -456,17 +437,6 @@ lookup_bb(Proc *proc, SS_ADDR_TYPE addr)
 	    return bb;
     }
     return NULL;
-}
-
-
-/* reset flags of procedures in the program */
-static void
-reset_procs_flags(Prog *prog)
-{
-    int	    i;
-
-    for (i = 0; i < prog->nproc; i++)
-	prog->procs[i].flags = 0;
 }
 
 

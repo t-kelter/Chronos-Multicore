@@ -255,29 +255,6 @@ mystricmp(char *s1, char *s2)	/* strings to compare, case insensitive */
     }
 }
 
-/* allocate some core, this memory has overhead no larger than a page
-   in size and it cannot be released. the storage is returned cleared */
-void *
-getcore(int nbytes)
-{
-#ifndef PURIFY
-  void *p = (void *)sbrk(nbytes);
-
-  if (p == (void *)-1)
-    return NULL;
-
-  /* this may be superfluous */
-#if defined(__svr4__)
-  memset(p, '\0', nbytes);
-#else /* !defined(__svr4__) */
-  bzero(p, nbytes);
-#endif
-  return p;
-#else
-  return calloc(nbytes, 1);
-#endif /* PURIFY */
-}
-
 /* return log of a number to the base 2 */
 int
 log_base2(int n)
