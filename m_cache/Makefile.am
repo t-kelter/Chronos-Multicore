@@ -1,6 +1,6 @@
 SUBDIRS=wcrt
 
-noinst_PROGRAMS=opt optdebug
+noinst_PROGRAMS=opt opt_debug
 
 # First program to build: The analyzer/optimizer for the user
 opt_SOURCES=main.c
@@ -8,9 +8,9 @@ opt_CPPFLAGS=-D_PRINT
 opt_LDADD=wcrt/libwcrt.a
 
 # Second program to build: The analyzer/optimizer for the developer to play around
-optdebug_SOURCES=main_debug.c
-optdebug_CPPFLAGS=-D_DEBUG -D_PRINT
-optdebug_LDADD=wcrt/libwcrt.a
+opt_debug_SOURCES=main_debug.c
+opt_debug_CPPFLAGS=-D_DEBUG -D_PRINT
+opt_debug_LDADD=wcrt/libwcrt.a
 
 # Due to the special include system, we must list all indirect source 
 # files as extra dist files to make them appear in the tar made by
