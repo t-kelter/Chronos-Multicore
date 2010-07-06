@@ -5,6 +5,8 @@
 #ifndef __CHRONOS_UTIL_H
 #define __CHRONOS_UTIL_H
 
+#include "header.h"
+
 // ######### Macros #########
 
 
@@ -54,5 +56,7 @@ int dequeue( int **arr, int *len );
 int mymod( int a, int b );
 
 int imin( int a, int b );
+
+time_t tmax( time_t a, time_t b );
 
 #endif

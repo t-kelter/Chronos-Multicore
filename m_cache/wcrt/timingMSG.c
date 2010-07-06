@@ -1,8 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #include "timingMSG.h"
+#include "alloc.h"
+#include "slacks.h"
+#include "util.h"
+#include "parse.h"
+#include "handler.h"
+#include "timing.h"
+#include "dump.h"
+
 #include "config.h"
 
 extern char resultFileBaseName[];

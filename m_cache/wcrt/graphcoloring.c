@@ -1,5 +1,11 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include "graphcoloring.h"
 #include "cycle_time.h"
+#include "timing.h"
+#include "handler.h"
+#include "dump.h"
 
 /*
  * Performs greedy heuristic for the graph coloring problem.

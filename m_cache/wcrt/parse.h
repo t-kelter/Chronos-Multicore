@@ -81,6 +81,8 @@ int readMemoryReq();
 
 int readConfig();
 
+void readCost();
+
 int freeAlloc( alloc_t *ac );
 
 int freeSched( sched_t *sc );

@@ -5,9 +5,11 @@
 #ifndef __CHRONOS_HEADER_H
 #define __CHRONOS_HEADER_H
 
+#include <stdio.h>
+
 // ######### Macros #########
 
-
+#define uint unsigned int
 #define time_t unsigned long long
 
 #define MAXSTEP 20
@@ -194,9 +196,15 @@ EXTERN double allocweight;
 
 
 //TODO: These should be defines instead
-EXTERN char ALLOCHEUR = 0;
-EXTERN char GREEDY = 1;
-EXTERN char DEBUG = 0;
+#ifdef EXTERN
+  EXTERN char ALLOCHEUR;
+  EXTERN char GREEDY;
+  EXTERN char DEBUG;
+#else
+  EXTERN char ALLOCHEUR = 0;
+  EXTERN char GREEDY = 1;
+  EXTERN char DEBUG = 0;
+#endif
 
 EXTERN FILE *timefp;
 EXTERN char resultFileBaseName[200];

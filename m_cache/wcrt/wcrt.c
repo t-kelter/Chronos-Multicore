@@ -7,14 +7,15 @@
 #undef DEF_GLOBALS
 
 #include "wcrt.h"
-#include "handler.c"
-#include "util.c"
-#include "parse.c"
-#include "dump.c"
-#include "topo.c"
-#include "timing.c"
-#include "timingMSG.c"
-#include "alloc.c"
+#include "handler.h"
+#include "util.h"
+#include "parse.h"
+#include "dump.h"
+#include "topo.h"
+#include "timing.h"
+#include "timingMSG.h"
+#include "alloc.h"
+#include "slacks.h"
 
 
 // ###############################################################################

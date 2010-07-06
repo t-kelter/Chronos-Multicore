@@ -1,5 +1,9 @@
+#include <stdlib.h>
+
 #include "cluster.h"
 #include "util.h"
+#include "dump.h"
+#include "parse.h"
 
 /*
  * Do clustering by latestTimes.

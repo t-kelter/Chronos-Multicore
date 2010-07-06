@@ -22,8 +22,14 @@ uint get_msc_id(chart_t* msc, uint task_id);
 
 int resetInterference( chart_t *msc );
 
+void generateWeiConflict(chart_t *msc);
+
+int writeWeiConflict();
+
 /* Analyze the interference between tasks within msc */
 void setInterference( chart_t *msc );
+
+int writeInterference();
 
 void dumpInterference( chart_t *msc );
 

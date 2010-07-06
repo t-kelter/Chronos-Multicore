@@ -1,7 +1,10 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include "selectcontent.h"
-
-#include "knapsack.c"
-
+#include "knapsack.h"
+#include "handler.h"
+#include "dump.h"
 
 /*
  * Use for code SPM.

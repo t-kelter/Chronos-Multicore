@@ -1,6 +1,12 @@
 #include <assert.h>
+#include <stdlib.h>
 
 #include "slacks.h"
+#include "timing.h"
+#include "topo.h"
+#include "util.h"
+#include "dump.h"
+#include "parse.h"
 
 #define DEBUGSLACK 0
 //#define DEBUGSLACK ( strstr(getTaskName(idk),"ap_main_initmodem") != NULL )
@@ -15,9 +21,8 @@ int resetInterference( chart_t *msc ) {
   return 0;
 }
 
-static void
-generateWeiConflict(chart_t *msc)
-{
+void generateWeiConflict(chart_t *msc) {
+
   int i, k, len = msc->topoListLen;
   for( i = 0; i < len; i++ ) 
   {
@@ -42,7 +47,7 @@ generateWeiConflict(chart_t *msc)
 
 }
 
-static int writeWeiConflict()
+int writeWeiConflict()
 {
   printf("writing interfere of Wei now...\n");
 

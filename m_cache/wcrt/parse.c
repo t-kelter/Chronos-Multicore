@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "parse.h"
+#include "handler.h"
 
 int initSched( sched_t *sc ) {
 

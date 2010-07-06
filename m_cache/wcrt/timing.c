@@ -3,6 +3,8 @@
 #include <math.h>
 
 #include "timing.h"
+#include "parse.h"
+#include "dump.h"
 
 #define DEBUGTHIS 0
 //#define DEBUGTHIS (strstr( getTaskName(idx), "hm-sby2" ) != NULL)

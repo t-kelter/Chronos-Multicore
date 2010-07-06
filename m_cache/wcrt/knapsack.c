@@ -1,4 +1,7 @@
+#include <stdlib.h>
+
 #include "knapsack.h"
+#include "header.h"
 
 /*
  * Knapsack solution via Dynamic Programming.
