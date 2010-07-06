@@ -357,6 +357,30 @@ int readConfig() {
   return 0;
 }
 
+/*
+   Reads the WCET/BECT values per Task from a fixed input file.
+ */
+void readCost()
+{
+  FILE *fptr;
+  char filepath[512];
+  int i, j;
+
+  for(i = 0; i < numCharts; i++) {
+    sprintf(filepath, "msc%d_wcetbcet_%d", i+1, times_iteration);
+      fptr = wcrt_openfile( filepath, "r" );
+
+    for(j = 0; j < msg[i].topoListLen; j++) {
+      fscanf(fptr, "%Lu %Lu \n", &(taskList[msg[i].topoList[j]]->ctimeHi), 
+        &(taskList[msg[i].topoList[j]]->ctimeLo));
+      //printf("\ntask[%d] = %Lu, %Lu\n", j,
+      //  taskList[msg[i].topoList[j]]->ctimeHi,
+      //  taskList[msg[i].topoList[j]]->ctimeLo);
+    }
+    
+    fclose( fptr );
+  }
+}
 
 int freeAlloc( alloc_t *ac ) {
 
