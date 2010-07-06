@@ -1,11 +1,12 @@
-/*
- * CFG processing functions.
- */
-
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-static void  calculate_incoming();
+#include "parseCFG.h"
+#include "block.h"
+#include "handler.h"
+#include "infeasible.h"
+
 /*
  * Initializes a basic block. Memory allocation is done in caller.
  */
@@ -430,13 +431,12 @@ int readInstr() {
   return 0;
 }
 
-static void
-  calculate_incoming()
+void
+calculate_incoming()
 {
-	int i, j, k, n, num_blk, num_loop;
+	int i, j, k;
 	 block *src_bb, *dst_bb;
 	 procedure *p;
-	 loop *lp;
 
 	 for(k = num_procs -1; k >= 0; k--)
 	  {
@@ -481,5 +481,3 @@ static void
 		exit(1);
 		*/
 }
-
-

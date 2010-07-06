@@ -1,7 +1,10 @@
-/*
- * DAG-based infeasible path detection.
- */
+#include <stdlib.h>
+#include <string.h>
 
+#include "DAG_WCET.h"
+#include "block.h"
+#include "path.h"
+#include "dump.h"
 
 int detectDirection( branch *bru, block *bv ) {
 
@@ -105,8 +108,8 @@ char BBconflictInPath( branch *bru, char direction, block *bv, path *pv, block *
       continue;
 
     res = pv->branch_dir[id];
-    if( direction == bru->jump_cond && bru->conflictdir_jump[cf] == res ||
-	direction == neg( bru->jump_cond ) && bru->conflictdir_fall[cf] == res ) {
+    if( ( direction == bru->jump_cond && bru->conflictdir_jump[cf] == res ) ||
+        ( direction == neg( bru->jump_cond ) && bru->conflictdir_fall[cf] == res ) ) {
 
       // check cancellation of effect by assignment
       id = effectCancelled( br, NULL, pv, bblist, num_bb );
@@ -222,7 +225,7 @@ char hasIncomingConflict( branch *br, char dir, block **bblist, int start, int n
  */
 int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) {
 
-  int  i, j, k, id, rid, pt;
+  int  i, j, k, id, pt;
   char direction, extend;
 
   path   *pu, *pv;
@@ -299,30 +302,31 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) 
 	pu->cost = pv->cost + cost[bu->bbid];
 
 	// extra cost if bu-->bv is a region transition
-	if( regionmode ) {
+  //int rid;
+	//if( regionmode ) {
 
-	  if( bu->callpid != -1 )
-	    rid = procs[bu->callpid]->bblist[ procs[bu->callpid]->num_bb - 1 ]->regid;
+	//  if( bu->callpid != -1 )
+	//    rid = procs[bu->callpid]->bblist[ procs[bu->callpid]->num_bb - 1 ]->regid;
 
-	  if( bu->callpid == -1 || rid == -1 ) {
-	    if( bu->regid != -1 && bv->regid != -1 && bu->regid != bv->regid ) {
-	      printf( "region transition %d-%d(%d) --> %d-%d(%d) cost: %u\n",
-		      bu->pid, bu->bbid, bu->regid, bv->pid, bv->bbid, bv->regid, regioncost[bv->regid] );
-	      fflush( stdout );
-	      pu->cost += regioncost[bv->regid];
-	    }
-	  }
-	  // region transition due to procedure call at end of bu
-	  else {
-	    if( rid != -1 && bv->regid != -1 && rid != bv->regid ) {
-	      printf( "region transition %d-%d(%d) procedure return %d(%d) --> %d-%d(%d) cost: %u\n",
-		      bu->pid, bu->bbid, bu->regid, bu->callpid, rid,
-		      bv->pid, bv->bbid, bv->regid, regioncost[bv->regid] ); fflush( stdout );
-	      pu->cost += regioncost[bv->regid];
-	    }
-	  }
+	//  if( bu->callpid == -1 || rid == -1 ) {
+	//    if( bu->regid != -1 && bv->regid != -1 && bu->regid != bv->regid ) {
+	//      printf( "region transition %d-%d(%d) --> %d-%d(%d) cost: %u\n",
+	//	      bu->pid, bu->bbid, bu->regid, bv->pid, bv->bbid, bv->regid, regioncost[bv->regid] );
+	//      fflush( stdout );
+	//      pu->cost += regioncost[bv->regid];
+	//    }
+	//  }
+	//  // region transition due to procedure call at end of bu
+	//  else {
+	//    if( rid != -1 && bv->regid != -1 && rid != bv->regid ) {
+	//      printf( "region transition %d-%d(%d) procedure return %d(%d) --> %d-%d(%d) cost: %u\n",
+	//	      bu->pid, bu->bbid, bu->regid, bu->callpid, rid,
+	//	      bv->pid, bv->bbid, bv->regid, regioncost[bv->regid] ); fflush( stdout );
+	//      pu->cost += regioncost[bv->regid];
+	//    }
+	//  }
 
-	} // end if( regionmode )
+	//} // end if( regionmode )
 
 	extend = 0;
 	if( bru != NULL && hasIncomingConflict( bru, direction, bblist, i+1, num_bb ))

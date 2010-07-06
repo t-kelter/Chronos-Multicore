@@ -1,7 +1,11 @@
-/*
- * WCET analysis via path enumeration.
- */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
+#include "analysisEnum.h"
+#include "DAG_WCET.h"
+#include "handler.h"
+#include "block.h"
 
 char enum_in_seq_bef( int bbid, int target, ushort *bb_seq, ushort bb_len ) {
 
@@ -66,8 +70,8 @@ char enum_BBconflictInPath( branch *bru, char direction, block *bv,
 
     // direction taken by br to its successor in bb_seq
     res = detectDirection( br, bblist[idx] );
-    if( direction == bru->jump_cond && bru->conflictdir_jump[cf] == res ||
-	direction == neg( bru->jump_cond ) && bru->conflictdir_fall[cf] == res ) {
+    if( ( direction == bru->jump_cond && bru->conflictdir_jump[cf] == res ) ||
+        ( direction == neg( bru->jump_cond ) && bru->conflictdir_fall[cf] == res ) ) {
 
       // check cancellation of effect by assignment
       id = enum_effectCancelled( br, NULL, bb_seq, len, bblist, num_bb );

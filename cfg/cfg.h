@@ -27,16 +27,11 @@
 
 #include "ss.h"
 
+#define	MAX_PROCS   256
 #define	MAX_BB_IN	   102400
-//#define	MAX_BB_IN	   10240
-//#define	MAX_BB_IN	   1024
-//#define	MAX_BB_IN	   64
-//#define	MAX_BB_IN	    16
 #define	INST_NUM(size)	    ((size) / sizeof(SS_INST_TYPE))
 
 #define MAX_CALLS	    6400
-//#define MAX_CALLS	    640
-//#define MAX_CALLS	    64
 #define MAX_BB_SIZE	    0x7fffffff	// split a block with instr > MAX_BB_SIZE
 
 #define IS_CALL(inst)	    (inst_type((inst)) == CTRL_CALL)
@@ -95,6 +90,32 @@ typedef struct proc_t {
     int		    flags;
 } Proc;
 
+// decoded instr (try to align it 8-bytes)
+typedef struct {
+    unsigned short  op;
+    unsigned char   in[3];
+    unsigned char   out[2];
+    unsigned char   fu;
+} decoded_inst_t;
+
+typedef struct prog_t {
+    SS_ADDR_TYPE    sa;	    // program start address
+    int		    sz;	    // program text size (in bytes)
+    SS_ADDR_TYPE    main_sa;// start address of main (might be in middle of prog
+    SS_INST_TYPE    *code;  // program text
+    decoded_inst_t  *dcode; // decoded instructions
+
+    Proc	    procs[MAX_PROCS];
+    int		    nproc;  // number of procedures
+    Proc	    *root;  // root = main
+} Prog;
+
+
+void
+create_procs(Prog *prog);
+
+void
+create_bbs(Proc *proc);
 
 SS_ADDR_TYPE
 btarget_addr(SS_INST_TYPE *inst, SS_ADDR_TYPE pc);
@@ -122,5 +143,14 @@ bb_inst_num(BasicBlk *bb);
 
 int
 isolated_bb(BasicBlk *bb);
+
+void
+dump_cfg(FILE *fptr, Proc *proc);
+
+void
+dump_procs(Proc *procs, int nproc);
+
+void
+dump_bbs(Proc *proc);
 
 #endif

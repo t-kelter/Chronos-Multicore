@@ -1,3 +1,8 @@
+#include <stdlib.h>
+
+#include "pathDAG.h"
+
+// Forward declarations of static functions
 
 static void
 pathFunction(procedure * proc);
@@ -5,21 +10,14 @@ pathFunction(procedure * proc);
 static void 
 pathLoop(procedure *proc, loop *lp);
 
-static void 
-pathDAG(MSC *msc);
-
 
 
 static void
 pathFunction(procedure *proc)
 {
 	int i, cnt, lp_level, num_blk, copies;
-	char tmp;
 	procedure *p = proc;
 	block *bb;
-
-
-	//printf("pathFunction\n");
 
 	for(i = 0; i < MAX_NEST_LOOP; i++)
 		if(loop_level_arr[i] == INVALID)
@@ -188,10 +186,6 @@ pathFunction(procedure *proc)
 			
 }// end if else
 
-
-
-
-
 static void
 pathLoop(procedure *proc, loop *lp)
 {
@@ -200,11 +194,8 @@ pathLoop(procedure *proc, loop *lp)
 	procedure *p = proc;
 	block *bb;
 	loop *lp_ptr = lp;
-	char tmp;
-	
-	num_blk = lp_ptr->num_topo;
 
-	//printf("pathLoop\n");
+	num_blk = lp_ptr->num_topo;
 
 	for(i = 0; i < MAX_NEST_LOOP; i++)
 		if(loop_level_arr[i] == INVALID)
@@ -347,15 +338,12 @@ pathLoop(procedure *proc, loop *lp)
 	}
 }
 
-
-static void 
+void 
 pathDAG(MSC *msc)
 {
 	int i, j;
-	//printf("pathDAG\n");
 	
-	for(i = 0; i < msc->num_task; i ++)
-	{
+	for(i = 0; i < msc->num_task; i ++) {
 		for(j = 0; j < MAX_NEST_LOOP; j++)
 			loop_level_arr[j] = INVALID;
 
@@ -376,11 +364,5 @@ pathDAG(MSC *msc)
 
 		printf("msc->taskList[%d].wcet = %Lu, msc->taskList[%d].bcet = %Lu\n", i, msc->taskList[i].wcet, i, msc->taskList[i].bcet);
 		*/
-		
 	}
-
-
 }
-
-
-

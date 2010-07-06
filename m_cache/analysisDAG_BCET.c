@@ -1,9 +1,7 @@
-/*
- * DAG-based WCET analysis functions.
- */
-
+#include <stdlib.h>
 #include <stdio.h>
 
+#include "analysisDAG_BCET.h"
 
 /*
  * Goes through DAG in reverse topological order (given in topo), collecting weight.
@@ -29,7 +27,6 @@
  * i.e. LHS are variables only and RHS is a single constant.
  *
  */
- 
 int analyseDAGFunction_BCET(procedure *proc, int index)
 {
 
@@ -49,14 +46,14 @@ int analyseDAGFunction_BCET(procedure *proc, int index)
   //char *tmp_wpath;
   // Stores the heaviest branch taken at the node.
 
-  int i, id;
+  int i;
   //char fn[100];
   char min;
   block *bb;
  //int freq;
 
   procedure *p;
-  loop *lp, *lpn;
+  loop *lpn;
 
   //char *wpath;
   // int len;
@@ -216,15 +213,15 @@ int analyseDAGFunction_BCET(procedure *proc, int index)
 	  	else
 	    		min = 0;
 	 }
-	  bcet_arr[ bb->bbid ] += bcet_arr[ bb->outgoing[min] ];
+	  bcet_arr[ bb->bbid ] += bcet_arr[ bb->outgoing[(int)min] ];
 
-	  hit_arr[ bb->bbid ] += hit_arr[ bb->outgoing[min] ];
-	  miss_arr[ bb->bbid ] += miss_arr[ bb->outgoing[min] ];
-	  unknow_arr[ bb->bbid ] +=  unknow_arr[ bb->outgoing[min] ];
+	  hit_arr[ bb->bbid ] += hit_arr[ bb->outgoing[(int)min] ];
+	  miss_arr[ bb->bbid ] += miss_arr[ bb->outgoing[(int)min] ];
+	  unknow_arr[ bb->bbid ] +=  unknow_arr[ bb->outgoing[(int)min] ];
 	
-	  hit_arr_L2[ bb->bbid ] += hit_arr_L2[ bb->outgoing[min] ];
-	  miss_arr_L2[ bb->bbid ] += miss_arr_L2[ bb->outgoing[min] ];
-	  unknow_arr_L2[ bb->bbid ] += unknow_arr_L2[ bb->outgoing[min] ];
+	  hit_arr_L2[ bb->bbid ] += hit_arr_L2[ bb->outgoing[(int)min] ];
+	  miss_arr_L2[ bb->bbid ] += miss_arr_L2[ bb->outgoing[(int)min] ];
+	  unknow_arr_L2[ bb->bbid ] += unknow_arr_L2[ bb->outgoing[(int)min] ];
 
 
 	if(print)
@@ -283,7 +280,7 @@ int analyseDAGFunction_BCET(procedure *proc, int index)
 	/*
 	  // region transition
 	  if( regionmode && bb->regid != -1 ) {
-	    id = procs[bb->callpid]->bblist[0]->regid;
+	    int id = procs[bb->callpid]->bblist[0]->regid;
 	    if( id != -1 && bb->regid != id ) {
 	      printf( "region transition %d-%d(%d) procedure call %d(%d) cost: %u\n",
 		      bb->pid, bb->bbid, bb->regid, bb->callpid, id, regioncost[id] ); fflush( stdout );
@@ -305,6 +302,7 @@ int analyseDAGFunction_BCET(procedure *proc, int index)
 
     // once more traverse cfg following the wcet path, collect wpvar and wpath
 /* 
+    loop *lp;
     wpath = (char*) MALLOC( wpath, sizeof(char), "wpath" );
     wpath[0] = '\0';
 
@@ -438,7 +436,7 @@ int analyseDAGLoop_BCET(procedure *proc, loop *lop, int index )
   //char *tmp_wpath;
   // Stores the heaviest branch taken at the node.
 
-  int i, id;
+  int i;
   //char fn[100];
   char min1, min2;
   block *bb;
@@ -707,26 +705,26 @@ int analyseDAGLoop_BCET(procedure *proc, loop *lop, int index )
 	    		min2 = 0;
 	 }
 	 
-	  bcet_arr_1[ bb->bbid ] += bcet_arr_1[ bb->outgoing[min1] ];
-	  bcet_arr_2[ bb->bbid ] += bcet_arr_2[ bb->outgoing[min2] ];
+	  bcet_arr_1[ bb->bbid ] += bcet_arr_1[ bb->outgoing[(int)min1] ];
+	  bcet_arr_2[ bb->bbid ] += bcet_arr_2[ bb->outgoing[(int)min2] ];
 
 
-	  hit_arr_1[ bb->bbid ] +=  hit_arr_1[ bb->outgoing[min1] ];
-	  miss_arr_1[ bb->bbid ] += miss_arr_1[ bb->outgoing[min1] ];
-	  unknow_arr_1[ bb->bbid ] +=  unknow_arr_1[ bb->outgoing[min1] ];
+	  hit_arr_1[ bb->bbid ] +=  hit_arr_1[ bb->outgoing[(int)min1] ];
+	  miss_arr_1[ bb->bbid ] += miss_arr_1[ bb->outgoing[(int)min1] ];
+	  unknow_arr_1[ bb->bbid ] +=  unknow_arr_1[ bb->outgoing[(int)min1] ];
 	
-	  hit_arr_L2_1[ bb->bbid ] +=  hit_arr_L2_1[ bb->outgoing[min1] ];
-	  miss_arr_L2_1[ bb->bbid ] += miss_arr_L2_1[ bb->outgoing[min1] ];
-	  unknow_arr_L2_1[ bb->bbid ] += unknow_arr_L2_1[ bb->outgoing[min1] ];
+	  hit_arr_L2_1[ bb->bbid ] +=  hit_arr_L2_1[ bb->outgoing[(int)min1] ];
+	  miss_arr_L2_1[ bb->bbid ] += miss_arr_L2_1[ bb->outgoing[(int)min1] ];
+	  unknow_arr_L2_1[ bb->bbid ] += unknow_arr_L2_1[ bb->outgoing[(int)min1] ];
 
 
-	  hit_arr_2[ bb->bbid ] +=  hit_arr_2[ bb->outgoing[min2] ];
-	  miss_arr_2[ bb->bbid ] += miss_arr_2[ bb->outgoing[min2] ];
-	  unknow_arr_2[ bb->bbid ] +=  unknow_arr_2[ bb->outgoing[min2] ];
+	  hit_arr_2[ bb->bbid ] +=  hit_arr_2[ bb->outgoing[(int)min2] ];
+	  miss_arr_2[ bb->bbid ] += miss_arr_2[ bb->outgoing[(int)min2] ];
+	  unknow_arr_2[ bb->bbid ] +=  unknow_arr_2[ bb->outgoing[(int)min2] ];
 	
-	  hit_arr_L2_2[ bb->bbid ] +=  hit_arr_L2_2[ bb->outgoing[min2] ];
-	  miss_arr_L2_2[ bb->bbid ] += miss_arr_L2_2[ bb->outgoing[min2] ];
-	  unknow_arr_L2_2[ bb->bbid ] += unknow_arr_L2_2[ bb->outgoing[min2] ];
+	  hit_arr_L2_2[ bb->bbid ] +=  hit_arr_L2_2[ bb->outgoing[(int)min2] ];
+	  miss_arr_L2_2[ bb->bbid ] += miss_arr_L2_2[ bb->outgoing[(int)min2] ];
+	  unknow_arr_L2_2[ bb->bbid ] += unknow_arr_L2_2[ bb->outgoing[(int)min2] ];
 
 
 		if(print)
@@ -814,7 +812,7 @@ int analyseDAGLoop_BCET(procedure *proc, loop *lop, int index )
 	/*
 	  // region transition
 	  if( regionmode && bb->regid != -1 ) {
-	    id = procs[bb->callpid]->bblist[0]->regid;
+	    int id = procs[bb->callpid]->bblist[0]->regid;
 	    if( id != -1 && bb->regid != id ) {
 	      printf( "region transition %d-%d(%d) procedure call %d(%d) cost: %u\n",
 		      bb->pid, bb->bbid, bb->regid, bb->callpid, id, regioncost[id] ); fflush( stdout );
@@ -990,7 +988,7 @@ int analyseDAGLoop_BCET(procedure *proc, loop *lop, int index )
  * When analysing an outer loop, the inner loop is treated as a black box.
  * Then analyse the procedure by treating the outmost loops as black boxes.
  */
-int analyseProc_BCET( procedure *p ) {
+void analyseProc_BCET( procedure *p ) {
 
   int  i, j;
   loop *lp;
@@ -1027,7 +1025,6 @@ for(j = 0; j < p->num_cost; j++)
 int analysis_dag_BCET(MSC *msc) {
 
   int i, j, k;
-  double t;
 
   //cycle_time(0);
 
@@ -1061,7 +1058,7 @@ for(k = 0; k < msc->num_task; k++)
 
 
 }
-  //t = cycle_time(1);
+  //double t = cycle_time(1);
   //printf( "\nTime taken (analysis): %f ms\n", t/CYCLES_PER_MSEC ); fflush( stdout );
 
   return 0;

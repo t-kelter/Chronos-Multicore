@@ -1,9 +1,10 @@
-/*
- * Text dump for debugging.
- */
-
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
+
+#include "dump.h"
+#include "handler.h"
 
 
 int printBlock( block *bb ) {
@@ -24,7 +25,7 @@ int printBlock( block *bb ) {
   else
     printf( "    " );
 
-  printf("	bb->proc_ptr: %u\n", (unsigned)bb->proc_ptr);
+  printf("	bb->proc_ptr: %lu\n", (uintptr_t)bb->proc_ptr);
 
   if( bb->loopid != -1 ) {
     printf( "  L%d", bb->loopid );
@@ -424,18 +425,19 @@ int dump_callgraph() {
   return 0;
 }
 
-static void
+void
 dumpCacheState(cache_state *cs)
 {
-	int i, j, k, lp_level, copies, n;
+	int i, j, k, n;
 	//cache_state *copy = NULL;
 
-	//lp_level = cs->loop_level;
+	//int lp_level = cs->loop_level;
 	
 	printf("\nCache State\n");	
 	//printf("\nloop level = %d\n", lp_level);
 
 	/*
+  int copies;
 	if( lp_level == -1)
 		copies = 1;
 	else
@@ -509,18 +511,19 @@ dumpCacheState(cache_state *cs)
 }
 
 
-static void
+void
 dumpCacheState_L2(cache_state *cs)
 {
-	int i, j, k, lp_level, copies, n;
+	int i, j, k, n;
 	//cache_state *copy = NULL;
 
-	//lp_level = cs->loop_level;
+	//int lp_level = cs->loop_level;
 	
 	printf("\nCache State_L2\n");	
 	//printf("\nloop level = %d\n", lp_level);
 
 	/*
+  int copies;
 	if( lp_level == -1)
 		copies = 1;
 	else
@@ -592,25 +595,3 @@ dumpCacheState_L2(cache_state *cs)
 	} //end for(j)
 
 }
-
-
-static void
-dumpProcCopy(task_t *task)
-{
-	int i, j;
-	for(i = 0; i < task->num_proc; i ++)
-	{
-		printf("\nproc_cg[%d]: %d\n", i, proc_cg[i]);
-		printf("%d:	", task->proc_cg_ptr[i].num_proc);
-		for(j = 0; j < task->proc_cg_ptr[i].num_proc; j++)
-		{
-			printf("%x	", (unsigned)task->proc_cg_ptr[i].proc[j]);
-		}
-			printf("\n");
-	}
-}
-
-
-
-
-

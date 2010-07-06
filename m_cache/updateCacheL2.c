@@ -1,11 +1,10 @@
-/*
-  update Lever-two Cache State due to conflicting with other cores
-*/
-
+#include <stdlib.h>
 #include <stdio.h>
 
-static void
-updateCacheState(MSC *msc);
+#include "updateCacheL2.h"
+#include "analysisCache.h"
+
+// Forward declarations of static functions
 
 static void
 updateLoop(MSC *msc, int index, procedure *proc, loop *lp);
@@ -13,10 +12,12 @@ updateLoop(MSC *msc, int index, procedure *proc, loop *lp);
 static void
 updateFunctionCall(MSC *msc, int index, procedure* proc);
 
-static int
+
+
+/*static int
 conflictStatistics(MSC *msc, int index, int set_no, int current_addr)
 {
-    int i, j, k, entry, flag = 0, conflict = 0;
+  int i, j, entry, conflict = 0;
 	int *history = NULL, cnt = 0;
 	history = (int *)CALLOC(history, MAX_LEN * 2, sizeof(int), "history int[]");
 	
@@ -38,22 +39,8 @@ conflictStatistics(MSC *msc, int index, int set_no, int current_addr)
     }
 	free(history);
     return conflict;
-}
+}*/
 
-static void
-updateCacheState(MSC *msc)
-{
-    int i, j;
-    //printf("updateCacheState\n");
-    
-    for(i = 0; i < msc->num_task; i ++)
-    {
-        for(j = 0; j < MAX_NEST_LOOP; j++)
-            loop_level_arr[i] = INVALID;
-
-        updateFunctionCall(msc, i, msc->taskList[i].main_copy);
-    }
-}
 
 static void
 updateLoop(MSC *msc, int index, procedure *proc, loop *lp)
@@ -326,4 +313,15 @@ updateFunctionCall(MSC *msc, int index, procedure* proc)
 }// end if else
 
 
+void
+updateCacheState(MSC *msc)
+{
+    int i, j;
+    
+    for(i = 0; i < msc->num_task; i ++) {
+        for(j = 0; j < MAX_NEST_LOOP; j++)
+            loop_level_arr[i] = INVALID;
 
+        updateFunctionCall(msc, i, msc->taskList[i].main_copy);
+    }
+}

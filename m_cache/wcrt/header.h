@@ -1,3 +1,15 @@
+/*! This is a header file of the Chronos timing analyzer. */
+
+/*! This file holds all the globally needed declarations */
+
+#ifndef __CHRONOS_HEADER_H
+#define __CHRONOS_HEADER_H
+
+#include <stdio.h>
+
+// ######### Macros #########
+
+typedef unsigned int uint;
 #define time_t unsigned long long
 
 #define MAXSTEP 20
@@ -34,9 +46,24 @@
 
 #define CLUSTER_BASED ( allocmethod != NONE && allocmethod != PROFILE_KNAPSACK )
 
-char ALLOCHEUR = 0;
-char GREEDY = 1;
-char DEBUG = 0;
+#define NAMELEN 40
+
+/* Memory allocation with error check. */
+
+#define MALLOC( ptr, size, msg ) \
+  malloc( (size) ); \
+  if( !(ptr) ) printf( "\nError: malloc %d bytes failed for %s.\n\n", (int)(size), (msg) ), exit(1)
+
+#define CALLOC( ptr, len, size, msg ) \
+  calloc( (len), (size) ); \
+  if( !(ptr) ) printf( "\nError: calloc %d bytes failed for %s.\n\n", (int)(size), (msg) ), exit(1)
+
+#define REALLOC( ptr, size, msg ) \
+  realloc( (ptr), (size) ); \
+  if( !(ptr) ) printf( "\nError: realloc %d bytes failed for %s.\n\n", (int)(size), (msg) ), exit(1)
+
+
+// ######### Datatype declarations  ###########
 
 
 typedef struct {
@@ -105,61 +132,81 @@ typedef struct {
 } path_t;
 
 
-//char *filename;
-// <filename>.pd: task description file
-// <filename>.dg: dependency graph file
-// <filename>.cf: processor configuration file
+// ######### Global variables declarations / definitions ###########
 
-char *cfname;
-char *pdname;
-char *dgname;
-char *times_iteration;
-char allocmethod;
-char concat;
+#ifdef DEF_GLOBALS
+#define EXTERN 
+#else
+#define EXTERN extern
+#endif
 
-int totalcapacity;
+EXTERN char *cfname; // <filename>.cf: processor configuration file
+EXTERN char *pdname; // <filename>.pd: task description file
+EXTERN char *dgname; // <filename>.dg: dependency graph file
+extern int times_iteration; // This is given by the main program
+EXTERN char allocmethod;
+EXTERN char concat;
 
-int spm_latency;
-int off_latency;
+EXTERN int totalcapacity;
 
-int numPEs;
-int *peID;
-int *spmCapacity;
+EXTERN int spm_latency;
+EXTERN int off_latency;
 
-int numCharts;            // number of MSC nodes in the MSG
-chart_t *msg;
-int *topoMSG;             // MSG with nodes topologically sorted, for traversal
+EXTERN int numPEs;
+EXTERN int *peID;
+EXTERN int *spmCapacity;
 
-int startNode;            // index of start node of the MSG
-int endNode;              // index of end node of the MSG (assumed single; may still have outgoing edges if MSG is cyclic)
+EXTERN int numCharts;            // number of MSC nodes in the MSG
+EXTERN chart_t *msg;
+EXTERN int *topoMSG;             // MSG with nodes topologically sorted, for traversal
 
-edge_t *edgeBounds;       // bounds of back edges in the MSG
-int numEdgeBounds;
+EXTERN int startNode;            // index of start node of the MSG
+EXTERN int endNode;              // index of end node of the MSG (assumed single; may still have outgoing edges if MSG is cyclic)
 
-
-int *pChart;              // pChart[i]: index of topoLists of the MSC containing taskList[i]
-
-int numTasks;
-task_t **taskList;        // global task list
+EXTERN edge_t *edgeBounds;       // bounds of back edges in the MSG
+EXTERN int numEdgeBounds;
 
 
-time_t *earliestReq;
-time_t *latestReq;
-time_t *latestReq_copy;
+EXTERN int *pChart;              // pChart[i]: index of topoLists of the MSC containing taskList[i]
 
-time_t *earliestFin;
-time_t *latestFin;
+EXTERN int numTasks;
+EXTERN task_t **taskList;        // global task list
 
 
-char **interfere;
-char **peers;
+EXTERN time_t *earliestReq;
+EXTERN time_t *latestReq;
+EXTERN time_t *latestReq_copy;
+
+EXTERN time_t *earliestFin;
+EXTERN time_t *latestFin;
+
+
+EXTERN char **interfere;
+EXTERN char **peers;
 
 // interfere[i][j] = interfere[j][i] = 1 if tasks i and j interfere, 0 otherwise.
 // For non-greedy graph-coloring method, maintain that interference does not increase.
 // By right only needed for tasks assigned on the same PE,
 // but it is more efficient to address this array by task id.
 
-char *isCritical;         // isCritical[i] = 1 if taskList[i] is in the critical path of its MSC, 0 otherwise
+EXTERN char *isCritical;         // isCritical[i] = 1 if taskList[i] is in the critical path of its MSC, 0 otherwise
 
-double allocweight;
+EXTERN double allocweight;
 //int limitsoln;
+
+
+//TODO: These should be defines instead
+#ifdef EXTERN
+  EXTERN char ALLOCHEUR;
+  EXTERN char GREEDY;
+  EXTERN char DEBUG;
+#else
+  EXTERN char ALLOCHEUR = 0;
+  EXTERN char GREEDY = 1;
+  EXTERN char DEBUG = 0;
+#endif
+
+EXTERN FILE *timefp;
+EXTERN char resultFileBaseName[200];
+
+#endif

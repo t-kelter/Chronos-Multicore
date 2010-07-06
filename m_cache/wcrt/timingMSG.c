@@ -1,6 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
+
+#include "timingMSG.h"
+#include "alloc.h"
+#include "slacks.h"
+#include "util.h"
+#include "parse.h"
+#include "handler.h"
+#include "timing.h"
+#include "dump.h"
 
 #include "config.h"
 
@@ -542,7 +552,7 @@ int timingEstimate_synch() {
 
   FILE *f;
   char path[MAXLEN];
-  sprintf(path, "%s.%s.WCRT", resultFileBaseName, times_iteration);
+  sprintf(path, "%s.%d.WCRT", resultFileBaseName, times_iteration);
   f = wcrt_openfile(path, "w");
   if( !f ) {
     fprintf( stderr, "Failed to open file %s (timingMSG.c:548).\n", path );

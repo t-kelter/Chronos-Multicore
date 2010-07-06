@@ -1,3 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+
+#include "alloc.h"
+
 #include "cluster.c"
 #include "selectcontent.c"
 #include "graphcoloring.c"

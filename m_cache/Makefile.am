@@ -1,45 +1,53 @@
 SUBDIRS=wcrt
 
-noinst_PROGRAMS=opt optdebug
+noinst_PROGRAMS=opt opt_debug
+
+# Settings for both programs
+CPPFLAGS=-D_PRINT
+LDADD=wcrt/libwcrt.a
 
 # First program to build: The analyzer/optimizer for the user
-opt_SOURCES=main.c
-opt_CPPFLAGS=-D_PRINT
-opt_LDADD=wcrt/libwcrt.a
+opt_SOURCES=analysisCache.c analysisCache.h \
+						analysisCacheL2.c analysisCacheL2.h \
+						analysisDAG_BCET.c analysisDAG_BCET.h \
+						analysisDAG_WCET.c analysisDAG_WCET.h \
+						analysisEnum.c analysisEnum.h \
+						analysisILP.c analysisILP.h \
+						block.c block.h \
+						busSchedule.c busSchedule.h \
+						DAG_WCET.c DAG_WCET.h \
+						dump.c dump.h \
+						findConflicts.c findConflicts.h \
+						handler.c handler.h \
+						header.h \
+						infeasible.c infeasible.h \
+						main.c \
+						loopdetect.c loopdetect.h \
+						parseCFG.c parseCFG.h \
+						path.c path.h \
+						pathDAG.c pathDAG.h \
+            topo.c topo.h \
+            updateCacheL2.c updateCacheL2.h
 
 # Second program to build: The analyzer/optimizer for the developer to play around
-optdebug_SOURCES=main_debug.c
-optdebug_CPPFLAGS=-D_DEBUG -D_PRINT
-optdebug_LDADD=wcrt/libwcrt.a
-
-# Additionally remove the core dumps on 'make clean' if there are any
-CLEANFILES=core
-
-# Due to the special include system, we must list all indirect source 
-# files as extra dist files to make them appear in the tar made by
-# 'gmake dist'
-EXTRA_DIST=analysis.c \
-           analysisCache.c \
-           analysisCacheL2.c \
-           analysisDAG_BCET.c \
-           analysisDAG.c \
-           analysisDAG_WCET.c \
-           analysisEnum.c \
-           analysis.h \
-           analysisILP.c \
-           block.c \
-           busSchedule.c \
-           DAG_WCET.c \
-           dump.c \
-           findConflicts.c \
-           handler.c \
-           header.h \
-           infeasible.c \
-           infeasible.h \
-           loopdetect.c \
-           parseCFG.c \
-           path.c \
-           pathDAG.c \
-           pathTest.c \
-           topo.c \
-           updateCacheL2.c
+opt_debug_SOURCES=analysisCache.c analysisCache.h \
+								  analysisCacheL2.c analysisCacheL2.h \
+								  analysisDAG_BCET.c analysisDAG_BCET.h \
+								  analysisDAG_WCET.c analysisDAG_WCET.h \
+								  analysisEnum.c analysisEnum.h \
+								  analysisILP.c analysisILP.h \
+								  block.c block.h \
+								  busSchedule.c busSchedule.h \
+								  DAG_WCET.c DAG_WCET.h \
+								  dump.c dump.h \
+								  findConflicts.c findConflicts.h \
+								  handler.c handler.h \
+								  header.h \
+								  infeasible.c infeasible.h \
+									main_debug.c \
+								  loopdetect.c loopdetect.h \
+								  parseCFG.c parseCFG.h \
+                  path.c path.h \
+                  pathDAG.c pathDAG.h \
+                  topo.c topo.h \
+                  updateCacheL2.c updateCacheL2.h

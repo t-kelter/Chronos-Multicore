@@ -1,45 +1,52 @@
-/*
-  do Lever two Cache Analysis using Abstract Interpretation
-*/
-
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
+#include "analysisCache.h"
+#include "analysisCacheL2.h"
+#include "dump.h"
+
+// Forward declarations of static functions
+
+static void
+calculateMust_L2(cache_line_way_t **must, int instr_addr);
+
+static void
+calculateMay_L2(cache_line_way_t **may, int instr_addr);
+
+static void
+calculatePersist_L2(cache_line_way_t **persist, int instr_addr);
+
+static void
+calculateCacheState_L2(cache_line_way_t **must, cache_line_way_t **may,
+    cache_line_way_t **persist, int instr_addr);
+
+static char
+isInSet_L2_persist(int addr, cache_line_way_t **set);
+
+static char
+isInSet_L2(int addr, cache_line_way_t **set);
+
+static cache_line_way_t **
+intersectCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
+
+static cache_line_way_t **
+unionCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
+
+static cache_line_way_t **
+unionMaxCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
 
 static cache_state *
-mapLoop_L2(procedure *pro, loop *lp);
-
-static cache_state *
-mapFunctionCall_L2(procedure *proc, cache_state *cs);
+allocCacheState_L2();
 
 static void
-resetHitMiss_L2(MSC *msc);
+freeCacheState_L2(cache_state *cs);
+
+/*static void
+freeCacheStateFunction_L2(procedure * proc);
 
 static void
-resetFunction_L2(procedure *proc);
-
-static void
-resetLoop_L2(procedure *proc, loop* lp);
-
-static void
-calculateCacheState_L2(cache_line_way_t **must, cache_line_way_t **may, cache_line_way_t **persist, int instr_addr);
-
-static cache_state *
-copyCacheState_L2(cache_state *cs);
-
-
-
-//static void dump_cache_line(cache_line_way_t *clw_a);
-/* return log of integer n to the base 2 
-* -1  if n<0 or n!=power(2,m);
-*/
-/*
-static char 
-isInWay(int entry, int *entries, int num_entry);
-*/
-
-static void
-freeAll_L2();
+freeCacheStateLoop_L2(procedure *proc, loop *lp);*/
 
 static void
 freeAllFunction_L2(procedure *proc);
@@ -47,44 +54,46 @@ freeAllFunction_L2(procedure *proc);
 static void
 freeAllLoop_L2(procedure *proc, loop *lp);
 
-
-
-static char
-isNeverInCacheL2(int addr, cache_line_way_t**may);
-
 static char
 isInCache_L2(int addr, cache_line_way_t**must);
 
 static cache_line_way_t **
-unionCacheState_L2(cache_line_way_t ** clw_a, cache_line_way_t **clw_b);
+copyCacheSet_persist(cache_line_way_t **cache_set);
 
-/*
-static int
-logBase2(int n)
-{
-  int power = 0;
+static cache_line_way_t **
+copyCacheSet(cache_line_way_t **cache_set);
 
-  if (n <= 0 || (n & (n-1)) != 0)
-    {
-    printf("log2() only works for positive power of two values\n");
-    return -1;
-    }
-  while (n >>= 1)
-    power++;
+static void
+freeCacheSet_L2(cache_line_way_t **cache_set);
 
-  return power;
-}
-*/
+static char
+isNeverInCache_L2(int addr, cache_line_way_t**may);
+
+static cache_state *
+mapLoop_L2(procedure *pro, loop *lp);
+
+static cache_state *
+copyCacheState_L2(cache_state *cs);
+
+static cache_state *
+mapFunctionCall_L2(procedure *proc, cache_state *cs);
+
+static void
+resetFunction_L2(procedure * proc);
+
+static void
+resetLoop_L2(procedure * proc, loop * lp);
+
+
 
 //read basic cache configuration from configFile and then
 //set other cinfiguration
-static void
+void
 set_cache_basic_L2(char * configFile)
 {
 
   FILE *fptr;
   int ns, na, ls, cmp, i;
-  char path[ MAX_LEN ];
 
   fptr = fopen(configFile, "r" );
   if (fptr == NULL) {
@@ -125,7 +134,7 @@ set_cache_basic_L2(char * configFile)
     cache_L2.t_s_msk = cache_L2.t_msk | cache_L2.s_msk;
 }
 
-static void
+void
 dumpCacheConfig_L2()
 {
     printf("Cache Configuration as follow:\n");
@@ -144,7 +153,7 @@ dumpCacheConfig_L2()
 static void
 calculateMust_L2(cache_line_way_t **must, int instr_addr)
 {
-	int i, j, *tail;
+	int i, j;
 	instr_addr = TAGSET_L2(instr_addr);
 	
 	for(i = 0; i < cache_L2.na; i++)
@@ -208,7 +217,7 @@ calculateMust_L2(cache_line_way_t **must, int instr_addr)
 static void
 calculateMay_L2(cache_line_way_t **may, int instr_addr)
 {
-	int i, j, *tail;
+	int i, j;
 	instr_addr = TAGSET_L2(instr_addr);
 	
 	for(i = 0; i < cache_L2.na; i++)
@@ -271,7 +280,7 @@ calculateMay_L2(cache_line_way_t **may, int instr_addr)
 static void
 calculatePersist_L2(cache_line_way_t **persist, int instr_addr)
 {
-	int i, j, *tail;
+	int i, j;
 	instr_addr = TAGSET_L2(instr_addr);
 
 	/* FIXME:::: Foe persistence analysis associativity is one more than 
@@ -374,8 +383,7 @@ isInSet_L2(int addr, cache_line_way_t **set)
 static cache_line_way_t **
 intersectCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
-	int i, j, k, age, index, entry_a, entry_b, num_history = 0;
-	int *history_entries = NULL;
+	int i, j, age, index, entry_b;
 	//int flag = 1;
 	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache_L2.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
@@ -425,8 +433,7 @@ intersectCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 static cache_line_way_t **
 unionCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
-	int i, j, k, age, index, entry_a, entry_b, t, n, num_history = 0;
-	int *history_entries = NULL;
+	int i, j, age, index, entry_a, entry_b;
 	//int flag = 1;
 	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache_L2.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
@@ -503,8 +510,7 @@ unionCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 static cache_line_way_t **
 unionMaxCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
-	int i, j, k, age, index, entry_a, entry_b, t, n, num_history = 0;
-	int *history_entries = NULL;
+	int i, j, age, index, entry_a, entry_b;
 	//int flag = 1;
 	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache_L2.na + 1, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
@@ -587,16 +593,13 @@ unionMaxCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 static cache_state *
 allocCacheState_L2()
 {
-	int i, j, k;
+	int j, k;
 	cache_state *result = NULL;
 	//printf("\nalloc CS memory copies = %d \n", copies);
 
 	result = (cache_state *)CALLOC(result, 1, sizeof(cache_state), "cache_state_t");
 	
 	//printf("\nalloc CS memory result->loop_level = %d \n", result->loop_level );
-
-
-		//printf("\nalloc CS memory for i = %d \n", i );
 
 		result->must = NULL;
 		result->must = (cache_line_way_t***)CALLOC(result->must, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
@@ -690,7 +693,7 @@ freeCacheState_L2(cache_state *cs)
 	cs = NULL;	
 }
 
-static void
+/*static void
 freeCacheStateFunction_L2(procedure * proc)
 {
 	procedure *p = proc;
@@ -720,7 +723,6 @@ freeCacheStateFunction_L2(procedure * proc)
 }
 
 
-
 static void
 freeCacheStateLoop_L2(procedure *proc, loop *lp)
 {
@@ -746,7 +748,7 @@ freeCacheStateLoop_L2(procedure *proc, loop *lp)
 			bb->bb_cache_state_L2 = NULL;
 		}
 	}
-}
+}*/
 
 
 
@@ -755,7 +757,7 @@ freeAllFunction_L2(procedure *proc)
 {
 	procedure *p = proc;
 	block *bb;
-	int i, k;
+	int i;
 	int  num_blk = p->num_topo;	
 		
 	for(i = num_blk -1 ; i >= 0 ; i--)
@@ -793,7 +795,7 @@ freeAllLoop_L2(procedure *proc, loop *lp)
 	procedure *p = proc;
 	loop *lp_ptr = lp;
 	block *bb;
-	int i, k;
+	int i;
 	
 	int  num_blk = lp_ptr->num_topo;	
 		
@@ -826,22 +828,11 @@ freeAllLoop_L2(procedure *proc, loop *lp)
 
 }
 
-static void
+void
 freeAll_L2()
 {
 	freeAllFunction_L2(main_copy);
 }
-
-
-static cache_state*
-fixPointCacheState_L2(cache_state *cs_ptr, loop *lp)
-{
-
-}
-
-
-
-
 
 
 static char
@@ -905,7 +896,7 @@ copyCacheSet(cache_line_way_t **cache_set)
 static void
 freeCacheSet_L2(cache_line_way_t **cache_set)
 {
-	int i, j;
+	int i;
 	for(i = 0; i < cache_L2.na; i++)
 	{
 		if(cache_set[i]->num_entry)
@@ -936,13 +927,13 @@ isNeverInCache_L2(int addr, cache_line_way_t**may)
 static cache_state *
 mapLoop_L2(procedure *pro, loop *lp)
 {
-	int i, j, k, n, set_no, incoming_cnt, cnt, tmp, addr, addr_next, copies, age; 
-	int start_addr, start_addr_fetch, lp_level, incoming_lp_level, tag, tag_next;
+	int i, j, k, n, set_no, cnt, tmp, addr, addr_next, copies, age; 
+	int lp_level, tag, tag_next;
 	
 	procedure *p = pro;
 
 	block *bb, *incoming_bb;
-	cache_state *cs_ptr, *cs_tmp;
+	cache_state *cs_ptr;
 	cache_line_way_t **cache_set_must, **cache_set_may, **cache_set_persist, **clw;
 
 	int  num_blk = lp->num_topo;
@@ -1097,8 +1088,7 @@ mapLoop_L2(procedure *pro, loop *lp)
 					 continue;
 
 				cs_ptr = copyCacheState_L2(p->bblist[lp->topo[0]->bbid]->bb_cache_state_L2);
-				//cs_tmp = cs_ptr;
-				//cs_ptr = fixPointCacheState_L2(cs_ptr, lp);
+				//cache_state *cs_tmp = cs_ptr;
 				//freeCacheState(cs_tmp);
 
 
@@ -1156,10 +1146,10 @@ mapLoop_L2(procedure *pro, loop *lp)
 		//current_chmc->hitmiss_addr= NULL;
 		//current_chmc->hit_change_miss= NULL;
 
-		//start_addr = bb->startaddr;
+		//int start_addr = bb->startaddr;
 		//bb->num_cache_fetch_L2 = bb->size / cache_L2.ls;
 		
-		//start_addr_fetch = (start_addr >> cache_L2.lsb) << cache_L2.lsb;
+		//int start_addr_fetch = (start_addr >> cache_L2.lsb) << cache_L2.lsb;
 		//tmp = start_addr - start_addr_fetch;
 
 		
@@ -1762,7 +1752,7 @@ mapLoop_L2(procedure *pro, loop *lp)
 static cache_state *
 copyCacheState_L2(cache_state *cs)
 {
-	int i, j, k, num_entry, tmp;
+	int j, k, num_entry;
 	cache_state *copy = NULL;
 
 	//printf("\nIn copy Cache State now\n");
@@ -1774,6 +1764,7 @@ copyCacheState_L2(cache_state *cs)
 
 		
 	//lp_level = cs->loop_level;
+  //int i;
 //	for( i = 0; i < copies; i ++)
 //	{
 		//printf("\nIn copyCacheState: i is %d\n", i);
@@ -1850,8 +1841,8 @@ copyCacheState_L2(cache_state *cs)
 static cache_state *
 mapFunctionCall_L2(procedure *proc, cache_state *cs)
 {
-	int i, j, k, n, set_no, incoming_cnt, cnt, addr, addr_next, copies, tmp, tag, tag_next; 
-	int start_addr, start_addr_fetch, lp_level, incoming_lp_level, age;
+	int i, j, k, n, set_no, cnt, addr, addr_next, copies, tmp, tag, tag_next; 
+	int lp_level, age;
 
 	//dumpCacheState(cs);
 	//exit(1);
@@ -2030,10 +2021,10 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 		//current_chmc->hit_change_miss= NULL;
 		
 		//compute categorization of each instruction line
-		//start_addr = bb->startaddr;
+		//int start_addr = bb->startaddr;
 		//bb->num_cache_fetch_L2 = bb->size / cache_L2.ls;
 
-		//start_addr_fetch = (start_addr >> cache_L2.lsb) << cache_L2.lsb;
+		//int start_addr_fetch = (start_addr >> cache_L2.lsb) << cache_L2.lsb;
 		//tmp = start_addr - start_addr_fetch;
 
 		
@@ -2642,7 +2633,7 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 static void
 resetFunction_L2(procedure * proc)
 {
-	int i, j, cnt, lp_level, num_blk, copies;
+	int i, j, cnt, lp_level, num_blk;
 
 	procedure *p = proc;
 	block *bb;
@@ -2709,7 +2700,7 @@ static void
 resetLoop_L2(procedure * proc, loop * lp)
 {
 
-	int i, j, cnt, lp_level, num_blk, copies, tmp;
+	int i, j, cnt, lp_level, num_blk;
 
 	procedure *p = proc;
 	block *bb;
@@ -2718,7 +2709,6 @@ resetLoop_L2(procedure * proc, loop * lp)
 	num_blk = lp_ptr->num_topo;
 
 	//printf("pathLoop\n");
-	//scanf("%c", &tmp);
 
 	for(i = 0; i < MAX_NEST_LOOP; i++)
 		if(loop_level_arr[i] == INVALID)
@@ -2779,7 +2769,7 @@ resetLoop_L2(procedure * proc, loop * lp)
 
 
 
-static void
+void
 resetHitMiss_L2(MSC *msc)
 {
 	int i;
@@ -2796,7 +2786,7 @@ resetHitMiss_L2(MSC *msc)
 
 
 //do level one cache analysis
-static void
+void
 cacheAnalysis_L2()
 {
 	int i;
@@ -2827,199 +2817,3 @@ cacheAnalysis_L2()
 	//printf("\n");
 
 }
-
-
-
-/*
-
-// from way 0-> way n, younger->older
-static cache_line_way_t *
-unionCacheState_L2(cache_line_way_t * clw_a, cache_line_way_t *clw_b)
-{
-	int i, j, k, entry_a, entry_b, t, n, num_history = 0;
-	int *history_entries = NULL;
-	//int flag = 1;
-	cache_line_way_t *result = 
-	(cache_line_way_t *) CALLOC(result, cache_L2.na, sizeof(cache_line_way_t), "cache line way");
-
-	//printf("test in union, result[0].num_entry is : %d ", result[0].num_entry);
-	//dump_cache_line( result );
-	
-	//for each way, calculate the result of cs
-	for(i = 0; i < cache_L2.na; i++)
-	{
-		result[i].num_entry = 0;
-		
-		//for each entry in clw_a, is it present in the history? 
-		//no, add it into result and history
-		for(j = 0 ; j < clw_a[i].num_entry; j++)
-		{
-			entry_a = clw_a[i].entry[j];
-			if(isInWay(entry_a, history_entries, num_history))
-				continue;
-			else
-			{
-			//add to result
-			result[i].num_entry++;
-
-			result[i].entry = (int *)REALLOC(result[i].entry, result[i].num_entry*sizeof(int), "cache line way");
-			result[i].entry[result[i].num_entry - 1] = entry_a;
-
-			//add to history
-			num_history++;
-
-			history_entries = (int *)REALLOC(history_entries, num_history*sizeof(int), "cache line way");
-			history_entries[num_history - 1] = entry_a;
-			} // end if
-		} //end for
-
-
-		//for each entry in clw_b[i], is it in result[i]
-		//no, is it present in the history? 
-		//no, add it into result[i] and history
-		for(j = 0; j < clw_b[i].num_entry; j++)
-		{
-			entry_b = clw_b[i].entry[j];
-			if(isInWay(entry_b, result[i].entry, result[i].num_entry))
-				continue;
-			else if(!isInWay(entry_b, history_entries, num_history))
-			{
-				//add  clw_b[i].entry[j] into result[i].entry
-				result[i].num_entry ++;
-				result[i].entry = (int *) 
-				REALLOC(result[i].entry, result[i].num_entry*sizeof(int), "cache line way");
-				result[i].entry[result[i].num_entry - 1] = entry_b;
-
-				//add to history
-				num_history++;
-				history_entries = (int *)REALLOC(history_entries, num_history*sizeof(int), "cache line way");
-				history_entries[num_history - 1] = entry_b;
-			 } //end if
-		} //end for
-
-	}
-return result;
-	
-}
-*/
-
-/*
-// from way n-> way 0, older->younger
-static cache_line_way_t *
-intersectCacheState_L2(cache_line_way_t * clw_a, cache_line_way_t *clw_b)
-{
-	int i, j, k, entry_a, entry_b, num_history = 0;
-	int *history_entries = NULL;
-	//int flag = 1;
-	cache_line_way_t *result = (cache_line_way_t *) CALLOC(result, 1, sizeof(cache_line_way_t), "cache line way");
-
-
-	//for each way, calculate the result of cs
-	//for(i = cache_L2.na - 1; i >= 0; i--)
-	{
-		result[i].num_entry = 0;
-		
-		//kick out entries in clw_b not in clw_a
-		for(j = 0; j < clw_b[i].num_entry; j++)
-		{
-			entry_b = clw_b[i].entry[j];
-			if(!isInWay(entry_b, clw_a[i].entry, clw_a[i].num_entry))
-				continue;
-			else if(!isInWay(entry_b, history_entries, num_history))
-			{
-				//add  clw_a[i].entry[j] into result[i].entry
-				result[i].num_entry ++;
-				result[i].entry = (int *)  
-				REALLOC(result[i].entry , result[i].num_entry*sizeof(int), "cache line way");
-				result[i].entry[result[i].num_entry - 1] = entry_b;
-
-						//add to history
-				num_history++;
-				history_entries = (int *)REALLOC(history_entries, num_history*sizeof(int), "cache line way");
-				history_entries[num_history - 1] = entry_b;	
-			} //end if
-		} // end for
-
-	}
-return result;
-}
-*/
-
-
-/*
-static void
-dump_cache_line(cache_line_way_t *clw_a)
-{
-	int i, j;
-	//printf("No of ways %d\n", cache.na);
-		//printf("way %d :	\n", i);
-	if(clw_a->num_entry == 0)
-	{
-		printf("NULL\n");
-		return;
-	}
-	for(j = 0; j < clw_a->num_entry; j++)
-		printf(" %d ", clw_a->entry[j]);
-
-	printf("\n");
-	
-}
-
-static char
-test_cs_op()
-{
-cache_line_way_t *clw_a, *clw_b;
-
-//initialization for clw_a
-clw_a = (cache_line_way_t*) CALLOC(clw_a , 2, sizeof(cache_line_way_t), "a");
-
-clw_a[0].num_entry = 3;
-clw_a[1].num_entry = 3;
-clw_a[0].entry = (int*) CALLOC(clw_a[0].entry, clw_a[0].num_entry, sizeof(int), "entries for a");
-clw_a[1].entry = (int*) CALLOC(clw_a[1].entry, clw_a[1].num_entry, sizeof(int), "entries for a");
-
-clw_a[0] .entry[0] = 1;
-clw_a[0] .entry[1] = 2;
-clw_a[0] .entry[2] = 5;
-clw_a[1] .entry[0] = 2;
-clw_a[1] .entry[1] = 3;
-clw_a[1] .entry[2] = 4;
-//initialization for clw_b
-clw_b = (cache_line_way_t*) CALLOC(clw_b , 3, sizeof(cache_line_way_t), "b");
-
-clw_b[0].num_entry = 3;
-clw_b[1].num_entry = 3;
-clw_b[0].entry = (int*) CALLOC(clw_b[0].entry, clw_b[0].num_entry, sizeof(int), "entries for b");
-clw_b[1].entry = (int*) CALLOC(clw_b[1].entry, clw_b[1].num_entry, sizeof(int), "entries for b");
-
-clw_b[0] .entry[0] = 3;
-clw_b[0] .entry[1] = 2;
-clw_b[0] .entry[1] = 5;
-clw_b[1] .entry[0] = 4;
-clw_b[1] .entry[1] = 3;
-clw_b[1] .entry[2] = 2;
-dump_cache_line(clw_a);
-printf("\n");
-dump_cache_line(clw_b);
-printf("\n");
-printf("Result for union: \n");
-dump_cache_line(unionCacheState(clw_a, clw_b));
-printf("\n");
-printf("Result for intersect: \n");
-dump_cache_line(intersectCacheState(clw_a, clw_b));	
-printf("\n");
-return 0;
-}
-*/
-
-
-
-
-
-
-
-
-
-
-
-

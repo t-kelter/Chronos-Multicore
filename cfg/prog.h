@@ -25,31 +25,6 @@
 #include "ss.h"
 #include "cfg.h"
 
-#define	MAX_PROCS   256
-
-// decoded instr (try to align it 8-bytes)
-typedef struct {
-    unsigned short  op;
-    unsigned char   in[3];
-    unsigned char   out[2];
-    unsigned char   fu;
-} decoded_inst_t;
-
-
-
-typedef struct prog_t {
-    SS_ADDR_TYPE    sa;	    // program start address
-    int		    sz;	    // program text size (in bytes)
-    SS_ADDR_TYPE    main_sa;// start address of main (might be in middle of prog
-    SS_INST_TYPE    *code;  // program text
-    decoded_inst_t  *dcode; // decoded instructions
-
-    Proc	    procs[MAX_PROCS];
-    int		    nproc;  // number of procedures
-    Proc	    *root;  // root = main
-} Prog;
-
-
 void
 decode_text();
 

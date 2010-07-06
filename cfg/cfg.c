@@ -36,36 +36,19 @@
 #include "prog.h"
 #include "common.h"
 #include <assert.h>
-
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
 
 SS_INST_TYPE	INST_NOP;
 
-static int
-is_ctrl(SS_INST_TYPE *inst);
-static SS_ADDR_TYPE
-callee_addr(SS_INST_TYPE *inst, SS_ADDR_TYPE pc);
-static void
-build_call_edges(Prog *prog);
-static int
-cmp_proc_sa(const void *key, const void *datum);
-static void
-reset_procs_flags(Prog *prog);
-void
-dump_procs(Proc *procs, int nproc);
-void
-dump_bbs(Proc *proc);
-
-
-
-
-static int
-scan_procs(Prog *prog, SS_ADDR_TYPE *psa);
-
-static void
-create_procs_basic(Prog *prog, SS_ADDR_TYPE *psa, int nproc);
-
-static void
-build_call_edges(Prog *prog);
+static int is_ctrl(SS_INST_TYPE *inst);
+static SS_ADDR_TYPE callee_addr(SS_INST_TYPE *inst, SS_ADDR_TYPE pc);
+static void build_call_edges(Prog *prog);
+static int cmp_proc_sa(const void *key, const void *datum);
+static int scan_procs(Prog *prog, SS_ADDR_TYPE *psa);
+static void create_procs_basic(Prog *prog, SS_ADDR_TYPE *psa, int nproc);
+static void build_call_edges(Prog *prog);
 
 /* create procedures for a program */
 void create_procs(Prog *prog)
@@ -86,7 +69,7 @@ static int
 scan_procs(Prog *prog, SS_ADDR_TYPE *psa)
 {
     SS_INST_TYPE    *inst;
-    int		    i, nproc = 0;
+    int		    nproc = 0;
     SS_ADDR_TYPE    pc, ea = prog->sa + prog->sz, x, *y;
     
 #if SHOW_PROGRESS
@@ -126,11 +109,9 @@ scan_procs(Prog *prog, SS_ADDR_TYPE *psa)
 static void
 create_procs_basic(Prog *prog, SS_ADDR_TYPE *psa, int nproc)
 {
-    SS_ADDR_TYPE    main_sa, *x;
+    SS_ADDR_TYPE    *x;
     Proc	    *proc;
     int		    i;
-    SS_ADDR_TYPE    pc, ea;
-    SS_INST_TYPE    *inst;
 
 #if SHOW_PROGRESS
     fprintf(stderr, "create_procs()...\n");
@@ -226,7 +207,7 @@ void
 create_bbs(Proc *proc)
 {
     SS_ADDR_TYPE    bsa[4096];
-    int		    nbb, i;
+    int		    nbb;
 
     nbb = scan_bbs(proc, bsa);
     create_bbs_basic(proc, bsa, nbb);
@@ -242,7 +223,7 @@ static int
 scan_bbs(Proc *proc, SS_ADDR_TYPE *bsa)
 {
     SS_INST_TYPE    *inst;
-    int		    i, nbb = 0, bb_size;
+    int		    nbb = 0, bb_size;
     SS_ADDR_TYPE    pc, ea, x, *y;
     
 #if SHOW_PROGRESS
@@ -331,7 +312,6 @@ create_bbs_basic(Proc *proc, SS_ADDR_TYPE *bsa, int nbb)
 static void
 remove_out_edges(BasicBlk *bb)
 {
-    CfgEdge	*edge;
     BasicBlk	*target;
     int		i;
 
@@ -391,7 +371,6 @@ build_cfg_edges(Proc *proc)
     SS_INST_TYPE    *inst;
     SS_ADDR_TYPE    pc;
     BasicBlk	    *bb, *target;
-    CfgEdge	    *edge;
     int		    i;
 
 #if SHOW_PROGRESS
@@ -458,17 +437,6 @@ lookup_bb(Proc *proc, SS_ADDR_TYPE addr)
 	    return bb;
     }
     return NULL;
-}
-
-
-/* reset flags of procedures in the program */
-static void
-reset_procs_flags(Prog *prog)
-{
-    int	    i;
-
-    for (i = 0; i < prog->nproc; i++)
-	prog->procs[i].flags = 0;
 }
 
 
@@ -688,7 +656,7 @@ dump_procs(Proc *procs, int nproc)
 
     for (i=0; i<nproc; i++) {
 	fprintf(stderr, "id=%d; sa=%x; sz=%x, inst=%x\n",
-		procs[i].id, procs[i].sa, procs[i].sz, procs[i].code);
+		procs[i].id, procs[i].sa, procs[i].sz, (unsigned int)(intptr_t)procs[i].code);
     }
 }
 
@@ -720,7 +688,7 @@ dump_bbs(Proc *proc)
     for (i = 0; i < proc->nbb; i++) {
 	bb = &(proc->bbs[i]);
 	fprintf(stderr, "id=%d, sa=%x, sz=%x, code=%x, type=%d\n",
-		bb->id, bb->sa, bb->sz, bb->code, bb->type);
+		bb->id, bb->sa, bb->sz, (unsigned int)(intptr_t)bb->code, bb->type);
     }
 }
 

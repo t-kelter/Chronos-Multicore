@@ -1,97 +1,88 @@
-/*
-  do Lever-One Cache Analysis using Abstract Interpretation
-*/
-
+#include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
-static void
-freeCacheSet(cache_line_way_t **cache_set);
+#include "analysisCache.h"
+#include "handler.h"
+#include "dump.h"
 
+// Forward declarations of static functions
+
+static block* 
+copyBlock(block *bb);
+
+static loop* 
+copyLoop(procedure *proc, procedure* copy_proc, loop *lp);
+
+static procedure* 
+copyFunction(procedure* proc);
 
 static procedure*
 constructFunctionCall(procedure *pro, task_t *task);
 
-
-static cache_state *
-calculateFunctionCall(int pid, cache_state * before);
-
-static block* 
-copyBlock(block * bb);
-
-static loop* 
-copyLoop(procedure *proc, procedure* copy_proc, loop* lp);
-
-static procedure* 
-copyFunction(procedure *proc);
+static void
+calculateMust(cache_line_way_t **must, int instr_addr);
 
 static void
-freeAllCacheState();
+calculateMay(cache_line_way_t **may, int instr_addr);
+
+static void
+calculatePersist(cache_line_way_t **persist, int instr_addr);
+
+static void
+calculateCacheState(cache_line_way_t **must, cache_line_way_t **may,
+    cache_line_way_t **persist, int instr_addr);
+
+static cache_state *
+allocCacheState();
+
+static char
+isInSet_persist(int addr, cache_line_way_t **set);
+
+static char
+isInSet(int addr, cache_line_way_t **set);
+
+static char
+isInCache(int addr, cache_line_way_t**must);
+
+static char
+isNeverInCache(int addr, cache_line_way_t**may);
+
+static cache_state *
+copyCacheState(cache_state *cs);
+
+static cache_state *
+mapLoop(procedure *proc, loop *lp);
+
+static cache_state *
+mapFunctionCall(procedure *proc, cache_state *cs);
+
+static cache_line_way_t **
+unionCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
+
+static cache_line_way_t **
+unionMaxCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
+
+static void
+freeCacheState(cache_state *cs);
+
+/*static void
+freeCacheStateFunction(procedure * proc);
+
+static void
+freeCacheStateLoop(procedure *proc, loop *lp);*/
 
 static void
 freeAllFunction(procedure *proc);
 
 static void
 freeAllLoop(procedure *proc, loop *lp);
-/*
-static int
-allocLoop(int pid, int bbid);
-
-static int
-allocFunctionCall(int pid);
-
-static void
-allocCacheStates();
-*/
-static cache_state*
-mapLoop(procedure *proc, loop *lp);
-
-static cache_state *
-mapFunctionCall(procedure *proc, cache_state *cs);
-
-
-static void
-calculateCacheState(cache_line_way_t **must, cache_line_way_t **may, cache_line_way_t **persist, int instr_addr);
-
-static cache_state *
-copyCacheState(cache_state *cs);
-
-static void dump_cache_line(cache_line_way_t *clw_a);
-/* return log of integer n to the base 2 
-* -1  if n<0 or n!=power(2,m);
-*/
-
-static void
-freeCacheState(cache_state *cs);
-
-
-
-static void
-freeCacheStateLoop(procedure *proc, loop *lp);
-
-static void
-freeCacheStateFunction(procedure *proc);
-
-
-
-static char 
-isInWay(int entry, int *entries, int num_entry);
-
-static char
-isNeverInCache(int addr, cache_line_way_t**may);
-
-static char
-isInCache(int addr, cache_line_way_t**must);
 
 static cache_line_way_t **
-unionCacheState(cache_line_way_t ** clw_a, cache_line_way_t **clw_b);
+intersectCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
 
-static cache_line_way_t **
-intersectCacheState(cache_line_way_t ** clw_a, cache_line_way_t **clw_b);
 
-static cache_line_way_t **
-unionMaxCacheState(cache_line_way_t ** clw_a, cache_line_way_t **clw_b);
-
-static int
+int
 logBase2(int n)
 {
   int power = 0;
@@ -110,13 +101,12 @@ logBase2(int n)
 
 //read basic cache configuration from configFile and then
 //set other cinfiguration
-static void
+void
 set_cache_basic(char * configFile)
 {
 
   FILE *fptr;
   int ns, na, ls, cmp, i;
-  char path[ MAX_LEN ];
 
   fptr = fopen(configFile, "r" );
   if( !fptr ) {
@@ -157,7 +147,7 @@ set_cache_basic(char * configFile)
     cache.t_s_msk = cache.t_msk | cache.s_msk;
 }
 
-static void
+void
 dumpCacheConfig()
 {
     printf("Cache Configuration as follow:\n");
@@ -414,7 +404,7 @@ constructFunctionCall(procedure *pro, task_t *task)
 	
 			bb->proc_ptr	= constructFunctionCall(procs[bb->callpid], task);
 			if(print) 
-				printf("\nbb->proc_ptr = f%x for bb[%d] calling proc[%d]\n", (unsigned)bb->proc_ptr, bb->bbid, bb->callpid);
+				printf("\nbb->proc_ptr = f%lx for bb[%d] calling proc[%d]\n", (uintptr_t)bb->proc_ptr, bb->bbid, bb->callpid);
 /*
 			j = indexOfProc(bb->callpid);
 			if(j >= 0)
@@ -444,7 +434,7 @@ constructFunctionCall(procedure *pro, task_t *task)
 
 
 
-static void
+void
 constructAll(task_t *task)
 {
     	procedure *p = procs[ main_id ];
@@ -477,7 +467,7 @@ constructAll(task_t *task)
 static void
 calculateMust(cache_line_way_t **must, int instr_addr)
 {
-	int i, j, k, *tail;
+	int i, j;
 	instr_addr = TAGSET(instr_addr);
 	
 	for(i = 0; i < cache.na; i++)
@@ -531,7 +521,7 @@ calculateMust(cache_line_way_t **must, int instr_addr)
 static void
 calculateMay(cache_line_way_t **may, int instr_addr)
 {
-	int i, j, *tail;
+	int i, j;
 	instr_addr = TAGSET(instr_addr);
 
 	for(i = 0; i < cache.na; i++)
@@ -594,7 +584,7 @@ calculateMay(cache_line_way_t **may, int instr_addr)
 static void
 calculatePersist(cache_line_way_t **persist, int instr_addr)
 {
-	int i, j, *tail;
+	int i, j;
 	instr_addr = TAGSET(instr_addr);
 
 	for(i = 0; i < cache.na; i++)
@@ -670,7 +660,7 @@ calculateCacheState(cache_line_way_t **must, cache_line_way_t **may, cache_line_
 static cache_state *
 allocCacheState()
 {
-	int i, j, k;
+	int j, k;
 	cache_state *result = NULL;
 	/*
 	if(loop_level == -1)
@@ -687,7 +677,7 @@ allocCacheState()
 	
 	//printf("\nalloc CS memory result->loop_level = %d \n", result->loop_level );
 
-
+  //int i;
 	//for( i = 0; i < copies; i ++)
 	//{
 		//printf("\nalloc CS memory for i = %d \n", i );
@@ -825,12 +815,6 @@ static void
 }
 */
 
-static cache_state *
- fixPointCacheState(cache_state *cs_ptr, loop *lp)
-{
-
-}
-
 /* For checking when updating the cache state during 
  * persistence analysis */
 static char
@@ -888,7 +872,7 @@ isNeverInCache(int addr, cache_line_way_t**may)
 static cache_state *
 copyCacheState(cache_state *cs)
 {
-	int i, j, k, num_entry, tmp;
+	int j, k, num_entry;
 	cache_state *copy = NULL;
 
 	//printf("\nIn copy Cache State now\n");
@@ -971,11 +955,11 @@ static cache_state *
 mapLoop(procedure *proc, loop *lp)
 {
 	int i, j, k, n, set_no, cnt, tmp, addr, addr_next, copies, tag, tag_next; 
-	int start_addr, start_addr_fetch, lp_level, incoming_lp_level;
+	int lp_level;
 
 	procedure *p = proc;
 	block *bb, *incoming_bb;
-	cache_state *cs_ptr, *cs_tmp;
+	cache_state *cs_ptr;
 	cache_line_way_t **clw;
 	//printf("\nIn mapLoop loopid[%d]\n", lp->lpid);
 
@@ -1173,8 +1157,7 @@ mapLoop(procedure *proc, loop *lp)
 			//	bb->bb_cache_state_result = bb->bb_cache_state;
 			
 				cs_ptr = copyCacheState(p->bblist[lp->topo[0]->bbid]->bb_cache_state);
-				//cs_tmp = cs_ptr;
-				//cs_ptr = fixPointCacheState(cs_ptr, lp);
+				//cache_state *cs_tmp = cs_ptr;
 				//freeCacheState(cs_tmp);
 			/*
 				for(k = 0; k < cache.ns; k++)
@@ -1257,12 +1240,12 @@ mapLoop(procedure *proc, loop *lp)
 	
 		//exit(1);
 		//compute categorization of each instruction line  		
-		//start_addr = bb->startaddr;
+		//int start_addr = bb->startaddr;
 		//bb->num_cache_fetch = bb->size / cache.ls;
 
 		
 		
-		//start_addr_fetch = (start_addr >> cache.lsb) << cache.lsb;
+		//int start_addr_fetch = (start_addr >> cache.lsb) << cache.lsb;
 		//tmp = start_addr - start_addr_fetch;
 
 		
@@ -1593,8 +1576,8 @@ mapLoop(procedure *proc, loop *lp)
 static cache_state *
 mapFunctionCall(procedure *proc, cache_state *cs)
 {
-	int i, j, k, n, set_no, incoming_cnt, cnt, addr, addr_next, copies, tmp; 
-	int start_addr, start_addr_fetch, tag, tag_next, lp_level, incoming_lp_level;
+	int i, j, k, n, set_no, cnt, addr, addr_next, copies, tmp; 
+	int tag, tag_next, lp_level;
 
 	//dumpCacheState(cs);
 	//exit(1);
@@ -2056,11 +2039,11 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 		//dumpCacheState(bb->bb_cache_state);
 		
 	
-		//start_addr = bb->startaddr;
+		//int start_addr = bb->startaddr;
 		//bb->num_cache_fetch = bb->size / cache.ls;
 
 		
-		//start_addr_fetch = (start_addr >> cache.lsb) << cache.lsb;
+		//int start_addr_fetch = (start_addr >> cache.lsb) << cache.lsb;
 		//tmp = start_addr - start_addr_fetch;
 
 		//tmp is not 0 if start address is not multiple of sizeof(cache line) in bytes
@@ -2141,7 +2124,7 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 
 
 //do level one cache analysis
-static void
+void
 cacheAnalysis(){
 	int i;
 	//printf("\nIn cacheAnalysis() \n It is in main\n");
@@ -2157,7 +2140,6 @@ cacheAnalysis(){
 
 	//set initial cache state for main precedure
 	cache_state *start_CS;
-	block *start_bb;
 	//start = (cache_state*) CALLOC(start, 1, sizeof(cache_state), "cache_state");
 	start_CS = allocCacheState();
 
@@ -2169,12 +2151,7 @@ cacheAnalysis(){
 	//exit(1);//!!!here is a break !!! come on
 }
 
-/*
-static void
-computeBBcost(){
-}
-*/
-static char 
+char 
 isInWay(int entry, int *entries, int num_entry)
 {
 	int i;
@@ -2190,8 +2167,7 @@ isInWay(int entry, int *entries, int num_entry)
 static cache_line_way_t **
 unionCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
-	int i, j, k, age, index, entry_a, entry_b, t, n, num_history = 0;
-	int *history_entries = NULL;
+	int i, j, age, index, entry_a, entry_b;
 	//int flag = 1;
 	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
@@ -2268,8 +2244,7 @@ unionCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 static cache_line_way_t **
 unionMaxCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
-	int i, j, k, age, index, entry_a, entry_b, t, n, num_history = 0;
-	int *history_entries = NULL;
+	int i, j, age, index, entry_a, entry_b;
 	//int flag = 1;
 	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache.na + 1, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
@@ -2350,7 +2325,7 @@ unionMaxCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 
 
 
-static void
+void
 freeCacheSet(cache_line_way_t **cache_set)
 {
 	int i;
@@ -2369,7 +2344,7 @@ freeCacheSet(cache_line_way_t **cache_set)
 static void
 freeCacheState(cache_state *cs)
 {
-	int i, j, k;
+	int i, j;
 	
 	for(i = 0; i < cache.ns; i++ )
 	{
@@ -2410,7 +2385,7 @@ freeCacheState(cache_state *cs)
 	cs = NULL;	
 }
 
-static void
+/*static void
 freeCacheStateFunction(procedure * proc)
 {
 	procedure *p = proc;
@@ -2464,7 +2439,7 @@ freeCacheStateLoop(procedure *proc, loop *lp)
 			bb->bb_cache_state = NULL;
 		}
 	}
-}
+}*/
 
 
 static void
@@ -2472,7 +2447,7 @@ freeAllFunction(procedure *proc)
 {
 	procedure *p = proc;
 	block *bb;
-	int i, k;
+	int i;
 	int  num_blk = p->num_topo;	
 		
 	for(i = num_blk -1 ; i >= 0 ; i--)
@@ -2510,7 +2485,7 @@ freeAllLoop(procedure *proc, loop *lp)
 	procedure *p = proc;
 	loop *lp_ptr = lp;
 	block *bb;
-	int i, k;
+	int i;
 	
 	int  num_blk = lp_ptr->num_topo;	
 		
@@ -2543,7 +2518,7 @@ freeAllLoop(procedure *proc, loop *lp)
 
 }
 
-static void
+void
 freeAllCacheState()
 {
 	freeAllFunction(main_copy);
@@ -2554,8 +2529,7 @@ freeAllCacheState()
 static cache_line_way_t **
 intersectCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
-	int i, j, k, age, index, entry_a, entry_b, num_history = 0;
-	int *history_entries = NULL;
+	int i, j, age, index, entry_b;
 	//int flag = 1;
 	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
@@ -2600,12 +2574,11 @@ intersectCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 	return result;
 }
 
-static void
+/*static void
 dump_cache_line(cache_line_way_t *clw_a)
 {
-	int i, j;
+	int j;
 	//printf("No of ways %d\n", cache.na);
-		//printf("way %d :	\n", i);
 	if(clw_a->num_entry == 0)
 	{
 		printf("NULL\n");
@@ -2618,53 +2591,52 @@ dump_cache_line(cache_line_way_t *clw_a)
 	
 }
 
-static char
-test_cs_op()
+static char test_cs_op()
 {
-cache_line_way_t **clw_a, **clw_b;
-cache_line_way_t** temp;
+  cache_line_way_t **clw_a, **clw_b;
+  cache_line_way_t** temp;
 
-//initialization for clw_a
-clw_a = (cache_line_way_t**) CALLOC(clw_a , 1, sizeof(cache_line_way_t), "a");
-clw_a[0] = (cache_line_way_t*) CALLOC(clw_a , 2, sizeof(cache_line_way_t), "a");
+  //initialization for clw_a
+  clw_a = (cache_line_way_t**) CALLOC(clw_a , 1, sizeof(cache_line_way_t), "a");
+  clw_a[0] = (cache_line_way_t*) CALLOC(clw_a , 2, sizeof(cache_line_way_t), "a");
 
-clw_a[0][0].num_entry = 3;
-clw_a[0][1].num_entry = 3;
-clw_a[0][0].entry = (int*) CALLOC(clw_a[0][0].entry, clw_a[0][0].num_entry, sizeof(int), "entries for a");
-clw_a[0][1].entry = (int*) CALLOC(clw_a[0][1].entry, clw_a[0][1].num_entry, sizeof(int), "entries for a");
+  clw_a[0][0].num_entry = 3;
+  clw_a[0][1].num_entry = 3;
+  clw_a[0][0].entry = (int*) CALLOC(clw_a[0][0].entry, clw_a[0][0].num_entry, sizeof(int), "entries for a");
+  clw_a[0][1].entry = (int*) CALLOC(clw_a[0][1].entry, clw_a[0][1].num_entry, sizeof(int), "entries for a");
 
-clw_a[0][0] .entry[0] = 1;
-clw_a[0][0] .entry[1] = 2;
-clw_a[0][0] .entry[2] = 5;
-clw_a[0][1] .entry[0] = 2;
-clw_a[0][1] .entry[1] = 3;
-clw_a[0][1] .entry[2] = 4;
-//initialization for clw_b
-clw_b = (cache_line_way_t**) CALLOC(clw_b , 1, sizeof(cache_line_way_t), "b");
-clw_b[0] = (cache_line_way_t*) CALLOC(clw_b , 3, sizeof(cache_line_way_t), "b");
+  clw_a[0][0] .entry[0] = 1;
+  clw_a[0][0] .entry[1] = 2;
+  clw_a[0][0] .entry[2] = 5;
+  clw_a[0][1] .entry[0] = 2;
+  clw_a[0][1] .entry[1] = 3;
+  clw_a[0][1] .entry[2] = 4;
+  //initialization for clw_b
+  clw_b = (cache_line_way_t**) CALLOC(clw_b , 1, sizeof(cache_line_way_t), "b");
+  clw_b[0] = (cache_line_way_t*) CALLOC(clw_b , 3, sizeof(cache_line_way_t), "b");
 
-clw_b[0][0].num_entry = 3;
-clw_b[0][1].num_entry = 3;
-clw_b[0][0].entry = (int*) CALLOC(clw_b[0][0].entry, clw_b[0][0].num_entry, sizeof(int), "entries for b");
-clw_b[0][1].entry = (int*) CALLOC(clw_b[0][1].entry, clw_b[0][1].num_entry, sizeof(int), "entries for b");
+  clw_b[0][0].num_entry = 3;
+  clw_b[0][1].num_entry = 3;
+  clw_b[0][0].entry = (int*) CALLOC(clw_b[0][0].entry, clw_b[0][0].num_entry, sizeof(int), "entries for b");
+  clw_b[0][1].entry = (int*) CALLOC(clw_b[0][1].entry, clw_b[0][1].num_entry, sizeof(int), "entries for b");
 
-clw_b[0][0] .entry[0] = 3;
-clw_b[0][0] .entry[1] = 2;
-clw_b[0][0] .entry[1] = 5;
-clw_b[0][1] .entry[0] = 4;
-clw_b[0][1] .entry[1] = 3;
-clw_b[0][1] .entry[2] = 2;
-dump_cache_line(clw_a[0]);
-printf("\n");
-dump_cache_line(clw_b[0]);
-printf("\n");
-printf("Result for union: \n");
-temp = unionCacheState(clw_a, clw_b);
-dump_cache_line(temp[0]);
-printf("\n");
-printf("Result for intersect: \n");
-temp = intersectCacheState(clw_a, clw_b);
-dump_cache_line(temp[0]);
-printf("\n");
-return 0;
-}
+  clw_b[0][0] .entry[0] = 3;
+  clw_b[0][0] .entry[1] = 2;
+  clw_b[0][0] .entry[1] = 5;
+  clw_b[0][1] .entry[0] = 4;
+  clw_b[0][1] .entry[1] = 3;
+  clw_b[0][1] .entry[2] = 2;
+  dump_cache_line(clw_a[0]);
+  printf("\n");
+  dump_cache_line(clw_b[0]);
+  printf("\n");
+  printf("Result for union: \n");
+  temp = unionCacheState(clw_a, clw_b);
+  dump_cache_line(temp[0]);
+  printf("\n");
+  printf("Result for intersect: \n");
+  temp = intersectCacheState(clw_a, clw_b);
+  dump_cache_line(temp[0]);
+  printf("\n");
+  return 0;
+}*/

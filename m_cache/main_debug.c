@@ -1,30 +1,36 @@
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
 
+#define DEF_GLOBALS
 #include "header.h"
-#include "analysis.h"
+#undef DEF_GLOBALS
+
+#define DEF_INFEASIBILITY_GLOBALS
 #include "infeasible.h"
-#include "handler.c"
-#include "dump.c"
-#include "block.c"
-#include "parseCFG.c"
-#include "loopdetect.c"
-//#include "infeasible.c"
-//#include "findConflicts.c"
-#include "path.c"
-//#include "DAG_WCET.c"
-#include "topo.c"
-//#include "analysisILP.c"
-#include "analysisDAG_WCET.c"
-#include "analysisDAG_BCET.c"
-//#include "analysisEnum.c"
-#include "analysisCache.c"
-#include "analysisCacheL2.c"
-#include "updateCacheL2.c"
-#include "pathDAG.c"
+#undef DEF_INFEASIBILITY_GLOBALS
+
+#include "handler.h"
+#include "dump.h"
+#include "block.h"
+#include "parseCFG.h"
+#include "loopdetect.h"
+//#include "infeasible.h"
+//#include "findConflicts.h"
+#include "path.h"
+//#include "DAG_WCET.h"
+#include "topo.h"
+//#include "analysisILP.h"
+#include "analysisDAG_WCET.h"
+#include "analysisDAG_BCET.h"
+//#include "analysisEnum.h"
+#include "analysisCache.h"
+#include "analysisCacheL2.h"
+#include "updateCacheL2.h"
+#include "pathDAG.h"
 /* For bus-aware WCET calculation */
-#include "busSchedule.c"
+#include "busSchedule.h"
 #include "wcrt/wcrt.h"
 #include "wcrt/cycle_time.h"
 
@@ -32,9 +38,6 @@
  * This is the main function for a debuggin version of the analyzer.
  */
 int main( int argc, char **argv ) {
-
-  int i, j;
-  procedure *p;
 
   if( argc < 2 ) {
     printf( "\nUsage: opt <filename> <TDMA schedule file> [debug_on]\n" ), exit(1);}

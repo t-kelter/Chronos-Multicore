@@ -1,3 +1,8 @@
+#include <stdlib.h>
+
+#include "util.h"
+#include "header.h"
+
 /*
  * Tests for membership in an integer array.
  */

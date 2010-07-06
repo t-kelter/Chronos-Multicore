@@ -1,3 +1,8 @@
+#include <stdlib.h>
+
+#include "knapsack.h"
+#include "header.h"
+
 /*
  * Knapsack solution via Dynamic Programming.
  * Returns the optimal gain value, and updates the array alloc with the solution.

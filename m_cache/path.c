@@ -1,7 +1,6 @@
-/*
- * Path manipulation functions. Support for DAG-based infeasible path detection.
- */
+#include <stdlib.h>
 
+#include "path.h"
 
 int freePath( int bbid, int ptid ) {
 

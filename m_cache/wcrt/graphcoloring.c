@@ -1,3 +1,12 @@
+#include <stdlib.h>
+#include <string.h>
+
+#include "graphcoloring.h"
+#include "cycle_time.h"
+#include "timing.h"
+#include "handler.h"
+#include "dump.h"
+
 /*
  * Performs greedy heuristic for the graph coloring problem.
  * Returns the number of colors used, and updates colorAssg with the assigned colors.
@@ -403,7 +412,7 @@ int colorAllocation( chart_t *msc, overlay_t *ox, char *colorAssg, int numColors
 
   for( i = 0; i < ox->numOwnerTasks; i++ )
     printf( "%s:\t%4d/%4d bytes (%d)\n", getTaskName(ox->ownerTaskList[i]),
-	    taskshare[i], colorshare[colorAssg[i]], colorAssg[i] );
+	    taskshare[i], colorshare[(int)colorAssg[i]], colorAssg[i] );
 
   free( taskshare );
   free( colorshare );

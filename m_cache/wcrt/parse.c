@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "parse.h"
+#include "handler.h"
+
 int initSched( sched_t *sc ) {
 
   sc->numAssigned = 0;
@@ -215,7 +218,7 @@ int readMSG() {
 
       // validate each successor
       for( k = 0; k < numsuccs; k++ ) {
-	fscanf( fptr, "%s", &tname );
+	fscanf( fptr, "%s", (char*)&tname );
 
 	sidx = findTask( tname );
 	if( sidx == -1 )
@@ -357,6 +360,30 @@ int readConfig() {
   return 0;
 }
 
+/*
+   Reads the WCET/BECT values per Task from a fixed input file.
+ */
+void readCost()
+{
+  FILE *fptr;
+  char filepath[512];
+  int i, j;
+
+  for(i = 0; i < numCharts; i++) {
+    sprintf(filepath, "msc%d_wcetbcet_%d", i+1, times_iteration);
+      fptr = wcrt_openfile( filepath, "r" );
+
+    for(j = 0; j < msg[i].topoListLen; j++) {
+      fscanf(fptr, "%Lu %Lu \n", &(taskList[msg[i].topoList[j]]->ctimeHi), 
+        &(taskList[msg[i].topoList[j]]->ctimeLo));
+      //printf("\ntask[%d] = %Lu, %Lu\n", j,
+      //  taskList[msg[i].topoList[j]]->ctimeHi,
+      //  taskList[msg[i].topoList[j]]->ctimeLo);
+    }
+    
+    fclose( fptr );
+  }
+}
 
 int freeAlloc( alloc_t *ac ) {
 

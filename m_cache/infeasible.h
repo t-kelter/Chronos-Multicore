@@ -1,13 +1,23 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <time.h>
+/*! This is a header file of the Chronos timing analyzer. */
+
+/*
+ * Supporting functions for infeasible path detection.
+ *
+ * When DEF_INFEASIBILITY_GLOBALS is defined, then this file defines all the
+ * global variables used during infeasibility analysis, else it declares them as
+ * external.
+ */
+
+#ifndef __CHRONOS_INFEASIBLE_H
+#define __CHRONOS_INFEASIBLE_H
+
+#include "header.h"
+
+// ######### Macros #########
 
 
 #define REG_RETURN regName[2]
 // the register where return value of a function call is stored (by observation)
-
 
 #define DERI_LEN 800   // length of register derivation tree
 #define INSN_LEN 50    // length of assembly line
@@ -24,13 +34,15 @@
 #define NE 6      // not equal
 #define NA 0      // no decision made
 
-
 // instr types in deri_tree: to determine branch jump direction
 
 #define KO  -2    // a situation not supported
 #define NIL -1
 #define SLTI 1
 #define SLT  2
+
+
+// ######### Datatype declarations  ###########
 
 
 typedef struct {
@@ -77,19 +89,61 @@ typedef struct {
 } path;
 
 
-char regName[NO_REG][OP_LEN];
-deri_tree reg2Mem[NO_REG];     // reg2Mem[i]: current memory address of register i
+// ######### Function declarations  ###########
 
-int    **num_assign;           // num_assign[i][j]: #assign effects in proc i block j
-assign ****assignlist;         // assignlist[i][j]: list of assign effects (ptr) in proc i block j
-branch ***branchlist;          // branchlist[i][j]: branch effect (ptr) associated with proc i block j
 
-int num_BA;                    // #potential BA conflict pairs
-int num_BB;                    // #potential BB conflict pairs
+int initRegSet();
 
-int  *num_paths;
-path ***pathlist;              // pathlist[i]: list of potential wcet paths collected at block i
+int clearReg();
 
-int  max_paths; 
-char *pathFreed;
+int findReg( char key[] );
 
+int neg( int a );
+
+/*
+ * Testing conflict between "X a rhs_a" and "X b rhs_b".
+ */
+char testConflict( int a, int rhs_a, int b, int rhs_b );
+
+/*
+ * Testing conflict between A and B.
+ * r1, r2 are relational operators associated with A, B respectively.
+ * Returns 1 if conflict, 0 otherwise.
+ */
+char isBBConflict( branch *A, branch *B, int r1, int r2 );
+
+char isBAConflict( assign *A, branch *B, int r );
+
+/*
+ * Initializes infeasible path detection.
+ */
+int initInfeas();
+
+
+// ######### Global variables declarations / definitions ###########
+
+
+#ifdef DEF_INFEASIBILITY_GLOBALS
+#define EXTERN 
+#else
+#define EXTERN extern
+#endif
+
+EXTERN char regName[NO_REG][OP_LEN];
+EXTERN deri_tree reg2Mem[NO_REG];     // reg2Mem[i]: current memory address of register i
+
+EXTERN int    **num_assign;           // num_assign[i][j]: #assign effects in proc i block j
+EXTERN assign ****assignlist;         // assignlist[i][j]: list of assign effects (ptr) in proc i block j
+EXTERN branch ***branchlist;          // branchlist[i][j]: branch effect (ptr) associated with proc i block j
+
+EXTERN int num_BA;                    // #potential BA conflict pairs
+EXTERN int num_BB;                    // #potential BB conflict pairs
+
+EXTERN int  *num_paths;
+EXTERN path ***pathlist;              // pathlist[i]: list of potential wcet paths collected at block i
+
+EXTERN int  max_paths; 
+EXTERN char *pathFreed;
+
+
+#endif

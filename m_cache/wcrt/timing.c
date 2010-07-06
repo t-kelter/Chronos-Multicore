@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <math.h>
 
+#include "timing.h"
+#include "parse.h"
+#include "dump.h"
 
 #define DEBUGTHIS 0
 //#define DEBUGTHIS (strstr( getTaskName(idx), "hm-sby2" ) != NULL)
@@ -259,7 +261,7 @@ time_t fixedPointCalcLo( chart_t *msc, int idx ) {
 
 char latestTimes( chart_t *msc, int *topoArr, int toposize ) {
 
-  int i, j, k, idi, idj, flag;
+  int i, j, k, idj;
   char changed = 0;
 
   //FILE *fdbg;
@@ -327,7 +329,7 @@ char latestTimes( chart_t *msc, int *topoArr, int toposize ) {
   // compute latest finish time
   for( i = toposize - 1; i >= 0; i-- ) {
     int idx = topoArr[i];
-    task_t *tx = taskList[idx];
+    //task_t *tx = taskList[idx];
 
     // response time
     time_t wcrt = taskList[idx]->ctimeHi; //fixedPointCalcHi( msc, idx );

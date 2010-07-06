@@ -1,3 +1,9 @@
+#include <stdlib.h>
+#include <string.h>
+
+#include "findConflicts.h"
+#include "block.h"
+
 /*
  * Returns 1 if deri_tree is modified inside lp, 0 otherwise.
  * Potentially recursive.

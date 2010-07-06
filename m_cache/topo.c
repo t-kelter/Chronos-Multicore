@@ -1,9 +1,10 @@
-/*
- * Functions for constructing topological ordering.
- */
-
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
+#include "topo.h"
+#include "block.h"
+#include "parseCFG.h"
 
 /*
  * Topological sort with dfs principle:

@@ -1,3 +1,5 @@
+#include "cycle_time.h"
+
 static void 
 access_counter(unsigned *hi, unsigned *lo)
 {

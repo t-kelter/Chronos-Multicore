@@ -1,7 +1,15 @@
 #include <assert.h>
+#include <stdlib.h>
+
+#include "slacks.h"
+#include "timing.h"
+#include "topo.h"
+#include "util.h"
+#include "dump.h"
+#include "parse.h"
+
 #define DEBUGSLACK 0
 //#define DEBUGSLACK ( strstr(getTaskName(idk),"ap_main_initmodem") != NULL )
-uint get_msc_id(chart_t* msc, uint task_id);
 
 int resetInterference( chart_t *msc ) {
 
@@ -13,184 +21,183 @@ int resetInterference( chart_t *msc ) {
   return 0;
 }
 
-static void
-generateWeiConflict(chart_t *msc)
-{
-	int i, k, len = msc->topoListLen;
-	for( i = 0; i < len; i++ ) 
-	{
-		int ix = msc->topoList[i];
-		for( k = 0; k <  len; k++ ) 
-		{
-			int kx = msc->topoList[k];
-			if( (ix == kx) || (taskList[ ix ]->peID == taskList[ kx ]->peID) ) 
-			{
-			    interfere[ix][kx] = 0;
-			    interfere[kx][ix] = 0;
-			}
-			else
-			{
-			    interfere[ix][kx] = 1;
-			    interfere[kx][ix] = 1;
-			}
-		}
-	}
+void generateWeiConflict(chart_t *msc) {
 
-	//printf("generateWeiConflict over...\n");
+  int i, k, len = msc->topoListLen;
+  for( i = 0; i < len; i++ ) 
+  {
+    int ix = msc->topoList[i];
+    for( k = 0; k <  len; k++ ) 
+    {
+      int kx = msc->topoList[k];
+      if( (ix == kx) || (taskList[ ix ]->peID == taskList[ kx ]->peID) ) 
+      {
+          interfere[ix][kx] = 0;
+          interfere[kx][ix] = 0;
+      }
+      else
+      {
+          interfere[ix][kx] = 1;
+          interfere[kx][ix] = 1;
+      }
+    }
+  }
+
+  //printf("generateWeiConflict over...\n");
 
 }
 
-static int writeWeiConflict()
+int writeWeiConflict()
 {
-	printf("writing interfere of Wei now...\n");
+  printf("writing interfere of Wei now...\n");
 
-	char name[200];
- 	int i, k, j, ix, kx, len, mscNum = numCharts;
-	FILE *interfereFile, *interferePath;
-	task_t* task;
-	uint nSuccs;
-	int si;
+  char name[200];
+  int i, k, j, ix, kx, len, mscNum = numCharts;
+  FILE *interfereFile, *interferePath;
+  task_t* task;
+  uint nSuccs;
+  int si;
 
-	sprintf(name, "%s.interferePath", resultFileBaseName);
-	interferePath = fopen(name, "w");
+  sprintf(name, "%s.interferePath", resultFileBaseName);
+  interferePath = fopen(name, "w");
   if( !interferePath ) {
     fprintf( stderr, "Failed to open file %s (slacks.c:57).\n", name );
     exit(1);
   }
-	
-	for( j = 1; j <= mscNum; j++) {
-		sprintf(name, "%s.msc%d", resultFileBaseName, j);
-		fprintf(interferePath, "%s\n", name);
-		
-		len = msg[j-1].topoListLen;
-		
-		interfereFile = fopen(name,"w");
+  
+  for( j = 1; j <= mscNum; j++) {
+    sprintf(name, "%s.msc%d", resultFileBaseName, j);
+    fprintf(interferePath, "%s\n", name);
+    
+    len = msg[j-1].topoListLen;
+    
+    interfereFile = fopen(name,"w");
     if( !interfereFile ) {
       fprintf( stderr, "Failed to open file %s (slacks.c:69).\n", name );
       exit(1);
     }
   
-		fprintf(interfereFile, "%d\n", msg[j-1].topoListLen);
-		for(i = 0; i < len; i++) {
-			fprintf(interfereFile, "%s\n", taskList[msg[j-1].topoList[i]]->tname);
-			/* sudiptac :: Dump the successor id in the MSC also. This is needed
-			 * for WCET analysis in presence of shared bus */
-			/* CAUTION ::: Reading of this file must also be changed 
-			 * accordingly */
-			 task = (taskList[msg[j-1].topoList[i]]);
-			 nSuccs = task->numSuccs;
-			 fprintf(interfereFile, "%d ", nSuccs);
-			 for(si = 0; si < nSuccs; si++) {
-				fprintf(interfereFile, "%d ", get_msc_id(&msg[j-1],
-					task->succList[si]));  
-			 }
-			 fprintf(interfereFile, "\n");
-		}
-		//fprintf(interfereFile, "\n");
-		
-		for( i = 0; i < len; i++ ) 
-		{
-			ix = msg[j-1].topoList[i];
+    fprintf(interfereFile, "%d\n", msg[j-1].topoListLen);
+    for(i = 0; i < len; i++) {
+      fprintf(interfereFile, "%s\n", taskList[msg[j-1].topoList[i]]->tname);
+      /* sudiptac :: Dump the successor id in the MSC also. This is needed
+       * for WCET analysis in presence of shared bus */
+      /* CAUTION ::: Reading of this file must also be changed 
+       * accordingly */
+       task = (taskList[msg[j-1].topoList[i]]);
+       nSuccs = task->numSuccs;
+       fprintf(interfereFile, "%d ", nSuccs);
+       for(si = 0; si < nSuccs; si++) {
+        fprintf(interfereFile, "%d ", get_msc_id(&msg[j-1],
+          task->succList[si]));  
+       }
+       fprintf(interfereFile, "\n");
+    }
+    //fprintf(interfereFile, "\n");
+    
+    for( i = 0; i < len; i++ ) 
+    {
+      ix = msg[j-1].topoList[i];
 
-			for( k = 0; k <  len; k++ ) 
-			{
-				kx = msg[j-1].topoList[k];
-				fprintf(interfereFile, "%d ", interfere[ix][kx]);
-			}	
-			fprintf(interfereFile, "\n");
-			fflush(stdout);
-		}
-	
-		fclose(interfereFile);
-	}
-	fclose(interferePath);
-	return 0;
+      for( k = 0; k <  len; k++ ) 
+      {
+        kx = msg[j-1].topoList[k];
+        fprintf(interfereFile, "%d ", interfere[ix][kx]);
+      } 
+      fprintf(interfereFile, "\n");
+      fflush(stdout);
+    }
+  
+    fclose(interfereFile);
+  }
+  fclose(interferePath);
+  return 0;
 }
 
 /* Get the MSC topological id from the global task list id */
 uint get_msc_id(chart_t* msc, uint task_id)
 {
-	int i;	  
-	
-	for( i = 0; i < msc->topoListLen; i++ ) 
-	{
+  int i;    
+  
+  for( i = 0; i < msc->topoListLen; i++ ) 
+  {
       if(msc->topoList[i] == task_id)
-		   return i;
-	}
-	
-	/* Must not come here */
-	return -1;
+       return i;
+  }
+  
+  /* Must not come here */
+  return -1;
 }
 /* sudiptac :: for bus aware WCET analysis */
 static void writeAllTime(chart_t* msc, task_t* task, int id, FILE* fp)
 {
-	 int i;
+   int i;
 
-	 assert(task);	  
-	 fprintf(fp, "TASK ID = %d\n\n", id);
-	 fprintf(fp, "EARLIEST START = %Lu\n", earliestReq[id]);
-	 fprintf(fp, "LATEST   START = %Lu\n",latestReq[id]);
-	 fprintf(fp, "EARLIEST FINISH = %Lu\n", earliestFin[id]);
-	 fprintf(fp, "LATEST FINISH = %Lu\n", latestFin[id]);
-	 fprintf(fp, "Successors\n");
-	 for(i = 0; i < task->numSuccs; i++)
-		  fprintf(fp, "%d\n", get_msc_id(msc, task->succList[i]));
-	 fprintf(fp, "\n");
+   assert(task);    
+   fprintf(fp, "TASK ID = %d\n\n", id);
+   fprintf(fp, "EARLIEST START = %Lu\n", earliestReq[id]);
+   fprintf(fp, "LATEST   START = %Lu\n",latestReq[id]);
+   fprintf(fp, "EARLIEST FINISH = %Lu\n", earliestFin[id]);
+   fprintf(fp, "LATEST FINISH = %Lu\n", latestFin[id]);
+   fprintf(fp, "Successors\n");
+   for(i = 0; i < task->numSuccs; i++)
+      fprintf(fp, "%d\n", get_msc_id(msc, task->succList[i]));
+   fprintf(fp, "\n");
 }
 
 // analyze the interference between tasks within msc
-int setInterference( chart_t *msc ) {
+void setInterference( chart_t *msc ) {
  //printf("In interfereAnalysis\n");
 
  // fix update order based on topology and 
  //current schedule, so that a task is updated after all tasks preceding it
     int i, k, len = msc->topoListLen;
-	 extern FILE* timefp;	  
+   extern FILE* timefp;   
 //  int changed = 0;
 
-	
+  
  // update interference graph
  for( i = 0; i < len; i++ ) 
  {
    int ix = msc->topoList[i];
 
-	/* sudiptac :: Write all timing informations to a file
-	 * i.e. earliest starting time, latest starting time, 
-	 * earliest finish time and latest finish time. This is 
-	 * required for the WCET analysis in presence of shared 
-	 * bus as the technique starting time of each memory 
-	 * request going through a shared bus */
+  /* sudiptac :: Write all timing informations to a file
+   * i.e. earliest starting time, latest starting time, 
+   * earliest finish time and latest finish time. This is 
+   * required for the WCET analysis in presence of shared 
+   * bus as the technique starting time of each memory 
+   * request going through a shared bus */
     writeAllTime(msc, taskList[msc->topoList[i]], ix, timefp);
    
-	for( k = 0; k <  len; k++ ) 
-	{
- 	 	int kx = msc->topoList[k];
+  for( k = 0; k <  len; k++ ) 
+  {
+    int kx = msc->topoList[k];
       if( (ix != kx) && canConflict(ix,kx)) 
-		{
-	    	interfere[ix][kx] = 1;
-	    	interfere[kx][ix] = 1;
-   		/* if( CLUSTER_BASED ) 
-			 * printf( "Interference: %s -- %s\n",
-			 * getTaskName(ix), getTaskName(kx) ); */
+    {
+        interfere[ix][kx] = 1;
+        interfere[kx][ix] = 1;
+      /* if( CLUSTER_BASED ) 
+       * printf( "Interference: %s -- %s\n",
+       * getTaskName(ix), getTaskName(kx) ); */
       }
-     	else 
-     	{
-	   	interfere[ix][kx] = 0;
-	    	interfere[kx][ix] = 0;
+      else 
+      {
+      interfere[ix][kx] = 0;
+        interfere[kx][ix] = 0;
       }
     }
   }
 
 }
 
-int dumpInterference( chart_t *msc ) {
+void dumpInterference( chart_t *msc ) {
 
    int i, k, len = msc->topoListLen;
 
 //  int changed = 0;
 
   for( i = 0; i < len; i++ ) {
-	printTimes(msc->topoList[i]);
+  printTimes(msc->topoList[i]);
   }
 
   // update interference graph
@@ -208,69 +215,69 @@ int dumpInterference( chart_t *msc ) {
 
 int writeInterference()
 {
-		char name[256];
-     	int i, k, j, mscNum = numCharts, len;
-		FILE *interfereFile, *interferePath;
-		uint nSuccs;
-		int si;
-		task_t* task;
+    char name[256];
+      int i, k, j, mscNum = numCharts, len;
+    FILE *interfereFile, *interferePath;
+    uint nSuccs;
+    int si;
+    task_t* task;
 
-		printf("writing interference now...\n");
-		fflush (stdout);
+    printf("writing interference now...\n");
+    fflush (stdout);
 
-		sprintf(name, "%s.interferePath_%s", resultFileBaseName, times_iteration);
-		interferePath = fopen(name, "w");
+    sprintf(name, "%s.interferePath_%d", resultFileBaseName, times_iteration);
+    interferePath = fopen(name, "w");
     if( !interferePath ) {
       fprintf( stderr, "Failed to open file %s (slacks.c:224).\n", name );
       exit(1);
     }
     
-		for( j = 1; j <= mscNum; j++) {
-		  sprintf(name, "%s.%s_msc%d", resultFileBaseName, times_iteration, j);
-			fprintf(interferePath, "%s\n", name);
-			
-			len = msg[j-1].topoListLen;
-			
-			interfereFile = fopen(name,"w");
+    for( j = 1; j <= mscNum; j++) {
+      sprintf(name, "%s.%d_msc%d", resultFileBaseName, times_iteration, j);
+      fprintf(interferePath, "%s\n", name);
+      
+      len = msg[j-1].topoListLen;
+      
+      interfereFile = fopen(name,"w");
       if( !interfereFile ) {
         fprintf( stderr, "Failed to open file %s (slacks.c:236).\n", name );
         exit(1);
       }
       
-			fprintf(interfereFile, "%d \n", msg[j-1].topoListLen);
-			for(i = 0; i < len; i++) {
-				fprintf(interfereFile, "%s\n", taskList[msg[j-1].topoList[i]]->tname);
-				/* sudiptac :: Dump the successor id in the MSC also. This is needed
-				 * for WCET analysis in presence of shared bus */
-				/* CAUTION ::: Reading of this file must also be changed 
-				 * accordingly */
-				task = (taskList[msg[j-1].topoList[i]]);
-				nSuccs = task->numSuccs;
-				fprintf(interfereFile, "%d ", nSuccs);
-				for(si = 0; si < nSuccs; si++)
-				{
-					fprintf(interfereFile, "%d ", get_msc_id(&msg[j-1],
-						task->succList[si]));  
-				}
-				fprintf(interfereFile, "\n");
-			}
-			
-  			for( i = 0; i < len; i++ ) {
-    			int ix = (msg[j-1].topoList)[i];
-				//fprintf(tmp, "%Lu %Lu\n", taskList[ix]->ctimeHi, 
-				//taskList[ix]->ctimeLo);	
-    			for( k = 0; k <  len; k++ ) {
-     			   int kx = (msg[j-1].topoList)[k];
-					fprintf(interfereFile, "%d ", interfere[ix][kx]);
-    			}	
-				fprintf(interfereFile, "\n");
-     		}
-			fflush(stdout);
-			
-			fclose(interfereFile);
-  		}
-	fclose(interferePath);
-	return 0;
+      fprintf(interfereFile, "%d \n", msg[j-1].topoListLen);
+      for(i = 0; i < len; i++) {
+        fprintf(interfereFile, "%s\n", taskList[msg[j-1].topoList[i]]->tname);
+        /* sudiptac :: Dump the successor id in the MSC also. This is needed
+         * for WCET analysis in presence of shared bus */
+        /* CAUTION ::: Reading of this file must also be changed 
+         * accordingly */
+        task = (taskList[msg[j-1].topoList[i]]);
+        nSuccs = task->numSuccs;
+        fprintf(interfereFile, "%d ", nSuccs);
+        for(si = 0; si < nSuccs; si++)
+        {
+          fprintf(interfereFile, "%d ", get_msc_id(&msg[j-1],
+            task->succList[si]));  
+        }
+        fprintf(interfereFile, "\n");
+      }
+      
+        for( i = 0; i < len; i++ ) {
+          int ix = (msg[j-1].topoList)[i];
+        //fprintf(tmp, "%Lu %Lu\n", taskList[ix]->ctimeHi, 
+        //taskList[ix]->ctimeLo); 
+          for( k = 0; k <  len; k++ ) {
+             int kx = (msg[j-1].topoList)[k];
+          fprintf(interfereFile, "%d ", interfere[ix][kx]);
+          } 
+        fprintf(interfereFile, "\n");
+        }
+      fflush(stdout);
+      
+      fclose(interfereFile);
+      }
+  fclose(interferePath);
+  return 0;
 }
 
 
@@ -304,10 +311,10 @@ char latestTimes_slack( chart_t *msc, int *topoArr, int toposize ) {
       //int kx = msc->topoList[k];
       int kx = topoArr[k];
       if( kx == idx || taskList[kx]->peID != taskList[idx]->peID || interfere[kx][idx] )
-	continue;
+  continue;
       if( comesBefore( kx, idx, msc ) && val < latestFin[kx] ) {
-	val = latestFin[kx];
-	//if( DEBUGSLACK ) printf( "task %s after %s latestFin: %Lu\n", getTaskName(idx), getTaskName(kx), val );
+  val = latestFin[kx];
+  //if( DEBUGSLACK ) printf( "task %s after %s latestFin: %Lu\n", getTaskName(idx), getTaskName(kx), val );
       }
     }
 
@@ -316,8 +323,8 @@ char latestTimes_slack( chart_t *msc, int *topoArr, int toposize ) {
     for( k = 0; k < tx->numPreds; k++ ) {
       int idm = tx->predList[k];
       if( !inList( idm, topoArr, toposize ) && val < latestFin[idm] ) {
-	val = latestFin[idm];
-	//if( DEBUGSLACK ) printf( "task %s pred %s latestFin: %Lu\n", getTaskName(idx), getTaskName(idm), val );
+  val = latestFin[idm];
+  //if( DEBUGSLACK ) printf( "task %s pred %s latestFin: %Lu\n", getTaskName(idx), getTaskName(idm), val );
       }
     }
     latestReq[idx] = val;
@@ -345,8 +352,8 @@ char latestTimes_slack( chart_t *msc, int *topoArr, int toposize ) {
       int idk = tx->succList[k];
 
       if( latestReq[idk] < latestFin[idx] ) {
-	latestReq[idk] = latestFin[idx];
-	changed = 1;
+  latestReq[idk] = latestFin[idx];
+  changed = 1;
       }
       //fprintf( fdbg, "--> [%s] latestReq = %Lu\n", getTaskName(idk), latestReq[idk] );
       //if( DEBUGSLACK )
@@ -379,11 +386,11 @@ char earliestTimes_slack( chart_t *msc, int *topoArr, int toposize ) {
       int kx = topoArr[k];
 
       if( kx == idx || taskList[kx]->peID != taskList[idx]->peID || interfere[kx][idx] )
-	continue;
+  continue;
       if( comesBefore( kx, idx, msc ) && val < earliestFin[kx] ) {
-	// val = earliestFin[kx];
-	val = latestFin[kx];
-	//if( DEBUGSLACK ) printf( "task %s after %s earliestFin: %Lu\n", getTaskName(idx), getTaskName(kx), val );
+  // val = earliestFin[kx];
+  val = latestFin[kx];
+  //if( DEBUGSLACK ) printf( "task %s after %s earliestFin: %Lu\n", getTaskName(idx), getTaskName(kx), val );
       }
     }
 
@@ -392,9 +399,9 @@ char earliestTimes_slack( chart_t *msc, int *topoArr, int toposize ) {
     for( k = 0; k < tx->numPreds; k++ ) {
       int idm = tx->predList[k];
       if( !inList( idm, topoArr, toposize ) && val < earliestFin[idm] ) {
-	// val = earliestFin[idm];
-	val = latestFin[idm];
-	//if( DEBUGSLACK ) printf( "task %s pred %s earliestFin: %Lu\n", getTaskName(idx), getTaskName(idm), val );
+  // val = earliestFin[idm];
+  val = latestFin[idm];
+  //if( DEBUGSLACK ) printf( "task %s pred %s earliestFin: %Lu\n", getTaskName(idx), getTaskName(idm), val );
       }
     }
     earliestReq[idx] = val;
@@ -423,8 +430,8 @@ char earliestTimes_slack( chart_t *msc, int *topoArr, int toposize ) {
       int idk = tx->succList[k];
 
       if( earliestReq[idk] < earliestFin[idx] ) {
-	earliestReq[idk] = earliestFin[idx];
-	changed = 1;
+  earliestReq[idk] = earliestFin[idx];
+  changed = 1;
       }
       //fprintf( fdbg, "--> [%s] earliestReq = %Lu\n", getTaskName(idk), earliestReq[idk] );
       //if( DEBUGSLACK )
@@ -468,21 +475,21 @@ char doTiming( chart_t *msc, char slack ) {
     do {
       changed = 0;
       for( k = 1; k < len; k++ ) {
-	int idx = msc->timeTopoList[k];
-	int idp = msc->timeTopoList[k-1];
+        int idx = msc->timeTopoList[k];
+        int idp = msc->timeTopoList[k-1];
 
-	if( latestReq[idx] < latestReq[idp] ||
-	    latestReq[idx] == latestReq[idp] &&
-	    (earliestReq[idx] < earliestReq[idp] ||
-	     (earliestReq[idx] == earliestReq[idp] &&
-	      (latestFin[idx] > latestFin[idp] ||
-	       (latestFin[idx] == latestFin[idp] && earliestFin[idx] > earliestFin[idp]))))) {
-
-	  // swap
-	  changed = 1;
-	  msc->timeTopoList[k]   = idp;
-	  msc->timeTopoList[k-1] = idx;
-	}
+        if( latestReq[idx] < latestReq[idp] ||
+            ( latestReq[idx] == latestReq[idp] &&
+              ( earliestReq[idx] < earliestReq[idp] ||
+                ( earliestReq[idx] == earliestReq[idp] &&
+                  ( latestFin[idx] > latestFin[idp] ||
+                    ( latestFin[idx] == latestFin[idp] && 
+                      earliestFin[idx] > earliestFin[idp] ) ) ) ) ) ) {
+          // swap
+          changed = 1;
+          msc->timeTopoList[k]   = idp;
+          msc->timeTopoList[k-1] = idx;
+        }
       }
     } while( changed );
     /*
@@ -533,7 +540,7 @@ char doTiming( chart_t *msc, char slack ) {
       /*
       printf( "\nTopological order:" );
       for( k = toposize - 1; k >= 0; k-- )
-	printf( " %s", getTaskName(topoArr[k]) );
+  printf( " %s", getTaskName(topoArr[k]) );
       printf( "\n" );
       */
 
@@ -562,13 +569,13 @@ char doTiming( chart_t *msc, char slack ) {
     for( k = 0; k < msc->topoListLen; k++ ) {
       int kx = msc->topoList[k];
       if( ix != kx && (canPreempt(ix,kx) || canPreempt(kx,ix)) ) {
-	interfere[ix][kx] = 1;
-	interfere[kx][ix] = 1;
-	//if( CLUSTER_BASED ) printf( "Interference: %s -- %s\n", getTaskName(ix), getTaskName(kx) );
+  interfere[ix][kx] = 1;
+  interfere[kx][ix] = 1;
+  //if( CLUSTER_BASED ) printf( "Interference: %s -- %s\n", getTaskName(ix), getTaskName(kx) );
       }
       else {
-	interfere[ix][kx] = 0;
-	interfere[kx][ix] = 0;
+  interfere[ix][kx] = 0;
+  interfere[kx][ix] = 0;
       }
     }
   }
@@ -620,10 +627,10 @@ time_t estGain( task_t *ts, int capacity ) {
     changed = 0;
     for( i = 1; i < numUnalloc; i++ ) {
       if( sortBlocks[i]->freq > sortBlocks[i-1]->freq ) {
-	mem_t *tmp      = sortBlocks[i-1];
-	sortBlocks[i-1] = sortBlocks[i];
-	sortBlocks[i]   = tmp;
-	changed = 1;
+  mem_t *tmp      = sortBlocks[i-1];
+  sortBlocks[i-1] = sortBlocks[i];
+  sortBlocks[i]   = tmp;
+  changed = 1;
       }
     }
   }
@@ -660,56 +667,56 @@ int insertSlacks( chart_t *msc ) {
       task_t *ti = taskList[ix];
 
       if( isCritical[ix] != 1 )
-	continue;
+  continue;
 
       for( k = 0; k < msc->topoListLen; k++ ) {
-	int kx = msc->topoList[k];
-	task_t *tk = taskList[kx];
+  int kx = msc->topoList[k];
+  task_t *tk = taskList[kx];
 
-	time_t maxFin, slack, allocGain;
+  time_t maxFin, slack, allocGain;
 
-	if( ix == kx || !isCritical[kx] || !interfere[kx][ix] || !interfere[ix][kx] || !canPreempt(kx,ix) )
-	  continue;
-	//if( tk->ctimeHi < maxLen )
-	//  continue;
+  if( ix == kx || !isCritical[kx] || !interfere[kx][ix] || !interfere[ix][kx] || !canPreempt(kx,ix) )
+    continue;
+  //if( tk->ctimeHi < maxLen )
+  //  continue;
 
-	// effect of imposing slack
-	maxFin = msc->wcrt;
-	slack = latestFin[ix] - latestFin[kx];
+  // effect of imposing slack
+  maxFin = msc->wcrt;
+  slack = latestFin[ix] - latestFin[kx];
 
-	for( n = 0; n < msc->topoListLen; n++ ) {
-	  int nx = msc->topoList[n];
+  for( n = 0; n < msc->topoListLen; n++ ) {
+    int nx = msc->topoList[n];
 
-	  if( nx == ix || nx == kx )
-	    continue;
+    if( nx == ix || nx == kx )
+      continue;
 
-	  if( isPredecessorOf( kx, nx ))
-	    // pushed back
-	    maxFin = tmax( maxFin, latestFin[nx] + slack );
+    if( isPredecessorOf( kx, nx ))
+      // pushed back
+      maxFin = tmax( maxFin, latestFin[nx] + slack );
 
-	  else if( !interfere[nx][kx] || !interfere[kx][nx] ) {
-	    // maintain non-interference
-	    if( earliestReq[nx] >= latestFin[kx] && earliestReq[nx] < latestFin[kx] + slack )
-	      maxFin = tmax( maxFin, latestFin[nx] + (latestFin[kx] + slack - earliestReq[nx]) );
-	  }
-	}
+    else if( !interfere[nx][kx] || !interfere[kx][nx] ) {
+      // maintain non-interference
+      if( earliestReq[nx] >= latestFin[kx] && earliestReq[nx] < latestFin[kx] + slack )
+        maxFin = tmax( maxFin, latestFin[nx] + (latestFin[kx] + slack - earliestReq[nx]) );
+    }
+  }
 
-	// projected gain due to possible overlay
-	allocGain = estGain( ti, getAllocatedSize(tk) ) + estGain( tk, getAllocatedSize(ti) );
+  // projected gain due to possible overlay
+  allocGain = estGain( ti, getAllocatedSize(tk) ) + estGain( tk, getAllocatedSize(ti) );
 
-	// length of removed preemption = k's lifetime
-	maxFin -= (latestFin[kx] - earliestReq[kx]) + allocGain;
+  // length of removed preemption = k's lifetime
+  maxFin -= (latestFin[kx] - earliestReq[kx]) + allocGain;
 
-	printf( "Current WCRT: %Lu\t Projected allocGain: %Lu\t Projected WCRT: %Lu\t Gain: %lf\n",
-		msc->wcrt, allocGain, maxFin, ((double) msc->wcrt - (double) maxFin) );
+  printf( "Current WCRT: %Lu\t Projected allocGain: %Lu\t Projected WCRT: %Lu\t Gain: %lf\n",
+    msc->wcrt, allocGain, maxFin, ((double) msc->wcrt - (double) maxFin) );
 
-	//if( maxFin <= msc->wcrt ) {
-	if( maxFin <= msc->wcrt && ( minNewTime == 0 || maxFin < minNewTime )) {
-	  maxTask = kx;
-	  maxVic = ix;
-	  //maxLen = tk->ctimeHi;
-	  minNewTime = maxFin;
-	}
+  //if( maxFin <= msc->wcrt ) {
+  if( maxFin <= msc->wcrt && ( minNewTime == 0 || maxFin < minNewTime )) {
+    maxTask = kx;
+    maxVic = ix;
+    //maxLen = tk->ctimeHi;
+    minNewTime = maxFin;
+  }
       }
     }
     if( maxTask == -1 || maxVic == -1 )
@@ -726,9 +733,9 @@ int insertSlacks( chart_t *msc ) {
     } while( changed );
 
     printf( "%s:\t[%12Lu/%12Lu, %12Lu/%12Lu)\n", getTaskName(maxVic),
-	    earliestReq[maxVic], latestReq[maxVic], earliestFin[maxVic], latestFin[maxVic] );
+      earliestReq[maxVic], latestReq[maxVic], earliestFin[maxVic], latestFin[maxVic] );
     printf( "%s:\t[%12Lu/%12Lu, %12Lu/%12Lu)\n\n", getTaskName(maxTask),
-	    earliestReq[maxTask], latestReq[maxTask], earliestFin[maxTask], latestFin[maxTask] );
+      earliestReq[maxTask], latestReq[maxTask], earliestFin[maxTask], latestFin[maxTask] );
 
     //computeWCRT();
 

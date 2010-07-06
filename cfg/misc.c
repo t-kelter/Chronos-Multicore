@@ -98,10 +98,10 @@ fatal_hook(void (*fn)(FILE *stream))	/* fatal hook function */
 /* declare a fatal run-time error, calls fatal hook function */
 #ifdef __GNUC__
 void
-_fatal(char *file, char *func, int line, char *fmt, ...)
+_fatal(const char *file, const char *func, int line, const char *fmt, ...)
 #else /* !__GNUC__ */
 void
-fatal(char *fmt, ...)
+fatal(const char *fmt, ...)
 #endif /* __GNUC__ */
 {
   va_list v;
@@ -122,10 +122,10 @@ fatal(char *fmt, ...)
 /* declare a panic situation, dumps core */
 #ifdef __GNUC__
 void
-_panic(char *file, char *func, int line, char *fmt, ...)
+_panic(const char *file, const char *func, int line, const char *fmt, ...)
 #else /* !__GNUC__ */
 void
-panic(char *fmt, ...)
+panic(const char *fmt, ...)
 #endif /* __GNUC__ */
 {
   va_list v;
@@ -145,10 +145,10 @@ panic(char *fmt, ...)
 /* declare a warning */
 #ifdef __GNUC__
 void
-_warn(char *file, char *func, int line, char *fmt, ...)
+_warn(const char *file, const char *func, int line, const char *fmt, ...)
 #else /* !__GNUC__ */
 void
-warn(char *fmt, ...)
+warn(const char *fmt, ...)
 #endif /* __GNUC__ */
 {
   va_list v;
@@ -166,10 +166,10 @@ warn(char *fmt, ...)
 /* print general information */
 #ifdef __GNUC__
 void
-_info(char *file, char *func, int line, char *fmt, ...)
+_info(const char *file, const char *func, int line, const char *fmt, ...)
 #else /* !__GNUC__ */
 void
-info(char *fmt, ...)
+info(const char *fmt, ...)
 #endif /* __GNUC__ */
 {
   va_list v;
@@ -187,10 +187,10 @@ info(char *fmt, ...)
 /* print a debugging message */
 #ifdef __GNUC__
 void
-_debug(char *file, char *func, int line, char *fmt, ...)
+_debug(const char *file, const char *func, int line, const char *fmt, ...)
 #else /* !__GNUC__ */
 void
-debug(char *fmt, ...)
+debug(const char *fmt, ...)
 #endif /* __GNUC__ */
 {
     va_list v;
@@ -253,29 +253,6 @@ mystricmp(char *s1, char *s2)	/* strings to compare, case insensitive */
       if (u1 == '\0')
 	return 0;
     }
-}
-
-/* allocate some core, this memory has overhead no larger than a page
-   in size and it cannot be released. the storage is returned cleared */
-void *
-getcore(int nbytes)
-{
-#ifndef PURIFY
-  void *p = (void *)sbrk(nbytes);
-
-  if (p == (void *)-1)
-    return NULL;
-
-  /* this may be superfluous */
-#if defined(__svr4__)
-  memset(p, '\0', nbytes);
-#else /* !defined(__svr4__) */
-  bzero(p, nbytes);
-#endif
-  return p;
-#else
-  return calloc(nbytes, 1);
-#endif /* PURIFY */
 }
 
 /* return log of a number to the base 2 */

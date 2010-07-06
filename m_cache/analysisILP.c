@@ -1,9 +1,12 @@
-/*
- * ILP-based WCET analysis functions.
- */
-
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
+#include "analysisILP.h"
+#include "infeasible.h"
+#include "block.h"
+#include "handler.h"
+#include "wcrt/cycle_time.h"
 
 /*
  * Recursive function.
@@ -381,7 +384,7 @@ int analysis_ilp() {
     // Note: cannot use directly from procedure bblist,
     // because there may be extra blocks such as unused loop exits.
 
-    fprintf( ilpf, "maximize\n", p->pid );
+    fprintf( ilpf, "maximize\n" );//, p->pid );
 
     firstterm = 1;
 
@@ -393,10 +396,11 @@ int analysis_ilp() {
 
       cost = bb->cost;
       if( bb->callpid != -1 )
-	cost += procs[ bb->callpid ]->wcet;
+        cost += *procs[ bb->callpid ]->wcet;
 
       if( !firstterm )
-	fprintf( ilpf, " + " );
+      	fprintf( ilpf, " + " );
+
       fprintf( ilpf, "%dY%d", cost, bb->bbid );
       firstterm = 0;
     }
@@ -407,12 +411,13 @@ int analysis_ilp() {
       for( j = lp->num_topo-1; j >= 0; j-- ) {
 	bb = lp->topo[j];
       
-	if( bb->is_loophead && bb->loopid != lp->lpid || bb->startaddr == -1 ) // black box or dummy
+	if( ( bb->is_loophead && bb->loopid != lp->lpid ) || 
+	    ( bb->startaddr == -1 ) ) // black box or dummy
 	  continue;
       
 	cost = bb->cost;
 	if( bb->callpid != -1 )
-	  cost += procs[ bb->callpid ]->wcet;
+	  cost += *procs[ bb->callpid ]->wcet;
 	
 	cost *= getBlockExecCount( bb );
 
@@ -501,7 +506,7 @@ int analysis_ilp() {
     fscanf( ilpf, "%le", &wcet );
     fclose( ilpf );
 
-    p->wcet = (ull) wcet;
+    *p->wcet = (ull)wcet;
     // printf( "objective value: %d\n", p->wcet );
 
     // extract blocks with Y-value of 1
