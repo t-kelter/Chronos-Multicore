@@ -4,6 +4,8 @@
 #include <stdint.h>
 
 #include "dump.h"
+#include "handler.h"
+
 
 int printBlock( block *bb ) {
 
@@ -423,7 +425,7 @@ int dump_callgraph() {
   return 0;
 }
 
-static void
+void
 dumpCacheState(cache_state *cs)
 {
 	int i, j, k, n;
@@ -509,7 +511,7 @@ dumpCacheState(cache_state *cs)
 }
 
 
-static void
+void
 dumpCacheState_L2(cache_state *cs)
 {
 	int i, j, k, n;
@@ -592,21 +594,4 @@ dumpCacheState_L2(cache_state *cs)
 		printf("\n");		
 	} //end for(j)
 
-}
-
-
-static void
-dumpProcCopy(task_t *task)
-{
-	int i, j;
-	for(i = 0; i < task->num_proc; i ++)
-	{
-		printf("\nproc_cg[%d]: %d\n", i, proc_cg[i]);
-		printf("%d:	", task->proc_cg_ptr[i].num_proc);
-		for(j = 0; j < task->proc_cg_ptr[i].num_proc; j++)
-		{
-			printf("%lx	", (uintptr_t)task->proc_cg_ptr[i].proc[j]);
-		}
-			printf("\n");
-	}
 }

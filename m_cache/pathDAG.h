@@ -18,12 +18,6 @@
 // ######### Function declarations  ###########
 
 
-static void
-pathFunction(procedure * proc);
-
-static void 
-pathLoop(procedure *proc, loop *lp);
-
 void 
 pathDAG(MSC *msc);
 

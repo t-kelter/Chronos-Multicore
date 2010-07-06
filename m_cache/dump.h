@@ -57,14 +57,11 @@ int dump_loops();
 
 int dump_callgraph();
 
-static void
+void
 dumpCacheState(cache_state *cs);
 
-static void
+void
 dumpCacheState_L2(cache_state *cs);
-
-static void
-dumpProcCopy(task_t *task);
 
 
 #endif

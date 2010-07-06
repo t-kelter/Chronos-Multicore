@@ -411,12 +411,13 @@ int analysis_ilp() {
       for( j = lp->num_topo-1; j >= 0; j-- ) {
 	bb = lp->topo[j];
       
-	if( bb->is_loophead && bb->loopid != lp->lpid || bb->startaddr == -1 ) // black box or dummy
+	if( ( bb->is_loophead && bb->loopid != lp->lpid ) || 
+	    ( bb->startaddr == -1 ) ) // black box or dummy
 	  continue;
       
 	cost = bb->cost;
 	if( bb->callpid != -1 )
-	  cost += procs[ bb->callpid ]->wcet;
+	  cost += *procs[ bb->callpid ]->wcet;
 	
 	cost *= getBlockExecCount( bb );
 
@@ -505,7 +506,7 @@ int analysis_ilp() {
     fscanf( ilpf, "%le", &wcet );
     fclose( ilpf );
 
-    p->wcet = (ull) wcet;
+    *p->wcet = (ull)wcet;
     // printf( "objective value: %d\n", p->wcet );
 
     // extract blocks with Y-value of 1

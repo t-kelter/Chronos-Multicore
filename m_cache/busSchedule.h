@@ -33,10 +33,6 @@ segment_p find_segment(segment_p* head_seg, int nsegs, ull start_time);
 /* return the global TDMA bus schedule set previously */
 sched_p getSchedule();
 
-/* Set core specific TDMA bus schedule data in a segment */
-static void set_core_specific_data(core_sched_p* head_core, 
-                                   int ncore, FILE* fp);
-
 void setSchedule(const char* sched_file);
 
 

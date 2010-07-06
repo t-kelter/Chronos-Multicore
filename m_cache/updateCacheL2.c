@@ -1,10 +1,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "analysisCache.h"
 #include "updateCacheL2.h"
+#include "analysisCache.h"
 
-static int
+// Forward declarations of static functions
+
+static void
+updateLoop(MSC *msc, int index, procedure *proc, loop *lp);
+
+static void
+updateFunctionCall(MSC *msc, int index, procedure* proc);
+
+
+
+/*static int
 conflictStatistics(MSC *msc, int index, int set_no, int current_addr)
 {
   int i, j, entry, conflict = 0;
@@ -29,7 +39,7 @@ conflictStatistics(MSC *msc, int index, int set_no, int current_addr)
     }
 	free(history);
     return conflict;
-}
+}*/
 
 
 static void
@@ -307,10 +317,8 @@ void
 updateCacheState(MSC *msc)
 {
     int i, j;
-    //printf("updateCacheState\n");
     
-    for(i = 0; i < msc->num_task; i ++)
-    {
+    for(i = 0; i < msc->num_task; i ++) {
         for(j = 0; j < MAX_NEST_LOOP; j++)
             loop_level_arr[i] = INVALID;
 

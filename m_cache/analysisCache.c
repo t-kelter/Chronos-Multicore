@@ -3,6 +3,84 @@
 #include <stdint.h>
 
 #include "analysisCache.h"
+#include "handler.h"
+#include "dump.h"
+
+// Forward declarations of static functions
+
+static block* 
+copyBlock(block *bb);
+
+static loop* 
+copyLoop(procedure *proc, procedure* copy_proc, loop *lp);
+
+static procedure* 
+copyFunction(procedure* proc);
+
+static procedure*
+constructFunctionCall(procedure *pro, task_t *task);
+
+static void
+calculateMust(cache_line_way_t **must, int instr_addr);
+
+static void
+calculateMay(cache_line_way_t **may, int instr_addr);
+
+static void
+calculatePersist(cache_line_way_t **persist, int instr_addr);
+
+static void
+calculateCacheState(cache_line_way_t **must, cache_line_way_t **may,
+    cache_line_way_t **persist, int instr_addr);
+
+static cache_state *
+allocCacheState();
+
+static char
+isInSet_persist(int addr, cache_line_way_t **set);
+
+static char
+isInSet(int addr, cache_line_way_t **set);
+
+static char
+isInCache(int addr, cache_line_way_t**must);
+
+static char
+isNeverInCache(int addr, cache_line_way_t**may);
+
+static cache_state *
+copyCacheState(cache_state *cs);
+
+static cache_state *
+mapLoop(procedure *proc, loop *lp);
+
+static cache_state *
+mapFunctionCall(procedure *proc, cache_state *cs);
+
+static cache_line_way_t **
+unionCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
+
+static cache_line_way_t **
+unionMaxCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
+
+static void
+freeCacheState(cache_state *cs);
+
+/*static void
+freeCacheStateFunction(procedure * proc);
+
+static void
+freeCacheStateLoop(procedure *proc, loop *lp);*/
+
+static void
+freeAllFunction(procedure *proc);
+
+static void
+freeAllLoop(procedure *proc, loop *lp);
+
+static cache_line_way_t **
+intersectCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
+
 
 int
 logBase2(int n)
@@ -2307,7 +2385,7 @@ freeCacheState(cache_state *cs)
 	cs = NULL;	
 }
 
-static void
+/*static void
 freeCacheStateFunction(procedure * proc)
 {
 	procedure *p = proc;
@@ -2361,7 +2439,7 @@ freeCacheStateLoop(procedure *proc, loop *lp)
 			bb->bb_cache_state = NULL;
 		}
 	}
-}
+}*/
 
 
 static void
@@ -2496,7 +2574,7 @@ intersectCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 	return result;
 }
 
-static void
+/*static void
 dump_cache_line(cache_line_way_t *clw_a)
 {
 	int j;
@@ -2561,4 +2639,4 @@ static char test_cs_op()
   dump_cache_line(temp[0]);
   printf("\n");
   return 0;
-}
+}*/

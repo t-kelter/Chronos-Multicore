@@ -4,6 +4,13 @@
 
 #include "busSchedule.h"
 
+// Forward declarations of static functions
+
+static void set_core_specific_data(core_sched_p* head_core, 
+                                   int ncore, FILE* fp);
+
+
+
 /* Improper exit with error message */
 void prerr(char* msg)
 {

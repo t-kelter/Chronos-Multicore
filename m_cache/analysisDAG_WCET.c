@@ -8,6 +8,81 @@
 #include "analysisDAG_WCET.h"
 #include "busSchedule.h"
 
+// Forward declarations of static functions
+
+static uint get_hex(char* hex_string);
+
+#ifdef _DEBUG
+static void dump_prog_info(procedure* proc);
+#endif
+
+static procedure* get_task_callee(uint startaddr);
+
+#ifdef _DEBUG
+static void dump_pre_proc_chmc(procedure* proc);
+#endif
+
+static void classify_inst_L2(instr* inst, CHMC** chmc_l2, 
+                             int n_chmc_l2, int inst_id);
+
+static void classify_inst(instr* inst, CHMC** chmc, int n_chmc, int inst_id);
+
+static void reset_timestamps(procedure* proc, ull start_time);
+
+static void preprocess_chmc_L2(procedure* proc);
+
+static void preprocess_chmc(procedure* proc);
+
+static void set_start_time(block* bb, procedure* proc);
+
+static void set_start_time_opt(block* bb, procedure* proc, uint context);
+
+static int compute_bus_delay(ull start_time, uint ncore, acc_type type);
+
+static loop* check_loop(block* bb, procedure* proc);
+
+static void preprocess_one_loop(loop* lp, procedure* proc, ull start_time);
+
+static void preprocess_all_loops(procedure* proc);
+
+static void computeWCET_loop(loop* lp, procedure* proc);
+
+static void computeWCET_block(block* bb, procedure* proc, loop* cur_lp);
+
+static void computeWCET_proc(procedure* proc, ull start_time);
+
+static void update_succ_latest_time(MSC* msc, task_t* task);
+
+static ull get_latest_start_time(task_t* cur_task, uint core);
+
+static void reset_all_task(MSC* msc);
+
+// TODO: from here on this is all BCET stuff -> should be moved to the BCET file
+
+static void classify_inst_L2_BCET(instr* inst, CHMC** chmc_l2, int n_chmc_l2,
+      int inst_id);
+
+static void classify_inst_BCET(instr* inst, CHMC** chmc, 
+                               int n_chmc, int inst_id);
+
+static void preprocess_chmc_L2_BCET(procedure* proc);
+
+static void preprocess_chmc_BCET(procedure* proc);
+
+static void set_start_time_BCET(block* bb, procedure* proc);
+
+static void computeBCET_loop(loop* lp, procedure* proc);
+
+static void computeBCET_block(block* bb, procedure* proc, loop* cur_lp);
+
+static void computeBCET_proc(procedure* proc, ull start_time);
+
+static void update_succ_earliest_time(MSC* msc, task_t* task);
+
+static ull get_earliest_start_time(task_t* cur_task, uint core);
+
+
+
 /*
  * Goes through DAG in reverse topological order (given in topo), collecting weight.
  * Can be used for both loop (disregarding back-edge) and procedure call (disregarding loops).
@@ -1125,7 +1200,7 @@ static uint get_hex(char* hex_string)
    return value;
 }
 
-#ifdef _PRINT
+#ifdef _DEBUG
 static void dump_prog_info(procedure* proc)
 {
   loop* lp;

@@ -6,6 +6,86 @@
 #include "analysisCacheL2.h"
 #include "dump.h"
 
+// Forward declarations of static functions
+
+static void
+calculateMust_L2(cache_line_way_t **must, int instr_addr);
+
+static void
+calculateMay_L2(cache_line_way_t **may, int instr_addr);
+
+static void
+calculatePersist_L2(cache_line_way_t **persist, int instr_addr);
+
+static void
+calculateCacheState_L2(cache_line_way_t **must, cache_line_way_t **may,
+    cache_line_way_t **persist, int instr_addr);
+
+static char
+isInSet_L2_persist(int addr, cache_line_way_t **set);
+
+static char
+isInSet_L2(int addr, cache_line_way_t **set);
+
+static cache_line_way_t **
+intersectCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
+
+static cache_line_way_t **
+unionCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
+
+static cache_line_way_t **
+unionMaxCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
+
+static cache_state *
+allocCacheState_L2();
+
+static void
+freeCacheState_L2(cache_state *cs);
+
+/*static void
+freeCacheStateFunction_L2(procedure * proc);
+
+static void
+freeCacheStateLoop_L2(procedure *proc, loop *lp);*/
+
+static void
+freeAllFunction_L2(procedure *proc);
+
+static void
+freeAllLoop_L2(procedure *proc, loop *lp);
+
+static char
+isInCache_L2(int addr, cache_line_way_t**must);
+
+static cache_line_way_t **
+copyCacheSet_persist(cache_line_way_t **cache_set);
+
+static cache_line_way_t **
+copyCacheSet(cache_line_way_t **cache_set);
+
+static void
+freeCacheSet_L2(cache_line_way_t **cache_set);
+
+static char
+isNeverInCache_L2(int addr, cache_line_way_t**may);
+
+static cache_state *
+mapLoop_L2(procedure *pro, loop *lp);
+
+static cache_state *
+copyCacheState_L2(cache_state *cs);
+
+static cache_state *
+mapFunctionCall_L2(procedure *proc, cache_state *cs);
+
+static void
+resetFunction_L2(procedure * proc);
+
+static void
+resetLoop_L2(procedure * proc, loop * lp);
+
+
+
 //read basic cache configuration from configFile and then
 //set other cinfiguration
 void
@@ -613,7 +693,7 @@ freeCacheState_L2(cache_state *cs)
 	cs = NULL;	
 }
 
-static void
+/*static void
 freeCacheStateFunction_L2(procedure * proc)
 {
 	procedure *p = proc;
@@ -643,7 +723,6 @@ freeCacheStateFunction_L2(procedure * proc)
 }
 
 
-
 static void
 freeCacheStateLoop_L2(procedure *proc, loop *lp)
 {
@@ -669,7 +748,7 @@ freeCacheStateLoop_L2(procedure *proc, loop *lp)
 			bb->bb_cache_state_L2 = NULL;
 		}
 	}
-}
+}*/
 
 
 

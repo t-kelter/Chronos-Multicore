@@ -2,6 +2,16 @@
 
 #include "pathDAG.h"
 
+// Forward declarations of static functions
+
+static void
+pathFunction(procedure * proc);
+
+static void 
+pathLoop(procedure *proc, loop *lp);
+
+
+
 static void
 pathFunction(procedure *proc)
 {
