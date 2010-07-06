@@ -1,3 +1,5 @@
+#include "cycle_time.h"
+
 /*
  * Performs greedy heuristic for the graph coloring problem.
  * Returns the number of colors used, and updates colorAssg with the assigned colors.

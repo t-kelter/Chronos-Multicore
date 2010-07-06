@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+#include "wcrt.h"
+#define DEF_GLOBALS
 #include "header.h"
 #include "handler.c"
 #include "util.c"
@@ -9,13 +12,14 @@
 #include "dump.c"
 #include "topo.c"
 #include "timing.c"
-//#include "timing-non-preemptive.c"
 #include "timingMSG.c"
-#include "analysis.c"
 #include "alloc.c"
 
-FILE* timefp;
-char resultFileBaseName[200];
+
+// ###############################################################################
+// "Main" function of the WCRT analyzer submodule
+// ###############################################################################
+
 
 /*! Carries out the WCRT analysis, with the given input files. */
 int wcrt_analysis( char* filename_cf, char *filename_pd, char *filename_dg )

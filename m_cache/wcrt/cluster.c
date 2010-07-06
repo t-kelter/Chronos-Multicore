@@ -1,3 +1,5 @@
+#include "util.h"
+
 /*
  * Do clustering by latestTimes.
  */
