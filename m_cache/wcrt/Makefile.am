@@ -19,10 +19,3 @@ libwcrt_a_SOURCES=alloc.c alloc.h \
                   wcrt.c wcrt.h
 
 libwcrt_a_CPPFLAGS=-D_DEBUG
-
-# Additionally remove the core dumps on 'make clean' if there are any
-CLEANFILES=core
-
-# Due to the special include system, we must list all indirect source 
-# files as extra dist files to make them appear in the tar made by
-# 'gmake dist'
