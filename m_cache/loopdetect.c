@@ -1,7 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "loopdetect.h"
+#include "handler.h"
+#include "block.h"
+#include "parseCFG.h"
+#include "dump.h"
 
 /*
  * Recursive function.

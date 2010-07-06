@@ -5,6 +5,9 @@
 #ifndef __CHRONOS_FIND_CONFLICTS_H
 #define __CHRONOS_FIND_CONFLICTS_H
 
+#include "header.h"
+#include "infeasible.h"
+
 // ######### Macros #########
 
 

@@ -19,80 +19,16 @@
 
 // ######### Function declarations  ###########
 
-static void
-freeCacheSet(cache_line_way_t **cache_set);
-
-static procedure*
-constructFunctionCall(procedure *pro, task_t *task);
-
-static block* 
-copyBlock(block * bb);
-
-static loop* 
-copyLoop(procedure *proc, procedure* copy_proc, loop* lp);
-
-static procedure* 
-copyFunction(procedure *proc);
-
-static void
-freeAllCacheState();
-
-static void
-freeAllFunction(procedure *proc);
-
-static void
-freeAllLoop(procedure *proc, loop *lp);
-
-static cache_state*
-mapLoop(procedure *proc, loop *lp);
-
-static cache_state *
-mapFunctionCall(procedure *proc, cache_state *cs);
-
-static void
-calculateCacheState(cache_line_way_t **must, cache_line_way_t **may, cache_line_way_t **persist, int instr_addr);
-
-static cache_state *
-copyCacheState(cache_state *cs);
-
-static void dump_cache_line(cache_line_way_t *clw_a);
-
-static void
-freeCacheState(cache_state *cs);
-
-static void
-freeCacheStateLoop(procedure *proc, loop *lp);
-
-static void
-freeCacheStateFunction(procedure *proc);
-
-static char 
-isInWay(int entry, int *entries, int num_entry);
-
-static char
-isNeverInCache(int addr, cache_line_way_t**may);
-
-static char
-isInCache(int addr, cache_line_way_t**must);
-
-static cache_line_way_t **
-unionCacheState(cache_line_way_t ** clw_a, cache_line_way_t **clw_b);
-
-static cache_line_way_t **
-intersectCacheState(cache_line_way_t ** clw_a, cache_line_way_t **clw_b);
-
-static cache_line_way_t **
-unionMaxCacheState(cache_line_way_t ** clw_a, cache_line_way_t **clw_b);
-
-static int
+// TODO: Move this function out of here into some util file
+int
 logBase2(int n);
 
 /* read basic cache configuration from configFile and then 
    set other configuration */
-static void
+void
 set_cache_basic(char * configFile);
 
-static void
+void
 dumpCacheConfig();
 
 static block* 
@@ -107,7 +43,7 @@ copyFunction(procedure* proc);
 static procedure*
 constructFunctionCall(procedure *pro, task_t *task);
 
-static void
+void
 constructAll(task_t *task);
 
 static void
@@ -151,10 +87,10 @@ static cache_state *
 mapFunctionCall(procedure *proc, cache_state *cs);
 
 //do level one cache analysis
-static void
+void
 cacheAnalysis();
 
-static char 
+char 
 isInWay(int entry, int *entries, int num_entry);
 
 // from way 0-> way n, younger->older
@@ -165,7 +101,7 @@ unionCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
 static cache_line_way_t **
 unionMaxCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
 
-static void
+void
 freeCacheSet(cache_line_way_t **cache_set);
 
 static void
@@ -183,7 +119,7 @@ freeAllFunction(procedure *proc);
 static void
 freeAllLoop(procedure *proc, loop *lp);
 
-static void
+void
 freeAllCacheState();
 
 /* from way n-> way 0, older->younger */

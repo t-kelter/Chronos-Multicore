@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "handler.h"
+#include "header.h"
 #include "wcrt/cycle_time.h"
 
 /*
@@ -22,7 +23,7 @@ FILE* openfile( char *ext, char *mode ) {
   return fptr;
 }
 
-static int
+int
 indexOfProc(int num)
 {
 	int i;

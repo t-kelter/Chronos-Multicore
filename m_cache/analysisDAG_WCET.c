@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdint.h>
+#include <string.h>
 #include <math.h>
 
 #include "analysisDAG_WCET.h"

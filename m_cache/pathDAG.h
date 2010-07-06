@@ -24,7 +24,7 @@ pathFunction(procedure * proc);
 static void 
 pathLoop(procedure *proc, loop *lp);
 
-static void 
+void 
 pathDAG(MSC *msc);
 
 

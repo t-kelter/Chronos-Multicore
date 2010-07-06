@@ -7,6 +7,9 @@
 #ifndef __CHRONOS_PATH_H
 #define __CHRONOS_PATH_H
 
+#include "header.h"
+#include "infeasible.h"
+
 // ######### Macros #########
 
 

@@ -3,6 +3,8 @@
 //#include <conio.h>
 #include <time.h>
 
+#include "config.h"
+
 #define DEF_GLOBALS
 #include "header.h"
 #undef DEF_GLOBALS
@@ -11,27 +13,26 @@
 #include "infeasible.h"
 #undef DEF_INFEASIBILITY_GLOBALS
 
-#include "config.h"
-#include "handler.c"
-#include "dump.c"
-#include "block.c"
-#include "parseCFG.c"
-#include "loopdetect.c"
-//#include "infeasible.c"
-//#include "findConflicts.c"
-#include "path.c"
-//#include "DAG_WCET.c"
-#include "topo.c"
-//#include "analysisILP.c"
-#include "analysisDAG_WCET.c"
-#include "analysisDAG_BCET.c"
-//#include "analysisEnum.c"
-#include "analysisCache.c"
-#include "analysisCacheL2.c"
-#include "updateCacheL2.c"
-#include "pathDAG.c"
+#include "handler.h"
+#include "dump.h"
+#include "block.h"
+#include "parseCFG.h"
+#include "loopdetect.h"
+//#include "infeasible.h"
+//#include "findConflicts.h"
+#include "path.h"
+//#include "DAG_WCET.h"
+#include "topo.h"
+//#include "analysisILP.h"
+#include "analysisDAG_WCET.h"
+#include "analysisDAG_BCET.h"
+//#include "analysisEnum.h"
+#include "analysisCache.h"
+#include "analysisCacheL2.h"
+#include "updateCacheL2.h"
+#include "pathDAG.h"
 /* For bus-aware WCET calculation */
-#include "busSchedule.c"
+#include "busSchedule.h"
 #include "wcrt/wcrt.h"
 #include "wcrt/cycle_time.h"
 

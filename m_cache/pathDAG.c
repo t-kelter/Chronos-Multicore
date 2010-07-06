@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "pathDAG.h"
 
 static void
@@ -174,10 +176,6 @@ pathFunction(procedure *proc)
 			
 }// end if else
 
-
-
-
-
 static void
 pathLoop(procedure *proc, loop *lp)
 {
@@ -330,15 +328,12 @@ pathLoop(procedure *proc, loop *lp)
 	}
 }
 
-
-static void 
+void 
 pathDAG(MSC *msc)
 {
 	int i, j;
-	//printf("pathDAG\n");
 	
-	for(i = 0; i < msc->num_task; i ++)
-	{
+	for(i = 0; i < msc->num_task; i ++) {
 		for(j = 0; j < MAX_NEST_LOOP; j++)
 			loop_level_arr[j] = INVALID;
 
@@ -359,11 +354,5 @@ pathDAG(MSC *msc)
 
 		printf("msc->taskList[%d].wcet = %Lu, msc->taskList[%d].bcet = %Lu\n", i, msc->taskList[i].wcet, i, msc->taskList[i].bcet);
 		*/
-		
 	}
-
-
 }
-
-
-

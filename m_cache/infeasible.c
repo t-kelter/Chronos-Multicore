@@ -5,6 +5,7 @@
 #include <time.h>
 
 #include "infeasible.h"
+#include "findConflicts.h"
 
 int initRegSet() {
 
@@ -87,6 +88,8 @@ int findReg( char key[] ) {
     if( strcmp( key, regName[i] ) == 0 )
       return i; 
   }
+
+  return -1;
 }
 
 

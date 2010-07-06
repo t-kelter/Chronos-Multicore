@@ -8,8 +8,9 @@
 #define __CHRONOS_DUMP_H
 
 #include "header.h"
+#include "infeasible.h"
 
-// ######### Macros ###DUMP_H######
+// ######### Macros #########
 
 
 

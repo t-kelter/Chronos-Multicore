@@ -3,6 +3,9 @@
 #include <stdio.h>
 
 #include "parseCFG.h"
+#include "block.h"
+#include "handler.h"
+#include "infeasible.h"
 
 /*
  * Initializes a basic block. Memory allocation is done in caller.
@@ -428,8 +431,8 @@ int readInstr() {
   return 0;
 }
 
-static void
-  calculate_incoming()
+void
+calculate_incoming()
 {
 	int i, j, k;
 	 block *src_bb, *dst_bb;

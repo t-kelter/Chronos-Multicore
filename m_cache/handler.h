@@ -26,7 +26,7 @@
  */
 FILE* openfile( char *ext, char *mode );
 
-static int
+int
 indexOfProc(int num);
 
 

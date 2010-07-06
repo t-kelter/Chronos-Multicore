@@ -1,6 +1,12 @@
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "analysisILP.h"
+#include "infeasible.h"
+#include "block.h"
+#include "handler.h"
+#include "wcrt/cycle_time.h"
 
 /*
  * Recursive function.
@@ -378,7 +384,7 @@ int analysis_ilp() {
     // Note: cannot use directly from procedure bblist,
     // because there may be extra blocks such as unused loop exits.
 
-    fprintf( ilpf, "maximize\n", p->pid );
+    fprintf( ilpf, "maximize\n" );//, p->pid );
 
     firstterm = 1;
 
@@ -390,10 +396,11 @@ int analysis_ilp() {
 
       cost = bb->cost;
       if( bb->callpid != -1 )
-	cost += procs[ bb->callpid ]->wcet;
+        cost += *procs[ bb->callpid ]->wcet;
 
       if( !firstterm )
-	fprintf( ilpf, " + " );
+      	fprintf( ilpf, " + " );
+
       fprintf( ilpf, "%dY%d", cost, bb->bbid );
       firstterm = 0;
     }

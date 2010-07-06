@@ -11,6 +11,7 @@
 #define __CHRONOS_HEADER_H
 
 #include <time.h>
+#include <stdio.h>
 
 
 // ######### Macros #########
@@ -257,7 +258,7 @@ typedef struct {
   int   callpid;        // id of called procedure (by compiler convention, at most one per block)
   uint  size;           // size of block in bytes
 
-  //uint  cost;           // block execution time
+  uint  cost;           // block execution time
  // int reset;
   
   //ull   hit;
@@ -565,7 +566,11 @@ EXTERN ull *enum_paths_loop;  // number of paths in each loop (in currently anal
 EXTERN unsigned short ****enum_pathlist;  // enum_pathlist[p][b]: list of enumerated paths kept at proc. p block b
 EXTERN unsigned short ***enum_pathlen;    // enum_pathlen[p][b][n]: length of the n-th path in enum_pathlist[p][b]
 
-EXTERN char do_inline = 0;
+#ifdef EXTERN
+  EXTERN char do_inline;
+#else
+  EXTERN char do_inline = 0;
+#endif
 
 
 /* sudiptac :: Data structures and definitions used for 

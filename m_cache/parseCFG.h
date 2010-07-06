@@ -7,6 +7,8 @@
 #ifndef __CHRONOS_PARSE_CFG_H
 #define __CHRONOS_PARSE_CFG_H
 
+#include "header.h"
+
 // ######### Macros #########
 
 
@@ -18,7 +20,8 @@
 // ######### Function declarations  ###########
 
 
-static void  calculate_incoming();
+void
+calculate_incoming();
 
 /*
  * Initializes a basic block. Memory allocation is done in caller.

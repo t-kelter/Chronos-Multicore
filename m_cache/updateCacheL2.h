@@ -7,6 +7,8 @@
 #ifndef __CHRONOS_UPDATE_CACHE_L2_H
 #define __CHRONOS_UPDATE_CACHE_L2_H
 
+#include "header.h"
+
 // ######### Macros #########
 
 
@@ -18,7 +20,7 @@
 // ######### Function declarations  ###########
 
 
-static void
+void
 updateCacheState(MSC *msc);
 
 static void
@@ -29,15 +31,6 @@ updateFunctionCall(MSC *msc, int index, procedure* proc);
 
 static int
 conflictStatistics(MSC *msc, int index, int set_no, int current_addr);
-
-static void
-updateCacheState(MSC *msc);
-
-static void
-updateLoop(MSC *msc, int index, procedure *proc, loop *lp);
-
-static void
-updateFunctionCall(MSC *msc, int index, procedure* proc);
 
 
 #endif

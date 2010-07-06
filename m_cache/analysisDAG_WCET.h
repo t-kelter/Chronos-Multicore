@@ -7,6 +7,8 @@
 #ifndef __CHRONOS_ANALYSIS_DAG_WCET_H
 #define __CHRONOS_ANALYSIS_DAG_WCET_H
 
+#include "header.h"
+
 // ######### Macros #########
 
 

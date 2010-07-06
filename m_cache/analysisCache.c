@@ -4,7 +4,7 @@
 
 #include "analysisCache.h"
 
-static int
+int
 logBase2(int n)
 {
   int power = 0;
@@ -23,7 +23,7 @@ logBase2(int n)
 
 //read basic cache configuration from configFile and then
 //set other cinfiguration
-static void
+void
 set_cache_basic(char * configFile)
 {
 
@@ -69,7 +69,7 @@ set_cache_basic(char * configFile)
     cache.t_s_msk = cache.t_msk | cache.s_msk;
 }
 
-static void
+void
 dumpCacheConfig()
 {
     printf("Cache Configuration as follow:\n");
@@ -356,7 +356,7 @@ constructFunctionCall(procedure *pro, task_t *task)
 
 
 
-static void
+void
 constructAll(task_t *task)
 {
     	procedure *p = procs[ main_id ];
@@ -2046,7 +2046,7 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 
 
 //do level one cache analysis
-static void
+void
 cacheAnalysis(){
 	int i;
 	//printf("\nIn cacheAnalysis() \n It is in main\n");
@@ -2073,12 +2073,7 @@ cacheAnalysis(){
 	//exit(1);//!!!here is a break !!! come on
 }
 
-/*
-static void
-computeBBcost(){
-}
-*/
-static char 
+char 
 isInWay(int entry, int *entries, int num_entry)
 {
 	int i;
@@ -2252,7 +2247,7 @@ unionMaxCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 
 
 
-static void
+void
 freeCacheSet(cache_line_way_t **cache_set)
 {
 	int i;
@@ -2445,7 +2440,7 @@ freeAllLoop(procedure *proc, loop *lp)
 
 }
 
-static void
+void
 freeAllCacheState()
 {
 	freeAllFunction(main_copy);

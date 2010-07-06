@@ -7,6 +7,8 @@
 #ifndef __CHRONOS_LOOPDETECT_H
 #define __CHRONOS_LOOPDETECT_H
 
+#include "header.h"
+
 // ######### Macros #########
 
 

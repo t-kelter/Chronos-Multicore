@@ -17,49 +17,13 @@
 
 // ######### Function declarations  ###########
 
-static cache_state *
-mapLoop_L2(procedure *pro, loop *lp);
-
-static cache_state *
-mapFunctionCall_L2(procedure *proc, cache_state *cs);
-
-static void
-resetHitMiss_L2(MSC *msc);
-
-static void
-resetFunction_L2(procedure *proc);
-
-static void
-resetLoop_L2(procedure *proc, loop* lp);
-
-static void
-calculateCacheState_L2(cache_line_way_t **must, cache_line_way_t **may,
-    cache_line_way_t **persist, int instr_addr);
-
-static cache_state *
-copyCacheState_L2(cache_state *cs);
-
-static void
-freeAll_L2();
-
-static void
-freeAllFunction_L2(procedure *proc);
-
-static void
-freeAllLoop_L2(procedure *proc, loop *lp);
-
-static char
-isInCache_L2(int addr, cache_line_way_t**must);
-
-static cache_line_way_t **
-unionCacheState_L2(cache_line_way_t ** clw_a, cache_line_way_t **clw_b);
 
 /* read basic cache configuration from configFile and then
   set other configuration */
-static void
+void
 set_cache_basic_L2(char * configFile);
 
-static void
+void
 dumpCacheConfig_L2();
 
 static void
@@ -114,7 +78,7 @@ freeAllFunction_L2(procedure *proc);
 static void
 freeAllLoop_L2(procedure *proc, loop *lp);
 
-static void
+void
 freeAll_L2();
 
 static char
@@ -148,11 +112,11 @@ resetFunction_L2(procedure * proc);
 static void
 resetLoop_L2(procedure * proc, loop * lp);
 
-static void
+void
 resetHitMiss_L2(MSC *msc);
 
 /* Do level 2 cache analysis */
-static void
+void
 cacheAnalysis_L2();
 
 #endif

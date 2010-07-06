@@ -1,12 +1,14 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #include "analysisCache.h"
 #include "analysisCacheL2.h"
+#include "dump.h"
 
 //read basic cache configuration from configFile and then
 //set other cinfiguration
-static void
+void
 set_cache_basic_L2(char * configFile)
 {
 
@@ -52,7 +54,7 @@ set_cache_basic_L2(char * configFile)
     cache_L2.t_s_msk = cache_L2.t_msk | cache_L2.s_msk;
 }
 
-static void
+void
 dumpCacheConfig_L2()
 {
     printf("Cache Configuration as follow:\n");
@@ -747,7 +749,7 @@ freeAllLoop_L2(procedure *proc, loop *lp)
 
 }
 
-static void
+void
 freeAll_L2()
 {
 	freeAllFunction_L2(main_copy);
@@ -2688,7 +2690,7 @@ resetLoop_L2(procedure * proc, loop * lp)
 
 
 
-static void
+void
 resetHitMiss_L2(MSC *msc)
 {
 	int i;
@@ -2705,7 +2707,7 @@ resetHitMiss_L2(MSC *msc)
 
 
 //do level one cache analysis
-static void
+void
 cacheAnalysis_L2()
 {
 	int i;
