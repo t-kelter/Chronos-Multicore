@@ -2,6 +2,9 @@
 
 /*
  * Declarations for general framework.
+ *
+ * When DEF_GLOBALS is defined, this file defines all global varaibles, if that
+ * is not the case, then it just declares them as external.
  */
 
 #ifndef __CHRONOS_HEADER_H
@@ -100,6 +103,26 @@ typedef unsigned long long ull;
 //typedef struct procedure procedure;
 
 #define print 0
+
+/* Memory allocation with error check. */
+
+#define MALLOC( ptr, size, msg ) \
+  malloc( (size) ); \
+  if( !(ptr) ) printf( "\nError: malloc failed for %s.\n\n", (msg) ), exit(1)
+
+#define CALLOC( ptr, len, size, msg ) \
+  calloc( (len), (size) ); \
+  if( !(ptr) ) printf( "\nError: calloc failed for %s.\n\n", (msg) ), exit(1)
+
+#define REALLOC( ptr, size, msg ) \
+  realloc( (ptr), (size) ); \
+  if( !(ptr) ) printf( "\nError: realloc failed for %s.\n\n", (msg) ), exit(1)
+
+/*
+ * Declarations for WCET analysis.
+ */
+#define PROC 1
+#define LOOP 2
 
 
 /* sudiptac :: Data structures and definitions used for 
@@ -530,6 +553,19 @@ EXTERN int numregs;
 EXTERN uint *regioncost;
 
 EXTERN int regionmode; 
+
+/*
+ * Declarations for WCET analysis.
+ */
+EXTERN FILE *ilpf;
+
+EXTERN ull *enum_paths_proc;  // number of paths in each procedure
+EXTERN ull *enum_paths_loop;  // number of paths in each loop (in currently analysed procedure)
+
+EXTERN unsigned short ****enum_pathlist;  // enum_pathlist[p][b]: list of enumerated paths kept at proc. p block b
+EXTERN unsigned short ***enum_pathlen;    // enum_pathlen[p][b][n]: length of the n-th path in enum_pathlist[p][b]
+
+EXTERN char do_inline = 0;
 
 
 /* sudiptac :: Data structures and definitions used for 

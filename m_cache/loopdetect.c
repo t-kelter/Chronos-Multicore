@@ -1,10 +1,7 @@
-/*
- * Loop detection functions.
- */
-
-#include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 
+#include "loopdetect.h"
 
 /*
  * Recursive function.

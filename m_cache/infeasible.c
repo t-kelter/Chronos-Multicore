@@ -1,7 +1,10 @@
-/*
- * Supporting functions for infeasible path detection.
- */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
 
+#include "infeasible.h"
 
 int initRegSet() {
 
@@ -180,7 +183,6 @@ char testConflict( int a, int rhs_a, int b, int rhs_b ) {
  * r1, r2 are relational operators associated with A, B respectively.
  * Returns 1 if conflict, 0 otherwise.
  */
-
 char isBBConflict( branch *A, branch *B, int r1, int r2 ) {  
 
   return testConflict( r1, A->rhs, r2, B->rhs );

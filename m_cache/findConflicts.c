@@ -1,3 +1,5 @@
+#include "findConflicts.h"
+
 /*
  * Returns 1 if deri_tree is modified inside lp, 0 otherwise.
  * Potentially recursive.

@@ -1,14 +1,4 @@
-
-static void
-pathFunction(procedure * proc);
-
-static void 
-pathLoop(procedure *proc, loop *lp);
-
-static void 
-pathDAG(MSC *msc);
-
-
+#include "pathDAG.h"
 
 static void
 pathFunction(procedure *proc)

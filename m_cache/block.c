@@ -1,10 +1,7 @@
-/*
- * Block and instruction manipulation functions.
- */
-
 #include <string.h>
 #include <stdio.h>
 
+#include "block.h"
 
 /*
  * Returns the index of bbid in bblist, -1 if not found.

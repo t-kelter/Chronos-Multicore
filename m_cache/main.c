@@ -7,9 +7,11 @@
 #include "header.h"
 #undef DEF_GLOBALS
 
-#include "config.h"
-#include "analysis.h"
+#define DEF_INFEASIBILITY_GLOBALS
 #include "infeasible.h"
+#undef DEF_INFEASIBILITY_GLOBALS
+
+#include "config.h"
 #include "handler.c"
 #include "dump.c"
 #include "block.c"
@@ -129,9 +131,8 @@ int analysis() {
 
 */
 
-// For debugging purposes we 
-int main(int argc, char **argv ) {
-
+int main(int argc, char **argv )
+{
   FILE *file, *hitmiss_statistic, *wcrt;
   char wbcostPath[MAX_LEN], hitmiss[MAX_LEN];
   int n;

@@ -1,6 +1,7 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+
+#include "busSchedule.h"
 
 /* Improper exit with error message */
 void prerr(char* msg)

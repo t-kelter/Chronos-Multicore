@@ -1,4 +1,4 @@
-
+#include "pathTest.h"
 
 int hasConflict(int effectNo){
   int k;

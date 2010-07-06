@@ -15,14 +15,11 @@ optdebug_LDADD=wcrt/libwcrt.a
 # Due to the special include system, we must list all indirect source 
 # files as extra dist files to make them appear in the tar made by
 # 'gmake dist'
-EXTRA_DIST=analysis.c \
-           analysisCache.c \
+EXTRA_DIST=analysisCache.c \
            analysisCacheL2.c \
            analysisDAG_BCET.c \
-           analysisDAG.c \
            analysisDAG_WCET.c \
            analysisEnum.c \
-           analysis.h \
            analysisILP.c \
            block.c \
            busSchedule.c \

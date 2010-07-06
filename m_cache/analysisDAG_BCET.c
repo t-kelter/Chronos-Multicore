@@ -2,6 +2,7 @@
  * DAG-based WCET analysis functions.
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 
 

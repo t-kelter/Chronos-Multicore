@@ -1,11 +1,9 @@
-/*
- * CFG processing functions.
- */
-
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-static void  calculate_incoming();
+#include "parseCFG.h"
+
 /*
  * Initializes a basic block. Memory allocation is done in caller.
  */
@@ -480,5 +478,3 @@ static void
 		exit(1);
 		*/
 }
-
-

@@ -6,8 +6,10 @@
 #include "header.h"
 #undef DEF_GLOBALS
 
-#include "analysis.h"
+#define DEF_INFEASIBILITY_GLOBALS
 #include "infeasible.h"
+#undef DEF_INFEASIBILITY_GLOBALS
+
 #include "handler.c"
 #include "dump.c"
 #include "block.c"

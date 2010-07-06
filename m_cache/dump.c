@@ -1,10 +1,9 @@
-/*
- * Text dump for debugging.
- */
-
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
+
+#include "dump.h"
 
 int printBlock( block *bb ) {
 

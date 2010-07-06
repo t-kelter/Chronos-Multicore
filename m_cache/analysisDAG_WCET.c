@@ -2,9 +2,11 @@
  * DAG-based WCET analysis functions.
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 #include <stdint.h>
+#include <math.h>
 
 static void computeWCET_block(block* bb, procedure* proc, loop* cur_lp);
 static void computeBCET_block(block* bb, procedure* proc, loop* cur_lp);
