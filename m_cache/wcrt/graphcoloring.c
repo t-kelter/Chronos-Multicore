@@ -403,7 +403,7 @@ int colorAllocation( chart_t *msc, overlay_t *ox, char *colorAssg, int numColors
 
   for( i = 0; i < ox->numOwnerTasks; i++ )
     printf( "%s:\t%4d/%4d bytes (%d)\n", getTaskName(ox->ownerTaskList[i]),
-	    taskshare[i], colorshare[colorAssg[i]], colorAssg[i] );
+	    taskshare[i], colorshare[(int)colorAssg[i]], colorAssg[i] );
 
   free( taskshare );
   free( colorshare );

@@ -25,15 +25,15 @@
 
 #define MALLOC( ptr, size, msg ) \
   malloc( (size) ); \
-  if( !(ptr) ) printf( "\nError: malloc %d bytes failed for %s.\n\n", (size), (msg) ), exit(1)
+  if( !(ptr) ) printf( "\nError: malloc %d bytes failed for %s.\n\n", (int)(size), (msg) ), exit(1)
 
 #define CALLOC( ptr, len, size, msg ) \
   calloc( (len), (size) ); \
-  if( !(ptr) ) printf( "\nError: calloc %d bytes failed for %s.\n\n", (size), (msg) ), exit(1)
+  if( !(ptr) ) printf( "\nError: calloc %d bytes failed for %s.\n\n", (int)(size), (msg) ), exit(1)
 
 #define REALLOC( ptr, size, msg ) \
   realloc( (ptr), (size) ); \
-  if( !(ptr) ) printf( "\nError: realloc %d bytes failed for %s.\n\n", (size), (msg) ), exit(1)
+  if( !(ptr) ) printf( "\nError: realloc %d bytes failed for %s.\n\n", (int)(size), (msg) ), exit(1)
 
 
 /*

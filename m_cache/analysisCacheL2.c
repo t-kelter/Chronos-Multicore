@@ -78,7 +78,6 @@ set_cache_basic_L2(char * configFile)
 
   FILE *fptr;
   int ns, na, ls, cmp, i;
-  char path[ MAX_LEN ];
 
   fptr = fopen(configFile, "r" );
   if (fptr == NULL) {
@@ -138,7 +137,7 @@ dumpCacheConfig_L2()
 static void
 calculateMust_L2(cache_line_way_t **must, int instr_addr)
 {
-	int i, j, *tail;
+	int i, j;
 	instr_addr = TAGSET_L2(instr_addr);
 	
 	for(i = 0; i < cache_L2.na; i++)
@@ -202,7 +201,7 @@ calculateMust_L2(cache_line_way_t **must, int instr_addr)
 static void
 calculateMay_L2(cache_line_way_t **may, int instr_addr)
 {
-	int i, j, *tail;
+	int i, j;
 	instr_addr = TAGSET_L2(instr_addr);
 	
 	for(i = 0; i < cache_L2.na; i++)
@@ -265,7 +264,7 @@ calculateMay_L2(cache_line_way_t **may, int instr_addr)
 static void
 calculatePersist_L2(cache_line_way_t **persist, int instr_addr)
 {
-	int i, j, *tail;
+	int i, j;
 	instr_addr = TAGSET_L2(instr_addr);
 
 	/* FIXME:::: Foe persistence analysis associativity is one more than 
@@ -368,8 +367,7 @@ isInSet_L2(int addr, cache_line_way_t **set)
 static cache_line_way_t **
 intersectCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
-	int i, j, k, age, index, entry_a, entry_b, num_history = 0;
-	int *history_entries = NULL;
+	int i, j, age, index, entry_b;
 	//int flag = 1;
 	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache_L2.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
@@ -419,8 +417,7 @@ intersectCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 static cache_line_way_t **
 unionCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
-	int i, j, k, age, index, entry_a, entry_b, t, n, num_history = 0;
-	int *history_entries = NULL;
+	int i, j, age, index, entry_a, entry_b;
 	//int flag = 1;
 	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache_L2.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
@@ -497,8 +494,7 @@ unionCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 static cache_line_way_t **
 unionMaxCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
-	int i, j, k, age, index, entry_a, entry_b, t, n, num_history = 0;
-	int *history_entries = NULL;
+	int i, j, age, index, entry_a, entry_b;
 	//int flag = 1;
 	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache_L2.na + 1, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
@@ -581,16 +577,13 @@ unionMaxCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 static cache_state *
 allocCacheState_L2()
 {
-	int i, j, k;
+	int j, k;
 	cache_state *result = NULL;
 	//printf("\nalloc CS memory copies = %d \n", copies);
 
 	result = (cache_state *)CALLOC(result, 1, sizeof(cache_state), "cache_state_t");
 	
 	//printf("\nalloc CS memory result->loop_level = %d \n", result->loop_level );
-
-
-		//printf("\nalloc CS memory for i = %d \n", i );
 
 		result->must = NULL;
 		result->must = (cache_line_way_t***)CALLOC(result->must, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
@@ -749,7 +742,7 @@ freeAllFunction_L2(procedure *proc)
 {
 	procedure *p = proc;
 	block *bb;
-	int i, k;
+	int i;
 	int  num_blk = p->num_topo;	
 		
 	for(i = num_blk -1 ; i >= 0 ; i--)
@@ -787,7 +780,7 @@ freeAllLoop_L2(procedure *proc, loop *lp)
 	procedure *p = proc;
 	loop *lp_ptr = lp;
 	block *bb;
-	int i, k;
+	int i;
 	
 	int  num_blk = lp_ptr->num_topo;	
 		
@@ -825,17 +818,6 @@ freeAll_L2()
 {
 	freeAllFunction_L2(main_copy);
 }
-
-
-static cache_state*
-fixPointCacheState_L2(cache_state *cs_ptr, loop *lp)
-{
-
-}
-
-
-
-
 
 
 static char
@@ -899,7 +881,7 @@ copyCacheSet(cache_line_way_t **cache_set)
 static void
 freeCacheSet_L2(cache_line_way_t **cache_set)
 {
-	int i, j;
+	int i;
 	for(i = 0; i < cache_L2.na; i++)
 	{
 		if(cache_set[i]->num_entry)
@@ -930,13 +912,13 @@ isNeverInCache_L2(int addr, cache_line_way_t**may)
 static cache_state *
 mapLoop_L2(procedure *pro, loop *lp)
 {
-	int i, j, k, n, set_no, incoming_cnt, cnt, tmp, addr, addr_next, copies, age; 
-	int start_addr, start_addr_fetch, lp_level, incoming_lp_level, tag, tag_next;
+	int i, j, k, n, set_no, cnt, tmp, addr, addr_next, copies, age; 
+	int lp_level, tag, tag_next;
 	
 	procedure *p = pro;
 
 	block *bb, *incoming_bb;
-	cache_state *cs_ptr, *cs_tmp;
+	cache_state *cs_ptr;
 	cache_line_way_t **cache_set_must, **cache_set_may, **cache_set_persist, **clw;
 
 	int  num_blk = lp->num_topo;
@@ -1091,8 +1073,7 @@ mapLoop_L2(procedure *pro, loop *lp)
 					 continue;
 
 				cs_ptr = copyCacheState_L2(p->bblist[lp->topo[0]->bbid]->bb_cache_state_L2);
-				//cs_tmp = cs_ptr;
-				//cs_ptr = fixPointCacheState_L2(cs_ptr, lp);
+				//cache_state *cs_tmp = cs_ptr;
 				//freeCacheState(cs_tmp);
 
 
@@ -1150,10 +1131,10 @@ mapLoop_L2(procedure *pro, loop *lp)
 		//current_chmc->hitmiss_addr= NULL;
 		//current_chmc->hit_change_miss= NULL;
 
-		//start_addr = bb->startaddr;
+		//int start_addr = bb->startaddr;
 		//bb->num_cache_fetch_L2 = bb->size / cache_L2.ls;
 		
-		//start_addr_fetch = (start_addr >> cache_L2.lsb) << cache_L2.lsb;
+		//int start_addr_fetch = (start_addr >> cache_L2.lsb) << cache_L2.lsb;
 		//tmp = start_addr - start_addr_fetch;
 
 		
@@ -1756,7 +1737,7 @@ mapLoop_L2(procedure *pro, loop *lp)
 static cache_state *
 copyCacheState_L2(cache_state *cs)
 {
-	int i, j, k, num_entry, tmp;
+	int j, k, num_entry;
 	cache_state *copy = NULL;
 
 	//printf("\nIn copy Cache State now\n");
@@ -1768,6 +1749,7 @@ copyCacheState_L2(cache_state *cs)
 
 		
 	//lp_level = cs->loop_level;
+  //int i;
 //	for( i = 0; i < copies; i ++)
 //	{
 		//printf("\nIn copyCacheState: i is %d\n", i);
@@ -1844,8 +1826,8 @@ copyCacheState_L2(cache_state *cs)
 static cache_state *
 mapFunctionCall_L2(procedure *proc, cache_state *cs)
 {
-	int i, j, k, n, set_no, incoming_cnt, cnt, addr, addr_next, copies, tmp, tag, tag_next; 
-	int start_addr, start_addr_fetch, lp_level, incoming_lp_level, age;
+	int i, j, k, n, set_no, cnt, addr, addr_next, copies, tmp, tag, tag_next; 
+	int lp_level, age;
 
 	//dumpCacheState(cs);
 	//exit(1);
@@ -2024,10 +2006,10 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 		//current_chmc->hit_change_miss= NULL;
 		
 		//compute categorization of each instruction line
-		//start_addr = bb->startaddr;
+		//int start_addr = bb->startaddr;
 		//bb->num_cache_fetch_L2 = bb->size / cache_L2.ls;
 
-		//start_addr_fetch = (start_addr >> cache_L2.lsb) << cache_L2.lsb;
+		//int start_addr_fetch = (start_addr >> cache_L2.lsb) << cache_L2.lsb;
 		//tmp = start_addr - start_addr_fetch;
 
 		
@@ -2636,7 +2618,7 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 static void
 resetFunction_L2(procedure * proc)
 {
-	int i, j, cnt, lp_level, num_blk, copies;
+	int i, j, cnt, lp_level, num_blk;
 
 	procedure *p = proc;
 	block *bb;
@@ -2703,7 +2685,7 @@ static void
 resetLoop_L2(procedure * proc, loop * lp)
 {
 
-	int i, j, cnt, lp_level, num_blk, copies, tmp;
+	int i, j, cnt, lp_level, num_blk;
 
 	procedure *p = proc;
 	block *bb;
@@ -2712,7 +2694,6 @@ resetLoop_L2(procedure * proc, loop * lp)
 	num_blk = lp_ptr->num_topo;
 
 	//printf("pathLoop\n");
-	//scanf("%c", &tmp);
 
 	for(i = 0; i < MAX_NEST_LOOP; i++)
 		if(loop_level_arr[i] == INVALID)

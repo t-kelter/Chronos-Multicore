@@ -215,7 +215,7 @@ int readMSG() {
 
       // validate each successor
       for( k = 0; k < numsuccs; k++ ) {
-	fscanf( fptr, "%s", &tname );
+	fscanf( fptr, "%s", (char*)&tname );
 
 	sidx = findTask( tname );
 	if( sidx == -1 )

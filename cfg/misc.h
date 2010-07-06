@@ -157,11 +157,11 @@ fatal_hook(void (*hook_fn)(FILE *stream));	/* fatal hook function */
   _fatal(__FILE__, __FUNCTION__, __LINE__, fmt, ## args)
 
 void
-_fatal(char *file, char *func, int line, char *fmt, ...)
+_fatal(const char *file, const char *func, int line, const char *fmt, ...)
 __attribute__ ((noreturn));
 #else /* !__GNUC__ */
 void
-fatal(char *fmt, ...);
+fatal(const char *fmt, ...);
 #endif /* !__GNUC__ */
 
 #ifdef __GNUC__
@@ -170,11 +170,11 @@ fatal(char *fmt, ...);
   _panic(__FILE__, __FUNCTION__, __LINE__, fmt, ## args)
 
 void
-_panic(char *file, char *func, int line, char *fmt, ...)
+_panic(const char *file, const char *func, int line, const char *fmt, ...)
 __attribute__ ((noreturn));
 #else /* !__GNUC__ */
 void
-panic(char *fmt, ...);
+panic(const char *fmt, ...);
 #endif /* !__GNUC__ */
 
 #ifdef __GNUC__
@@ -183,10 +183,10 @@ panic(char *fmt, ...);
   _warn(__FILE__, __FUNCTION__, __LINE__, fmt, ## args)
 
 void
-_warn(char *file, char *func, int line, char *fmt, ...);
+_warn(const char *file, const char *func, int line, const char *fmt, ...);
 #else /* !__GNUC__ */
 void
-warn(char *fmt, ...);
+warn(const char *fmt, ...);
 #endif /* !__GNUC__ */
 
 #ifdef __GNUC__
@@ -195,10 +195,10 @@ warn(char *fmt, ...);
   _info(__FILE__, __FUNCTION__, __LINE__, fmt, ## args)
 
 void
-_info(char *file, char *func, int line, char *fmt, ...);
+_info(const char *file, const char *func, int line, const char *fmt, ...);
 #else /* !__GNUC__ */
 void
-info(char *fmt, ...);
+info(const char *fmt, ...);
 #endif /* !__GNUC__ */
 
 #ifdef DEBUG
@@ -212,10 +212,10 @@ info(char *fmt, ...);
     } while(0)
 
 void
-_debug(char *file, char *func, int line, char *fmt, ...);
+_debug(const char *file, const char *func, int line, const char *fmt, ...);
 #else /* !__GNUC__ */
 void
-debug(char *fmt, ...);
+debug(const char *fmt, ...);
 #endif /* !__GNUC__ */
 
 #else /* !DEBUG */
@@ -224,7 +224,7 @@ debug(char *fmt, ...);
 #define debug(fmt, args...)
 #else /* !__GNUC__ */
 /* the optimizer should eliminate this call! */
-static void debug(char *fmt, ...) {}
+static void debug(const char *fmt, ...) {}
 #endif /* !__GNUC__ */
 
 #endif /* !DEBUG */

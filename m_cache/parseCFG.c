@@ -433,10 +433,9 @@ int readInstr() {
 static void
   calculate_incoming()
 {
-	int i, j, k, n, num_blk, num_loop;
+	int i, j, k;
 	 block *src_bb, *dst_bb;
 	 procedure *p;
-	 loop *lp;
 
 	 for(k = num_procs -1; k >= 0; k--)
 	  {

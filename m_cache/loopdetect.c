@@ -123,7 +123,7 @@ int removeExitEdges( procedure *p ) {
 /*
  * Removes loop back-edges.
  */
-int removeBackEdges( loop **loops, int num_loops ) {
+void removeBackEdges( loop **loops, int num_loops ) {
 
   int   i;
   loop  *lp;
@@ -176,9 +176,6 @@ int inExits( int id, block **exits, int num_exits ) {
 block *promptLoopExit( loop *lp, block **exits, int num_exits ) {
 
   int  i, res;
-  char proc[100];
-
-  instr *insn;
 
   printLoop( lp );
   printf( "%d exits detected for loop %d-%d:\n", num_exits, lp->pid, lp->lpid );
@@ -193,9 +190,10 @@ block *promptLoopExit( loop *lp, block **exits, int num_exits ) {
 
     printf( "Exit[%d]: %3d\n ", i, exits[i]->bbid ); fflush( stdout );
 
-    //insn = exits[i]->instrlist[ exits[i]->num_instr - 1];
+    //intr *insn = exits[i]->instrlist[ exits[i]->num_instr - 1];
     //printf( "%3d: %s: ", exits[i]->bbid, insn->addr ); fflush( stdout );
 
+    //char proc[100];
     //sprintf( proc, "y=`cat -n %s.mdis | awk '$2 ~ /%s/ {print $1}'`; getsrc %s $y", 
 	//     filename, insn->addr, filename );
 
@@ -440,7 +438,7 @@ int checkLoop( procedure *p, block *bb, char outid, int level ) {
   block *dummy;
   block *out;
 
-  out = p->bblist[ bb->outgoing[outid] ];
+  out = p->bblist[ bb->outgoing[(int)outid] ];
 
   // printf( "checking %d: %d -> %d\n", bb->pid, bb->bbid, out->bbid );
 
@@ -466,7 +464,7 @@ int checkLoop( procedure *p, block *bb, char outid, int level ) {
 	// case: existing loopsink is a dummy
 	if( lp->loopsink->startaddr == -1 )
 	  // alter the outgoing of bb which is originally to out, to this dummy
-	  bb->outgoing[ outid ] = lp->loopsink->bbid;
+	  bb->outgoing[ (int)outid ] = lp->loopsink->bbid;
 	
 	// case: existing loopsink not a dummy
 	else {
@@ -481,7 +479,7 @@ int checkLoop( procedure *p, block *bb, char outid, int level ) {
 	  p->bblist[ p->num_bb - 1 ] = dummy;
 
 	  // modify outgoing edge for the original sinks
-	  p->bblist[ bb->bbid ]->outgoing[ outid ] = dummy->bbid;
+	  p->bblist[ bb->bbid ]->outgoing[ (int)outid ] = dummy->bbid;
 
 	  if( lp->loopsink->num_outgoing && lp->loopsink->outgoing[0] == lp->loophead->bbid )
 	    lp->loopsink->outgoing[0] = dummy->bbid;
