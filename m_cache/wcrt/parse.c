@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "parse.h"
+
 int initSched( sched_t *sc ) {
 
   sc->numAssigned = 0;

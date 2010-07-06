@@ -1,8 +1,6 @@
-/*
- * File and memory handling functions.
- */
-
 #include <stdio.h>
+
+#include "handler.h"
 
 /*
  * fopen with error check.

@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#include "dp.h"
+
 double getval( int row, int col );
 
 /*

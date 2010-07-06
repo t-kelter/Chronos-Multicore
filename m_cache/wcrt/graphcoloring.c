@@ -1,3 +1,4 @@
+#include "graphcoloring.h"
 #include "cycle_time.h"
 
 /*

@@ -1,3 +1,5 @@
+#include "selectcontent.h"
+
 #include "knapsack.c"
 
 

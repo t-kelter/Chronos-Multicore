@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "topo.h"
 
 /*
  * Finds tasks without a predecessor and puts them into startTaskList.

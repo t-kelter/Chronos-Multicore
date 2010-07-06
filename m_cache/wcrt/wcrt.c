@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-#include "wcrt.h"
 #define DEF_GLOBALS
 #include "header.h"
+#undef DEF_GLOBALS
+
+#include "wcrt.h"
 #include "handler.c"
 #include "util.c"
 #include "parse.c"

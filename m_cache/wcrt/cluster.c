@@ -1,3 +1,4 @@
+#include "cluster.h"
 #include "util.h"
 
 /*

@@ -1,7 +1,9 @@
 #include <assert.h>
+
+#include "slacks.h"
+
 #define DEBUGSLACK 0
 //#define DEBUGSLACK ( strstr(getTaskName(idk),"ap_main_initmodem") != NULL )
-uint get_msc_id(chart_t* msc, uint task_id);
 
 int resetInterference( chart_t *msc ) {
 
