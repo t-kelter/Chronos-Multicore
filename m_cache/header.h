@@ -1,21 +1,16 @@
+/*! This is a header file of the Chronos timing analyzer. */
+
 /*
  * Declarations for general framework.
  */
 
+#ifndef __CHRONOS_HEADER_H
+#define __CHRONOS_HEADER_H
 
 #include <time.h>
 
-/*
- * Time-keeping:
- *
- * Change CYCLES_PER_MSEC according to CPU speed where this is run.
- * e.g. 3 GHz = 3E+9 cyc/sec = 3E+6 cyc/millisec
- *
- * CLOCKS_PER_SEC is defined in <time.h>
- */
 
-//#define CYCLES_PER_MSEC 3000000
-// #define CLOCKS_PER_MSEC (CLOCKS_PER_SEC / 1000)
+// ######### Macros #########
 
 
 typedef unsigned int uint;
@@ -105,6 +100,21 @@ typedef unsigned long long ull;
 //typedef struct procedure procedure;
 
 #define print 0
+
+
+/* sudiptac :: Data structures and definitions used for 
+               WCET analysis with shared data bus */
+
+#define L1_HIT_LATENCY 1
+#define L2_HIT_LATENCY 6
+#define MISS_PENALTY 36
+#define MAX_BUS_DELAY 120
+#define IS_CALL(x) ((strcmp((x), "jal") == 0) ? 1 : 0)
+#define GET_CALLEE(x) (x->r1)
+
+
+// ######### Datatype declarations  ###########
+
 
 struct procs;
 enum acc_tag;
@@ -412,81 +422,14 @@ typedef struct
 }MSC;
 
 
+/* sudiptac :: Data structures and definitions used for WCET 
+               analysis with shared data bus */
 
-
-char *interferePathName;
-char *filename;
-char *cache_config;
-char *cache_config_L2;
-
-char *numConflictTask; //to sum up number of tasks that map to the same cache set
-char *numConflictMSC; //to sum up number of tasks that map to the same cache set within one MSC
-
-int  method;            // analysis methods: ILP/DAG/ENUM
-char infeas;            // infeasibility checking on/off 
-char debug;             // text dump on/off
-
- double t;          //record execution time
-
-
-procedure **procs;      // list of procedures in the program
-int  num_procs;
-int  main_id;           // id of main procedure
-int  *proc_cg;          // reverse topological order of procedure call graph
-
-MSC **msc;
-
-
-//proc_copy *proc_cg_ptr;//pointers to all copies of the procedure
-
-int  total_bb;          // total number of basic blocks in the whole program
-
-//int reset;
-int times_iteration;
-int num_core;
-int instr_per_block;
-int instr_per_block_L2;
-//int numblks;
-//int blksize;
-//int blkstaddr;
-
-//int total_loop_level;
-
-cache_t cache, cache_L2;
-//cache_state *copy;
-
-//int cache_line_bits;
-//int cache_line_len;
-
-//int num_instr_line; //number of instructions for one cache line
-
-int *loop_level_arr;
-
-procedure *main_copy;
-
-// dynamic optimizations
-int numregs;
-uint *regioncost;
-
-int regionmode; 
-
-/* sudiptac :: Data structures and definitions used for WCET
- * analysis with shared data bus */
-#define L1_HIT_LATENCY 1
-#define L2_HIT_LATENCY 6
-#define MISS_PENALTY 36
-#define MAX_BUS_DELAY 120
-#define IS_CALL(x) ((strcmp((x), "jal") == 0) ? 1 : 0)
-#define GET_CALLEE(x) (x->r1)
 typedef enum acc_tag{
 	L2_MISS = 0,
 	L1_HIT,
 	L2_HIT
 } acc_type;	
-
-/* Global taking the value of current core number
- * in which the program is being executed */
-uint ncore;
 
 /* Types of TDMA bus schedule */
 #define PARTITION_CORE -1
@@ -521,32 +464,108 @@ struct schedule {
 typedef struct schedule sched_s;
 typedef struct schedule* sched_p;
 
+
+// ######### Global variables declarations / definitions ###########
+
+
+#ifdef DEF_GLOBALS
+#define EXTERN 
+#else
+#define EXTERN extern
+#endif
+
+
+EXTERN char *interferePathName;
+EXTERN char *filename;
+EXTERN char *cache_config;
+EXTERN char *cache_config_L2;
+
+EXTERN char *numConflictTask; //to sum up number of tasks that map to the same cache set
+EXTERN char *numConflictMSC; //to sum up number of tasks that map to the same cache set within one MSC
+
+EXTERN int  method;            // analysis methods: ILP/DAG/ENUM
+EXTERN char infeas;            // infeasibility checking on/off 
+EXTERN char debug;             // text dump on/off
+
+EXTERN double t;          //record execution time
+
+
+EXTERN procedure **procs;      // list of procedures in the program
+EXTERN int  num_procs;
+EXTERN int  main_id;           // id of main procedure
+EXTERN int  *proc_cg;          // reverse topological order of procedure call graph
+
+EXTERN MSC **msc;
+
+
+//EXTERN proc_copy *proc_cg_ptr;//pointers to all copies of the procedure
+
+EXTERN int  total_bb;          // total number of basic blocks in the whole program
+
+//EXTERN int reset;
+EXTERN int times_iteration;
+EXTERN int num_core;
+EXTERN int instr_per_block;
+EXTERN int instr_per_block_L2;
+//EXTERN int numblks;
+//EXTERN int blksize;
+//EXTERN int blkstaddr;
+
+//EXTERN int total_loop_level;
+
+EXTERN cache_t cache, cache_L2;
+//EXTERN cache_state *copy;
+
+//EXTERN int cache_line_bits;
+//EXTERN int cache_line_len;
+
+//EXTERN int num_instr_line; //number of instructions for one cache line
+
+EXTERN int *loop_level_arr;
+
+EXTERN procedure *main_copy;
+
+// dynamic optimizations
+EXTERN int numregs;
+EXTERN uint *regioncost;
+
+EXTERN int regionmode; 
+
+
+/* sudiptac :: Data structures and definitions used for 
+               WCET analysis with shared data bus */
+
+/* Global taking the value of current core number
+ * in which the program is being executed */
+EXTERN uint ncore;
+
+
 /* Global representing currently analyzed task */
-task_t* cur_task;
+EXTERN task_t* cur_task;
 
 /* Stores current latest time of all the cores */
-ull* latest;
+EXTERN ull* latest;
 
 /* Global TDMA bus schedule */
-sched_p global_sched_data;
-uint cur_context;
-uint acc_bus_delay;
+EXTERN sched_p global_sched_data;
+EXTERN uint cur_context;
+EXTERN uint acc_bus_delay;
 
 /* Set if testing mode is ON */
-uint g_testing_mode;
+EXTERN uint g_testing_mode;
 /* Set if shared bus analysis is on */
-uint g_shared_bus;
+EXTERN uint g_shared_bus;
 /* Set if running independent tasks on multiple cores */
-uint g_independent_task;
+EXTERN uint g_independent_task;
 /* Set if private L2 cache aanalysis mode is on */
-uint g_private;
+EXTERN uint g_private;
 /* Set if no bus modeing is turned on */
-uint g_no_bus_modeling;
+EXTERN uint g_no_bus_modeling;
 
 /* Total number of instructions analyzed */
-ull all_inst;
+EXTERN ull all_inst;
 /* Set if optimized mode is on */
-int g_optimized;
+EXTERN int g_optimized;
 
 /* 
  * Regarding loops:
@@ -577,3 +596,4 @@ int g_optimized;
  *
  */
 
+#endif

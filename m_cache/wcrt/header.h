@@ -9,7 +9,7 @@
 
 // ######### Macros #########
 
-#define uint unsigned int
+typedef unsigned int uint;
 #define time_t unsigned long long
 
 #define MAXSTEP 20

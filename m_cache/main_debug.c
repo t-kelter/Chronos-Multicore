@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include <time.h>
 
+#define DEF_GLOBALS
 #include "header.h"
+#undef DEF_GLOBALS
+
 #include "analysis.h"
 #include "infeasible.h"
 #include "handler.c"

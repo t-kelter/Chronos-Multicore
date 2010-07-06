@@ -3,8 +3,11 @@
 //#include <conio.h>
 #include <time.h>
 
-#include "config.h"
+#define DEF_GLOBALS
 #include "header.h"
+#undef DEF_GLOBALS
+
+#include "config.h"
 #include "analysis.h"
 #include "infeasible.h"
 #include "handler.c"
