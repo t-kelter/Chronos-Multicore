@@ -1,9 +1,6 @@
-/*
- * ILP-based WCET analysis functions.
- */
-
 #include <stdio.h>
 
+#include "analysisILP.h"
 
 /*
  * Recursive function.

@@ -1,10 +1,7 @@
-/*
- * DAG-based WCET analysis functions.
- */
-
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "analysisDAG_BCET.h"
 
 /*
  * Goes through DAG in reverse topological order (given in topo), collecting weight.
@@ -30,7 +27,6 @@
  * i.e. LHS are variables only and RHS is a single constant.
  *
  */
- 
 int analyseDAGFunction_BCET(procedure *proc, int index)
 {
 

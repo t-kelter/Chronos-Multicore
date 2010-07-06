@@ -1,21 +1,11 @@
-/*
- * DAG-based WCET analysis functions.
- */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 #include <stdint.h>
 #include <math.h>
 
-static void computeWCET_block(block* bb, procedure* proc, loop* cur_lp);
-static void computeBCET_block(block* bb, procedure* proc, loop* cur_lp);
-static void computeWCET_proc(procedure* proc, ull start_time);
-static void computeBCET_proc(procedure* proc, ull start_time);
-extern sched_p getSchedule();
-extern void setSchedule(const char* schedFile);
-extern segment_p find_segment(segment_p* head_seg, int nsegs, ull start_time);
-extern void prerr(char* msg);
+#include "analysisDAG_WCET.h"
+#include "busSchedule.h"
 
 /*
  * Goes through DAG in reverse topological order (given in topo), collecting weight.
@@ -41,7 +31,6 @@ extern void prerr(char* msg);
  * i.e. LHS are variables only and RHS is a single constant.
  *
  */
- 
 int analyseDAGFunction_WCET(procedure *proc, int index)
 {
 

@@ -15,25 +15,24 @@ optdebug_LDADD=wcrt/libwcrt.a
 # Due to the special include system, we must list all indirect source 
 # files as extra dist files to make them appear in the tar made by
 # 'gmake dist'
-EXTRA_DIST=analysisCache.c \
-           analysisCacheL2.c \
-           analysisDAG_BCET.c \
-           analysisDAG_WCET.c \
-           analysisEnum.c \
-           analysisILP.c \
-           block.c \
-           busSchedule.c \
-           DAG_WCET.c \
-           dump.c \
-           findConflicts.c \
-           handler.c \
-           header.h \
-           infeasible.c \
-           infeasible.h \
-           loopdetect.c \
-           parseCFG.c \
-           path.c \
-           pathDAG.c \
-           pathTest.c \
-           topo.c \
-           updateCacheL2.c
+EXTRA_DIST=analysisCache.c analysisCache.h \
+           analysisCacheL2.c analysisCacheL2.h \
+           analysisDAG_BCET.c analysisDAG_BCET.h \
+           analysisDAG_WCET.c analysisDAG_WCET.h \
+           analysisEnum.c analysisEnum.h \
+           analysisILP.c analysisILP.h \
+           block.c block.h \
+           busSchedule.c busSchedule.h \
+           DAG_WCET.c DAG_WCET.h \
+           dump.c dump.h \
+           findConflicts.c findConflicts.h \
+           handler.c handler.h \
+           header.h header.h \
+           infeasible.c infeasible.h \
+           loopdetect.c loopdetect.h \
+           parseCFG.c parseCFG.h \
+           path.c path.h \
+           pathDAG.c pathDAG.h \
+           pathTest.c pathTest.h \
+           topo.c topo.h \
+           updateCacheL2.c updateCacheL2.h

@@ -1,7 +1,4 @@
-/*
- * WCET analysis via path enumeration.
- */
-
+#include "analysisEnum.h"
 
 char enum_in_seq_bef( int bbid, int target, ushort *bb_seq, ushort bb_len ) {
 
