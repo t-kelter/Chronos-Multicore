@@ -2,6 +2,10 @@ SUBDIRS=wcrt
 
 noinst_PROGRAMS=opt opt_debug
 
+# Settings for both programs
+CPPFLAGS=-D_PRINT
+LDADD=wcrt/libwcrt.a
+
 # First program to build: The analyzer/optimizer for the user
 opt_SOURCES=analysisCache.c analysisCache.h \
 						analysisCacheL2.c analysisCacheL2.h \
@@ -24,8 +28,6 @@ opt_SOURCES=analysisCache.c analysisCache.h \
 						pathDAG.c pathDAG.h \
             topo.c topo.h \
             updateCacheL2.c updateCacheL2.h
-opt_CPPFLAGS=-D_PRINT
-opt_LDADD=wcrt/libwcrt.a
 
 # Second program to build: The analyzer/optimizer for the developer to play around
 opt_debug_SOURCES=analysisCache.c analysisCache.h \
@@ -49,5 +51,3 @@ opt_debug_SOURCES=analysisCache.c analysisCache.h \
                   pathDAG.c pathDAG.h \
                   topo.c topo.h \
                   updateCacheL2.c updateCacheL2.h
-opt_debug_CPPFLAGS=-D_DEBUG -D_PRINT
-opt_debug_LDADD=wcrt/libwcrt.a

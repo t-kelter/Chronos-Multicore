@@ -1,5 +1,7 @@
 noinst_LIBRARIES=libwcrt.a
 
+CPPFLAGS=-D_DEBUG
+
 # Only program to build here
 libwcrt_a_SOURCES=alloc.c alloc.h \
                   cluster.c cluster.h \
@@ -17,5 +19,3 @@ libwcrt_a_SOURCES=alloc.c alloc.h \
                   topo.c topo.h \
                   util.c util.h \
                   wcrt.c wcrt.h
-
-libwcrt_a_CPPFLAGS=-D_DEBUG
