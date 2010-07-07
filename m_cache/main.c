@@ -76,6 +76,10 @@ int read_bbcosts() {
   fclose( f );
 
   // regions
+
+  // TODO: All this regionmode stuff is most probably outdated and should be
+  //       removed from the master branch
+
   if( regionmode ) {
     sprintf( fn, "%s.regs", filename );
     f = fopen( fn, "r" );
@@ -169,6 +173,7 @@ int main(int argc, char **argv )
   regionmode = 0;
 
   /* For private L2 cache analysis */		  
+  // TODO: This should be covered by a new input format for the input files
   if(argc > 6) {
     g_private = atoi(argv[6]);  
   } else {
@@ -182,6 +187,7 @@ int main(int argc, char **argv )
     prerr("Error: Out of memory");
   memset(latest, 0, num_core * sizeof(ull)); 	  
 
+  // TODO: 'debug' should be replaced by the _DEBUG preprocessor flag
   if( argc > 6 )
     debug  = atoi( argv[6] );
 
@@ -210,6 +216,13 @@ int main(int argc, char **argv )
 
   /* Start reading the interference file and build the intereference 
    * information */
+  /* TODO: The input files for Chronos are relatively complicated to read and at
+   *       the moment the bus analysis and the wcrt computation use different input
+   *       files which makes the whole input file handling very erroneous. A new input
+   *       file format should be developed which can be used by both the bus analysis
+   *       and the wcrt analysis. This is currently undertaken in git branch
+   *       "new_input_format".
+   */
   interferPath = fopen(interferePathName, "r");
   if( !interferPath ) {
     fprintf(stderr, "Failed to open file: %s (main.c:213)\n", interferePathName);
@@ -533,6 +546,9 @@ int main(int argc, char **argv )
 
 
   /* to get Wei's result */
+  // TODO: Remove the Wei statistics from the standard execution. The generation
+  //       of these statitics should be optional or fully removed from the master
+  //       branch
   for(i = 1; i <= num_msc; i ++) {
     sprintf(hitmiss, "msc%d_hitmiss_statistic_wei", i);
     hitmiss_statistic = fopen(hitmiss, "w");

@@ -105,6 +105,9 @@ char isPredecessorOf( int pred, int succ ) {
  * Reads task description file.
  * Format: one task per line
  * <taskID:int> <actorID:int> <peID:int> <priority:int> <period:time_t> <exectime:time_t>
+ *
+ * TODO: At the moment noone really knows what this actorID is. Find out, and
+ *       document or remove it if it is no longer needed.
  */
 int readTasks() {
 
