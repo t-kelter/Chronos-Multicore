@@ -38,9 +38,6 @@ int wcrt_analysis( char* filename_cf, char *filename_pd, char *filename_dg )
   // If the input files had the form <path>/myinput.xy then we will dump the
   // debug output to <path>/myinput.1.WCRT etc, so this string saves the common
   // part (<path>/myinput) to facilitate the generation of output file names.
-  
-  // Does not work?
-  // sprintf( resultFileBaseName, "%s/%s", dirname( cfname ), basename( cfname ) );
   sprintf( resultFileBaseName, "%s", cfname );
   
   allocweight = DEFAULT_ALLOCWEIGHT;
