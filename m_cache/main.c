@@ -71,10 +71,81 @@ int analysis() {
 
 */
 
+/* This is a helper function that prints the results of the WCET, BCET
+ * and cache analyses to files, so that the WCRT analysis submodule can
+ * read those results.
+ */
+static void printWCETandCacheInfoFiles( int num_msc )
+{
+  int i, j;
+
+  /* Go through all the MSC-s */
+  for(i = 1; i <= num_msc; i ++) {
+
+    /* Create the WCET and BCET filename */
+    char wbcostPath[MAX_LEN];
+    sprintf(wbcostPath, "msc%d_wcetbcet_%d", i, times_iteration);
+    FILE *file = fopen(wbcostPath, "w" );
+    if( !file ) {
+      fprintf(stderr, "Failed to open file: %s (main.c:479)\n", wbcostPath);
+      exit(1);
+    }
+
+    char hitmiss[MAX_LEN];
+    sprintf(hitmiss, "msc%d_hitmiss_statistic_%d", i, times_iteration);
+    FILE *hitmiss_statistic = fopen(hitmiss, "w");
+    if( !hitmiss_statistic ) {
+      fprintf(stderr, "Failed to open file: %s (main.c:486)\n", hitmiss);
+      exit(1);
+    }
+
+    /* Write WCET of each task in the file */
+    for(j = 0; j < msc[i-1]->num_task; j++) {
+
+      fprintf(file, "%Lu %Lu \n", msc[i-1]->taskList[j].wcet,
+          msc[i-1]->taskList[j].bcet);
+
+      /* Now print hit miss statistics for debugging */
+      fprintf(hitmiss_statistic,"%s\n", msc[i-1]->taskList[j].task_name);
+      fprintf(hitmiss_statistic,"Only L1\n\nWCET:\nHIT    MISS    NC\n");
+      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n", msc[i-1]->
+          taskList[j].hit_wcet, msc[i-1]->taskList[j].miss_wcet,
+          msc[i-1]->taskList[j].unknow_wcet);
+      fprintf(hitmiss_statistic,"\n%Lu\n",
+          (msc[i-1]->taskList[j].hit_wcet*IC_HIT) +
+          (msc[i-1]->taskList[j].miss_wcet +
+           msc[i-1]->taskList[j].unknow_wcet)* IC_MISS_L2);
+      fprintf(hitmiss_statistic,"\nWith L2\n\nWCET:\nHIT  MISS   \
+          NC  HIT_L2  MISS_L2     NC_L2\n");
+      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu     ",
+          msc[i-1]->taskList[j].hit_wcet, msc[i-1]->taskList[j].miss_wcet,
+          msc[i-1]->taskList[j].unknow_wcet);
+      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n",
+          msc[i-1]->taskList[j].hit_wcet_L2, msc[i-1]->taskList[j].miss_wcet_L2,
+          msc[i-1]->taskList[j].unknow_wcet_L2);
+      fprintf(hitmiss_statistic,"\n%Lu\n", msc[i-1]->taskList[j].wcet);
+      fprintf(hitmiss_statistic,"\nBCET:\nHIT MISS    NC  HIT_L2  \
+          MISS_L2     NC_L2\n");
+      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu     ",
+          msc[i-1]->taskList[j].hit_bcet, msc[i-1]->taskList[j].miss_bcet,
+          msc[i-1]->taskList[j].unknow_bcet);
+      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n",
+          msc[i-1]->taskList[j].hit_bcet_L2, msc[i-1]->taskList[j].miss_bcet_L2,
+          msc[i-1]->taskList[j].unknow_bcet_L2);
+      fprintf(hitmiss_statistic,"\n%Lu\n", msc[i-1]->taskList[j].bcet);
+      fflush(stdout);
+    }
+    /* We are done writing all intereference and hit-miss statistics----
+     * so close all the files */
+    fclose(file);
+    fclose(hitmiss_statistic);
+  }
+}
+
 int main(int argc, char **argv )
 {
   FILE *file, *hitmiss_statistic, *wcrt;
-  char wbcostPath[MAX_LEN], hitmiss[MAX_LEN];
+  char hitmiss[MAX_LEN];
   int n;
   int i, j, k, flag, tmp;
   int num_task , num_msc;
@@ -351,11 +422,6 @@ int main(int argc, char **argv )
     if(!g_private)	  
       updateCacheState(msc[num_msc-1]);
 
-    /* printf( "\nWCET estimation...\n" );
-     * fflush( stdout );
-     * printf("compute wcost and bcost after update %s\n", 
-     * msc[num_msc -1]->msc_name); */
-
     /* This function allocates all memory required for computing and 
      * storing hit-miss classification */
     pathDAG(msc[num_msc -1]);
@@ -364,10 +430,6 @@ int main(int argc, char **argv )
      * so we need to compute WCET/BCET of each task in the MSC */
     /* CAUTION: In presence of shared bus these two function changes
      * to account for the bus delay */
-    /* analysis_dag_WCET(msc[num_msc -1]); */
-    /* compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file); */
-    g_shared_bus = 1;
-    /* For calculation with shared bus */
     start = getticks();
     compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file); 
     end = getticks();
@@ -377,7 +439,7 @@ int main(int argc, char **argv )
     if(!g_private)
       resetHitMiss_L2(msc[num_msc -1]);
 
-    /* Now write the intereference info to a file which would be 
+    /* Now write the interference info to a file which would be
      * passed to the WCRT module in the next iteration */
     sprintf(proc, "conflictTaskMSC_%d", num_msc - 1);
     conflictMSC = fopen(proc, "w");
@@ -416,66 +478,8 @@ int main(int argc, char **argv )
   /* Start of the iterative algorithm */		  
   times_iteration ++;
 
-  /* Go through all the MSC-s */
-  for(i = 1; i <= num_msc; i ++) {
-
-    /* Create the WCET and BCET filename */	  
-    sprintf(wbcostPath, "msc%d_wcetbcet_%d", i, times_iteration);
-    file = fopen(wbcostPath, "w" );
-    if( !file ) {
-      fprintf(stderr, "Failed to open file: %s (main.c:479)\n", wbcostPath);
-      exit(1);
-    }
-    
-    sprintf(hitmiss, "msc%d_hitmiss_statistic_%d", i, times_iteration);
-    hitmiss_statistic = fopen(hitmiss, "w");
-    if( !hitmiss_statistic ) {
-      fprintf(stderr, "Failed to open file: %s (main.c:486)\n", hitmiss);
-      exit(1);
-    }
-
-    /* Write WCET of each task in the file */
-    for(j = 0; j < msc[i-1]->num_task; j++) {
-
-      fprintf(file, "%Lu %Lu \n", msc[i-1]->taskList[j].wcet,  
-          msc[i-1]->taskList[j].bcet);
-
-      /* Now print hit miss statistics for debugging */
-      fprintf(hitmiss_statistic,"%s\n", msc[i-1]->taskList[j].task_name);
-      fprintf(hitmiss_statistic,"Only L1\n\nWCET:\nHIT    MISS    NC\n");
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n", msc[i-1]->
-          taskList[j].hit_wcet, msc[i-1]->taskList[j].miss_wcet,
-          msc[i-1]->taskList[j].unknow_wcet);
-      fprintf(hitmiss_statistic,"\n%Lu\n", 
-          (msc[i-1]->taskList[j].hit_wcet*IC_HIT) + 
-          (msc[i-1]->taskList[j].miss_wcet + 
-           msc[i-1]->taskList[j].unknow_wcet)* IC_MISS_L2);
-      fprintf(hitmiss_statistic,"\nWith L2\n\nWCET:\nHIT  MISS   \
-          NC  HIT_L2  MISS_L2     NC_L2\n");
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu     ",
-          msc[i-1]->taskList[j].hit_wcet, msc[i-1]->taskList[j].miss_wcet,
-          msc[i-1]->taskList[j].unknow_wcet);
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n", 
-          msc[i-1]->taskList[j].hit_wcet_L2, msc[i-1]->taskList[j].miss_wcet_L2,
-          msc[i-1]->taskList[j].unknow_wcet_L2);
-      fprintf(hitmiss_statistic,"\n%Lu\n", msc[i-1]->taskList[j].wcet);
-      fprintf(hitmiss_statistic,"\nBCET:\nHIT MISS    NC  HIT_L2  \
-          MISS_L2     NC_L2\n");
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu     ",
-          msc[i-1]->taskList[j].hit_bcet, msc[i-1]->taskList[j].miss_bcet,
-          msc[i-1]->taskList[j].unknow_bcet);
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n", 
-          msc[i-1]->taskList[j].hit_bcet_L2, msc[i-1]->taskList[j].miss_bcet_L2,
-          msc[i-1]->taskList[j].unknow_bcet_L2);
-      fprintf(hitmiss_statistic,"\n%Lu\n", msc[i-1]->taskList[j].bcet);
-      fflush(stdout);
-    }
-    /* We are done writing all intereference and hit-miss statistics----
-     * so close all the files */
-    fclose(file);
-    fclose(hitmiss_statistic);
-  }
-
+  // Print the input for the WCRT submodule
+  printWCETandCacheInfoFiles( num_msc );
 
   /* to get Wei's result */
   // TODO: Remove the Wei statistics from the standard execution. The generation
@@ -606,64 +610,8 @@ int main(int argc, char **argv )
     /* Iteration increased */
     times_iteration ++;
 
-    /* Write WCET/BCET/hit-miss statistics */
-    // TODO: This is a duplicate of the above code. Rewrite the outmost loop
-    //      (checking 'flag') this to a do-while loop
-    for(i = 1; i <= num_msc; i ++) {
-
-      sprintf(wbcostPath, "msc%d_wcetbcet_%d", i, times_iteration);
-      file = fopen(wbcostPath, "w" );
-      if( !file ) {
-       fprintf(stderr, "Failed to open file: %s (main.c:713)\n", wbcostPath);
-       exit(1);
-      }
-      
-      sprintf(hitmiss, "msc%d_hitmiss_statistic_%d", i, times_iteration);
-      hitmiss_statistic = fopen(hitmiss, "w");
-      if( !hitmiss_statistic ) {
-       fprintf(stderr, "Failed to open file: %s (main.c:721)\n", hitmiss);
-       exit(1);
-      }
-
-      for(j = 0; j < msc[i-1]->num_task; j++) {
-
-        fprintf(file, "%Lu %Lu \n", msc[i-1]->taskList[j].wcet,
-            msc[i-1]->taskList[j].bcet);
-        fprintf(hitmiss_statistic,"%s\n", msc[i-1]->taskList[j].task_name);
-        fprintf(hitmiss_statistic,"Only L1\n\nWCET:\nHIT    MISS    NC\n");
-        fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n", 
-            msc[i-1]->taskList[j].hit_wcet, msc[i-1]->taskList[j].miss_wcet,
-            msc[i-1]->taskList[j].unknow_wcet);
-        fprintf(hitmiss_statistic,"\n%Lu\n", 
-            (msc[i-1]->taskList[j].hit_wcet*IC_HIT) +
-            (msc[i-1]->taskList[j].miss_wcet 
-             + msc[i-1]->taskList[j].unknow_wcet)* IC_MISS_L2);
-        fprintf(hitmiss_statistic,"\nWith L2\n\nWCET:\nHIT  MISS   \
-            NC  HIT_L2  MISS_L2     NC_L2\n");
-        fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu     ",
-            msc[i-1]->taskList[j].hit_wcet, msc[i-1]->taskList[j].miss_wcet,
-            msc[i-1]->taskList[j].unknow_wcet);
-        fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n",
-            msc[i-1]->taskList[j].hit_wcet_L2,
-            msc[i-1]->taskList[j].miss_wcet_L2,
-            msc[i-1]->taskList[j].unknow_wcet_L2);
-        fprintf(hitmiss_statistic,"\n%Lu\n", msc[i-1]->taskList[j].wcet);
-        fprintf(hitmiss_statistic,"\nBCET:\nHIT MISS    NC  HIT_L2 	\
-            MISS_L2     NC_L2\n");
-        fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu     ",
-            msc[i-1]->taskList[j].hit_bcet,
-            msc[i-1]->taskList[j].miss_bcet,
-            msc[i-1]->taskList[j].unknow_bcet);
-        fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n", 
-            msc[i-1]->taskList[j].hit_bcet_L2, 
-            msc[i-1]->taskList[j].miss_bcet_L2,
-            msc[i-1]->taskList[j].unknow_bcet_L2);
-        fprintf(hitmiss_statistic,"\n%Lu\n", msc[i-1]->taskList[j].bcet);
-        fflush(stdout);
-      }
-      fclose(file);
-      fclose(hitmiss_statistic);
-    }
+    // Print the input for the WCRT submodule
+    printWCETandCacheInfoFiles( num_msc );
   }
 
   STOPTIME;
