@@ -33,108 +33,6 @@ static void computeWCET_proc( procedure* proc, ull start_time );
  * shared data bus worst/best case execution time of a procedure/loop 
  * depends on its starting time */
 
-#ifdef _DEBUG
-static void dump_prog_info(procedure* proc)
-{
-  loop* lp;
-  block* bb;
-  instr* inst;
-  int i,j,k;
-  FILE* fp = stdout;
-
-  fprintf(fp, "Printing incoming block information\n");
-  for(i = 0; i < proc->num_bb; i++)
-  {
-    assert(proc->bblist[i]);
-    bb = proc->bblist[i];
-    fprintf(fp, "Basic block id = (%d.%d.0x%lx.start=%Lu.finish=%Lu)\n", proc->pid,
-        bb->bbid, (uintptr_t)bb, bb->start_time, bb->finish_time);
-    fprintf(fp, "Incoming blocks (Total = %d)======> \n", bb->num_incoming);
-    for(j = 0; j < bb->num_incoming; j++)
-    {
-      fprintf(fp, "(bb=%d.%lx)\n", bb->incoming[j],
-          (uintptr_t)proc->bblist[bb->incoming[j]]);
-    }
-  }
-  fprintf(fp, "Printing Topological information ====>\n");
-  for(i = proc->num_topo - 1; i >= 0; i--)
-  {
-    bb = proc->topo[i];
-    fprintf(fp, "(proc=%d.bb=%d)\n", bb->pid, bb->bbid);
-  }
-  fprintf(fp, "Printing Loop information ====>\n");
-  for(i = 0; i < proc->num_loops; i++)
-  {
-    lp = proc->loops[i];
-    assert(lp->loophead);
-    fprintf(fp, "(proc=%d.loop=%d.loophead=%d.loopsink=%d.loopexit=%d)\n",
-        proc->pid, lp->lpid, lp->loophead->bbid, lp->loopsink->bbid,
-        lp->loopexit ? lp->loopexit->bbid : -1);
-    fprintf(fp, "Loop Nodes ====>\n");
-    for(j = lp->num_topo - 1; j >= 0; j--)
-    {
-      assert(lp->topo[j]);
-      fprintf(fp, "(bb=%d)", lp->topo[j]->bbid);
-    }
-    fprintf(fp,"\n");
-  }
-
-  fprintf(fp, "Printing instruction call relationship\n");
-  for(i = 0; i < proc->num_bb; i++)
-  {
-    bb = proc->bblist[i];
-
-    for(j = 0; j < bb->num_instr; j++)
-    {
-      inst = bb->instrlist[j];
-      if(IS_CALL(inst->op))
-      {
-        fprintf(fp, "PROCEDURE CALL ENCOUNTERED at %s\n", GET_CALLEE(inst));
-        /* Ignore library calls */
-        if(!proc->calls)
-        continue;
-        for(k = 0; k < proc->num_calls; k++)
-        {
-          uint callee_id = proc->calls[k];
-          procedure* callee = procs[callee_id];
-          assert(callee);
-          fprintf(fp, "Got start address = %x\n",
-              callee->topo[callee->num_topo - 1]->startaddr);
-        }
-      }
-    }
-  }
-}
-#endif
-
-#ifdef _DEBUG
-/* This is for debugging. Dumped chmc info after preprocessing */
-static void dump_pre_proc_chmc(procedure* proc)
-{
-  int i,j,k;
-  block* bb;
-  instr* inst;
-
-  for(i = 0; i < proc->num_bb; i++)
-  {
-    bb = proc->bblist[i];
-
-    for(j = 0; j < bb->num_instr; j++)
-    {
-      inst = bb->instrlist[j];
-      fprintf(stdout, "Instruction address = %s ==>\n", inst->addr);
-      for(k = 0; k < bb->num_chmc; k++)
-      {
-        if(inst->acc_t[k] == L1_HIT)
-        fprintf(stdout, "L1_HIT\n");
-        else
-        fprintf(stdout, "L2_MISS\n");
-      }
-    }
-  }
-}
-#endif
-
 /* Attach hit/miss classification for L2 cache to the instruction */
 static void classify_inst_L2( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int inst_id )
 {
@@ -714,7 +612,6 @@ static void computeWCET_proc( procedure* proc, ull start_time )
 
 /* This is a top level call and always start computing the WCET from 
  * "main" function */
-
 void computeWCET( ull start_time )
 {
   int top_func;
@@ -842,7 +739,6 @@ void compute_bus_WCET_MSC( MSC *msc, const char *tdma_bus_schedule_file )
     else
       PRINT_PRINTF( "WCET of the task without shared bus = %Lu cycles\n", proc->running_cost );
     PRINT_PRINTF( "**************************************************************\n\n" );
-    fflush( stdout );
   }
   /* DONE :: WCET computation of the MSC */
 }

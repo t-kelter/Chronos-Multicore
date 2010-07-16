@@ -57,11 +57,13 @@ int dump_loops();
 
 int dump_callgraph();
 
-void
-dumpCacheState(cache_state *cs);
+void dumpCacheState(cache_state *cs);
 
-void
-dumpCacheState_L2(cache_state *cs);
+void dumpCacheState_L2(cache_state *cs);
 
+void dump_prog_info(procedure* proc);
+
+/* This is for debugging. Dumped chmc info after preprocessing */
+void dump_pre_proc_chmc(procedure* proc);
 
 #endif
