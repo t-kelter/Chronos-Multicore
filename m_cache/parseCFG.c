@@ -414,8 +414,7 @@ int readInstr() {
     bb = findBlock( addr );
     if( !bb ) {
       // could be that addr is from a procedure that is never called (thus not in CFG)
-      if( debug )
-	printf( "Warning: Ignored out-of-range address [%x] %s %s %s %s\n", addr, op, r1, r2, r3 );
+      DEBUG_PRINTF( "Warning: Ignored out-of-range address [%x] %s %s %s %s\n", addr, op, r1, r2, r3 );
       continue;
     }
 

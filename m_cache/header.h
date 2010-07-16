@@ -538,8 +538,7 @@ EXTERN char *numConflictTask; //to sum up number of tasks that map to the same c
 EXTERN char *numConflictMSC; //to sum up number of tasks that map to the same cache set within one MSC
 
 EXTERN int  method;            // analysis methods: ILP/DAG/ENUM
-EXTERN char infeas;            // infeasibility checking on/off 
-EXTERN char debug;             // text dump on/off
+EXTERN char infeas;            // infeasibility checking on/off
 
 EXTERN double t;          //record execution time
 
@@ -550,9 +549,6 @@ EXTERN int  main_id;           // id of main procedure
 EXTERN int  *proc_cg;          // reverse topological order of procedure call graph
 
 EXTERN MSC **msc;
-
-
-//EXTERN proc_copy *proc_cg_ptr;//pointers to all copies of the procedure
 
 EXTERN int  total_bb;          // total number of basic blocks in the whole program
 

@@ -77,12 +77,10 @@ char enum_BBconflictInPath( branch *bru, char direction, block *bv,
       id = enum_effectCancelled( br, NULL, bb_seq, len, bblist, num_bb );
 
       if( id == -1 ) {
-	if( debug )
-	  printf( "BB %d:%d~%d - %d(%d)\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res );
-	return 1;
+        DEBUG_PRINTF( "BB %d:%d~%d - %d(%d)\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res );
+        return 1;
       }
-      else if( debug )
-	printf( "BB %d:%d~%d - %d(%d) cancel[%d]\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res, id );
+      DEBUG_PRINTF( "BB %d:%d~%d - %d(%d) cancel[%d]\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res, id );
     }
   }
   return 0;
@@ -118,12 +116,10 @@ char enum_BAconflictInPath( block *bu, ushort *bb_seq, ushort len, block **bblis
 	id = enum_effectCancelled( br, assg, bb_seq, len, bblist, num_bb );
 
 	if( id == -1 ) {
-	  if( debug )
-	    printf( "BA %d:%d - %d(%d)\n", bu->pid, bu->bbid, br->bb->bbid, res );
+    DEBUG_PRINTF( "BA %d:%d - %d(%d)\n", bu->pid, bu->bbid, br->bb->bbid, res );
 	  return 1;
 	}
-	else if( debug )
-	  printf( "BA %d:%d - %d(%d) cancel[%d]\n", bu->pid, bu->bbid, br->bb->bbid, res, id );
+	DEBUG_PRINTF( "BA %d:%d - %d(%d) cancel[%d]\n", bu->pid, bu->bbid, br->bb->bbid, res, id );
       }
     }
   }

@@ -122,10 +122,6 @@ int main(int argc, char **argv )
     prerr("Error: Out of memory");
   memset(latest, 0, num_core * sizeof(ull)); 	  
 
-  // TODO: 'debug' should be replaced by the _DEBUG preprocessor flag
-  if( argc > 6 )
-    debug  = atoi( argv[6] );
-
   /* Set the basic parameters of L1 and L2 instruction caches */		  
   set_cache_basic(cache_config);
   set_cache_basic_L2(cache_config_L2);
@@ -144,10 +140,10 @@ int main(int argc, char **argv )
 
   /* find out: (1) size of each cache line, (2) number of cache sets,
    * (3) associativity */
-  if(debug)  
+#ifdef _DEBUG
     dumpCacheConfig();
-  if(debug) 
     dumpCacheConfig_L2();
+#endif
 
   /* Start reading the interference file and build the intereference 
    * information */
@@ -257,8 +253,9 @@ int main(int argc, char **argv )
       /* Read the cfg of the task */
       read_cfg();
       /*read_bbcosts();*/
-      if( debug )
+#ifdef _DEBUG
         print_cfg();
+#endif
 
       /* printf( "\nDetecting loops...\n" ); fflush( stdout ); */
 
@@ -278,25 +275,27 @@ int main(int argc, char **argv )
       /* printf( "\nReading assembly instructions...\n" ); 
        * fflush(stdout); */
       readInstr();
-      if( debug ) 
+#ifdef _DEBUG
         print_instrlist();
+#endif
 
       /* Detect loops in all procedures of the task */ 
       detect_loops();
-      if( debug )
+
+#ifdef _DEBUG
         print_loops();
 
       /* for dynamic locking in memarchi */
-      if(debug)
         dump_callgraph();
-      if(debug)
         dump_loops();
+#endif
 
       /* printf( "\nConstructing topological order of procedures and loops...\n" );
        * fflush( stdout ); */
       topo_sort();
-      if( debug )
+#ifdef _DEBUG
         print_topo();
+#endif
 
       /* compute incoming info for each basic block */
       calculate_incoming();

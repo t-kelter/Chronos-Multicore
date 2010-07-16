@@ -115,12 +115,10 @@ char BBconflictInPath( branch *bru, char direction, block *bv, path *pv, block *
       id = effectCancelled( br, NULL, pv, bblist, num_bb );
 
       if( id == -1 ) {
-	if( debug )
-	  printf( "BB %d:%d~%d - %d(%d)\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res );
+	  DEBUG_PRINTF( "BB %d:%d~%d - %d(%d)\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res );
 	return 1;
       }
-      else if( debug )
-	printf( "BB %d:%d~%d - %d(%d) cancel[%d]\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res, id );
+	DEBUG_PRINTF( "BB %d:%d~%d - %d(%d) cancel[%d]\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res, id );
     }
   }
   return 0;
@@ -151,12 +149,10 @@ char BAconflictInPath( block *bu, block *bv, path *pv, block **bblist, int num_b
 	id = effectCancelled( br, assg, pv, bblist, num_bb );
 
 	if( id == -1 ) {
-	  if( debug )
-	    printf( "BA %d:%d - %d(%d)\n", bu->pid, bu->bbid, br->bb->bbid, res );
+	    DEBUG_PRINTF( "BA %d:%d - %d(%d)\n", bu->pid, bu->bbid, br->bb->bbid, res );
 	  return 1;
 	}
-	else if( debug )
-	  printf( "BA %d:%d - %d(%d) cancel[%d]\n", bu->pid, bu->bbid, br->bb->bbid, res, id );
+	  DEBUG_PRINTF( "BA %d:%d - %d(%d) cancel[%d]\n", bu->pid, bu->bbid, br->bb->bbid, res, id );
       }
     }
   }
@@ -418,7 +414,6 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) 
 	pu = pathlist[bu->bbid][pt];
 
 	if( pu->bb_len == -1 ) {
-	  // if( debug == 2 ) { printf( "Remove path " ); printPath( pu ); }
 	  freePath( bu->bbid, pt );
 	  if( id == -1 )
 	    id = pt;
@@ -449,14 +444,12 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) 
       }
     }
 
-    if( debug == 2 ) {
-      printf( "Paths at %d-%d: %d\n", pid, bu->bbid, num_paths[bu->bbid] );
-      if( debug == 2 ) {
+#ifdef _DEBUG
+  printf( "Paths at %d-%d: %d\n", pid, bu->bbid, num_paths[bu->bbid] );
 	for( pt = 0; pt < num_paths[bu->bbid]; pt++ )
 	  printPath( pathlist[bu->bbid][pt] );
 	printf( "\n" );
-      }
-    }
+#endif
 
   } // end for bb
 
