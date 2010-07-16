@@ -1367,9 +1367,8 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
   /* Exception is when we are currently in the process of analyzing
    * the same loop */
   if ( ( inlp = check_loop( bb, proc ) ) && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
-    if ( !g_optimized )
+    if ( !g_full_unrolling )
       computeWCET_loop( inlp, proc );
-    /* optimized version. Compute WCET of loop once */
     else {
       bb->finish_time = bb->start_time + startAlign() + inlp->wcet_opt[0] + startAlign() + ( inlp->wcet_opt[1]
           + endAlign( inlp->wcet_opt[1] ) ) * inlp->loopbound;

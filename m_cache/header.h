@@ -607,7 +607,7 @@ EXTERN unsigned short ***enum_pathlen;    // enum_pathlen[p][b][n]: length of th
 EXTERN uint ncore;
 
 
-/* Global representing currently analyzed task */
+/* Global representing currently analysed task */
 EXTERN task_t* cur_task;
 
 /* Stores current latest time of all the cores */
@@ -624,15 +624,15 @@ EXTERN uint g_testing_mode;
 EXTERN uint g_shared_bus;
 /* Set if running independent tasks on multiple cores */
 EXTERN uint g_independent_task;
-/* Set if private L2 cache aanalysis mode is on */
+/* Set if private L2 cache analysis mode is on */
 EXTERN uint g_private;
-/* Set if no bus modeing is turned on */
+/* Set if no bus modelling is turned on */
 EXTERN uint g_no_bus_modeling;
 
-/* Total number of instructions analyzed */
+/* Total number of instructions analysed */
 EXTERN ull all_inst;
-/* Set if optimized mode is on */
-EXTERN int g_optimized;
+/* Set whether we fully unroll loops during the analysis */
+EXTERN int g_full_unrolling;
 
 /* 
  * Regarding loops:

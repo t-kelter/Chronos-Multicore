@@ -93,10 +93,10 @@ int main(int argc, char **argv )
   g_shared_bus = 1;
   /* For independent tasks running on multiple cores */
   g_independent_task = 0;
-  /* For no bus modeling */
+  /* For no bus modelling */
   g_no_bus_modeling = 0;
-  /* Set optimized mode */
-  g_optimized = 1;		  
+  /* Set whether we fully unroll loops during the analysis. */
+  g_full_unrolling = 1;
 
   /* also read conflict info and tasks info */
   interferePathName = argv[1];
