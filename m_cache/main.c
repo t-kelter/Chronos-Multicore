@@ -372,8 +372,6 @@ int main(int argc, char **argv )
     start = getticks();
     compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file); 
     end = getticks();
-    /* analysis_dag_BCET(msc[num_msc -1]); */
-    /* compute_bus_BCET_MSC(msc[num_msc -1]); */
 
     /* FIXME: What's this function doing here ? */ 	  
     /* If private L2 cache analysis .... no update of interference */	  

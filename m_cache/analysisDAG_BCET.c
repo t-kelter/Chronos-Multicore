@@ -1244,9 +1244,7 @@ static void set_start_time_BCET(block* bb, procedure* proc)
    * finish time of predecessors block */
   bb->start_time = min_start;
 
-#ifdef _DEBUG
-  printf("Setting min start of bb %d = %Lu\n", bb->bbid, min_start);
-#endif
+  DEBUG_PRINTF( "Setting min start of bb %d = %Lu\n", bb->bbid, min_start);
 }
 
 /* Computes the latest finish time and worst case cost
@@ -1257,9 +1255,7 @@ static void computeBCET_loop(loop* lp, procedure* proc)
   int j;
   block* bb;
 
-#ifdef _DEBUG
-  fprintf(stdout, "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t)lp);
-#endif
+  DEBUG_PRINTF( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t)lp);
 
   lpbound = lp->loopbound;
   
@@ -1291,10 +1287,8 @@ static void computeBCET_loop(loop* lp, procedure* proc)
         bb->start_time = (bb->start_time < lp->loopsink->finish_time) 
                     ? lp->loopsink->finish_time
                     : bb->start_time;
-#ifdef _DEBUG
-        printf("Setting loop %d finish time = %Lu\n", lp->lpid,
+        DEBUG_PRINTF( "Setting loop %d finish time = %Lu\n", lp->lpid,
            lp->loopsink->finish_time);
-#endif
        }  
        else
         set_start_time_BCET(bb, proc);     
@@ -1315,9 +1309,7 @@ static void computeBCET_block(block* bb, procedure* proc, loop* cur_lp)
   acc_type acc_t;
   procedure* callee;
 
-#ifdef _DEBUG
-  fprintf(stdout, "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t)bb);
-#endif
+  DEBUG_PRINTF( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t)bb);
 
    /* Check whether the block is some header of a loop structure. 
     * In that case do separate analysis of the loop */
@@ -1383,10 +1375,8 @@ static void computeBCET_block(block* bb, procedure* proc, loop* cur_lp)
       * time of this block */
      bb->finish_time = bb->start_time + acc_cost;
   }
-#ifdef _DEBUG
-  printf("Setting block %d finish time = %Lu\n", bb->bbid,
+  DEBUG_PRINTF( "Setting block %d finish time = %Lu\n", bb->bbid,
          bb->finish_time);
-#endif
 }
 
 static void computeBCET_proc(procedure* proc, ull start_time)
@@ -1449,10 +1439,8 @@ static void computeBCET_proc(procedure* proc, ull start_time)
   proc->running_finish_time = min_f_time;
   proc->running_cost = min_f_time - start_time;
 
-#ifdef _DEBUG
-  fprintf(stdout, "Set best case cost of the procedure %d = %Lu\n", 
+  DEBUG_PRINTF( "Set best case cost of the procedure %d = %Lu\n", 
         proc->pid, proc->running_cost);     
-#endif        
 }
 
 /* Given a MSC and a task inside it, this function computes 
@@ -1464,20 +1452,14 @@ static void update_succ_earliest_time(MSC* msc, task_t* task)
   int i;    
   uint sid;
 
-#ifdef _DEBUG
-  fprintf(stdout, "Number of Successors = %d\n", task->numSuccs);
-#endif
+  DEBUG_PRINTF( "Number of Successors = %d\n", task->numSuccs);
   for(i = 0; i < task->numSuccs; i++)
   {
-#ifdef _DEBUG
-    fprintf(stdout, "Successor id with %d found\n", task->succList[i]);
-#endif
+    DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i]);
     sid = task->succList[i];
     msc->taskList[sid].l_start = task->l_start + task->bcet;
-#ifdef _DEBUG
-    fprintf(stdout, "Updating earliest start time of successor = %Lu\n", 
+    DEBUG_PRINTF( "Updating earliest start time of successor = %Lu\n", 
         msc->taskList[sid].l_start);       
-#endif
   }
 }
 
@@ -1499,9 +1481,7 @@ static ull get_earliest_start_time(task_t* cur_task, uint core)
      start = cur_task->l_start;
   else
     start = latest[core];
-#ifdef _DEBUG
-  fprintf(stdout, "Assigning the latest starting time of the task = %Lu\n", start);   
-#endif
+  DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start);   
 
   return start;   
 }
@@ -1531,19 +1511,17 @@ void computeBCET(ull start_time)
    }    
    computeBCET_proc(procs[top_func], start_time); 
 
-#ifdef _PRINT
-  fprintf(stdout, "\n\n**************************************************************\n");    
-  fprintf(stdout, "Earliest start time of the program = %Lu start_time\n", start_time); 
-  fprintf(stdout, "Earliest finish time of the program = %Lu cycles\n", 
+  PRINT_PRINTF("\n\n**************************************************************\n");    
+  PRINT_PRINTF("Earliest start time of the program = %Lu start_time\n", start_time); 
+  PRINT_PRINTF("Earliest finish time of the program = %Lu cycles\n", 
       procs[top_func]->running_finish_time);
   if(g_shared_bus)    
-      fprintf(stdout, "BCET of the program with shared bus = %Lu cycles\n", 
+      PRINT_PRINTF("BCET of the program with shared bus = %Lu cycles\n", 
         procs[top_func]->running_cost);
   else      
-      fprintf(stdout, "BCET of the program without shared bus = %Lu cycles\n", 
+      PRINT_PRINTF("BCET of the program without shared bus = %Lu cycles\n", 
         procs[top_func]->running_cost);
-  fprintf(stdout, "**************************************************************\n\n");    
-#endif
+  PRINT_PRINTF("**************************************************************\n\n");    
 }
 
 /* Analyze best case execution time of all the tasks inside 
@@ -1566,10 +1544,8 @@ void compute_bus_BCET_MSC(MSC *msc) {
     acc_bus_delay = 0;
     /* Get the main procedure */ 
     /* For printing not desired bus delay */
-#ifdef _NPRINT
-    fprintf(stdout, "Analyzing Task BCET %s......\n", msc->taskList[k].task_name);
+    NPRINT_PRINTF( "Analyzing Task BCET %s......\n", msc->taskList[k].task_name);
     fflush(stdout);
-#endif
     cur_task = &(msc->taskList[k]);   
     proc = msc->taskList[k].main_copy;
     /* Return the core number in which the task is assigned */
@@ -1589,19 +1565,18 @@ void compute_bus_BCET_MSC(MSC *msc) {
     * predecessors have been analyzed. Thus After analyzing one task 
     * update all its successor tasks' latest time */
     update_succ_earliest_time(msc, cur_task);
-#ifdef _PRINT
-  fprintf(stdout, "\n\n**************************************************************\n");    
-  fprintf(stdout, "Earliest start time of the program = %Lu start_time\n", start_time); 
-  fprintf(stdout, "Earliest finish time of the task = %Lu cycles\n", 
+  PRINT_PRINTF("\n\n**************************************************************\n");    
+  PRINT_PRINTF("Earliest start time of the program = %Lu start_time\n", start_time); 
+  PRINT_PRINTF("Earliest finish time of the task = %Lu cycles\n", 
       proc->running_finish_time);
   if(g_shared_bus)    
-      fprintf(stdout, "BCET of the task with shared bus = %Lu cycles\n", 
+      PRINT_PRINTF("BCET of the task with shared bus = %Lu cycles\n", 
         proc->running_cost);
   else      
-      fprintf(stdout, "BCET of the task without shared bus = %Lu cycles\n", 
+      PRINT_PRINTF("BCET of the task without shared bus = %Lu cycles\n", 
         proc->running_cost);
-  fprintf(stdout, "**************************************************************\n\n");  fflush(stdout);  
-#endif
+  PRINT_PRINTF("**************************************************************\n\n");
+  fflush(stdout);  
    }
   /* DONE :: BCET computation of the MSC */
 }

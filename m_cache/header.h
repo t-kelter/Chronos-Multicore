@@ -3,7 +3,7 @@
 /*
  * Declarations for general framework.
  *
- * When DEF_GLOBALS is defined, this file defines all global varaibles, if that
+ * When DEF_GLOBALS is defined, this file defines all global variables, if that
  * is not the case, then it just declares them as external.
  */
 
@@ -47,7 +47,7 @@ typedef unsigned long long ull;
 // 14-bit tag is selected for the following reason:
 // - it is enough: can analyze program up to 16MB for a 1-KB cache
 // - in cache.c, a valid bit is needed with tag in some cases, thus the valid
-//   bit and the tag can be accomodated in a short int
+//   bit and the tag can be accommodated in a short int
 #define MAX_TAG_BITS        14
 
 #define CACHE_LINE(addr)    ((addr) & cache.l_msk)
@@ -118,6 +118,36 @@ typedef unsigned long long ull;
 #define REALLOC( ptr, size, msg ) \
   realloc( (ptr), (size) ); \
   if( !(ptr) ) printf( "\nError: realloc failed for %s.\n\n", (msg) ), exit(1)
+
+/* Conditional debug output */
+
+#ifdef _DEBUG
+// GNU-specific: remove trailing comma if no varargs given (##)
+#define DEBUG_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
+#else
+#define DEBUG_PRINTF(format, ...)
+#endif
+
+#ifdef _NDEBUG
+// GNU-specific: remove trailing comma if no varargs given (##)
+#define NDEBUG_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
+#else
+#define NDEBUG_PRINTF(format, ...)
+#endif
+
+#ifdef _PRINT
+// GNU-specific: remove trailing comma if no varargs given (##)
+#define PRINT_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
+#else
+#define PRINT_PRINTF(format, ...)
+#endif
+
+#ifdef _NPRINT
+// GNU-specific: remove trailing comma if no varargs given (##)
+#define NPRINT_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
+#else
+#define NPRINT_PRINTF(format, ...)
+#endif
 
 /*
  * Declarations for WCET analysis.

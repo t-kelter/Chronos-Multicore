@@ -1031,10 +1031,8 @@ mapLoop(procedure *proc, loop *lp)
 		{
 			incoming_bb = p->bblist[bb->incoming[0]];
 
-#ifdef _DEBUG
-		   fprintf(stdout, "Calculating bb cache state of bbid = %d of proc = %d at X1\n",
+		   DEBUG_PRINTF( "Calculating bb cache state of bbid = %d of proc = %d at X1\n",
 					 bb->bbid, bb->pid);
-#endif
 		   
 			//if(incoming_bb->bb_cache_state == NULL) continue;
 
@@ -1106,10 +1104,8 @@ mapLoop(procedure *proc, loop *lp)
 		{
 			if(loop_level_arr[lp_level] == FIRST_ITERATION)
 			{
-#ifdef _DEBUG
-		   fprintf(stdout, "Calculating bb cache state of bbid = %d of proc %d at X2\n",
+		   DEBUG_PRINTF( "Calculating bb cache state of bbid = %d of proc %d at X2\n",
 					 bb->bbid, bb->pid);
-#endif
 				incoming_bb = p->bblist[bb->incoming[0]];
 
 				//free(cs_ptr);
@@ -1216,10 +1212,8 @@ mapLoop(procedure *proc, loop *lp)
 
 		bb->bb_cache_state = cs_ptr;
 
-#ifdef _DEBUG
-		   fprintf(stdout, "Calculating bb cache state of bbid = %d of proc %d at X3\n",
+		   DEBUG_PRINTF( "Calculating bb cache state of bbid = %d of proc %d at X3\n",
 					 bb->bbid, bb->pid);
-#endif
 		
 		current_chmc = bb->chmc[cnt];
 		
@@ -1683,10 +1677,8 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 		{
 			incoming_bb = p->bblist[bb->incoming[0]];
 
-#ifdef _DEBUG
-		   fprintf(stdout, "Calculating bb cache state of bbid = %d of proc %d at X4\n",
+		   DEBUG_PRINTF( "Calculating bb cache state of bbid = %d of proc %d at X4\n",
 					 bb->bbid, bb->pid);
-#endif
 			
 			//printBlock(incoming_bb);
 		   //if(incoming_bb->bb_cache_state == NULL) continue;
@@ -1774,10 +1766,8 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 
 		}
 
-#ifdef _DEBUG
-		   fprintf(stdout, "Calculating bb cache state of bbid = %d of proc %d at X5\n",
+		   DEBUG_PRINTF( "Calculating bb cache state of bbid = %d of proc %d at X5\n",
 					 bb->bbid, bb->pid);
-#endif
 
 		bb->bb_cache_state = cs_ptr;
 		

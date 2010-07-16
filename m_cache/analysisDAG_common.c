@@ -81,9 +81,7 @@ uint get_hex(char* hex_string)
 
     len = strlen(hex_string);
 
-#ifdef _NDEBUG
-   fprintf(stdout, "hex string = %s\n", hex_string);
-#endif
+   NDEBUG_PRINTF( "hex string = %s\n", hex_string);
 
    for(i = 0; i < len; i++)
    {
@@ -114,9 +112,7 @@ uint get_hex(char* hex_string)
       };
    }
 
-#ifdef _NDEBUG
-   fprintf(stdout, "hex value = %x\n", value);
-#endif
+   NDEBUG_PRINTF( "hex value = %x\n", value);
 
    return value;
 }
@@ -154,10 +150,8 @@ procedure* getCallee(instr* inst, procedure* proc)
       * with the jump instruction of the callee procedure
       * then this is the callee --- in that case return 
       * the callee procedure */
-#ifdef _DEBUG
-     fprintf(stdout, "jump address = %x, callee address = %x\n", 
+     DEBUG_PRINTF( "jump address = %x, callee address = %x\n", 
         get_hex(GET_CALLEE(inst)), f_block->startaddr); 
-#endif
      
      /* Check the starting address of the procedure */
      if(f_block->startaddr == addr)
@@ -214,9 +208,7 @@ acc_type check_hit_miss(block* bb, instr* inst)
     return L2_MISS;
   if(inst->acc_t_l2[cur_context] == L2_HIT)
   {
-#ifdef _DEBUG
-    fprintf(stdout, "Returning L2 HIT\n"); 
-#endif
+    DEBUG_PRINTF( "Returning L2 HIT\n"); 
     return L2_HIT;  
   } 
 
@@ -256,11 +248,9 @@ int compute_bus_delay(ull start_time, uint ncore, acc_type type)
   add_delay = compute_waiting_time(cur_core_sched, start_time, type);
 
   /* Print not-desired bus related delay */   
-#ifdef _NPRINT
    if(add_delay < 0 || add_delay > 50)
-        fprintf(stdout, "Request time = %Lu and Waiting time = %d\n", 
+        NPRINT_PRINTF( "Request time = %Lu and Waiting time = %d\n", 
            start_time, add_delay);    
-#endif 
   acc_bus_delay += add_delay;
 
   if(!g_no_bus_modeling)    
