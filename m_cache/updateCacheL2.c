@@ -45,10 +45,7 @@ conflictStatistics(MSC *msc, int index, int set_no, int current_addr)
 static void
 updateLoop(MSC *msc, int index, procedure *proc, loop *lp)
 {
-
-
     int i, j, k, n, set_no, cnt, addr, lp_level, num_conflict;
-    char tmp;
     procedure *p = proc;
     block *bb;
     CHMC * current_chmc;
@@ -79,18 +76,16 @@ updateLoop(MSC *msc, int index, procedure *proc, loop *lp)
         //bb is in bblist
         bb = p->bblist[ bb->bbid ];
         
-        if(print) printf("\nThis is  bb %d in proc %d\n", bb->bbid, proc->pid);
+        DEBUG_ANALYSIS_PRINTF("\nThis is  bb %d in proc %d\n", bb->bbid, proc->pid);
         
         if(bb->is_loophead && i!= num_blk -1)
         {
 
             loop_level_arr[lp_level +1] = FIRST_ITERATION;
 
-            if(print) 
-                printf("\nThe first time go into loop\n");
+            DEBUG_ANALYSIS_PRINTF("\nThe first time go into loop\n");
             updateLoop(msc, index, p, p->loops[bb->loopid]);
-            if(print) 
-                printf("\nThe second time go into loop\n");
+            DEBUG_ANALYSIS_PRINTF("\nThe second time go into loop\n");
 
             loop_level_arr[lp_level +1] = NEXT_ITERATION;
             updateLoop(msc, index, p, p->loops[bb->loopid]);
@@ -143,26 +138,17 @@ updateLoop(MSC *msc, int index, procedure *proc, loop *lp)
         }
         
 
-    if(print)
-        {
-        
         //for(k = 0; k < current_chmc->hitmiss; k++)
             //printf("L2: %d ", current_chmc->hitmiss_addr[k]);
-        printf("\nL2:\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
-        printf("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
+        DEBUG_ANALYSIS_PRINTF("\nL2:\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
+        DEBUG_ANALYSIS_PRINTF("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
 
-        printf("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
+        DEBUG_ANALYSIS_PRINTF("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
 
-        printf("\ncnt = %d, wcost = %d, bcost = %d\n", cnt, current_chmc->wcost, current_chmc->bcost);  
-    }
-    if(print)
-        scanf("%c", &tmp);
-
-
-        if(print) 
-            printf("\nL2 Loop:  bb->wcost = %d\n", current_chmc->wcost);    
-        if(print) 
-            printf("\nL2 Loop:  bb->bcost = %d\n", current_chmc->bcost);    
+        DEBUG_ANALYSIS_PRINTF("\ncnt = %d, wcost = %d, bcost = %d\n", cnt, current_chmc->wcost, current_chmc->bcost);  
+    
+        DEBUG_ANALYSIS_PRINTF("\nL2 Loop:  bb->wcost = %d\n", current_chmc->wcost);    
+        DEBUG_ANALYSIS_PRINTF("\nL2 Loop:  bb->bcost = %d\n", current_chmc->bcost);    
 
     
         //check the bb if it is a function call
@@ -181,14 +167,11 @@ static void
 updateFunctionCall(MSC *msc, int index, procedure* proc)
 {
     int i, j, k, n, set_no, cnt, addr, lp_level, num_conflict;
-    char tmp;
     procedure *p = proc;
     block *bb;
     CHMC * current_chmc;
     int offset; 
     int  num_blk = p->num_topo; 
-
-    //printf("updateFunctionCall\n");
 
     for(i = 0; i < MAX_NEST_LOOP; i++)
         if(loop_level_arr[i] == INVALID)
@@ -212,20 +195,16 @@ updateFunctionCall(MSC *msc, int index, procedure* proc)
         //bb is in bblist
         bb = p->bblist[ bb->bbid ];
         
-        if(print) printf("\nThis is  bb %d in proc %d\n", bb->bbid, proc->pid);
-        //if(bb->callpid!= -1)
-            //if(print) printBlock(bb);
+        DEBUG_ANALYSIS_PRINTF("\nThis is  bb %d in proc %d\n", bb->bbid, proc->pid);
         
         if(bb->is_loophead)
         {
 
             loop_level_arr[lp_level +1] = FIRST_ITERATION;
 
-            if(print) 
-                printf("\nThe first time go into loop\n");
+            DEBUG_ANALYSIS_PRINTF("\nThe first time go into loop\n");
             updateLoop(msc, index, p, p->loops[bb->loopid]);
-            if(print) 
-                printf("\nThe second time go into loop\n");
+            DEBUG_ANALYSIS_PRINTF("\nThe second time go into loop\n");
 
             loop_level_arr[lp_level +1] = NEXT_ITERATION;
             updateLoop(msc, index, p, p->loops[bb->loopid]);
@@ -276,27 +255,17 @@ updateFunctionCall(MSC *msc, int index, procedure* proc)
         }
 
 
-        if(print)
-        {
-        
         //for(k = 0; k < current_chmc->hitmiss; k++)
-            //printf("L2: %d ", current_chmc->hitmiss_addr[k]);
-            printf("\nL2:\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
-            printf("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
+          //printf("L2: %d ", current_chmc->hitmiss_addr[k]);
+        DEBUG_ANALYSIS_PRINTF("\nL2:\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
+        DEBUG_ANALYSIS_PRINTF("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
 
-            printf("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
+        DEBUG_ANALYSIS_PRINTF("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
 
-            printf("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost); 
-        }
-        if(print)
-            scanf("%c", &tmp);
+        DEBUG_ANALYSIS_PRINTF("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost); 
 
-
-        if(print) 
-            printf("\nL2 function:  bb->wcost = %d\n", current_chmc->wcost);    
-        if(print) 
-            printf("\nL2 function:  bb->bcost = %d\n", current_chmc->bcost);    
-
+        DEBUG_ANALYSIS_PRINTF("\nL2 function:  bb->wcost = %d\n", current_chmc->wcost);    
+        DEBUG_ANALYSIS_PRINTF("\nL2 function:  bb->bcost = %d\n", current_chmc->bcost);    
 
         //check the bb if it is a function call
         

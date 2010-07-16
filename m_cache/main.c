@@ -261,21 +261,14 @@ int main(int argc, char **argv )
        * no longer needed */ 
       freeAllCacheState();
 
-      if(print)
-        printf("\ndone L1\n");
+      PRINT_PRINTF("\ndone L1\n");
 
       /* Now do private L2 cache analysis of this task */
       cacheAnalysis_L2();
       /* Free L2 cache states */
       freeAll_L2();
-      if(print)
-        printf("\ndone L2\n");
 
-      /* Private cache analysis (both L1 and L2) is done here for the 
-       * current task */
-
-      /* printf("cache analysis done for  task[%d], %s\n", i, 
-       * msc[num_msc-1]->msc_name); */
+      PRINT_PRINTF("\ndone L2\n");
     }
 
     /* Private cache analysis for all tasks are done here. But due 

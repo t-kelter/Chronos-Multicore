@@ -103,8 +103,6 @@ typedef unsigned long long ull;
 //typedef struct loop loop;
 //typedef struct procedure procedure;
 
-#define print 0
-
 /* Memory allocation with error check. */
 
 #define MALLOC( ptr, size, msg ) \
@@ -158,6 +156,13 @@ typedef unsigned long long ull;
 #define NPRINT_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
 #else
 #define NPRINT_PRINTF(format, ...)
+#endif
+
+#ifdef _DEBUG_ANALYSIS
+// GNU-specific: remove trailing comma if no varargs given (##)
+#define DEBUG_ANALYSIS_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
+#else
+#define DEBUG_ANALYSIS_PRINTF(format, ...)
 #endif
 
 /*

@@ -125,20 +125,15 @@ int analyseDAGFunction_WCET( procedure *proc, int index )
       miss_arr_L2[bb->bbid] += miss_arr_L2[lpn->loopexit->bbid];
       unknow_arr_L2[bb->bbid] += unknow_arr_L2[lpn->loopexit->bbid];
 
-      if ( print ) {
-        printf( "wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "loop[%d]:\nlp->wcet = %Lu, %Lu\n", lpn->lpid, lpn->wcet[index * 2], lpn->wcet[index * 2 + 1] );
+        DEBUG_ANALYSIS_PRINTF( "hit_wcet = %Lu, %Lu\n", lpn->hit_wcet[index * 2], lpn->hit_wcet[index * 2 + 1] );
+        DEBUG_ANALYSIS_PRINTF( "miss_wcet = %Lu, %Lu\n", lpn->miss_wcet[index * 2], lpn->miss_wcet[index * 2 + 1] );
+        DEBUG_ANALYSIS_PRINTF( "unknow_wcet = %Lu, %Lu\n", lpn->unknow_wcet[index * 2], lpn->unknow_wcet[index * 2 + 1] );
+        DEBUG_ANALYSIS_PRINTF( "hit_wcet_L2 = %Lu, %Lu\n", lpn->hit_wcet_L2[index * 2], lpn->hit_wcet_L2[index * 2 + 1] );
+        DEBUG_ANALYSIS_PRINTF( "miss_wcet_L2 = %Lu, %Lu\n", lpn->miss_wcet_L2[index * 2], lpn->miss_wcet_L2[index * 2 + 1] );
+        DEBUG_ANALYSIS_PRINTF( "unknow_wcet_L2 = %Lu, %Lu\n", lpn->unknow_wcet_L2[index * 2], lpn->unknow_wcet_L2[index * 2 + 1] );
 
-        printf( "loop[%d]:\nlp->wcet = %Lu, %Lu\n", lpn->lpid, lpn->wcet[index * 2], lpn->wcet[index * 2 + 1] );
-
-        printf( "hit_wcet = %Lu, %Lu\n", lpn->hit_wcet[index * 2], lpn->hit_wcet[index * 2 + 1] );
-        printf( "miss_wcet = %Lu, %Lu\n", lpn->miss_wcet[index * 2], lpn->miss_wcet[index * 2 + 1] );
-        printf( "unknow_wcet = %Lu, %Lu\n", lpn->unknow_wcet[index * 2], lpn->unknow_wcet[index * 2 + 1] );
-
-        printf( "hit_wcet_L2 = %Lu, %Lu\n", lpn->hit_wcet_L2[index * 2], lpn->hit_wcet_L2[index * 2 + 1] );
-        printf( "miss_wcet_L2 = %Lu, %Lu\n", lpn->miss_wcet_L2[index * 2], lpn->miss_wcet_L2[index * 2 + 1] );
-        printf( "unknow_wcet_L2 = %Lu, %Lu\n", lpn->unknow_wcet_L2[index * 2], lpn->unknow_wcet_L2[index * 2 + 1] );
-
-      }
 
     } // end if nested loophead
 
@@ -154,17 +149,13 @@ int analyseDAGFunction_WCET( procedure *proc, int index )
       miss_arr_L2[bb->bbid] = bb->chmc_L2[index]->miss;
       unknow_arr_L2[bb->bbid] = bb->chmc_L2[index]->unknow;
 
-      if ( print ) {
-        printf( "wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid] );
-
-        printf( "bb->chmc[%d]->hit = %d\n", index, bb->chmc[index]->hit );
-        printf( "bb->chmc[%d]->miss = %d\n", index, bb->chmc[index]->miss );
-        printf( "bb->chmc[%d]->unknow = %d\n", index, bb->chmc[index]->unknow );
-        printf( "bb->chmc_L2[%d]->hit = %d\n", index, bb->chmc_L2[index]->hit );
-        printf( "bb->chmc_L2[%d]->miss = %d\n", index, bb->chmc_L2[index]->miss );
-        printf( "bb->chmc_L2[%d]->unknow = %d\n", index, bb->chmc_L2[index]->unknow );
-
-      }
+        DEBUG_ANALYSIS_PRINTF( "wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "bb->chmc[%d]->hit = %d\n", index, bb->chmc[index]->hit );
+        DEBUG_ANALYSIS_PRINTF( "bb->chmc[%d]->miss = %d\n", index, bb->chmc[index]->miss );
+        DEBUG_ANALYSIS_PRINTF( "bb->chmc[%d]->unknow = %d\n", index, bb->chmc[index]->unknow );
+        DEBUG_ANALYSIS_PRINTF( "bb->chmc_L2[%d]->hit = %d\n", index, bb->chmc_L2[index]->hit );
+        DEBUG_ANALYSIS_PRINTF( "bb->chmc_L2[%d]->miss = %d\n", index, bb->chmc_L2[index]->miss );
+        DEBUG_ANALYSIS_PRINTF( "bb->chmc_L2[%d]->unknow = %d\n", index, bb->chmc_L2[index]->unknow );
 
       //---- successors ----
       switch ( bb->num_outgoing ) {
@@ -183,17 +174,14 @@ int analyseDAGFunction_WCET( procedure *proc, int index )
           miss_arr_L2[bb->bbid] += miss_arr_L2[bb->outgoing[0]];
           unknow_arr_L2[bb->bbid] += unknow_arr_L2[bb->outgoing[0]];
 
-          if ( print ) {
-            printf( "wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "hit_arr[%d]->hit = %Lu\n", bb->bbid, hit_arr[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr[%d]->miss = %Lu\n", bb->bbid, miss_arr[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr[%d]->unknow = %Lu\n", bb->bbid, unknow_arr[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "hit_arr_L2[%d]->hit = %Lu\n", bb->bbid, hit_arr_L2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr_L2[%d]->miss = %Lu\n", bb->bbid, miss_arr_L2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr_L2[%d]->unknow = %Lu\n", bb->bbid, unknow_arr_L2[bb->bbid] );
 
-            printf( "hit_arr[%d]->hit = %Lu\n", bb->bbid, hit_arr[bb->bbid] );
-            printf( "miss_arr[%d]->miss = %Lu\n", bb->bbid, miss_arr[bb->bbid] );
-            printf( "unknow_arr[%d]->unknow = %Lu\n", bb->bbid, unknow_arr[bb->bbid] );
-            printf( "hit_arr_L2[%d]->hit = %Lu\n", bb->bbid, hit_arr_L2[bb->bbid] );
-            printf( "miss_arr_L2[%d]->miss = %Lu\n", bb->bbid, miss_arr_L2[bb->bbid] );
-            printf( "unknow_arr_L2[%d]->unknow = %Lu\n", bb->bbid, unknow_arr_L2[bb->bbid] );
-
-          }
           break;
 
         case 2: // choose heaviest
@@ -213,17 +201,13 @@ int analyseDAGFunction_WCET( procedure *proc, int index )
           miss_arr_L2[bb->bbid] += miss_arr_L2[bb->outgoing[(int) max]];
           unknow_arr_L2[bb->bbid] += unknow_arr_L2[bb->outgoing[(int) max]];
 
-          if ( print ) {
-            printf( "wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid] );
-
-            printf( "hit_arr[%d]->hit = %Lu\n", bb->bbid, hit_arr[bb->bbid] );
-            printf( "miss_arr[%d]->miss = %Lu\n", bb->bbid, miss_arr[bb->bbid] );
-            printf( "unknow_arr[%d]->unknow = %Lu\n", bb->bbid, unknow_arr[bb->bbid] );
-            printf( "hit_arr_L2[%d]->hit = %Lu\n", bb->bbid, hit_arr_L2[bb->bbid] );
-            printf( "miss_arr_L2[%d]->miss = %Lu\n", bb->bbid, miss_arr_L2[bb->bbid] );
-            printf( "unknow_arr_L2[%d]->unknow = %Lu\n", bb->bbid, unknow_arr_L2[bb->bbid] );
-
-          }
+            DEBUG_ANALYSIS_PRINTF( "wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "hit_arr[%d]->hit = %Lu\n", bb->bbid, hit_arr[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr[%d]->miss = %Lu\n", bb->bbid, miss_arr[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr[%d]->unknow = %Lu\n", bb->bbid, unknow_arr[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "hit_arr_L2[%d]->hit = %Lu\n", bb->bbid, hit_arr_L2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr_L2[%d]->miss = %Lu\n", bb->bbid, miss_arr_L2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr_L2[%d]->unknow = %Lu\n", bb->bbid, unknow_arr_L2[bb->bbid] );
 
           // tmp_wpath[ bb->bbid ] = max;
           break;
@@ -247,25 +231,18 @@ int analyseDAGFunction_WCET( procedure *proc, int index )
         miss_arr_L2[bb->bbid] += bb->proc_ptr->miss_wcet_L2[index];
         unknow_arr_L2[bb->bbid] += bb->proc_ptr->unknow_wcet_L2[index];
 
-        if ( print )
-          printf( "bb %d-%d procedure call %d wcet: %Lu\n", bb->pid, bb->bbid, bb->callpid, bb->proc_ptr->wcet[index] );
-        fflush( stdout );
+          DEBUG_ANALYSIS_PRINTF( "bb %d-%d procedure call %d wcet: %Lu\n", bb->pid, bb->bbid, bb->callpid, bb->proc_ptr->wcet[index] );
 
-        if ( print ) {
-          printf( "wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid] );
-
-          printf( "p-> hit_L2[ %d ]%Lu\n", index, bb->proc_ptr->hit_wcet_L2[index] );
-          printf( "p-> miss_L2[ %d ]%Lu\n", index, bb->proc_ptr->miss_wcet_L2[index] );
-          printf( "p-> unknow_L2[ %d ]%Lu\n", index, bb->proc_ptr->unknow_wcet_L2[index] );
-
-          printf( "hit_arr[%d]->hit = %Lu\n", bb->bbid, hit_arr[bb->bbid] );
-          printf( "miss_arr[%d]->miss = %Lu\n", bb->bbid, miss_arr[bb->bbid] );
-          printf( "unknow_arr[%d]->unknow = %Lu\n", bb->bbid, unknow_arr[bb->bbid] );
-          printf( "hit_arr_L2[%d]->hit = %Lu\n", bb->bbid, hit_arr_L2[bb->bbid] );
-          printf( "miss_arr_L2[%d]->miss = %Lu\n", bb->bbid, miss_arr_L2[bb->bbid] );
-          printf( "unknow_arr_L2[%d]->unknow = %Lu\n", bb->bbid, unknow_arr_L2[bb->bbid] );
-
-        }
+          DEBUG_ANALYSIS_PRINTF( "wcet_arr[%d] = %Lu\n", bb->bbid, wcet_arr[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "p-> hit_L2[ %d ]%Lu\n", index, bb->proc_ptr->hit_wcet_L2[index] );
+          DEBUG_ANALYSIS_PRINTF( "p-> miss_L2[ %d ]%Lu\n", index, bb->proc_ptr->miss_wcet_L2[index] );
+          DEBUG_ANALYSIS_PRINTF( "p-> unknow_L2[ %d ]%Lu\n", index, bb->proc_ptr->unknow_wcet_L2[index] );
+          DEBUG_ANALYSIS_PRINTF( "hit_arr[%d]->hit = %Lu\n", bb->bbid, hit_arr[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "miss_arr[%d]->miss = %Lu\n", bb->bbid, miss_arr[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "unknow_arr[%d]->unknow = %Lu\n", bb->bbid, unknow_arr[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "hit_arr_L2[%d]->hit = %Lu\n", bb->bbid, hit_arr_L2[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "miss_arr_L2[%d]->miss = %Lu\n", bb->bbid, miss_arr_L2[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "unknow_arr_L2[%d]->unknow = %Lu\n", bb->bbid, unknow_arr_L2[bb->bbid] );
 
       }
     } // end else loophead
@@ -281,17 +258,13 @@ int analyseDAGFunction_WCET( procedure *proc, int index )
   p->miss_wcet_L2[index] = miss_arr_L2[topo[num_topo - 1]->bbid];
   p->unknow_wcet_L2[index] = unknow_arr_L2[topo[num_topo - 1]->bbid];
 
-  if ( print ) {
-    printf( "p->wcet[%d] = %Lu\n", index, p->wcet[index] );
-
-    printf( "p-> hit[ %d ]%Lu\n", index, p->hit_wcet[index] );
-    printf( "p-> miss[ %d ]%Lu\n", index, p->miss_wcet[index] );
-    printf( "p-> unknow[ %d ]%Lu\n", index, p->unknow_wcet[index] );
-
-    printf( "p-> hit_L2[ %d ]%Lu\n", index, p->hit_wcet_L2[index] );
-    printf( "p-> miss_L2[ %d ]%Lu\n", index, p->miss_wcet_L2[index] );
-    printf( "p-> unknow_L2[ %d ]%Lu\n", index, p->unknow_wcet_L2[index] );
-  }
+    DEBUG_ANALYSIS_PRINTF( "p->wcet[%d] = %Lu\n", index, p->wcet[index] );
+    DEBUG_ANALYSIS_PRINTF( "p-> hit[ %d ]%Lu\n", index, p->hit_wcet[index] );
+    DEBUG_ANALYSIS_PRINTF( "p-> miss[ %d ]%Lu\n", index, p->miss_wcet[index] );
+    DEBUG_ANALYSIS_PRINTF( "p-> unknow[ %d ]%Lu\n", index, p->unknow_wcet[index] );
+    DEBUG_ANALYSIS_PRINTF( "p-> hit_L2[ %d ]%Lu\n", index, p->hit_wcet_L2[index] );
+    DEBUG_ANALYSIS_PRINTF( "p-> miss_L2[ %d ]%Lu\n", index, p->miss_wcet_L2[index] );
+    DEBUG_ANALYSIS_PRINTF( "p-> unknow_L2[ %d ]%Lu\n", index, p->unknow_wcet_L2[index] );
 
   free( wcet_arr );
   //free( tmp_wpath );
@@ -414,10 +387,8 @@ int analyseDAGLoop_WCET( procedure *proc, loop *lop, int index )
       miss_arr_L2_2[bb->bbid] += miss_arr_L2_2[lpn->loopexit->bbid];
       unknow_arr_L2_2[bb->bbid] += unknow_arr_L2_2[lpn->loopexit->bbid];
 
-      if ( print ) {
-        printf( "wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid] );
-        printf( "wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid] );
-      }
+        DEBUG_ANALYSIS_PRINTF( "wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid] );
 
     } // end if nested loophead
 
@@ -450,26 +421,24 @@ int analyseDAGLoop_WCET( procedure *proc, loop *lop, int index )
 
       //if(bb->is_loophead)
       //wcet_arr[ bb->bbid ] += bb->chmc_L2[index]->wcost;
-      if ( print ) {
-        printf( "wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid] );
-        printf( "wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid] );
 
-        printf( "hit_arr_1[%d] = %Lu\n", bb->bbid, hit_arr_1[bb->bbid] );
-        printf( "miss_arr_1[%d] = %Lu\n", bb->bbid, miss_arr_1[bb->bbid] );
-        printf( "unknow_arr_1[%d] = %Lu\n", bb->bbid, unknow_arr_1[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "hit_arr_1[%d] = %Lu\n", bb->bbid, hit_arr_1[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "miss_arr_1[%d] = %Lu\n", bb->bbid, miss_arr_1[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "unknow_arr_1[%d] = %Lu\n", bb->bbid, unknow_arr_1[bb->bbid] );
 
-        printf( "hit_arr_L2_1[%d] = %Lu\n", bb->bbid, hit_arr_L2_1[bb->bbid] );
-        printf( "miss_arr_L2_1[%d] = %Lu\n", bb->bbid, miss_arr_L2_1[bb->bbid] );
-        printf( "unknow_arr_L2_1[%d] = %Lu\n", bb->bbid, unknow_arr_L2_1[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "hit_arr_L2_1[%d] = %Lu\n", bb->bbid, hit_arr_L2_1[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "miss_arr_L2_1[%d] = %Lu\n", bb->bbid, miss_arr_L2_1[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "unknow_arr_L2_1[%d] = %Lu\n", bb->bbid, unknow_arr_L2_1[bb->bbid] );
 
-        printf( "hit_arr_2[%d] = %Lu\n", bb->bbid, hit_arr_2[bb->bbid] );
-        printf( "miss_arr_2[%d] = %Lu\n", bb->bbid, miss_arr_2[bb->bbid] );
-        printf( "unknow_arr_2[%d] = %Lu\n", bb->bbid, unknow_arr_2[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "hit_arr_2[%d] = %Lu\n", bb->bbid, hit_arr_2[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "miss_arr_2[%d] = %Lu\n", bb->bbid, miss_arr_2[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "unknow_arr_2[%d] = %Lu\n", bb->bbid, unknow_arr_2[bb->bbid] );
 
-        printf( "hit_arr_L2_2[%d] = %Lu\n", bb->bbid, hit_arr_L2_2[bb->bbid] );
-        printf( "miss_arr_L2_2[%d] = %Lu\n", bb->bbid, miss_arr_L2_2[bb->bbid] );
-        printf( "unknow_arr_L2_2[%d] = %Lu\n", bb->bbid, unknow_arr_L2_2[bb->bbid] );
-      }
+        DEBUG_ANALYSIS_PRINTF( "hit_arr_L2_2[%d] = %Lu\n", bb->bbid, hit_arr_L2_2[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "miss_arr_L2_2[%d] = %Lu\n", bb->bbid, miss_arr_L2_2[bb->bbid] );
+        DEBUG_ANALYSIS_PRINTF( "unknow_arr_L2_2[%d] = %Lu\n", bb->bbid, unknow_arr_L2_2[bb->bbid] );
 
       //---- successors ----
       switch ( bb->num_outgoing ) {
@@ -497,27 +466,24 @@ int analyseDAGLoop_WCET( procedure *proc, loop *lop, int index )
           miss_arr_L2_2[bb->bbid] += miss_arr_L2_2[bb->outgoing[0]];
           unknow_arr_L2_2[bb->bbid] += unknow_arr_L2_2[bb->outgoing[0]];
 
-          if ( print ) {
-            printf( "wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid] );
-            printf( "wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid] );
 
-            printf( "hit_arr_1[%d] = %Lu\n", bb->bbid, hit_arr_1[bb->bbid] );
-            printf( "miss_arr_1[%d] = %Lu\n", bb->bbid, miss_arr_1[bb->bbid] );
-            printf( "unknow_arr_1[%d] = %Lu\n", bb->bbid, unknow_arr_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "hit_arr_1[%d] = %Lu\n", bb->bbid, hit_arr_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr_1[%d] = %Lu\n", bb->bbid, miss_arr_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr_1[%d] = %Lu\n", bb->bbid, unknow_arr_1[bb->bbid] );
 
-            printf( "hit_arr_L2_1[%d] = %Lu\n", bb->bbid, hit_arr_L2_1[bb->bbid] );
-            printf( "miss_arr_L2_1[%d] = %Lu\n", bb->bbid, miss_arr_L2_1[bb->bbid] );
-            printf( "unknow_arr_L2_1[%d] = %Lu\n", bb->bbid, unknow_arr_L2_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "hit_arr_L2_1[%d] = %Lu\n", bb->bbid, hit_arr_L2_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr_L2_1[%d] = %Lu\n", bb->bbid, miss_arr_L2_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr_L2_1[%d] = %Lu\n", bb->bbid, unknow_arr_L2_1[bb->bbid] );
 
-            printf( "hit_arr_2[%d] = %Lu\n", bb->bbid, hit_arr_2[bb->bbid] );
-            printf( "miss_arr_2[%d] = %Lu\n", bb->bbid, miss_arr_2[bb->bbid] );
-            printf( "unknow_arr_2[%d] = %Lu\n", bb->bbid, unknow_arr_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "hit_arr_2[%d] = %Lu\n", bb->bbid, hit_arr_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr_2[%d] = %Lu\n", bb->bbid, miss_arr_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr_2[%d] = %Lu\n", bb->bbid, unknow_arr_2[bb->bbid] );
 
-            printf( "hit_arr_L2_2[%d] = %Lu\n", bb->bbid, hit_arr_L2_2[bb->bbid] );
-            printf( "miss_arr_L2_2[%d] = %Lu\n", bb->bbid, miss_arr_L2_2[bb->bbid] );
-            printf( "unknow_arr_L2_2[%d] = %Lu\n", bb->bbid, unknow_arr_L2_2[bb->bbid] );
-
-          }
+            DEBUG_ANALYSIS_PRINTF( "hit_arr_L2_2[%d] = %Lu\n", bb->bbid, hit_arr_L2_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr_L2_2[%d] = %Lu\n", bb->bbid, miss_arr_L2_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr_L2_2[%d] = %Lu\n", bb->bbid, unknow_arr_L2_2[bb->bbid] );
 
           break;
 
@@ -562,27 +528,25 @@ int analyseDAGLoop_WCET( procedure *proc, loop *lop, int index )
           miss_arr_L2_2[bb->bbid] += miss_arr_L2_2[bb->outgoing[(int) max2]];
           unknow_arr_L2_2[bb->bbid] += unknow_arr_L2_2[bb->outgoing[(int) max2]];
 
-          if ( print ) {
-            printf( "wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid] );
-            printf( "wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid] );
 
-            printf( "hit_arr_1[%d] = %Lu\n", bb->bbid, hit_arr_1[bb->bbid] );
-            printf( "miss_arr_1[%d] = %Lu\n", bb->bbid, miss_arr_1[bb->bbid] );
-            printf( "unknow_arr_1[%d] = %Lu\n", bb->bbid, unknow_arr_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "hit_arr_1[%d] = %Lu\n", bb->bbid, hit_arr_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr_1[%d] = %Lu\n", bb->bbid, miss_arr_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr_1[%d] = %Lu\n", bb->bbid, unknow_arr_1[bb->bbid] );
 
-            printf( "hit_arr_L2_1[%d] = %Lu\n", bb->bbid, hit_arr_L2_1[bb->bbid] );
-            printf( "miss_arr_L2_1[%d] = %Lu\n", bb->bbid, miss_arr_L2_1[bb->bbid] );
-            printf( "unknow_arr_L2_1[%d] = %Lu\n", bb->bbid, unknow_arr_L2_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "hit_arr_L2_1[%d] = %Lu\n", bb->bbid, hit_arr_L2_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr_L2_1[%d] = %Lu\n", bb->bbid, miss_arr_L2_1[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr_L2_1[%d] = %Lu\n", bb->bbid, unknow_arr_L2_1[bb->bbid] );
 
-            printf( "hit_arr_2[%d] = %Lu\n", bb->bbid, hit_arr_2[bb->bbid] );
-            printf( "miss_arr_2[%d] = %Lu\n", bb->bbid, miss_arr_2[bb->bbid] );
-            printf( "unknow_arr_2[%d] = %Lu\n", bb->bbid, unknow_arr_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "hit_arr_2[%d] = %Lu\n", bb->bbid, hit_arr_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr_2[%d] = %Lu\n", bb->bbid, miss_arr_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr_2[%d] = %Lu\n", bb->bbid, unknow_arr_2[bb->bbid] );
 
-            printf( "hit_arr_L2_2[%d] = %Lu\n", bb->bbid, hit_arr_L2_2[bb->bbid] );
-            printf( "miss_arr_L2_2[%d] = %Lu\n", bb->bbid, miss_arr_L2_2[bb->bbid] );
-            printf( "unknow_arr_L2_2[%d] = %Lu\n", bb->bbid, unknow_arr_L2_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "hit_arr_L2_2[%d] = %Lu\n", bb->bbid, hit_arr_L2_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "miss_arr_L2_2[%d] = %Lu\n", bb->bbid, miss_arr_L2_2[bb->bbid] );
+            DEBUG_ANALYSIS_PRINTF( "unknow_arr_L2_2[%d] = %Lu\n", bb->bbid, unknow_arr_L2_2[bb->bbid] );
 
-          }
           // tmp_wpath[ bb->bbid ] = max;
           break;
 
@@ -614,31 +578,28 @@ int analyseDAGLoop_WCET( procedure *proc, loop *lop, int index )
         miss_arr_L2_2[bb->bbid] += bb->proc_ptr->miss_wcet_L2[index + 1] * ( lp->loopbound - 1 );
         unknow_arr_L2_2[bb->bbid] += bb->proc_ptr->unknow_wcet_L2[index + 1] * ( lp->loopbound - 1 );
 
-        if ( print )
-          printf( "bb %d-%d procedure call %d wcet: 1 %Lu 2 %Lu\n", bb->pid, bb->bbid, bb->callpid,
+          DEBUG_ANALYSIS_PRINTF( "bb %d-%d procedure call %d wcet: 1 %Lu 2 %Lu\n", bb->pid, bb->bbid, bb->callpid,
               bb->proc_ptr->wcet[index * 2], bb->proc_ptr->wcet[index * 2 + 1] );
-        fflush( stdout );
-        if ( print ) {
-          printf( "wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid] );
-          printf( "wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid] );
+          
+          DEBUG_ANALYSIS_PRINTF( "wcet_arr_1[%d] = %Lu\n", bb->bbid, wcet_arr_1[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "wcet_arr_2[%d] = %Lu\n", bb->bbid, wcet_arr_2[bb->bbid] );
 
-          printf( "hit_arr_1[%d] = %Lu\n", bb->bbid, hit_arr_1[bb->bbid] );
-          printf( "miss_arr_1[%d] = %Lu\n", bb->bbid, miss_arr_1[bb->bbid] );
-          printf( "unknow_arr_1[%d] = %Lu\n", bb->bbid, unknow_arr_1[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "hit_arr_1[%d] = %Lu\n", bb->bbid, hit_arr_1[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "miss_arr_1[%d] = %Lu\n", bb->bbid, miss_arr_1[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "unknow_arr_1[%d] = %Lu\n", bb->bbid, unknow_arr_1[bb->bbid] );
 
-          printf( "hit_arr_L2_1[%d] = %Lu\n", bb->bbid, hit_arr_L2_1[bb->bbid] );
-          printf( "miss_arr_L2_1[%d] = %Lu\n", bb->bbid, miss_arr_L2_1[bb->bbid] );
-          printf( "unknow_arr_L2_1[%d] = %Lu\n", bb->bbid, unknow_arr_L2_1[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "hit_arr_L2_1[%d] = %Lu\n", bb->bbid, hit_arr_L2_1[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "miss_arr_L2_1[%d] = %Lu\n", bb->bbid, miss_arr_L2_1[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "unknow_arr_L2_1[%d] = %Lu\n", bb->bbid, unknow_arr_L2_1[bb->bbid] );
 
-          printf( "hit_arr_2[%d] = %Lu\n", bb->bbid, hit_arr_2[bb->bbid] );
-          printf( "miss_arr_2[%d] = %Lu\n", bb->bbid, miss_arr_2[bb->bbid] );
-          printf( "unknow_arr_2[%d] = %Lu\n", bb->bbid, unknow_arr_2[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "hit_arr_2[%d] = %Lu\n", bb->bbid, hit_arr_2[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "miss_arr_2[%d] = %Lu\n", bb->bbid, miss_arr_2[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "unknow_arr_2[%d] = %Lu\n", bb->bbid, unknow_arr_2[bb->bbid] );
 
-          printf( "hit_arr_L2_2[%d] = %Lu\n", bb->bbid, hit_arr_L2_2[bb->bbid] );
-          printf( "miss_arr_L2_2[%d] = %Lu\n", bb->bbid, miss_arr_L2_2[bb->bbid] );
-          printf( "unknow_arr_L2_2[%d] = %Lu\n", bb->bbid, unknow_arr_L2_2[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "hit_arr_L2_2[%d] = %Lu\n", bb->bbid, hit_arr_L2_2[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "miss_arr_L2_2[%d] = %Lu\n", bb->bbid, miss_arr_L2_2[bb->bbid] );
+          DEBUG_ANALYSIS_PRINTF( "unknow_arr_L2_2[%d] = %Lu\n", bb->bbid, unknow_arr_L2_2[bb->bbid] );
 
-        }
       }
     } // end else loophead
   } // end for
@@ -666,18 +627,15 @@ int analyseDAGLoop_WCET( procedure *proc, loop *lop, int index )
   lp->miss_wcet_L2[index + 1] = miss_arr_L2_2[topo[num_topo - 1]->bbid];
   lp->unknow_wcet_L2[index + 1] = unknow_arr_L2_2[topo[num_topo - 1]->bbid];
 
-  if ( print ) {
-    printf( " lp->wcet = %Lu, %Lu\n", lp->wcet[index], lp->wcet[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( " lp->wcet = %Lu, %Lu\n", lp->wcet[index], lp->wcet[index + 1] );
 
-    printf( " lp->hit_wcet = %Lu, %Lu\n", lp->hit_wcet[index], lp->hit_wcet[index + 1] );
-    printf( " lp->miss_wcet = %Lu, %Lu\n", lp->miss_wcet[index], lp->miss_wcet[index + 1] );
-    printf( " lp->unknow_wcet = %Lu, %Lu\n", lp->unknow_wcet[index], lp->unknow_wcet[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( " lp->hit_wcet = %Lu, %Lu\n", lp->hit_wcet[index], lp->hit_wcet[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( " lp->miss_wcet = %Lu, %Lu\n", lp->miss_wcet[index], lp->miss_wcet[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( " lp->unknow_wcet = %Lu, %Lu\n", lp->unknow_wcet[index], lp->unknow_wcet[index + 1] );
 
-    printf( " lp->hit_wcet_L2 = %Lu, %Lu\n", lp->hit_wcet_L2[index], lp->hit_wcet_L2[index + 1] );
-    printf( " lp->miss_wcet_L2 = %Lu, %Lu\n", lp->miss_wcet_L2[index], lp->miss_wcet_L2[index + 1] );
-    printf( " lp->unknow_wcet_L2 = %Lu, %Lu\n", lp->unknow_wcet_L2[index], lp->unknow_wcet_L2[index + 1] );
-
-  }
+    DEBUG_ANALYSIS_PRINTF( " lp->hit_wcet_L2 = %Lu, %Lu\n", lp->hit_wcet_L2[index], lp->hit_wcet_L2[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( " lp->miss_wcet_L2 = %Lu, %Lu\n", lp->miss_wcet_L2[index], lp->miss_wcet_L2[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( " lp->unknow_wcet_L2 = %Lu, %Lu\n", lp->unknow_wcet_L2[index], lp->unknow_wcet_L2[index + 1] );
 
   if ( !lp->is_dowhile ) {
     // one extra execution of loophead ?????????????????
@@ -708,19 +666,16 @@ int analyseDAGLoop_WCET( procedure *proc, loop *lop, int index )
     }
   }
 
-  if ( print ) {
-    printf( "lp->wcet[%d] = %Lu\n", index, lp->wcet[index] );
-    printf( "lp->wcet[%d] = %Lu\n", index + 1, lp->wcet[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( "lp->wcet[%d] = %Lu\n", index, lp->wcet[index] );
+    DEBUG_ANALYSIS_PRINTF( "lp->wcet[%d] = %Lu\n", index + 1, lp->wcet[index + 1] );
 
-    printf( "lp->hit_wcet = %Lu, %Lu\n", lp->hit_wcet[index], lp->hit_wcet[index + 1] );
-    printf( "lp->miss_wcet = %Lu, %Lu\n", lp->miss_wcet[index], lp->miss_wcet[index + 1] );
-    printf( "lp->unknow_wcet = %Lu, %Lu\n", lp->unknow_wcet[index], lp->unknow_wcet[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( "lp->hit_wcet = %Lu, %Lu\n", lp->hit_wcet[index], lp->hit_wcet[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( "lp->miss_wcet = %Lu, %Lu\n", lp->miss_wcet[index], lp->miss_wcet[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( "lp->unknow_wcet = %Lu, %Lu\n", lp->unknow_wcet[index], lp->unknow_wcet[index + 1] );
 
-    printf( "lp->hit_wcet_L2 = %Lu, %Lu\n", lp->hit_wcet_L2[index], lp->hit_wcet_L2[index + 1] );
-    printf( "lp->miss_wcet_L2 = %Lu, %Lu\n", lp->miss_wcet_L2[index], lp->miss_wcet_L2[index + 1] );
-    printf( "lp->unknow_wcet_L2 = %Lu, %Lu\n", lp->unknow_wcet_L2[index], lp->unknow_wcet_L2[index + 1] );
-
-  }
+    DEBUG_ANALYSIS_PRINTF( "lp->hit_wcet_L2 = %Lu, %Lu\n", lp->hit_wcet_L2[index], lp->hit_wcet_L2[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( "lp->miss_wcet_L2 = %Lu, %Lu\n", lp->miss_wcet_L2[index], lp->miss_wcet_L2[index + 1] );
+    DEBUG_ANALYSIS_PRINTF( "lp->unknow_wcet_L2 = %Lu, %Lu\n", lp->unknow_wcet_L2[index], lp->unknow_wcet_L2[index + 1] );
 
   free( wcet_arr_1 );
   free( wcet_arr_2 );
@@ -793,9 +748,7 @@ int analysis_dag_WCET( MSC *msc )
     msc->taskList[k].miss_wcet_L2 = msc->taskList[k].main_copy->miss_wcet_L2[0];
     msc->taskList[k].unknow_wcet_L2 = msc->taskList[k].main_copy->unknow_wcet_L2[0];
 
-    if ( print ) {
-      printf( "msc->taskList[%d].wcet = %Lu\n", k, msc->taskList[k].wcet );
-    }
+      DEBUG_ANALYSIS_PRINTF( "msc->taskList[%d].wcet = %Lu\n", k, msc->taskList[k].wcet );
   }
 
   /* double t = cycle_time(1);
