@@ -38,7 +38,7 @@
 
 
 // List of static helper functions (see bottom)
-static int readMSCfromFile( const char *interferFileName, int num_msc, _Bool *interference_changed );
+static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool *interference_changed );
 
 static void printWCETandCacheInfoFiles( int num_msc );
 
@@ -90,7 +90,7 @@ int main(int argc, char **argv )
   char hitmiss[MAX_LEN];
   int n, i, j;
   _Bool flag;
-  int num_task, num_msc = 0;
+  int num_msc = 0;
   float sum;
   char interferFileName[MAX_LEN], proc[2*MAX_LEN];
   ticks start,end;
@@ -180,12 +180,12 @@ int main(int argc, char **argv )
     }
     num_msc++;
 
-    num_task = readMSCfromFile( interferFileName, num_msc, NULL );
+    readMSCfromFile( interferFileName, num_msc - 1, NULL );
 
     /* Now go through all the tasks to read their CFG and build 
      * relevant data structures like loops, basic blocks and so 
      * on */	  
-    for(i = 0; i < num_task; i ++) {
+    for(i = 0; i < msc[num_msc -1]->num_task; i ++) {
 
       filename = msc[num_msc -1]->taskList[i].task_name;
       procs     = NULL;
@@ -493,17 +493,16 @@ int main(int argc, char **argv )
 
 
 /* Reads an MSC from the given file and allocates the memory for
- * storing the msc. Returns the number of tasks that were read.
+ * storing the msc.
  *
- * 'num_msc' should be the number of mscs that were already read in.
- *           The new msc will be stored at index 'num_msc - 1' in
- *           the global array 'msc'.
+ * 'msc_index' The new msc will be stored at this index in the
+ *             global array 'msc'.
  * 'interference_changed' If the task interference changed, compared to
  *                        values already stored in msc[num_msc - 1],
  *                        then this location is set to '1' if the
  *                        pointer is not NULL.
  */
-static int readMSCfromFile( const char *interferFileName, int num_msc, _Bool *interference_changed )
+static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool *interference_changed )
 {
   FILE *interferFile = fopen(interferFileName,"r");
   if( !interferFile ) {
@@ -520,37 +519,37 @@ static int readMSCfromFile( const char *interferFileName, int num_msc, _Bool *in
   }
 
   /* Allocate memory for this MSC */
-  CALLOC_IF_NULL( msc[num_msc -1], MSC*, sizeof(MSC), "MSC");
+  CALLOC_IF_NULL( msc[msc_index], MSC*, sizeof(MSC), "MSC");
 
-  strcpy(msc[num_msc -1]->msc_name, interferFileName);
-  msc[num_msc -1]->num_task = num_task;
+  strcpy(msc[msc_index]->msc_name, interferFileName);
+  msc[msc_index]->num_task = num_task;
 
   /* Allocate memory for all tasks in the MSC and intereference data
    * structure */
-  CALLOC_IF_NULL(msc[num_msc -1]->taskList, task_t*,
+  CALLOC_IF_NULL(msc[msc_index]->taskList, task_t*,
       num_task * sizeof(task_t), "taskList");
-  CALLOC_IF_NULL(msc[num_msc -1]->interferInfo, int**,
+  CALLOC_IF_NULL(msc[msc_index]->interferInfo, int**,
       num_task * sizeof(int*), "interferInfo*");
 
   /* Get/set names of all tasks in the MSC */
   int i;
   for(i = 0; i < num_task; i ++) {
 
-    fscanf(interferFile, "%s\n", (char*)&(msc[num_msc -1]->taskList[i].task_name));
+    fscanf(interferFile, "%s\n", (char*)&(msc[msc_index]->taskList[i].task_name));
     /* sudiptac ::: Read also the successor info. Needed for WCET analysis
      * in presence of shared bus */
-    fscanf(interferFile, "%d", &(msc[num_msc - 1]->taskList[i].numSuccs));
-    uint nSuccs = msc[num_msc - 1]->taskList[i].numSuccs;
+    fscanf(interferFile, "%d", &(msc[msc_index]->taskList[i].numSuccs));
+    uint nSuccs = msc[msc_index]->taskList[i].numSuccs;
 
     /* Allocate memory for successor List */
-    CALLOC_IF_NULL( msc[num_msc - 1]->taskList[i].succList, int*,
+    CALLOC_IF_NULL( msc[msc_index]->taskList[i].succList, int*,
         nSuccs * sizeof(int), "succList" );
 
     /* Now read all successor id-s of this task in the same MSC. Task id-s
      * are ordered in topological order */
     int si;
     for(si = 0; si < nSuccs; si++) {
-      fscanf(interferFile, "%d", &(msc[num_msc - 1]->taskList[i].succList[si]));
+      fscanf(interferFile, "%d", &(msc[msc_index]->taskList[i].succList[si]));
     }
 
     fscanf(interferFile, "\n");
@@ -560,8 +559,8 @@ static int readMSCfromFile( const char *interferFileName, int num_msc, _Bool *in
 
   /* Set other parameters of the tasks */
   for(i = 0; i < num_task; i ++) {
-    msc[num_msc -1]->taskList[i].task_id = i;
-    CALLOC_IF_NULL(msc[num_msc -1]->interferInfo[i], int*,
+    msc[msc_index]->taskList[i].task_id = i;
+    CALLOC_IF_NULL(msc[msc_index]->interferInfo[i], int*,
         num_task * sizeof(int), "interferInfo");
 
     /* Set the intereference info of task "i" i.e. all ("j" < num_task)
@@ -569,11 +568,11 @@ static int readMSCfromFile( const char *interferFileName, int num_msc, _Bool *in
      * timeline */
     int j;
     for(j = 0; j < num_task; j++) {
-      const int old_value = msc[num_msc -1]->interferInfo[i][j];
-      fscanf(interferFile, "%d ", &(msc[num_msc -1]->interferInfo[i][j]));
+      const int old_value = msc[msc_index]->interferInfo[i][j];
+      fscanf(interferFile, "%d ", &(msc[msc_index]->interferInfo[i][j]));
 
       // Set flag if given and interference changed
-      if ( msc[num_msc -1]->interferInfo[i][j] != old_value ) {
+      if ( msc[msc_index]->interferInfo[i][j] != old_value ) {
         if ( interference_changed != NULL ) {
           *interference_changed = 1;
         }
@@ -584,8 +583,6 @@ static int readMSCfromFile( const char *interferFileName, int num_msc, _Bool *in
   }
 
   fclose(interferFile);
-
-  return num_task;
 }
 
 /* This is a helper function that prints the results of the WCET, BCET
