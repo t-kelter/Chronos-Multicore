@@ -40,7 +40,7 @@
 // List of static helper functions (see bottom)
 static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool *interference_changed );
 
-static void printWCETandCacheInfoFiles( int num_msc );
+static void writeWCETandCacheInfoFiles( int num_msc );
 
 #ifdef WITH_WEI_COMPARISON
 static void writeWeiComparison( int num_msc, const char *finalStatsBasename );
@@ -261,14 +261,14 @@ int main(int argc, char **argv )
        * no longer needed */ 
       freeAllCacheState();
 
-      PRINT_PRINTF("\ndone L1\n");
+      PRINT_PRINTF("\nL1 cache analysis finished\n");
 
       /* Now do private L2 cache analysis of this task */
       cacheAnalysis_L2();
       /* Free L2 cache states */
       freeAll_L2();
 
-      PRINT_PRINTF("\ndone L2\n");
+      PRINT_PRINTF("\nL2 cache analysis finished\n");
     }
 
     /* Private cache analysis for all tasks are done here. But due 
@@ -340,7 +340,7 @@ int main(int argc, char **argv )
   times_iteration ++;
 
   // Print the input for the WCRT submodule
-  printWCETandCacheInfoFiles( num_msc );
+  writeWCETandCacheInfoFiles( num_msc );
 
   /* To get Wei's result */
 #ifdef WITH_WEI_COMPARISON
@@ -391,12 +391,8 @@ int main(int argc, char **argv )
         /* Update L2 cache state */
         updateCacheState(msc[i]);
 
-        /* printf("compute wcost and bcost after update %s\n",
-         * msc[i]->msc_name); */
         pathDAG(msc[i]);
-        /* Compute WCET and BCET of each task.
-         * CAUTION: In presence of shared bus these two
-         * procedures are going to change */
+        /* Compute WCET and BCET of each task. */
         compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file);
         compute_bus_BCET_MSC(msc[num_msc -1]);
 
@@ -408,7 +404,7 @@ int main(int argc, char **argv )
       times_iteration ++;
 
       // Print the input for the WCRT submodule
-      printWCETandCacheInfoFiles( num_msc );
+      writeWCETandCacheInfoFiles( num_msc );
     }
   }
 
@@ -416,17 +412,8 @@ int main(int argc, char **argv )
 
   /* DONE: All Analysis */
 
-  /* to generate xls file */
-
   // The base path of all final output files. Individual files only add a suffix
   char *finalStatsBasename = "simple_test";
-  
-  sprintf(hitmiss, "%s-wcrt.res", finalStatsBasename);
-  FILE *wcrt = fopen(hitmiss, "w");
-  if( !wcrt ) {
-   fprintf(stderr, "Failed to open file: %s (main.c:815)\n", hitmiss);
-   exit(1);
-  }
   
   /* To compare against our results */
 #ifdef WITH_WEI_COMPARISON
@@ -437,12 +424,17 @@ int main(int argc, char **argv )
   for(i = 0; i < cache_L2.ns; i ++)
     sum = sum + numConflictTask[i];
 
-  printf("average conflict tasks:    	%f\n", sum/cache_L2.ns);
+  printf("Average conflict tasks:    	%f\n", sum/cache_L2.ns);
 
 
   /* Get the final WCRT value */
-  /* I guess the condition should be based on number of
-   * iterations --- not the number of cores */
+  sprintf(hitmiss, "%s-wcrt.res", finalStatsBasename);
+  FILE *wcrt = fopen(hitmiss, "w");
+  if( !wcrt ) {
+   fprintf(stderr, "Failed to open file: %s (main.c:815)\n", hitmiss);
+   exit(1);
+  }
+
   char summary1[200];
   sprintf( summary1, "%s.cf.1.WCRT", finalStatsBasename );
   char summary2[200];
@@ -591,7 +583,7 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
  *
  * 'num_msc' should be the current total number of mscs
  */
-static void printWCETandCacheInfoFiles( int num_msc )
+static void writeWCETandCacheInfoFiles( int num_msc )
 {
   int i, j;
 
