@@ -1187,8 +1187,7 @@ static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
   if ( lp->wcet_opt[0] )
     return;
 
-  NPRINT_PRINTF
-  ( "Visiting loop = %d.%d.0x%x\n", lp->pid, lp->lpid, (unsigned) lp );
+  NPRINT_PRINTF( "Visiting loop = %d.%d.0x%x\n", lp->pid, lp->lpid, (unsigned) lp );
 
   /* FIXME: correcting loop bound */
   lpbound = lp->loopexit ? lp->loopbound : ( lp->loopbound + 1 );
@@ -1231,10 +1230,8 @@ static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
       else
         set_start_time_opt( bb, proc, j );
 
-      NPRINT_PRINTF
-      ( "Current CHMC = 0x%x\n", (unsigned) cur_chmc );
-      NPRINT_PRINTF
-      ( "Current CHMC L2 = 0x%x\n", (unsigned) cur_chmc_L2 );
+      NPRINT_PRINTF( "Current CHMC = 0x%x\n", (unsigned) cur_chmc );
+      NPRINT_PRINTF( "Current CHMC L2 = 0x%x\n", (unsigned) cur_chmc_L2 );
 
       for ( k = 0; k < bb->num_instr; k++ ) {
         inst = bb->instrlist[k];
@@ -1252,16 +1249,14 @@ static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
         else if ( cur_chmc_L2->hitmiss_addr[k] == ALWAYS_HIT ) {
           /* access shared bus */
           latency = determine_latency( bb, j, bb_cost, L2_HIT );
-          NPRINT_PRINTF
-          ( "Latency = %u\n", latency );
+          NPRINT_PRINTF( "Latency = %u\n", latency );
           bb_cost += latency;
         }
         /* Else it is an L2 miss */
         else {
           /* access shared bus */
           latency = determine_latency( bb, j, bb_cost, L2_MISS );
-          NPRINT_PRINTF
-          ( "Latency = %u\n", latency );
+          NPRINT_PRINTF( "Latency = %u\n", latency );
           bb_cost += latency;
         }
         /* Handle procedure call instruction */
@@ -1317,8 +1312,7 @@ static void computeWCET_loop( loop* lp, procedure* proc )
   int j;
   block* bb;
 
-  DEBUG_PRINTF
-  ( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t) lp );
+  DEBUG_PRINTF( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t) lp );
 
   /* FIXME: correcting loop bound */
   lpbound = lp->loopexit ? lp->loopbound : ( lp->loopbound + 1 );
@@ -1366,8 +1360,7 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
   acc_type acc_t;
   procedure* callee;
 
-  DEBUG_PRINTF
-  ( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t) bb );
+  DEBUG_PRINTF( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t) bb );
 
   /* Check whether the block is some header of a loop structure.
    * In that case do separate analysis of the loop */
@@ -1526,12 +1519,9 @@ void computeWCET( ull start_time )
   }
   computeWCET_proc( procs[top_func], start_time );
 
-  PRINT_PRINTF
-  ( "\n\n**************************************************************\n" );
-  PRINT_PRINTF
-  ( "Latest start time of the program = %Lu start_time\n", start_time );
-  PRINT_PRINTF
-  ( "Latest finish time of the program = %Lu cycles\n", procs[top_func]->running_finish_time );
+  PRINT_PRINTF( "\n\n**************************************************************\n" );
+  PRINT_PRINTF( "Latest start time of the program = %Lu start_time\n", start_time );
+  PRINT_PRINTF( "Latest finish time of the program = %Lu cycles\n", procs[top_func]->running_finish_time );
   if ( g_shared_bus )
     PRINT_PRINTF( "WCET of the program with shared bus = %Lu cycles\n", procs[top_func]->running_cost );
   else
@@ -1548,8 +1538,7 @@ static void update_succ_latest_time( MSC* msc, task_t* task )
   int i;
   uint sid;
 
-  DEBUG_PRINTF
-  ( "Number of Successors = %d\n", task->numSuccs );
+  DEBUG_PRINTF( "Number of Successors = %d\n", task->numSuccs );
   for ( i = 0; i < task->numSuccs; i++ ) {
     DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i] );
     sid = task->succList[i];
@@ -1581,8 +1570,7 @@ static ull get_latest_start_time( task_t* cur_task, uint core )
     start = cur_task->l_start;
   else
     start = latest[core];
-  DEBUG_PRINTF
-  ( "Assigning the latest starting time of the task = %Lu\n", start );
+  DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start );
 
   return start;
 }
@@ -1606,8 +1594,7 @@ void compute_bus_WCET_MSC( MSC *msc, const char *tdma_bus_schedule_file )
   for ( k = 0; k < msc->num_task; k++ ) {
     acc_bus_delay = 0;
     /* Get the main procedure */
-    PRINT_PRINTF
-    ( "Analyzing Task WCET %s......\n", msc->taskList[k].task_name );
+    PRINT_PRINTF( "Analyzing Task WCET %s......\n", msc->taskList[k].task_name );
 
     all_inst = 0;
     cur_task = &( msc->taskList[k] );
@@ -1629,18 +1616,14 @@ void compute_bus_WCET_MSC( MSC *msc, const char *tdma_bus_schedule_file )
      * predecessors have been analyzed. Thus After analyzing one task
      * update all its successor tasks' latest time */
     update_succ_latest_time( msc, cur_task );
-    PRINT_PRINTF
-    ( "\n\n**************************************************************\n" );
-    PRINT_PRINTF
-    ( "Latest start time of the program = %Lu start_time\n", start_time );
-    PRINT_PRINTF
-    ( "Latest finish time of the task = %Lu cycles\n", proc->running_finish_time );
+    PRINT_PRINTF( "\n\n**************************************************************\n" );
+    PRINT_PRINTF( "Latest start time of the program = %Lu start_time\n", start_time );
+    PRINT_PRINTF( "Latest finish time of the task = %Lu cycles\n", proc->running_finish_time );
     if ( g_shared_bus )
       PRINT_PRINTF( "WCET of the task with shared bus = %Lu cycles\n", proc->running_cost );
     else
       PRINT_PRINTF( "WCET of the task without shared bus = %Lu cycles\n", proc->running_cost );
-    PRINT_PRINTF
-    ( "**************************************************************\n\n" );
+    PRINT_PRINTF( "**************************************************************\n\n" );
     fflush( stdout );
   }
   /* DONE :: WCET computation of the MSC */
