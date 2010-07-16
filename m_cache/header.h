@@ -119,6 +119,12 @@ typedef unsigned long long ull;
   realloc( (ptr), (size) ); \
   if( !(ptr) ) printf( "\nError: realloc failed for %s.\n\n", (msg) ), exit(1)
 
+// A macro for allocating or reallocating and assigning the given memory size
+// depending on whether a previous allocation exists
+#define CALLOC_OR_REALLOC( ptr, type, size, msg ) \
+  ptr = ( type ) ( ptr ? realloc( ptr, size ) : calloc( 1, size ) ); \
+  if( !(ptr) ) printf( "\nError: calloc_or_realloc failed for %s.\n\n", (msg) ), exit(1)
+
 /* Conditional debug output */
 
 #ifdef _DEBUG
@@ -531,8 +537,6 @@ typedef struct schedule* sched_p;
 
 EXTERN char *interferePathName;
 EXTERN char *filename;
-EXTERN char *cache_config;
-EXTERN char *cache_config_L2;
 
 EXTERN char *numConflictTask; //to sum up number of tasks that map to the same cache set
 EXTERN char *numConflictMSC; //to sum up number of tasks that map to the same cache set within one MSC

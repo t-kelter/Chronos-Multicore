@@ -71,9 +71,90 @@ int analysis() {
 
 */
 
+/* Reads an MSC from the given file and allocates the memory for
+ * storing the msc. Returns the number of tasks that were read.
+ *
+ * 'num_msc' should be the number of mscs that were already read in.
+ *           The new msc will be stored at index 'num_msc - 1' in
+ *           the global array 'msc'.
+ */
+static int readMSCfromFile( const char *interferFileName, int num_msc )
+{
+  FILE *interferFile = fopen(interferFileName,"r");
+  if( !interferFile ) {
+    fprintf(stderr, "Failed to open file: %s (main.c:231)\n", interferFileName);
+    exit(1);
+  }
+
+  /* Read number of tasks */
+  int num_task = 0;
+  fscanf(interferFile, "%d\n", &num_task);
+
+  /* Allocate memory for this MSC */
+  CALLOC_OR_REALLOC( msc[num_msc -1], MSC*, sizeof(MSC), "MSC");
+
+  strcpy(msc[num_msc -1]->msc_name, interferFileName);
+  msc[num_msc -1]->num_task = num_task;
+
+  /* Allocate memory for all tasks in the MSC and intereference data
+   * structure */
+  CALLOC_OR_REALLOC(msc[num_msc -1]->taskList, task_t*,
+      num_task * sizeof(task_t), "taskList");
+  CALLOC_OR_REALLOC(msc[num_msc -1]->interferInfo, int**,
+      num_task * sizeof(int*), "interferInfo*");
+
+  /* Get/set names of all tasks in the MSC */
+  int i;
+  for(i = 0; i < num_task; i ++) {
+
+    fscanf(interferFile, "%s\n", (char*)&(msc[num_msc -1]->taskList[i].task_name));
+    /* sudiptac ::: Read also the successor info. Needed for WCET analysis
+     * in presence of shared bus */
+    fscanf(interferFile, "%d", &(msc[num_msc - 1]->taskList[i].numSuccs));
+    uint nSuccs = msc[num_msc - 1]->taskList[i].numSuccs;
+
+    /* Allocate memory for successor List */
+    CALLOC_OR_REALLOC( msc[num_msc - 1]->taskList[i].succList, int*,
+        nSuccs * sizeof(int), "succList" );
+
+    /* Now read all successor id-s of this task in the same MSC. Task id-s
+     * are ordered in topological order */
+    int si;
+    for(si = 0; si < nSuccs; si++) {
+      fscanf(interferFile, "%d", &(msc[num_msc - 1]->taskList[i].succList[si]));
+    }
+
+    fscanf(interferFile, "\n");
+  }
+
+  fscanf(interferFile, "\n");
+
+  /* Set other parameters of the tasks */
+  for(i = 0; i < num_task; i ++) {
+    msc[num_msc -1]->taskList[i].task_id = i;
+    CALLOC_OR_REALLOC(msc[num_msc -1]->interferInfo[i], int*,
+        num_task * sizeof(int), "interferInfo");
+
+    /* Set the intereference info of task "i" i.e. all ("j" < num_task)
+     * are set to "1" if task "i" interefere with "j" in this msc in the
+     * timeline */
+    int j;
+    for(j = 0; j < num_task; j++) {
+      fscanf(interferFile, "%d ", &(msc[num_msc -1]->interferInfo[i][j]));
+    }
+    fscanf(interferFile, "\n");
+  }
+
+  fclose(interferFile);
+
+  return num_task;
+}
+
 /* This is a helper function that prints the results of the WCET, BCET
  * and cache analyses to files, so that the WCRT analysis submodule can
  * read those results.
+ *
+ * 'num_msc' should be the current total number of mscs
  */
 static void printWCETandCacheInfoFiles( int num_msc )
 {
@@ -142,6 +223,7 @@ static void printWCETandCacheInfoFiles( int num_msc )
   }
 }
 
+
 int main(int argc, char **argv )
 {
   FILE *file, *hitmiss_statistic, *wcrt;
@@ -171,8 +253,6 @@ int main(int argc, char **argv )
 
   /* also read conflict info and tasks info */
   interferePathName = argv[1];
-  cache_config = argv[2];
-  cache_config_L2 = argv[3];
   num_core = atoi( argv[4] );
   const char * const tdma_bus_schedule_file = argv[5];
   infeas   = 0;
@@ -194,8 +274,8 @@ int main(int argc, char **argv )
   memset(latest, 0, num_core * sizeof(ull)); 	  
 
   /* Set the basic parameters of L1 and L2 instruction caches */		  
-  set_cache_basic(cache_config);
-  set_cache_basic_L2(cache_config_L2);
+  set_cache_basic( argv[2] );
+  set_cache_basic_L2( argv[3] );
 
   /* Allocate memory for capturing conflicting task information */		  
   numConflictTask = (char *)CALLOC(numConflictTask, cache_L2.ns, sizeof(char),
@@ -216,6 +296,9 @@ int main(int argc, char **argv )
     dumpCacheConfig_L2();
 #endif
 
+  /* Monitor time from this point */
+  STARTTIME;
+
   /* Start reading the interference file and build the intereference 
    * information */
   /* TODO: The input files for Chronos are relatively complicated to read and at
@@ -231,9 +314,6 @@ int main(int argc, char **argv )
     exit(1);
   }
 
-  /* Monitor time from this point */
-  STARTTIME;
-
   /* Read the entire file containing the interference information */		  
   while(fscanf(interferPath, "%s\n", interferFileName)!= EOF) {
     if(num_msc == 0) {
@@ -243,72 +323,7 @@ int main(int argc, char **argv )
     }
     num_msc++;
 
-    interferFile = fopen(interferFileName,"r");
-    if( !interferFile ) {
-      fprintf(stderr, "Failed to open file: %s (main.c:231)\n", interferFileName);
-      exit(1);
-    }
-
-    /* Read number of tasks */	   
-    fscanf(interferFile, "%d\n", &num_task);
-
-    /* Allocate memory for this MSC */
-    msc[num_msc -1] = (MSC*)CALLOC(msc[num_msc -1], 1, sizeof(MSC), "MSC");
-
-    strcpy(msc[num_msc -1]->msc_name, interferFileName);
-    msc[num_msc -1]->num_task = num_task;
-
-    /* Allocate memory for all tasks in the MSC and intereference data 
-     * structure */
-    msc[num_msc -1]->taskList = (task_t*)CALLOC(msc[num_msc -1], num_task,
-        sizeof(task_t), "taskList");
-    msc[num_msc -1]->interferInfo = (int**)CALLOC(msc[num_msc -1]->interferInfo,
-        num_task, sizeof(int*), "interferInfo*");
-
-    /* Get/set names of all tasks in the MSC */	  
-    for(i = 0; i < num_task; i ++) {
-
-      fscanf(interferFile, "%s\n", (char*)&(msc[num_msc -1]->taskList[i].task_name));
-      /* sudiptac ::: Read also the successor info. Needed for WCET analysis
-       * in presence of shared bus */
-      fscanf(interferFile, "%d", &(msc[num_msc - 1]->taskList[i].numSuccs));
-      nSuccs = msc[num_msc - 1]->taskList[i].numSuccs;
-
-      /* Allocate memory for successor List */
-      msc[num_msc - 1]->taskList[i].succList = 
-        (int*)malloc(nSuccs * sizeof(int));
-      if(!msc[num_msc - 1]->taskList[i].succList)	
-        prerr("Error: Out of Memory");
-
-      /* Now read all successor id-s of this task in the same MSC. Task id-s
-       * are ordered in topological order */
-      for(si = 0; si < nSuccs; si++) {
-        fscanf(interferFile, "%d", &(msc[num_msc - 1]->taskList[i].succList[si]));
-      }
-
-      fscanf(interferFile, "\n"); 	  
-    }	  
-
-    fscanf(interferFile, "\n");   
-
-    /* Set other parameters of the tasks */	  
-    for(i = 0; i < num_task; i ++) {
-      msc[num_msc -1]->taskList[i].task_id = i;
-      msc[num_msc -1]->interferInfo[i] = (int*)CALLOC(msc[num_msc -1]->
-          interferInfo[i], num_task, sizeof(int), "interferInfo");
-
-      /* Set the intereference info of task "i" i.e. all ("j" < num_task)
-       * are set to "1" if task "i" interefere with "j" in this msc in the
-       * timeline */
-      for(j = 0; j < num_task; j++) {
-        fscanf(interferFile, "%d ", &(msc[num_msc -1]->interferInfo[i][j]));
-        /* printf("msc[%d]->interfer[%d][%d] = %d\n", num_msc -1, i, j,
-         * msc[num_msc -1]->interferInfo[i][j]); */
-      }
-      fscanf(interferFile, "\n");
-    }
-    /* All done ::: close the interference file */
-    fclose(interferFile);
+    num_task = readMSCfromFile( interferFileName, num_msc );
 
     /* Now go through all the tasks to read their CFG and build 
      * relevant data structures like loops, basic blocks and so 
