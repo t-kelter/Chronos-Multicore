@@ -96,7 +96,7 @@ int main(int argc, char **argv )
   /* For no bus modelling */
   g_no_bus_modeling = 0;
   /* Set whether we fully unroll loops during the analysis. */
-  g_full_unrolling = 1;
+  g_full_unrolling = 0;
 
   /* also read conflict info and tasks info */
   interferePathName = argv[1];
