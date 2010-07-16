@@ -119,11 +119,16 @@ typedef unsigned long long ull;
   realloc( (ptr), (size) ); \
   if( !(ptr) ) printf( "\nError: realloc failed for %s.\n\n", (msg) ), exit(1)
 
-// A macro for allocating or reallocating and assigning the given memory size
+// A macro for allocating and assigning memory of the given size to 'ptr',
 // depending on whether a previous allocation exists
-#define CALLOC_OR_REALLOC( ptr, type, size, msg ) \
-  ptr = ( type ) ( ptr ? realloc( ptr, size ) : calloc( 1, size ) ); \
-  if( !(ptr) ) printf( "\nError: calloc_or_realloc failed for %s.\n\n", (msg) ), exit(1)
+#define CALLOC_IF_NULL( ptr, type, size, msg ) \
+  if ( ptr == NULL ) { \
+    ptr = ( type ) calloc( 1, size ); \
+    if( !(ptr) ) { \
+      printf( "\nError: calloc_or_realloc failed for %s.\n\n", (msg) ); \
+      exit(1); \
+    } \
+  } \
 
 /* Conditional debug output */
 
