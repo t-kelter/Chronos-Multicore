@@ -409,7 +409,7 @@ static void preprocess_all_loops( procedure* proc )
 
 /* Computes the latest finish time and worst case cost of a loop.
  * This procedure fully unrolls the loop virtually during computation.
- * Can be optimized for specific bus schedule ? */
+ */
 static void computeWCET_loop( loop* lp, procedure* proc )
 {
   DEBUG_PRINTF( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t) lp );

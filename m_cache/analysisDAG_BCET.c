@@ -34,8 +34,6 @@ static void computeBCET_proc( procedure* proc, ull start_time );
 /* Attach hit/miss classification for L2 cache to the instruction */
 static void classify_inst_L2_BCET( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int inst_id )
 {
-  int i;
-
   if ( !n_chmc_l2 )
     return;
 
@@ -47,6 +45,7 @@ static void classify_inst_L2_BCET( instr* inst, CHMC** chmc_l2, int n_chmc_l2, i
 
   memset( inst->acc_t_l2, 0, n_chmc_l2 * sizeof(acc_type) );
 
+  int i;
   for ( i = 0; i < n_chmc_l2; i++ ) {
     assert(chmc_l2[i]);
 
@@ -60,8 +59,6 @@ static void classify_inst_L2_BCET( instr* inst, CHMC** chmc_l2, int n_chmc_l2, i
 /* Attach hit/miss classification to the instruction */
 static void classify_inst_BCET( instr* inst, CHMC** chmc, int n_chmc, int inst_id )
 {
-  int i;
-
   if ( !n_chmc )
     return;
 
@@ -73,6 +70,7 @@ static void classify_inst_BCET( instr* inst, CHMC** chmc, int n_chmc, int inst_i
 
   memset( inst->acc_t, 0, n_chmc * sizeof(acc_type) );
 
+  int i;
   for ( i = 0; i < n_chmc; i++ ) {
     assert(chmc[i]);
 
@@ -86,15 +84,13 @@ static void classify_inst_BCET( instr* inst, CHMC** chmc, int n_chmc, int inst_i
  * data structure */
 static void preprocess_chmc_L2_BCET( procedure* proc )
 {
-  int i, j;
-  block* bb;
-  instr* inst;
-
+  int i;
   for ( i = 0; i < proc->num_bb; i++ ) {
-    bb = proc->bblist[i];
+    block* bb = proc->bblist[i];
 
+    int j;
     for ( j = 0; j < bb->num_instr; j++ ) {
-      inst = bb->instrlist[j];
+      instr* inst = bb->instrlist[j];
       classify_inst_L2_BCET( inst, bb->chmc_L2, bb->num_chmc_L2, j );
     }
   }
@@ -103,15 +99,13 @@ static void preprocess_chmc_L2_BCET( procedure* proc )
 /* Attach chmc classification to the instruction data structure */
 static void preprocess_chmc_BCET( procedure* proc )
 {
-  int i, j;
-  block* bb;
-  instr* inst;
-
+  int i;
   for ( i = 0; i < proc->num_bb; i++ ) {
-    bb = proc->bblist[i];
+    block* bb = proc->bblist[i];
 
+    int j;
     for ( j = 0; j < bb->num_instr; j++ ) {
-      inst = bb->instrlist[j];
+      instr* inst = bb->instrlist[j];
       classify_inst_BCET( inst, bb->chmc, bb->num_chmc, j );
     }
   }
@@ -121,14 +115,13 @@ static void preprocess_chmc_BCET( procedure* proc )
  * during BCET calculation */
 static void set_start_time_BCET( block* bb, procedure* proc )
 {
-  int i, in_index;
-  ull min_start;
-  /* ull max_start = 0; */
+  ull min_start = 0;
 
   assert(bb);
 
+  int i;
   for ( i = 0; i < bb->num_incoming; i++ ) {
-    in_index = bb->incoming[i];
+    int in_index = bb->incoming[i];
     assert(proc->bblist[in_index]);
     if ( i == 0 )
       min_start = proc->bblist[in_index]->finish_time;
@@ -144,20 +137,18 @@ static void set_start_time_BCET( block* bb, procedure* proc )
   DEBUG_PRINTF( "Setting min start of bb %d = %Lu\n", bb->bbid, min_start);
 }
 
-/* Computes the latest finish time and worst case cost
- * of a loop */
+/* Computes the earliest finish time and best case cost of a loop.
+ * This procedure fully unrolls the loop virtually during computation.
+ */
 static void computeBCET_loop( loop* lp, procedure* proc )
 {
-  int i, lpbound;
-  int j;
-  block* bb;
-
   DEBUG_PRINTF( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t)lp);
 
-  lpbound = lp->loopbound;
+  const int lpbound = lp->loopbound;
 
   /* For computing BCET of the loop it must be visited 
    * multiple times equal to the loop bound */
+  int i;
   for ( i = 0; i < lpbound; i++ ) {
     /* CAUTION: Update the current context */
     if ( i == 0 )
@@ -166,8 +157,9 @@ static void computeBCET_loop( loop* lp, procedure* proc )
       cur_context = cur_context + 1;
 
     /* Go through the blocks in topological order */
+    int j;
     for ( j = lp->num_topo - 1; j >= 0; j-- ) {
-      bb = lp->topo[j];
+      block* bb = lp->topo[j];
       assert(bb);
       /* Set the start time of this block in the loop */
       /* If this is the first iteration and loop header
@@ -193,12 +185,7 @@ static void computeBCET_loop( loop* lp, procedure* proc )
 /* Compute worst case finish time and cost of a block */
 static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp )
 {
-  int i;
-  loop* inlp;
-  instr* inst;
   uint acc_cost = 0;
-  acc_type acc_t;
-  procedure* callee;
 
   DEBUG_PRINTF( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t)bb);
 
@@ -206,19 +193,21 @@ static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp )
    * In that case do separate analysis of the loop */
   /* Exception is when we are currently in the process of analyzing
    * the same loop */
-  if ( ( inlp = check_loop( bb, proc ) ) && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) )
+  loop * const inlp = check_loop( bb, proc );
+  if ( inlp && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
     computeBCET_loop( inlp, proc );
 
   /* Its not a loop. Go through all the instructions and
    * compute the WCET of the block */
-  else {
+  } else {
+    int i;
     for ( i = 0; i < bb->num_instr; i++ ) {
-      inst = bb->instrlist[i];
+      instr* inst = bb->instrlist[i];
       assert(inst);
 
       /* Handle procedure call instruction */
       if ( IS_CALL(inst->op) ) {
-        callee = getCallee( inst, proc );
+        procedure* callee = getCallee( inst, proc );
 
         /* For ignoring library calls */
         if ( callee ) {
@@ -232,7 +221,8 @@ static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp )
       /* No procedure call ---- normal instruction */
       else {
         /* If its a L1 hit add only L1 cache latency */
-        if ( ( acc_t = check_hit_miss( bb, inst ) ) == L1_HIT )
+        acc_type acc_t = check_hit_miss( bb, inst );
+        if ( acc_t == L1_HIT )
           acc_cost += L1_HIT_LATENCY;
         /* If its a L1 miss and L2 hit add only L2 cache
          * latency */
@@ -259,16 +249,13 @@ static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp )
     /* The accumulated cost is computed. Now set the latest finish
      * time of this block */
     bb->finish_time = bb->start_time + acc_cost;
-  } DEBUG_PRINTF( "Setting block %d finish time = %Lu\n", bb->bbid,
+  }
+  DEBUG_PRINTF( "Setting block %d finish time = %Lu\n", bb->bbid,
       bb->finish_time);
 }
 
 static void computeBCET_proc( procedure* proc, ull start_time )
 {
-  int i;
-  block* bb;
-  ull min_f_time;
-
   /* Initialize current context. Set to zero before the start 
    * of each new procedure */
   cur_context = 0;
@@ -290,8 +277,9 @@ static void computeBCET_proc( procedure* proc, ull start_time )
 
   /* Recursively compute the finish time and BCET of each
    * predecessors first */
+  int i;
   for ( i = proc->num_topo - 1; i >= 0; i-- ) {
-    bb = proc->topo[i];
+    block* bb = proc->topo[i];
     assert(bb);
     /* If this is the first block of the procedure then
      * set the start time of this block to be the same 
@@ -309,6 +297,7 @@ static void computeBCET_proc( procedure* proc, ull start_time )
 #endif
 
   /* Now calculate the final BCET */
+  ull min_f_time;
   for ( i = 0; i < proc->num_topo; i++ ) {
     assert(proc->topo[i]);
 
@@ -334,16 +323,14 @@ static void computeBCET_proc( procedure* proc, ull start_time )
  * analysis depends on the same */
 static void update_succ_earliest_time( MSC* msc, task_t* task )
 {
-  int i;
-  uint sid;
-
   DEBUG_PRINTF( "Number of Successors = %d\n", task->numSuccs);
 
+  int i;
   for ( i = 0; i < task->numSuccs; i++ ) {
 
     DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i]);
 
-    sid = task->succList[i];
+    uint sid = task->succList[i];
     msc->taskList[sid].l_start = task->l_start + task->bcet;
 
     DEBUG_PRINTF( "Updating earliest start time of successor = %Lu\n",
@@ -357,18 +344,14 @@ static void update_succ_earliest_time( MSC* msc, task_t* task )
  * imposed by the partial order of the MSC */
 static ull get_earliest_start_time( task_t* cur_task, uint core )
 {
-  ull start;
-
   /* A task in the MSC can be delayed because of two reasons. Either
    * the tasks it is dependent upon has not finished executing or 
    * since we consider a non-preemptive scheduling policy the task can 
    * also be delayed because of some other processe's execution in the 
    * same core. Thus we need to consider the maximum of two 
    * possibilities */
-  if ( cur_task->l_start > latest_core_time[core] )
-    start = cur_task->l_start;
-  else
-    start = latest_core_time[core];
+  // TODO: This is wrong - still computes the maximum
+  ull start = MIN( cur_task->l_start, latest_core_time[core] );
 
   DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start);
 
@@ -377,40 +360,49 @@ static ull get_earliest_start_time( task_t* cur_task, uint core )
 
 /* Analyze best case execution time of all the tasks inside 
  * a MSC. The MSC is given by the argument */
-void compute_bus_BCET_MSC( MSC *msc )
+void compute_bus_BCET_MSC( MSC *msc, const char *tdma_bus_schedule_file )
 {
-  int k;
-  ull start_time = 0;
-  procedure* proc;
-
   /* Set the global TDMA bus schedule */
-  setSchedule( "TDMA_bus_sched.db" );
+  setSchedule( tdma_bus_schedule_file );
 
   /* Reset the latest time of all cores */
   memset( latest_core_time, 0, num_core * sizeof(ull) );
   /* reset latest time of all tasks */
   reset_all_task( msc );
 
+  int k;
   for ( k = 0; k < msc->num_task; k++ ) {
     acc_bus_delay = 0;
+
+    /* Now update the latest starting time in this core */
+    latest_core_time[ncore] = start_time + msc->taskList[k].wcet;
+
+    /* Since the interference file for a MSC was dumped in topological
+     * order and read back in the same order we are assured of the fact
+     * that we analyze the tasks inside a MSC only after all of its
+     * predecessors have been analyzed. Thus After analyzing one task
+     * update all its successor tasks' latest time */
+    update_succ_task_latest_start_time( msc, cur_task );
+
     /* Get the main procedure */
     /* For printing not desired bus delay */
     NPRINT_PRINTF( "Analyzing Task BCET %s......\n", msc->taskList[k].task_name);
 
+    /* Get needed inputs. */
     cur_task = &( msc->taskList[k] );
-    proc = msc->taskList[k].main_copy;
-    /* Return the core number in which the task is assigned */
     ncore = get_core( cur_task );
-    /* First get the latest start time of task id "k" in this msc 
-     * because the bus aware BCET analysis depends on the latest
-     * starting time of the corresponding task */
-    start_time = get_earliest_start_time( cur_task, ncore );
-    computeBCET_proc( proc, start_time );
+    procedure * const task_main = msc->taskList[k].main_copy;
 
-    /* Set the worst case cost of this task */
+    /* First get the earliest start time of the current task. */
+    ull start_time = get_earliest_start_time( cur_task, ncore );
+
+    /* Then compute and set the worst case cost of this task */
+    computeBCET_proc( task_main, start_time );
     msc->taskList[k].bcet = msc->taskList[k].main_copy->running_cost;
+
     /* Now update the latest starting time in this core */
     latest_core_time[ncore] = start_time + msc->taskList[k].bcet;
+
     /* Since the interference file for a MSC was dumped in topological 
      * order and read back in the same order we are assured of the fact
      * that we analyze the tasks inside a MSC only after all of its

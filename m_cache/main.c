@@ -374,7 +374,7 @@ int main(int argc, char **argv )
         pathDAG(msc[i]);
         /* Compute WCET and BCET of each task. */
         compute_bus_WCET_MSC(msc[i], tdma_bus_schedule_file);
-        compute_bus_BCET_MSC(msc[i]);
+        compute_bus_BCET_MSC(msc[i], tdma_bus_schedule_file);
 
         /* FIXME: What's this function doing here ? */
         resetHitMiss_L2(msc[i]);
