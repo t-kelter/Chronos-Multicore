@@ -127,13 +127,13 @@ static void preprocess_chmc( procedure* proc )
   }
 }
 
-/* This sets the latest starting time of a block
- * during WCET calculation */
+/* This sets the latest starting time of a block during WCET calculation.
+ * (Not context-aware)
+ */
 static void set_start_time( block* bb, procedure* proc )
 {
   int i, in_index;
   ull max_start = bb->start_time;
-  /* ull max_start = 0; */
 
   assert(bb);
 
@@ -152,11 +152,16 @@ static void set_start_time( block* bb, procedure* proc )
   DEBUG_PRINTF( "Setting max start of bb %d = %Lu\n", bb->bbid, max_start );
 }
 
+/* This sets the latest starting time of a block during WCET calculation.
+ * (Context-aware)
+ *
+ * Additionally this function carries over the 'latest_bus' and 'latest_latency'
+ * fields from the predecessor with maximum finishing time.
+ */
 static void set_start_time_opt( block* bb, procedure* proc, uint context )
 {
   int i, in_index;
   ull max_start = bb->start_opt[context];
-  /* ull max_start = 0; */
 
   assert(bb);
 
@@ -179,7 +184,8 @@ static void set_start_time_opt( block* bb, procedure* proc, uint context )
    * finish time of predecessors block */
   bb->start_opt[context] = max_start;
 
-  DEBUG_PRINTF( "Setting max start of bb %d = %Lu\n", bb->bbid, max_start );
+  DEBUG_PRINTF( "Setting max start of bb %d (context %u) = %Lu\n",
+      bb->bbid, context, max_start );
 }
 
 /* Determine approximate memory/bus delay for a L1 cache miss
@@ -261,7 +267,7 @@ static uint determine_latency( block* bb, uint context, uint bb_cost, acc_type t
 }
 
 /* Computes end alignment cost of the loop */
-ull endAlign( ull fin_time )
+static ull endAlign( ull fin_time )
 {
   ull interval = global_sched_data->seg_list[0]->per_core_sched[0]->interval;
 
@@ -275,14 +281,14 @@ ull endAlign( ull fin_time )
 }
 
 /* computes start alignment cost */
-uint startAlign()
+static uint startAlign()
 {
   DEBUG_PRINTF( "Start align = %u\n", global_sched_data->seg_list[0]->per_core_sched[0]->interval );
   return global_sched_data->seg_list[0]->per_core_sched[0]->interval;
 }
 
 /* Preprocess one loop for optimized bus aware WCET calculation */
-/* This takes care of the alignments of loop at te beginning and at the 
+/* This takes care of the alignments of loop at the beginning and at the
  * end */
 static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
 {
@@ -294,7 +300,6 @@ static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
   instr* inst;
   uint bb_cost = 0;
   uint latency = 0;
-  uint lpbound;
   uint max_fin[64] = { 0 };
 
   /* We can assume the start time to be always zero */
@@ -305,9 +310,6 @@ static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
     return;
 
   NPRINT_PRINTF( "Visiting loop = %d.%d.0x%x\n", lp->pid, lp->lpid, (unsigned) lp );
-
-  /* FIXME: correcting loop bound */
-  lpbound = lp->loopexit ? lp->loopbound : ( lp->loopbound + 1 );
 
   /* Traverse all the blocks in topological order. Topological
    * order does not assume internal loops. Thus all internal 
@@ -513,7 +515,7 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
           acc_cost += ( callee->running_cost + 1 );
         }
       }
-      /* No proedure call ---- normal instruction */
+      /* No procedure call ---- normal instruction */
       else {
         all_inst++;
         /* If its a L1 hit add only L1 cache latency */

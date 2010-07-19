@@ -92,7 +92,7 @@ int main(int argc, char **argv )
   _Bool flag;
   int num_msc = 0;
   float sum;
-  char interferFileName[MAX_LEN], proc[2*MAX_LEN];
+  char interferFileName[MAX_LEN];
   ticks start,end;
 
   times_iteration = 0;
@@ -181,13 +181,14 @@ int main(int argc, char **argv )
     num_msc++;
 
     readMSCfromFile( interferFileName, num_msc - 1, NULL );
+    MSC * const currentMSC = msc[num_msc - 1];
 
     /* Now go through all the tasks to read their CFG and build 
      * relevant data structures like loops, basic blocks and so 
      * on */	  
-    for(i = 0; i < msc[num_msc -1]->num_task; i ++) {
+    for(i = 0; i < currentMSC->num_task; i ++) {
 
-      filename = msc[num_msc -1]->taskList[i].task_name;
+      filename = currentMSC->taskList[i].task_name;
       procs     = NULL;
       num_procs = 0;
       proc_cg   = NULL;
@@ -202,15 +203,15 @@ int main(int argc, char **argv )
 
       /* Create the procedure pointer in the task --- just allocate
        * the memory */
-      msc[num_msc -1]->taskList[i].proc_cg_ptr = (proc_copy *)
-        CALLOC(msc[num_msc -1]->taskList[i].proc_cg_ptr,
+      currentMSC->taskList[i].proc_cg_ptr = (proc_copy *)
+        CALLOC(currentMSC->taskList[i].proc_cg_ptr,
             num_procs, sizeof(proc_copy), "proc_copy");
 
       /* Initialize pointers for procedures. Each entry means a 
        * different context ? */
       for(j = 0; j < num_procs; j ++) {
-        msc[num_msc -1]->taskList[i].proc_cg_ptr[j].num_proc = 0;
-        msc[num_msc -1]->taskList[i].proc_cg_ptr[j].proc = NULL;
+        currentMSC->taskList[i].proc_cg_ptr[j].num_proc = 0;
+        currentMSC->taskList[i].proc_cg_ptr[j].proc = NULL;
       }
 
       readInstr();
@@ -241,12 +242,12 @@ int main(int argc, char **argv )
 
       /* This function allocates memory for all analysis and subsequent WCET
        * computation of the task */
-      constructAll(&(msc[num_msc -1]->taskList[i]));
+      constructAll(&(currentMSC->taskList[i]));
 
       /* Set the main procedure (entry procedure) and total number of 
        * procedures appearing in this task */
-      msc[num_msc -1]->taskList[i].main_copy = main_copy;
-      msc[num_msc -1]->taskList[i].num_proc= num_procs;
+      currentMSC->taskList[i].main_copy = main_copy;
+      currentMSC->taskList[i].num_proc= num_procs;
 
       /* FIXME: Anything IMPORTANT ? */ 
       /* taskList[0]->task_id = i;
@@ -274,49 +275,28 @@ int main(int argc, char **argv )
     /* Private cache analysis for all tasks are done here. But due 
      * to the intereference some of the classification in L2 cache 
      * need to be updated */
-
-    /* read inteference info and update Cache State */
-
-    printf("update CS %s\n", msc[num_msc -1]->msc_name);
-
-    /* If private L2 cache analysis .... no update of interference */	  
-    if(!g_private)	  
-      updateCacheState(msc[num_msc-1]);
+    /* If private L2 cache analysis .... no update of interference */
+    if( !g_private ) {
+      printf("update CS %s\n", currentMSC->msc_name);
+      updateCacheState(currentMSC);
+    }
 
     /* This function allocates all memory required for computing and 
      * storing hit-miss classification */
-    pathDAG(msc[num_msc -1]);
+    pathDAG(currentMSC);
 
     /* Compute WCET and BCET of this MSC. remember MSC... not task
      * so we need to compute WCET/BCET of each task in the MSC */
     /* CAUTION: In presence of shared bus these two function changes
      * to account for the bus delay */
     start = getticks();
-    compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file); 
+    compute_bus_WCET_MSC(currentMSC, tdma_bus_schedule_file);
     end = getticks();
 
     /* FIXME: What's this function doing here ? */ 	  
     /* If private L2 cache analysis .... no update of interference */	  
     if(!g_private)
-      resetHitMiss_L2(msc[num_msc -1]);
-
-    /* Now write the interference info to a file which would be
-     * passed to the WCRT module in the next iteration */
-    sprintf(proc, "conflictTaskMSC_%d", num_msc - 1);
-    FILE *conflictMSC = fopen(proc, "w");
-    if( !conflictMSC ) {
-      fprintf(stderr, "Failed to open file: %s (main.c:438)\n", proc);
-      exit(1);
-    }
-
-    sum = 0;
-
-    for(n = 0; n < cache_L2.ns; n++)
-      sum = sum + numConflictMSC[n];
-
-    /* FIXME: Guess this is for debugging */	  
-    fprintf(conflictMSC, "%f", sum/cache_L2.ns);
-    fclose(conflictMSC);
+      resetHitMiss_L2(currentMSC);
 
     /* Initializing conflicting information */
     for(n = 0; n < cache_L2.ns; n++) {
@@ -393,8 +373,8 @@ int main(int argc, char **argv )
 
         pathDAG(msc[i]);
         /* Compute WCET and BCET of each task. */
-        compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file);
-        compute_bus_BCET_MSC(msc[num_msc -1]);
+        compute_bus_WCET_MSC(msc[i], tdma_bus_schedule_file);
+        compute_bus_BCET_MSC(msc[i]);
 
         /* FIXME: What's this function doing here ? */
         resetHitMiss_L2(msc[i]);
