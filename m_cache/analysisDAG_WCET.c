@@ -36,8 +36,6 @@ static void computeWCET_proc( procedure* proc, ull start_time );
 /* Attach hit/miss classification for L2 cache to the instruction */
 static void classify_inst_L2( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int inst_id )
 {
-  int i;
-
   if ( !n_chmc_l2 )
     return;
 
@@ -46,9 +44,11 @@ static void classify_inst_L2( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int in
     inst->acc_t_l2 = (acc_type *) malloc( n_chmc_l2 * sizeof(acc_type) );
   if ( !inst->acc_t_l2 )
     prerr( "Error: Out of memory" );
+
   /* FIXME: Default value is L2 miss */
   memset( inst->acc_t_l2, 0, n_chmc_l2 * sizeof(acc_type) );
 
+  int i;
   for ( i = 0; i < n_chmc_l2; i++ ) {
     assert(chmc_l2[i]);
 
@@ -64,8 +64,6 @@ static void classify_inst_L2( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int in
 /* Attach hit/miss classification to the instruction */
 static void classify_inst( instr* inst, CHMC** chmc, int n_chmc, int inst_id )
 {
-  int i;
-
   if ( !n_chmc )
     return;
 
@@ -74,9 +72,11 @@ static void classify_inst( instr* inst, CHMC** chmc, int n_chmc, int inst_id )
     inst->acc_t = (acc_type *) malloc( n_chmc * sizeof(acc_type) );
   if ( !inst->acc_t )
     prerr( "Error: Out of memory" );
+
   /* FIXME: Default value is L2 miss */
   memset( inst->acc_t, 0, n_chmc * sizeof(acc_type) );
 
+  int i;
   for ( i = 0; i < n_chmc; i++ ) {
     assert(chmc[i]);
 
@@ -96,15 +96,13 @@ static void classify_inst( instr* inst, CHMC** chmc, int n_chmc, int inst_id )
  * data structure */
 static void preprocess_chmc_L2( procedure* proc )
 {
-  int i, j;
-  block* bb;
-  instr* inst;
-
+  int i;
   for ( i = 0; i < proc->num_bb; i++ ) {
-    bb = proc->bblist[i];
+    block* bb = proc->bblist[i];
 
+    int j;
     for ( j = 0; j < bb->num_instr; j++ ) {
-      inst = bb->instrlist[j];
+      instr* inst = bb->instrlist[j];
       classify_inst_L2( inst, bb->chmc_L2, bb->num_chmc_L2, j );
     }
   }
@@ -113,15 +111,13 @@ static void preprocess_chmc_L2( procedure* proc )
 /* Attach chmc classification to the instruction data structure */
 static void preprocess_chmc( procedure* proc )
 {
-  int i, j;
-  block* bb;
-  instr* inst;
-
+  int i;
   for ( i = 0; i < proc->num_bb; i++ ) {
-    bb = proc->bblist[i];
+    block *bb = proc->bblist[i];
 
+    int j;
     for ( j = 0; j < bb->num_instr; j++ ) {
-      inst = bb->instrlist[j];
+      instr* inst = bb->instrlist[j];
       classify_inst( inst, bb->chmc, bb->num_chmc, j );
     }
   }
@@ -132,13 +128,13 @@ static void preprocess_chmc( procedure* proc )
  */
 static void set_start_time( block* bb, procedure* proc )
 {
-  int i, in_index;
   ull max_start = bb->start_time;
 
   assert(bb);
 
+  int i;
   for ( i = 0; i < bb->num_incoming; i++ ) {
-    in_index = bb->incoming[i];
+    int in_index = bb->incoming[i];
     assert(proc->bblist[in_index]);
     /* Determine the predecessors' latest finish time */
     if ( max_start < proc->bblist[in_index]->finish_time )
@@ -160,13 +156,13 @@ static void set_start_time( block* bb, procedure* proc )
  */
 static void set_start_time_opt( block* bb, procedure* proc, uint context )
 {
-  int i, in_index;
   ull max_start = bb->start_opt[context];
 
   assert(bb);
 
+  int i;
   for ( i = 0; i < bb->num_incoming; i++ ) {
-    in_index = bb->incoming[i];
+    int in_index = bb->incoming[i];
     assert(proc->bblist[in_index]);
     /* Determine the predecessors' latest finish time */
     if ( max_start < proc->bblist[in_index]->fin_opt[context] ) {
@@ -198,20 +194,16 @@ static void set_start_time_opt( block* bb, procedure* proc, uint context )
  */
 static uint determine_latency( block* bb, uint context, uint bb_cost, acc_type type )
 {
+  // The result value
   ull delay = 0;
-  ull offset;
-  ull interval;
-  uint slot_len;
-  uint latency;
-  uint p_latency;
-  int n;
-  int ncore = 4;
 
-  offset = bb->start_opt[context] + bb_cost - bb->latest_bus[context];
+  // The offset of the block end
+  const ull offset = bb->start_opt[context] + bb_cost - bb->latest_bus[context];
 
   /* FIXME: Core number is hard-coded */
-  slot_len = global_sched_data->seg_list[0]->per_core_sched[0]->slot_len;
-  interval = global_sched_data->seg_list[0]->per_core_sched[0]->interval;
+  const int ncore = 4;
+  uint slot_len = global_sched_data->seg_list[0]->per_core_sched[0]->slot_len;
+  ull interval = global_sched_data->seg_list[0]->per_core_sched[0]->interval;
 
   /* Return maximum if no bus is modeled */
   if ( g_no_bus_modeling ) {
@@ -240,14 +232,10 @@ static uint determine_latency( block* bb, uint context, uint bb_cost, acc_type t
     delay = MISS_PENALTY;
   /* Mathematics, mathematics and more mathematics */
   else {
-    if ( type == L2_HIT )
-      latency = L2_HIT_LATENCY;
-    else
-      latency = MISS_PENALTY;
+    const uint latency = ( type == L2_HIT ) ? L2_HIT_LATENCY : MISS_PENALTY;
+    const uint p_latency = ( bb->latest_latency[context] );
+    const int n = ( ( offset + p_latency ) / ( ncore * slot_len ) ) + 1;
 
-    p_latency = ( bb->latest_latency[context] );
-
-    n = ( ( offset + p_latency ) / ( ncore * slot_len ) ) + 1;
     /* Check whether can be served in an outstanding bus slot */
     if ( offset <= ( ( n - 1 ) * ncore + 1 ) * slot_len - latency - p_latency )
       delay = latency;
@@ -269,7 +257,7 @@ static uint determine_latency( block* bb, uint context, uint bb_cost, acc_type t
 /* Computes end alignment cost of the loop */
 static ull endAlign( ull fin_time )
 {
-  ull interval = global_sched_data->seg_list[0]->per_core_sched[0]->interval;
+  const ull interval = global_sched_data->seg_list[0]->per_core_sched[0]->interval;
 
   if ( fin_time % interval == 0 ) {
     DEBUG_PRINTF( "End align = 0\n" );
@@ -290,20 +278,11 @@ static uint startAlign()
 /* Preprocess one loop for optimized bus aware WCET calculation */
 /* This takes care of the alignments of loop at the beginning and at the
  * end */
-static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
+static void preprocess_one_loop( loop* lp, procedure* proc )
 {
-  int i, j, k;
-  block* bb;
-  loop* inlp = NULL;
-  CHMC* cur_chmc;
-  CHMC* cur_chmc_L2;
-  instr* inst;
-  uint bb_cost = 0;
-  uint latency = 0;
-  uint max_fin[64] = { 0 };
-
   /* We can assume the start time to be always zero */
-  start_time = 0;
+  const ull start_time = 0;
+  uint max_fin[64] = { 0 };
 
   /* Compute only once */
   if ( lp->wcet_opt[0] )
@@ -314,18 +293,20 @@ static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
   /* Traverse all the blocks in topological order. Topological
    * order does not assume internal loops. Thus all internal 
    * loops are considered to be black boxes */
+  int i;
   for ( i = lp->num_topo - 1; i >= 0; i-- ) {
-    bb = lp->topo[i];
+    block *bb = lp->topo[i];
     /* bb cannot be empty */
     assert(bb);
     /* initialize basic block cost */
-    bb_cost = 0;
+    uint bb_cost = 0;
     memset( max_fin, 0, 64 );
 
     /* Traverse over all the CHMC-s of this basic block */
+    int j;
     for ( j = 0; j < bb->num_chmc; j++ ) {
-      cur_chmc = (CHMC *) bb->chmc[j];
-      cur_chmc_L2 = (CHMC *) bb->chmc_L2[j];
+      const CHMC * const cur_chmc = (CHMC *) bb->chmc[j];
+      const CHMC * const cur_chmc_L2 = (CHMC *) bb->chmc_L2[j];
       /* Reset start , finish time and cost */
       bb->start_opt[j] = 0;
       bb->fin_opt[j] = 0;
@@ -333,10 +314,11 @@ static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
 
       /* Check whether this basic block is the header of some other 
        * loop */
-      if ( ( inlp = check_loop( bb, proc ) ) && i != lp->num_topo - 1 ) {
+      loop * const inlp = check_loop( bb, proc );
+      if ( inlp && i != lp->num_topo - 1 ) {
         /* FIXME: do I need this ? */
         /* set_start_time_opt(bb, proc, j); */
-        preprocess_one_loop( inlp, proc, bb->start_opt[j] );
+        preprocess_one_loop( inlp, proc );
         bb->fin_opt[j] = bb->start_opt[j] + startAlign() + inlp->wcet_opt[2 * j] + startAlign() + ( inlp->wcet_opt[2
             * j + 1] + endAlign( inlp->wcet_opt[2 * j + 1] ) ) * inlp->loopbound;
         continue;
@@ -352,10 +334,12 @@ static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
       NPRINT_PRINTF( "Current CHMC = 0x%x\n", (unsigned) cur_chmc );
       NPRINT_PRINTF( "Current CHMC L2 = 0x%x\n", (unsigned) cur_chmc_L2 );
 
+      int k;
       for ( k = 0; k < bb->num_instr; k++ ) {
-        inst = bb->instrlist[k];
+        instr * const inst = bb->instrlist[k];
         /* Instruction cannot be empty */
         assert(inst);
+
         /* Check for a L1 miss */
         if ( cur_chmc->hitmiss_addr[k] != ALWAYS_HIT )
           NPRINT_PRINTF( "L1 miss at 0x%x\n", (unsigned) bb->startaddr );
@@ -367,14 +351,14 @@ static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
         /* Otherwise if it is an L2 hit */
         else if ( cur_chmc_L2->hitmiss_addr[k] == ALWAYS_HIT ) {
           /* access shared bus */
-          latency = determine_latency( bb, j, bb_cost, L2_HIT );
+          uint latency = determine_latency( bb, j, bb_cost, L2_HIT );
           NPRINT_PRINTF( "Latency = %u\n", latency );
           bb_cost += latency;
         }
         /* Else it is an L2 miss */
         else {
           /* access shared bus */
-          latency = determine_latency( bb, j, bb_cost, L2_MISS );
+          uint latency = determine_latency( bb, j, bb_cost, L2_MISS );
           NPRINT_PRINTF( "Latency = %u\n", latency );
           bb_cost += latency;
         }
@@ -401,6 +385,8 @@ static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
         max_fin[j] = bb->fin_opt[j];
     }
   }
+
+  int j;
   for ( j = 0; j < lp->loophead->num_chmc; j++ ) {
     lp->wcet_opt[j] = ( max_fin[j] - 1 );
     PRINT_PRINTF( "WCET of loop (%d.%d.0x%lx)[%d] = %Lu\n", lp->pid, lp->lpid, (uintptr_t) lp, j, lp->wcet_opt[j] );
@@ -410,15 +396,14 @@ static void preprocess_one_loop( loop* lp, procedure* proc, ull start_time )
 /* Preprocess each loop for optimized bus aware WCET calculation */
 static void preprocess_all_loops( procedure* proc )
 {
-  int i;
-
   /* Preprocess loops....in reverse topological order i.e. in reverse 
    * order of detection */
+  int i;
   for ( i = proc->num_loops - 1; i >= 0; i-- ) {
     /* Preprocess only outermost loop, inner ones will be processed 
      * recursively */
     if ( proc->loops[i]->level == 0 )
-      preprocess_one_loop( proc->loops[i], proc, 1 );
+      preprocess_one_loop( proc->loops[i], proc );
   }
 }
 
@@ -427,17 +412,14 @@ static void preprocess_all_loops( procedure* proc )
  * Can be optimized for specific bus schedule ? */
 static void computeWCET_loop( loop* lp, procedure* proc )
 {
-  int i, lpbound;
-  int j;
-  block* bb;
-
   DEBUG_PRINTF( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t) lp );
 
   /* FIXME: correcting loop bound */
-  lpbound = lp->loopexit ? lp->loopbound : ( lp->loopbound + 1 );
+  const int lpbound = lp->loopexit ? lp->loopbound : ( lp->loopbound + 1 );
 
   /* For computing wcet of the loop it must be visited 
    * multiple times equal to the loop bound */
+  int i;
   for ( i = 0; i < lpbound; i++ ) {
     /* CAUTION: Update the current context */
     if ( i == 0 )
@@ -446,22 +428,26 @@ static void computeWCET_loop( loop* lp, procedure* proc )
       cur_context = cur_context + 1;
 
     /* Go through the blocks in topological order */
+    int j;
     for ( j = lp->num_topo - 1; j >= 0; j-- ) {
-      bb = lp->topo[j];
+      block * const bb = lp->topo[j];
       assert(bb);
+
       /* Set the start time of this block in the loop */
       /* If this is the first iteration and loop header
        * set the start time to be the latest finish time
        * of predecessor otherwise latest finish time of
        * loop sink */
-      if ( bb->bbid == lp->loophead->bbid && i == 0 )
+      if ( bb->bbid == lp->loophead->bbid && i == 0 ) {
         set_start_time( bb, proc );
-      else if ( bb->bbid == lp->loophead->bbid ) {
+      } else if ( bb->bbid == lp->loophead->bbid ) {
         assert(lp->loopsink);
-        bb->start_time = ( bb->start_time < lp->loopsink->finish_time ) ? lp->loopsink->finish_time : bb->start_time;
+        bb->start_time = MAX( lp->loopsink->finish_time, bb->start_time );
         DEBUG_PRINTF( "Setting loop %d finish time = %Lu\n", lp->lpid, lp->loopsink->finish_time );
-      } else
+      } else {
         set_start_time( bb, proc );
+      }
+
       computeWCET_block( bb, proc, lp );
     }
   }
@@ -472,38 +458,34 @@ static void computeWCET_loop( loop* lp, procedure* proc )
 /* Compute worst case finish time and cost of a block */
 static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
 {
-  int i;
-  loop* inlp;
-  instr* inst;
-  uint acc_cost = 0;
-  acc_type acc_t;
-  procedure* callee;
-
   DEBUG_PRINTF( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t) bb );
 
   /* Check whether the block is some header of a loop structure.
    * In that case do separate analysis of the loop */
   /* Exception is when we are currently in the process of analyzing
    * the same loop */
-  if ( ( inlp = check_loop( bb, proc ) ) && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
+  loop* inlp = check_loop( bb, proc );
+  if ( inlp && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
     if ( g_full_unrolling )
       computeWCET_loop( inlp, proc );
     else {
       bb->finish_time = bb->start_time + startAlign() + inlp->wcet_opt[0] + startAlign() + ( inlp->wcet_opt[1]
           + endAlign( inlp->wcet_opt[1] ) ) * inlp->loopbound;
     }
-  }
 
   /* It's not a loop. Go through all the instructions and
    * compute the WCET of the block */
-  else {
+  } else {
+    uint acc_cost = 0;
+
+    int i;
     for ( i = 0; i < bb->num_instr; i++ ) {
-      inst = bb->instrlist[i];
+      instr* inst = bb->instrlist[i];
       assert(inst);
 
       /* Handle procedure call instruction */
       if ( IS_CALL(inst->op) ) {
-        callee = getCallee( inst, proc );
+        procedure* callee = getCallee( inst, proc );
 
         /* For ignoring library calls */
         if ( callee ) {
@@ -519,6 +501,7 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
       else {
         all_inst++;
         /* If its a L1 hit add only L1 cache latency */
+        acc_type acc_t;
         if ( ( acc_t = check_hit_miss( bb, inst ) ) == L1_HIT )
           acc_cost += ( L1_HIT_LATENCY );
         /* If its a L1 miss and L2 hit add only L2 cache
@@ -552,10 +535,6 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
 
 static void computeWCET_proc( procedure* proc, ull start_time )
 {
-  int i;
-  block* bb;
-  ull max_f_time = 0;
-
   /* Initialize current context. Set to zero before the start 
    * of each new procedure */
   cur_context = 0;
@@ -581,8 +560,9 @@ static void computeWCET_proc( procedure* proc, ull start_time )
 
   /* Recursively compute the finish time and WCET of each 
    * predecessors first */
+  int i;
   for ( i = proc->num_topo - 1; i >= 0; i-- ) {
-    bb = proc->topo[i];
+    block* bb = proc->topo[i];
     assert(bb);
     /* If this is the first block of the procedure then
      * set the start time of this block to be the same 
@@ -599,6 +579,7 @@ static void computeWCET_proc( procedure* proc, ull start_time )
 #endif
 
   /* Now calculate the final WCET */
+  ull max_f_time = 0;
   for ( i = 0; i < proc->num_topo; i++ ) {
     assert(proc->topo[i]);
     if ( proc->topo[i]->num_outgoing > 0 )
@@ -618,17 +599,15 @@ static void computeWCET_proc( procedure* proc, ull start_time )
  */
 void computeWCET( ull start_time )
 {
-  int top_func;
-  int id;
-
   acc_bus_delay = 0;
   cur_task = NULL;
 
   /* Send the pointer to the "main" to compute the WCET of the
    * whole program */
   assert(proc_cg);
-  id = num_procs - 1;
+  int id = num_procs - 1;
 
+  int top_func = -1;
   while ( id >= 0 ) {
     top_func = proc_cg[id];
     /* Ignore all un-intended library calls like "printf" */
