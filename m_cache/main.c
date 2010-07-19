@@ -125,10 +125,10 @@ int main(int argc, char **argv )
 
   /* sudiptac :: Allocate the latest start time structure for 
    * all the cores */
-  latest = (ull *)malloc(num_core * sizeof(ull));		  
-  if(!latest)
+  latest_core_time = (ull *)malloc(num_core * sizeof(ull));		  
+  if(!latest_core_time)
     prerr("Error: Out of memory");
-  memset(latest, 0, num_core * sizeof(ull)); 	  
+  memset(latest_core_time, 0, num_core * sizeof(ull)); 	  
 
   /* Set the basic parameters of L1 and L2 instruction caches */		  
   set_cache_basic( argv[2] );

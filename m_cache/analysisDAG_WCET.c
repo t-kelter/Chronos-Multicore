@@ -612,8 +612,10 @@ static void computeWCET_proc( procedure* proc, ull start_time )
   DEBUG_PRINTF( "Set worst case cost of the procedure %d = %Lu\n", proc->pid, proc->running_cost );
 }
 
-/* This is a top level call and always start computing the WCET from 
- * "main" function */
+/* This is the entry point for the non-MSC-aware version of the DAG-based analysis. The function
+ * does not consider the mscs, it just searches the list of known functions for the 'main' function
+ * and starts the analysis there.
+ */
 void computeWCET( ull start_time )
 {
   int top_func;
@@ -650,15 +652,14 @@ void computeWCET( ull start_time )
  * the latest start time of the argument task. Finding out 
  * the latest start time is important as the bus aware WCET
  * analysis depends on the same */
-static void update_succ_latest_time( MSC* msc, task_t* task )
+static void update_succ_task_latest_start_time( MSC* msc, task_t* task )
 {
-  int i;
-  uint sid;
-
   DEBUG_PRINTF( "Number of Successors = %d\n", task->numSuccs );
+
+  int i;
   for ( i = 0; i < task->numSuccs; i++ ) {
     DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i] );
-    sid = task->succList[i];
+    uint sid = task->succList[i];
     if ( msc->taskList[sid].l_start < ( task->l_start + task->wcet ) )
       msc->taskList[sid].l_start = task->l_start + task->wcet;
     DEBUG_PRINTF( "Updating latest start time of successor = %Lu\n", msc->taskList[sid].l_start );
@@ -666,13 +667,8 @@ static void update_succ_latest_time( MSC* msc, task_t* task )
 }
 
 /* Returns the latest starting of a task in the MSC */
-/* Latest starting time of a task is computed as the maximum
- * of the latest finish times of all its predecessor tasks 
- * imposed by the partial order of the MSC */
-static ull get_latest_start_time( task_t* cur_task, uint core )
+static ull get_latest_task_start_time( task_t* cur_task, uint core )
 {
-  ull start;
-
   /* If independent task mode return 0 */
   if ( g_independent_task )
     return 0;
@@ -683,10 +679,7 @@ static ull get_latest_start_time( task_t* cur_task, uint core )
    * also be delayed because of some other processe's execution in the 
    * same core. Thus we need to consider the maximum of two 
    * possibilities */
-  if ( cur_task->l_start > latest[core] )
-    start = cur_task->l_start;
-  else
-    start = latest[core];
+  ull start = MAX( cur_task->l_start, latest_core_time[core] );
   DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start );
 
   return start;
@@ -696,51 +689,50 @@ static ull get_latest_start_time( task_t* cur_task, uint core )
  * a MSC. The MSC is given by the argument */
 void compute_bus_WCET_MSC( MSC *msc, const char *tdma_bus_schedule_file )
 {
-  int k;
-  ull start_time = 0;
-  procedure* proc;
-
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
 
   /* Reset the latest time of all cores */
-  memset( latest, 0, num_core * sizeof(ull) );
+  memset( latest_core_time, 0, num_core * sizeof(ull) );
   /* reset latest time of all tasks */
   reset_all_task( msc );
 
+  int k;
   for ( k = 0; k < msc->num_task; k++ ) {
     acc_bus_delay = 0;
-    /* Get the main procedure */
+
     PRINT_PRINTF( "Analyzing Task WCET %s......\n", msc->taskList[k].task_name );
 
+    /* Get needed inputs. */
     all_inst = 0;
     cur_task = &( msc->taskList[k] );
-    proc = msc->taskList[k].main_copy;
-    /* Return the core number in which the task is assigned */
     ncore = get_core( cur_task );
-    /* First get the latest start time of task id "k" in this msc 
-     * because the bus aware WCET analysis depends on the latest
-     * starting time of the corresponding task */
-    start_time = get_latest_start_time( cur_task, ncore );
-    computeWCET_proc( proc, start_time );
-    /* Set the worst case cost of this task */
-    msc->taskList[k].wcet = msc->taskList[k].main_copy->running_cost;
+    procedure * const task_main = msc->taskList[k].main_copy;
+
+    /* First get the latest start time of the current task. */
+    ull start_time = get_latest_task_start_time( cur_task, ncore );
+
+    /* Then compute and set the worst case cost of this task */
+    computeWCET_proc( task_main, start_time );
+    msc->taskList[k].wcet = task_main->running_cost;
+
     /* Now update the latest starting time in this core */
-    latest[ncore] = start_time + msc->taskList[k].wcet;
+    latest_core_time[ncore] = start_time + msc->taskList[k].wcet;
+
     /* Since the interference file for a MSC was dumped in topological 
      * order and read back in the same order we are assured of the fact
      * that we analyze the tasks inside a MSC only after all of its
      * predecessors have been analyzed. Thus After analyzing one task
      * update all its successor tasks' latest time */
-    update_succ_latest_time( msc, cur_task );
+    update_succ_task_latest_start_time( msc, cur_task );
+
     PRINT_PRINTF( "\n\n**************************************************************\n" );
     PRINT_PRINTF( "Latest start time of the program = %Lu start_time\n", start_time );
-    PRINT_PRINTF( "Latest finish time of the task = %Lu cycles\n", proc->running_finish_time );
+    PRINT_PRINTF( "Latest finish time of the task = %Lu cycles\n", task_main->running_finish_time );
     if ( g_shared_bus )
-      PRINT_PRINTF( "WCET of the task with shared bus = %Lu cycles\n", proc->running_cost );
+      PRINT_PRINTF( "WCET of the task with shared bus = %Lu cycles\n", task_main->running_cost );
     else
-      PRINT_PRINTF( "WCET of the task without shared bus = %Lu cycles\n", proc->running_cost );
+      PRINT_PRINTF( "WCET of the task without shared bus = %Lu cycles\n", task_main->running_cost );
     PRINT_PRINTF( "**************************************************************\n\n" );
   }
-  /* DONE :: WCET computation of the MSC */
 }

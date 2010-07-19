@@ -365,10 +365,10 @@ static ull get_earliest_start_time( task_t* cur_task, uint core )
    * also be delayed because of some other processe's execution in the 
    * same core. Thus we need to consider the maximum of two 
    * possibilities */
-  if ( cur_task->l_start > latest[core] )
+  if ( cur_task->l_start > latest_core_time[core] )
     start = cur_task->l_start;
   else
-    start = latest[core];
+    start = latest_core_time[core];
 
   DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start);
 
@@ -387,7 +387,7 @@ void compute_bus_BCET_MSC( MSC *msc )
   setSchedule( "TDMA_bus_sched.db" );
 
   /* Reset the latest time of all cores */
-  memset( latest, 0, num_core * sizeof(ull) );
+  memset( latest_core_time, 0, num_core * sizeof(ull) );
   /* reset latest time of all tasks */
   reset_all_task( msc );
 
@@ -410,7 +410,7 @@ void compute_bus_BCET_MSC( MSC *msc )
     /* Set the worst case cost of this task */
     msc->taskList[k].bcet = msc->taskList[k].main_copy->running_cost;
     /* Now update the latest starting time in this core */
-    latest[ncore] = start_time + msc->taskList[k].bcet;
+    latest_core_time[ncore] = start_time + msc->taskList[k].bcet;
     /* Since the interference file for a MSC was dumped in topological 
      * order and read back in the same order we are assured of the fact
      * that we analyze the tasks inside a MSC only after all of its

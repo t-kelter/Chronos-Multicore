@@ -165,6 +165,13 @@ typedef unsigned long long ull;
 #define DEBUG_ANALYSIS_PRINTF(format, ...)
 #endif
 
+
+// MIN / MAX macros
+
+#define MIN(a,b) ( (a < b) ? a : b )
+#define MAX(a,b) ( (a < b) ? b : a )
+
+
 /*
  * Declarations for WCET analysis.
  */
@@ -625,7 +632,7 @@ EXTERN uint ncore;
 EXTERN task_t* cur_task;
 
 /* Stores current latest time of all the cores */
-EXTERN ull* latest;
+EXTERN ull* latest_core_time;
 
 /* Global TDMA bus schedule */
 EXTERN sched_p global_sched_data;
