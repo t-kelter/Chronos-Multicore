@@ -330,6 +330,23 @@ typedef struct {
   instr **instrlist;    // list of assembly instructions in the block
   int   num_instr;
 
+  /* These are the cache hit/miss classifications. The cache analysis does a persistence
+   * analysis, therefore, we distinguish for each loop, between the first and the rest of
+   * the iterations (as they may have a different cache state). If a block is nested in
+   * multiple loops, then it has different cache states depending on whether the loops are
+   * in the first or another iteration, leading to 2^(no. of surrounding loops) possibly
+   * different CHMCs. The number of CHMCs is stored in the 'num_chmc' / 'num_chmc_L2' fields,
+   * and the CHMCs themselves are stored in the 'chmc' / 'chmc_L2' arrays.
+   *
+   * The index of a certain CHMC for basic block 'b' in loop context 'c' is then computed as:
+   *
+   * index_{b,c} = \sum_{i \in [0,l]} ( 1 << i ) * c_i
+   *
+   * When 'l' is the loop nesting level of the basic block. 'c_i' is '1' when loop 'i' is
+   * not in the first iteration, and '0' if it is. Thus the index for the case when all loops
+   * are in their first iteration, is 0, the index for the case when the outmost and the two
+   * innermost loop of 4 loops are in their second iteration is 1101 (binary) or 13 (decimal)
+   * and so on. */
   CHMC **chmc, **chmc_L2;
   int num_chmc, num_chmc_L2;
 
