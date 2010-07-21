@@ -116,7 +116,7 @@ static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp )
       /* No procedure call ---- normal instruction */
       else {
         /* If its a L1 hit add only L1 cache latency */
-        acc_type acc_t = check_hit_miss( bb, inst );
+        acc_type acc_t = check_hit_miss( bb, inst, cur_context );
         if ( acc_t == L1_HIT )
           acc_cost += L1_HIT_LATENCY;
         /* If its a L1 miss and L2 hit add only L2 cache

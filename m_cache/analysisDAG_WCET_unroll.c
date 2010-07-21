@@ -48,6 +48,10 @@ static void computeWCET_loop( loop* lp, procedure* proc )
   int i;
   for ( i = 0; i < lpbound; i++ ) {
     /* CAUTION: Update the current context */
+    /* TODO: The handling of contexts here is wrong. There are
+     *       2^{no. of loop nesting levels} CHMCs for the basic
+     *       block, but only two of them are used here. See
+     *       header.h:num_chmc for further details. */
     if ( i == 0 )
       cur_context *= 2;
     else if ( i == 1 )
@@ -122,8 +126,8 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
       else {
         all_inst++;
         /* If its a L1 hit add only L1 cache latency */
-        acc_type acc_t;
-        if ( ( acc_t = check_hit_miss( bb, inst ) ) == L1_HIT )
+        acc_type acc_t = check_hit_miss( bb, inst, cur_context );
+        if ( acc_t == L1_HIT )
           acc_cost += ( L1_HIT_LATENCY );
         /* If its a L1 miss and L2 hit add only L2 cache
          * latency */

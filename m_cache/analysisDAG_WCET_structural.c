@@ -159,6 +159,56 @@ static uint startAlign()
   return global_sched_data->seg_list[0]->per_core_sched[0]->interval;
 }
 
+
+/* Returns the WCET of a loop, after loop WCETs have been computed for
+ * all CHMC contexts. This method summarises the contexts' WCETs, adds the
+ * bus alignment offsets and returns the final loop WCET.
+ *
+ * 'enclosing_loop_context' should be the context of the surrounding loop,
+ * for which the WCET should be obtained.
+ * */
+static ull getLoopWCET( const loop *lp, int enclosing_loop_context )
+{
+  /* Each CHMC index is of the form
+   *
+   * i = x_{head->num_chmc} x_{head->num_chmc - 1} ... x_1
+   *
+   * where each x is a binary digit. We are interested in an upper bound
+   * on the WCET of the function in its first and in the succeeding
+   * iterations. We take the least 'lp->level - 1' bits from the
+   * enclosing loop context and add a '0' to get the WCET for the
+   * first iteration and a '1' to get the WCET for the successive
+   * iterations.
+   *
+   * For further information about CHMC contexts see header.h:num_chmc
+   */
+
+  const int index_bitlength = lp->level + 1;
+  const int enclosing_index_bitlength = index_bitlength - 1;
+
+  const int index_bitmask = ( 1 << ( index_bitlength - 1 ) );
+  const int enclosing_index_bitmask = ( 1 << enclosing_index_bitlength ) - 1;
+
+  const int enclosing_context_bits = enclosing_loop_context &
+                                     enclosing_index_bitmask;
+  const int index_first_iteration = ( 0 * index_bitmask ) + enclosing_context_bits;
+  const int index_next_iterations = ( 1 * index_bitmask ) + enclosing_context_bits;
+
+  const ull firstIterationWCET = lp->wcet_opt[index_first_iteration];
+  const ull nextIterationsWCET = lp->wcet_opt[index_next_iterations];
+
+  /*
+  PRINT_PRINTF( "Using effective WCET of loop (%d.%d)[surrounding context: %d] (first iteration) = %Lu\n",
+      lp->pid, lp->lpid, enclosing_context_bits, firstIterationWCET );
+  PRINT_PRINTF( "Using effective WCET of loop (%d.%d)[surrounding context: %d] (other iterations) = %Lu\n",
+        lp->pid, lp->lpid, enclosing_context_bits, nextIterationsWCET );
+  */
+
+  return startAlign() + firstIterationWCET + endAlign( firstIterationWCET )
+      + ( ( nextIterationsWCET + endAlign( nextIterationsWCET ) ) *
+          ( lp->loopbound - 1 ) );
+}
+
 /* Preprocess one loop for optimized bus aware WCET calculation */
 /* This takes care of the alignments of loop at the beginning and at the
  * end */
@@ -182,8 +232,7 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
     block *bb = lp->topo[i];
     /* bb cannot be empty */
     assert(bb);
-    /* initialize basic block cost */
-    uint bb_cost = 0;
+
     memset( max_fin, 0, 64 );
 
     /* Traverse over all the CHMC-s of this basic block */
@@ -191,82 +240,85 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
     for ( j = 0; j < bb->num_chmc; j++ ) {
       const CHMC * const cur_chmc = (CHMC *) bb->chmc[j];
       const CHMC * const cur_chmc_L2 = (CHMC *) bb->chmc_L2[j];
-      /* Reset start , finish time and cost */
+      /* Reset start and finish time */
       bb->start_opt[j] = 0;
       bb->fin_opt[j] = 0;
-      bb_cost = 0;
 
       /* Check whether this basic block is the header of some other 
        * loop */
       loop * const inlp = check_loop( bb, proc );
       if ( inlp && i != lp->num_topo - 1 ) {
-        /* FIXME: do I need this ? */
-        /* set_start_time_WCET_opt(bb, proc, j); */
+
+        /* As this inner loop header has more CHMC contexts than the outer loop's blocks,
+           it would be sufficient to compute the bb->fin_opt values for the contexts
+           j < bb->num_chmc / 2, but we compute them for all contexts for simplicity. */
         preprocess_one_loop( inlp, proc );
-        bb->fin_opt[j] = bb->start_opt[j] + startAlign() + inlp->wcet_opt[2 * j] + startAlign() + ( inlp->wcet_opt[2
-            * j + 1] + endAlign( inlp->wcet_opt[2 * j + 1] ) ) * inlp->loopbound;
-        continue;
-      }
+        bb->fin_opt[j] = bb->start_opt[j] + getLoopWCET( inlp, j );
 
-      if ( i == lp->num_topo - 1 )
-        bb->start_opt[j] = start_time;
-      /* Otherwise, set the maximum of the finish time of predecesssor 
-       * basic blocks */
-      else
-        set_start_time_WCET_opt( bb, proc, j );
+      } else {
 
-      NPRINT_PRINTF( "Current CHMC = 0x%x\n", (unsigned) cur_chmc );
-      NPRINT_PRINTF( "Current CHMC L2 = 0x%x\n", (unsigned) cur_chmc_L2 );
+        uint bb_cost = 0;
 
-      int k;
-      for ( k = 0; k < bb->num_instr; k++ ) {
-        instr * const inst = bb->instrlist[k];
-        /* Instruction cannot be empty */
-        assert(inst);
+        if ( i == lp->num_topo - 1 )
+          bb->start_opt[j] = start_time;
+        /* Otherwise, set the maximum of the finish time of predecessor
+         * basic blocks */
+        else
+          set_start_time_WCET_opt( bb, proc, j );
 
-        /* Check for a L1 miss */
-        if ( cur_chmc->hitmiss_addr[k] != ALWAYS_HIT )
-          NPRINT_PRINTF( "L1 miss at 0x%x\n", (unsigned) bb->startaddr );
-        /* first check whether the instruction is an L1 hit or not */
-        /* In that easy case no bus access is required */
-        if ( cur_chmc->hitmiss_addr[k] == ALWAYS_HIT ) {
-          bb_cost += L1_HIT_LATENCY;
-        }
-        /* Otherwise if it is an L2 hit */
-        else if ( cur_chmc_L2->hitmiss_addr[k] == ALWAYS_HIT ) {
-          /* access shared bus */
-          uint latency = determine_latency( bb, j, bb_cost, L2_HIT );
-          NPRINT_PRINTF( "Latency = %u\n", latency );
-          bb_cost += latency;
-        }
-        /* Else it is an L2 miss */
-        else {
-          /* access shared bus */
-          uint latency = determine_latency( bb, j, bb_cost, L2_MISS );
-          NPRINT_PRINTF( "Latency = %u\n", latency );
-          bb_cost += latency;
-        }
-        /* Handle procedure call instruction */
-        if ( IS_CALL(inst->op) ) {
-          procedure* callee = getCallee( inst, proc );
+        NPRINT_PRINTF( "Current CHMC = 0x%x\n", (unsigned) cur_chmc );
+        NPRINT_PRINTF( "Current CHMC L2 = 0x%x\n", (unsigned) cur_chmc_L2 );
 
-          /* For ignoring library calls */
-          if ( callee ) {
-            /* Compute the WCET of the callee procedure here.
-             * We dont handle recursive procedure call chain
-             */
-            computeWCET_proc( callee, bb->start_opt[j] + bb_cost );
-            /* Single cost for call instruction */
-            bb_cost += callee->running_cost;
+        int k;
+        for ( k = 0; k < bb->num_instr; k++ ) {
+          instr * const inst = bb->instrlist[k];
+          /* Instruction cannot be empty */
+          assert(inst);
+
+          /* Check for a L1 miss */
+          if ( cur_chmc->hitmiss_addr[k] != ALWAYS_HIT )
+            NPRINT_PRINTF( "L1 miss at 0x%x\n", (unsigned) bb->startaddr );
+          /* first check whether the instruction is an L1 hit or not */
+          /* In that easy case no bus access is required */
+          if ( cur_chmc->hitmiss_addr[k] == ALWAYS_HIT ) {
+            bb_cost += L1_HIT_LATENCY;
+          }
+          /* Otherwise if it is an L2 hit */
+          else if ( cur_chmc_L2->hitmiss_addr[k] == ALWAYS_HIT ) {
+            /* access shared bus */
+            uint latency = determine_latency( bb, j, bb_cost, L2_HIT );
+            NPRINT_PRINTF( "Latency = %u\n", latency );
+            bb_cost += latency;
+          }
+          /* Else it is an L2 miss */
+          else {
+            /* access shared bus */
+            uint latency = determine_latency( bb, j, bb_cost, L2_MISS );
+            NPRINT_PRINTF( "Latency = %u\n", latency );
+            bb_cost += latency;
+          }
+          /* Handle procedure call instruction */
+          if ( IS_CALL(inst->op) ) {
+            procedure* callee = getCallee( inst, proc );
+
+            /* For ignoring library calls */
+            if ( callee ) {
+              /* Compute the WCET of the callee procedure here.
+               * We dont handle recursive procedure call chain
+               */
+              computeWCET_proc( callee, bb->start_opt[j] + bb_cost );
+              /* Single cost for call instruction */
+              bb_cost += callee->running_cost;
+            }
           }
         }
+
+        /* Set finish time of the basic block */
+        bb->fin_opt[j] = bb->start_opt[j] + bb_cost;
       }
 
-      /* Set finish time of the basic block */
-      bb->fin_opt[j] = bb->start_opt[j] + bb_cost;
       /* Set max finish time */
-      if ( max_fin[j] < bb->fin_opt[j] )
-        max_fin[j] = bb->fin_opt[j];
+      max_fin[j] = MAX( max_fin[j], bb->fin_opt[j] );
     }
   }
 
@@ -303,8 +355,10 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
   loop* inlp = check_loop( bb, proc );
   if ( inlp && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
 
-    bb->finish_time = bb->start_time + startAlign() + inlp->wcet_opt[0] + startAlign() + ( inlp->wcet_opt[1]
-        + endAlign( inlp->wcet_opt[1] ) ) * inlp->loopbound;
+    // This function is only used to estimate the WCETs of blocks that
+    // are not nested in loops (this is done in 'preprocess_one_loop'.
+    // Therefore we always use context 0 here.
+    bb->finish_time = bb->start_time + getLoopWCET( inlp, 0 );
 
   /* It's not a loop. Go through all the instructions and
    * compute the WCET of the block */
@@ -334,8 +388,11 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
       else {
         all_inst++;
         /* If its a L1 hit add only L1 cache latency */
-        acc_type acc_t;
-        if ( ( acc_t = check_hit_miss( bb, inst ) ) == L1_HIT )
+        // This function is only used to estimate the WCETs of blocks that
+        // are not nested in loops (this is done in 'preprocess_one_loop'.
+        // Therefore we always use context 0 here.
+        acc_type acc_t = check_hit_miss( bb, inst, 0 );
+        if ( acc_t == L1_HIT )
           acc_cost += ( L1_HIT_LATENCY );
         /* If its a L1 miss and L2 hit add only L2 cache
          * latency */
@@ -368,10 +425,6 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
 
 static void computeWCET_proc( procedure* proc, ull start_time )
 {
-  /* Initialize current context. Set to zero before the start 
-   * of each new procedure */
-  cur_context = 0;
-
   /* Preprocess CHMC classification for each instruction inside
    * the procedure */
   preprocess_chmc_WCET( proc );

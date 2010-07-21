@@ -491,8 +491,10 @@ void reset_timestamps(procedure* proc, ull start_time)
 
 
 /* Return the type of the instruction access MISS/L1_HIT/L2_HIT.
- * This is computed from the shared cache analysis */
-acc_type check_hit_miss(block* bb, instr* inst)
+ * This is computed from the shared cache analysis. The context
+ * is given as a context index, see header.h:num_chmc for further
+ * details. */
+acc_type check_hit_miss(block* bb, instr* inst,uint context)
 {
   /* If the flow is under testing mode....dont 
    * bother about CHMC. Just return all miss */
@@ -503,12 +505,12 @@ acc_type check_hit_miss(block* bb, instr* inst)
   if(!inst->acc_t)    
     return L2_MISS;
 
-  if(inst->acc_t[cur_context] == L1_HIT)
+  if(inst->acc_t[context] == L1_HIT)
     return L1_HIT;
   
   if(!inst->acc_t_l2)   
     return L2_MISS;
-  if(inst->acc_t_l2[cur_context] == L2_HIT)
+  if(inst->acc_t_l2[context] == L2_HIT)
   {
     DEBUG_PRINTF( "Returning L2 HIT\n"); 
     return L2_HIT;  

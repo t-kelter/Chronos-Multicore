@@ -34,8 +34,10 @@ void preprocess_chmc_WCET( procedure* proc );
 void preprocess_chmc_L2_WCET( procedure* proc );
 
 /* Return the type of the instruction access MISS/L1_HIT/L2_HIT.
- * This is computed from the shared cache analysis */
-acc_type check_hit_miss(block* bb, instr* inst);
+ * This is computed from the shared cache analysis. The context
+ * is given as a context index, see header.h:num_chmc for further
+ * details. */
+acc_type check_hit_miss(block* bb, instr* inst,uint context);
 
 /* #### Structural analysis helper functions #### */
 
