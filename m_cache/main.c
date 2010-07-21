@@ -24,8 +24,9 @@
 //#include "DAG_WCET.h"
 #include "topo.h"
 //#include "analysisILP.h"
-#include "analysisDAG_WCET.h"
-#include "analysisDAG_BCET.h"
+#include "analysisDAG_WCET_unroll.h"
+#include "analysisDAG_WCET_structural.h"
+#include "analysisDAG_BCET_unroll.h"
 //#include "analysisEnum.h"
 #include "analysisCache.h"
 #include "analysisCacheL2.h"
@@ -39,12 +40,10 @@
 
 // List of static helper functions (see bottom)
 static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool *interference_changed );
-
 static void writeWCETandCacheInfoFiles( int num_msc );
 
 #ifdef WITH_WEI_COMPARISON
 static void writeWeiComparison( int num_msc, const char *finalStatsBasename );
-
 static void writeWeiStatistic( int num_msc );
 #endif
 
@@ -290,7 +289,11 @@ int main(int argc, char **argv )
     /* CAUTION: In presence of shared bus these two function changes
      * to account for the bus delay */
     start = getticks();
-    compute_bus_WCET_MSC(currentMSC, tdma_bus_schedule_file);
+    if ( g_full_unrolling ) {
+      compute_bus_WCET_MSC_unroll(currentMSC, tdma_bus_schedule_file);
+    } else {
+      compute_bus_WCET_MSC_structural(currentMSC, tdma_bus_schedule_file);
+    }
     end = getticks();
 
     /* FIXME: What's this function doing here ? */ 	  
@@ -373,8 +376,13 @@ int main(int argc, char **argv )
 
         pathDAG(msc[i]);
         /* Compute WCET and BCET of each task. */
-        compute_bus_WCET_MSC(msc[i], tdma_bus_schedule_file);
-        compute_bus_BCET_MSC(msc[i], tdma_bus_schedule_file);
+        if ( g_full_unrolling ) {
+          compute_bus_WCET_MSC_unroll(msc[i], tdma_bus_schedule_file);
+          compute_bus_BCET_MSC_unroll(msc[i], tdma_bus_schedule_file);
+        } else {
+          compute_bus_WCET_MSC_structural(msc[i], tdma_bus_schedule_file);
+          compute_bus_BCET_MSC_unroll(msc[i], tdma_bus_schedule_file);
+        }
 
         /* FIXME: What's this function doing here ? */
         resetHitMiss_L2(msc[i]);

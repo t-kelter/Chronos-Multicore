@@ -3,17 +3,16 @@
 #include <string.h>
 #include <assert.h>
 
-#include "analysisDAG_BCET.h"
+#include "analysisDAG_BCET_unroll.h"
 #include "analysisDAG_common.h"
 #include "busSchedule.h"
 
+
 // Forward declarations of static functions
-
 static void computeBCET_loop( loop* lp, procedure* proc );
-
 static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp );
-
 static void computeBCET_proc( procedure* proc, ull start_time );
+
 
 /***********************************************************************/
 /* sudiptac:: This part of the code is only used for the BCET analysis
@@ -31,111 +30,6 @@ static void computeBCET_proc( procedure* proc, ull start_time );
  * shared data bus best case execution time of a procedure/loop 
  * depends on its starting time */
 
-/* Attach hit/miss classification for L2 cache to the instruction */
-static void classify_inst_L2_BCET( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int inst_id )
-{
-  if ( !n_chmc_l2 )
-    return;
-
-  /* Allocate memory here */
-  if ( !inst->acc_t_l2 )
-    inst->acc_t_l2 = (acc_type *) malloc( n_chmc_l2 * sizeof(acc_type) );
-  if ( !inst->acc_t_l2 )
-    prerr( "Error: Out of memory" );
-
-  memset( inst->acc_t_l2, 0, n_chmc_l2 * sizeof(acc_type) );
-
-  int i;
-  for ( i = 0; i < n_chmc_l2; i++ ) {
-    assert(chmc_l2[i]);
-
-    if ( chmc_l2[i]->hitmiss_addr[inst_id] != ALWAYS_MISS &&
-         inst->acc_t[i] != L1_HIT ) {
-      inst->acc_t_l2[i] = L2_HIT;
-    }
-  }
-}
-
-/* Attach hit/miss classification to the instruction */
-static void classify_inst_BCET( instr* inst, CHMC** chmc, int n_chmc, int inst_id )
-{
-  if ( !n_chmc )
-    return;
-
-  /* Allocate memory here */
-  if ( !inst->acc_t )
-    inst->acc_t = (acc_type *) malloc( n_chmc * sizeof(acc_type) );
-  if ( !inst->acc_t )
-    prerr( "Error: Out of memory" );
-
-  memset( inst->acc_t, 0, n_chmc * sizeof(acc_type) );
-
-  int i;
-  for ( i = 0; i < n_chmc; i++ ) {
-    assert(chmc[i]);
-
-    if ( chmc[i]->hitmiss_addr[inst_id] != ALWAYS_MISS ) {
-      inst->acc_t[i] = L1_HIT;
-    }
-  }
-}
-
-/* Attach chmc classification for L2 cache to the instruction 
- * data structure */
-static void preprocess_chmc_L2_BCET( procedure* proc )
-{
-  int i;
-  for ( i = 0; i < proc->num_bb; i++ ) {
-    block* bb = proc->bblist[i];
-
-    int j;
-    for ( j = 0; j < bb->num_instr; j++ ) {
-      instr* inst = bb->instrlist[j];
-      classify_inst_L2_BCET( inst, bb->chmc_L2, bb->num_chmc_L2, j );
-    }
-  }
-}
-
-/* Attach chmc classification to the instruction data structure */
-static void preprocess_chmc_BCET( procedure* proc )
-{
-  int i;
-  for ( i = 0; i < proc->num_bb; i++ ) {
-    block* bb = proc->bblist[i];
-
-    int j;
-    for ( j = 0; j < bb->num_instr; j++ ) {
-      instr* inst = bb->instrlist[j];
-      classify_inst_BCET( inst, bb->chmc, bb->num_chmc, j );
-    }
-  }
-}
-
-/* This sets the latest starting time of a block
- * during BCET calculation */
-static void set_start_time_BCET( block* bb, procedure* proc )
-{
-  ull min_start = 0;
-
-  assert(bb);
-
-  int i;
-  for ( i = 0; i < bb->num_incoming; i++ ) {
-    int in_index = bb->incoming[i];
-    assert(proc->bblist[in_index]);
-    if ( i == 0 )
-      min_start = proc->bblist[in_index]->finish_time;
-    /* Determine the predecessors' latest finish time */
-    else if ( min_start > proc->bblist[in_index]->finish_time )
-      min_start = proc->bblist[in_index]->finish_time;
-  }
-
-  /* Now set the starting time of this block to be the earliest 
-   * finish time of predecessors block */
-  bb->start_time = min_start;
-
-  DEBUG_PRINTF( "Setting min start of bb %d = %Lu\n", bb->bbid, min_start);
-}
 
 /* Computes the earliest finish time and best case cost of a loop.
  * This procedure fully unrolls the loop virtually during computation.
@@ -195,6 +89,7 @@ static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp )
    * the same loop */
   loop * const inlp = check_loop( bb, proc );
   if ( inlp && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
+
     computeBCET_loop( inlp, proc );
 
   /* Its not a loop. Go through all the instructions and
@@ -317,50 +212,43 @@ static void computeBCET_proc( procedure* proc, ull start_time )
       proc->pid, proc->running_cost);
 }
 
-/* Given a MSC and a task inside it, this function computes 
- * the earliest start time of the argument task. Finding out 
- * the earliest start time is important as the bus aware BCET
- * analysis depends on the same */
-static void update_succ_earliest_time( MSC* msc, task_t* task )
+
+/* This is the entry point for the non-MSC-aware version of the DAG-based analysis. The function
+ * does not consider the mscs, it just searches the list of known functions for the 'main' function
+ * and starts the analysis there.
+ */
+void computeBCET_unroll( ull start_time )
 {
-  DEBUG_PRINTF( "Number of Successors = %d\n", task->numSuccs);
+  acc_bus_delay = 0;
+  cur_task = NULL;
 
-  int i;
-  for ( i = 0; i < task->numSuccs; i++ ) {
+  /* Send the pointer to the "main" to compute the WCET of the
+   * whole program */
+  assert(proc_cg);
+  int id = num_procs - 1;
 
-    DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i]);
-
-    uint sid = task->succList[i];
-    msc->taskList[sid].l_start = task->l_start + task->bcet;
-
-    DEBUG_PRINTF( "Updating earliest start time of successor = %Lu\n",
-        msc->taskList[sid].l_start);
+  int top_func = -1;
+  while ( id >= 0 ) {
+    top_func = proc_cg[id];
+    /* Ignore all un-intended library calls like "printf" */
+    if ( top_func >= 0 && top_func <= num_procs - 1 )
+      break;
+    id--;
   }
-}
+  computeBCET_proc( procs[top_func], start_time );
 
-/* Returns the latest starting of a task in the MSC */
-/* Latest starting time of a task is computed as the maximum
- * of the latest finish times of all its predecessor tasks 
- * imposed by the partial order of the MSC */
-static ull get_earliest_start_time( task_t* cur_task, uint core )
-{
-  /* A task in the MSC can be delayed because of two reasons. Either
-   * the tasks it is dependent upon has not finished executing or 
-   * since we consider a non-preemptive scheduling policy the task can 
-   * also be delayed because of some other processe's execution in the 
-   * same core. Thus we need to consider the maximum of two 
-   * possibilities */
-  // TODO: This is wrong - still computes the maximum
-  ull start = MIN( cur_task->l_start, latest_core_time[core] );
-
-  DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start);
-
-  return start;
+  PRINT_PRINTF( "\n\n**************************************************************\n" );
+  PRINT_PRINTF( "Earliest start time of the program = %Lu start_time\n", start_time );
+  PRINT_PRINTF( "Earliest finish time of the program = %Lu cycles\n",
+      procs[top_func]->running_finish_time );
+  PRINT_PRINTF( "BCET of the program %s shared bus = %Lu cycles\n",
+      g_shared_bus ? "with" : "without", procs[top_func]->running_cost );
+  PRINT_PRINTF( "**************************************************************\n\n" );
 }
 
 /* Analyze best case execution time of all the tasks inside 
  * a MSC. The MSC is given by the argument */
-void compute_bus_BCET_MSC( MSC *msc, const char *tdma_bus_schedule_file )
+void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
 {
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
@@ -374,18 +262,6 @@ void compute_bus_BCET_MSC( MSC *msc, const char *tdma_bus_schedule_file )
   for ( k = 0; k < msc->num_task; k++ ) {
     acc_bus_delay = 0;
 
-    /* Now update the latest starting time in this core */
-    latest_core_time[ncore] = start_time + msc->taskList[k].wcet;
-
-    /* Since the interference file for a MSC was dumped in topological
-     * order and read back in the same order we are assured of the fact
-     * that we analyze the tasks inside a MSC only after all of its
-     * predecessors have been analyzed. Thus After analyzing one task
-     * update all its successor tasks' latest time */
-    update_succ_task_latest_start_time( msc, cur_task );
-
-    /* Get the main procedure */
-    /* For printing not desired bus delay */
     NPRINT_PRINTF( "Analyzing Task BCET %s......\n", msc->taskList[k].task_name);
 
     /* Get needed inputs. */
@@ -411,15 +287,11 @@ void compute_bus_BCET_MSC( MSC *msc, const char *tdma_bus_schedule_file )
     update_succ_earliest_time( msc, cur_task );
 
     PRINT_PRINTF("\n\n**************************************************************\n");
-    PRINT_PRINTF("Earliest start time of the program = %Lu start_time\n", start_time);
+    PRINT_PRINTF("Earliest start time of the task = %Lu start_time\n", start_time);
     PRINT_PRINTF("Earliest finish time of the task = %Lu cycles\n",
-        proc->running_finish_time);
-    if ( g_shared_bus )
-      PRINT_PRINTF("BCET of the task with shared bus = %Lu cycles\n",
-          proc->running_cost);
-    else
-      PRINT_PRINTF("BCET of the task without shared bus = %Lu cycles\n",
-          proc->running_cost);
+        task_main->running_finish_time);
+    PRINT_PRINTF( "BCET of the task %s shared bus = %Lu cycles\n",
+        g_shared_bus ? "with" : "without", task_main->running_cost );
     PRINT_PRINTF("**************************************************************\n\n");
   }
   /* DONE :: BCET computation of the MSC */

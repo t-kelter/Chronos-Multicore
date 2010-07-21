@@ -22,8 +22,9 @@
 //#include "DAG_WCET.h"
 #include "topo.h"
 //#include "analysisILP.h"
-#include "analysisDAG_WCET.h"
-#include "analysisDAG_BCET.h"
+#include "analysisDAG_WCET_unroll.h"
+#include "analysisDAG_WCET_structural.h"
+#include "analysisDAG_BCET_unroll.h"
 //#include "analysisEnum.h"
 #include "analysisCache.h"
 #include "analysisCacheL2.h"
@@ -35,7 +36,7 @@
 #include "wcrt/cycle_time.h"
 
 /*!
- * This is the main function for a debuggin version of the analyzer.
+ * This is the main function for a debugging version of the analyzer.
  */
 int main( int argc, char **argv ) {
 
@@ -102,10 +103,10 @@ int main( int argc, char **argv ) {
   g_testing_mode = 1;
   /* Compute with shared bus */
   g_shared_bus = 1;
-  computeWCET(0);
+  computeWCET_unroll(0);
   /* Compute without shared bus */
   g_shared_bus = 0;
-  computeWCET(0);
+  computeWCET_unroll(0);
   		  
   return 0;
 }

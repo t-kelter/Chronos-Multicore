@@ -8,6 +8,308 @@
 #include "busSchedule.h"
 
 
+/* Attach best-case hit/miss classification for L2 cache to the instruction */
+static void classify_inst_L2_BCET( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int inst_id )
+{
+  if ( !n_chmc_l2 )
+    return;
+
+  /* Allocate memory here */
+  if ( !inst->acc_t_l2 )
+    inst->acc_t_l2 = (acc_type *) malloc( n_chmc_l2 * sizeof(acc_type) );
+  if ( !inst->acc_t_l2 )
+    prerr( "Error: Out of memory" );
+
+  memset( inst->acc_t_l2, 0, n_chmc_l2 * sizeof(acc_type) );
+
+  int i;
+  for ( i = 0; i < n_chmc_l2; i++ ) {
+    assert(chmc_l2[i]);
+
+    if ( chmc_l2[i]->hitmiss_addr[inst_id] != ALWAYS_MISS &&
+         inst->acc_t[i] != L1_HIT ) {
+      inst->acc_t_l2[i] = L2_HIT;
+    }
+  }
+}
+
+/* Attach best-case hit/miss classification to the instruction */
+static void classify_inst_BCET( instr* inst, CHMC** chmc, int n_chmc, int inst_id )
+{
+  if ( !n_chmc )
+    return;
+
+  /* Allocate memory here */
+  if ( !inst->acc_t )
+    inst->acc_t = (acc_type *) malloc( n_chmc * sizeof(acc_type) );
+  if ( !inst->acc_t )
+    prerr( "Error: Out of memory" );
+
+  memset( inst->acc_t, 0, n_chmc * sizeof(acc_type) );
+
+  int i;
+  for ( i = 0; i < n_chmc; i++ ) {
+    assert(chmc[i]);
+
+    if ( chmc[i]->hitmiss_addr[inst_id] != ALWAYS_MISS ) {
+      inst->acc_t[i] = L1_HIT;
+    }
+  }
+}
+
+/* Attach best-case chmc classification for L2 cache to the instruction
+ * data structure */
+void preprocess_chmc_L2_BCET( procedure* proc )
+{
+  int i;
+  for ( i = 0; i < proc->num_bb; i++ ) {
+    block* bb = proc->bblist[i];
+
+    int j;
+    for ( j = 0; j < bb->num_instr; j++ ) {
+      instr* inst = bb->instrlist[j];
+      classify_inst_L2_BCET( inst, bb->chmc_L2, bb->num_chmc_L2, j );
+    }
+  }
+}
+
+/* Attach best-case chmc classification to the instruction data structure */
+void preprocess_chmc_BCET( procedure* proc )
+{
+  int i;
+  for ( i = 0; i < proc->num_bb; i++ ) {
+    block* bb = proc->bblist[i];
+
+    int j;
+    for ( j = 0; j < bb->num_instr; j++ ) {
+      instr* inst = bb->instrlist[j];
+      classify_inst_BCET( inst, bb->chmc, bb->num_chmc, j );
+    }
+  }
+}
+
+
+/* Attach worst-case hit/miss classification for L2 cache to the instruction */
+static void classify_inst_L2_WCET( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int inst_id )
+{
+  if ( !n_chmc_l2 )
+    return;
+
+  /* Allocate memory here */
+  if ( !inst->acc_t_l2 )
+    inst->acc_t_l2 = (acc_type *) malloc( n_chmc_l2 * sizeof(acc_type) );
+  if ( !inst->acc_t_l2 )
+    prerr( "Error: Out of memory" );
+
+  /* FIXME: Default value is L2 miss */
+  memset( inst->acc_t_l2, 0, n_chmc_l2 * sizeof(acc_type) );
+
+  int i;
+  for ( i = 0; i < n_chmc_l2; i++ ) {
+    assert(chmc_l2[i]);
+
+    if ( !chmc_l2[i]->hitmiss_addr )
+      continue;
+
+    if ( ( chmc_l2[i]->hitmiss_addr[inst_id] == ALWAYS_HIT ) && inst->acc_t[i] != L1_HIT ) {
+      inst->acc_t_l2[i] = L2_HIT;
+    }
+  }
+}
+
+/* Attach worst-case hit/miss classification to the instruction */
+static void classify_inst_WCET( instr* inst, CHMC** chmc, int n_chmc, int inst_id )
+{
+  if ( !n_chmc )
+    return;
+
+  /* Allocate memory here */
+  if ( !inst->acc_t )
+    inst->acc_t = (acc_type *) malloc( n_chmc * sizeof(acc_type) );
+  if ( !inst->acc_t )
+    prerr( "Error: Out of memory" );
+
+  /* FIXME: Default value is L2 miss */
+  memset( inst->acc_t, 0, n_chmc * sizeof(acc_type) );
+
+  int i;
+  for ( i = 0; i < n_chmc; i++ ) {
+    assert(chmc[i]);
+
+    /* FIXME: I think this is possible for a buggy implementation
+     * in cache analysis */
+    if ( !chmc[i]->hitmiss_addr ) {
+      continue;
+    }
+
+    if ( chmc[i]->hitmiss_addr[inst_id] == ALWAYS_HIT ) {
+      inst->acc_t[i] = L1_HIT;
+    }
+  }
+}
+
+/* Attach worst-case chmc classification for L2 cache to the instruction
+ * data structure */
+void preprocess_chmc_L2_WCET( procedure* proc )
+{
+  int i;
+  for ( i = 0; i < proc->num_bb; i++ ) {
+    block* bb = proc->bblist[i];
+
+    int j;
+    for ( j = 0; j < bb->num_instr; j++ ) {
+      instr* inst = bb->instrlist[j];
+      classify_inst_L2_WCET( inst, bb->chmc_L2, bb->num_chmc_L2, j );
+    }
+  }
+}
+
+/* Attach worst-case chmc classification to the instruction data structure */
+void preprocess_chmc_WCET( procedure* proc )
+{
+  int i;
+  for ( i = 0; i < proc->num_bb; i++ ) {
+    block *bb = proc->bblist[i];
+
+    int j;
+    for ( j = 0; j < bb->num_instr; j++ ) {
+      instr* inst = bb->instrlist[j];
+      classify_inst_WCET( inst, bb->chmc, bb->num_chmc, j );
+    }
+  }
+}
+
+
+/* This sets the latest starting time of a block during WCET calculation.
+ * (Not context-aware) */
+void set_start_time_WCET( block* bb, procedure* proc )
+{
+  ull max_start = bb->start_time;
+
+  assert(bb);
+
+  int i;
+  for ( i = 0; i < bb->num_incoming; i++ ) {
+    int in_index = bb->incoming[i];
+    assert(proc->bblist[in_index]);
+    /* Determine the predecessors' latest finish time */
+    if ( max_start < proc->bblist[in_index]->finish_time )
+      max_start = proc->bblist[in_index]->finish_time;
+  }
+
+  /* Now set the starting time of this block to be the latest
+   * finish time of predecessors block */
+  bb->start_time = max_start;
+
+  DEBUG_PRINTF( "Setting max start of bb %d = %Lu\n", bb->bbid, max_start );
+}
+
+/* This sets the earliest starting time of a block during BCET calculation
+ * (Not context-aware) */
+void set_start_time_BCET( block* bb, procedure* proc )
+{
+  ull min_start = 0;
+
+  assert(bb);
+
+  int i;
+  for ( i = 0; i < bb->num_incoming; i++ ) {
+    int in_index = bb->incoming[i];
+    assert(proc->bblist[in_index]);
+    if ( i == 0 )
+      min_start = proc->bblist[in_index]->finish_time;
+    /* Determine the predecessors' latest finish time */
+    else if ( min_start > proc->bblist[in_index]->finish_time )
+      min_start = proc->bblist[in_index]->finish_time;
+  }
+
+  /* Now set the starting time of this block to be the earliest
+   * finish time of predecessors block */
+  bb->start_time = min_start;
+
+  DEBUG_PRINTF( "Setting min start of bb %d = %Lu\n", bb->bbid, min_start);
+}
+
+
+/* Given a MSC and a task inside it, this function computes
+ * the earliest start time of the argument task. Finding out
+ * the earliest start time is important as the bus aware BCET
+ * analysis depends on the same */
+void update_succ_earliest_time( MSC* msc, task_t* task )
+{
+  DEBUG_PRINTF( "Number of Successors = %d\n", task->numSuccs);
+
+  int i;
+  for ( i = 0; i < task->numSuccs; i++ ) {
+
+    DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i]);
+
+    uint sid = task->succList[i];
+    msc->taskList[sid].l_start = task->l_start + task->bcet;
+
+    DEBUG_PRINTF( "Updating earliest start time of successor = %Lu\n",
+        msc->taskList[sid].l_start);
+  }
+}
+
+/* Returns the latest starting of a task in the MSC */
+/* Latest starting time of a task is computed as the maximum
+ * of the latest finish times of all its predecessor tasks
+ * imposed by the partial order of the MSC */
+ull get_earliest_start_time( task_t* cur_task, uint core )
+{
+  /* A task in the MSC can be delayed because of two reasons. Either
+   * the tasks it is dependent upon has not finished executing or
+   * since we consider a non-preemptive scheduling policy the task can
+   * also be delayed because of some other processe's execution in the
+   * same core. Thus we need to consider the minimum of two
+   * possibilities */
+  ull start = MIN( cur_task->l_start, latest_core_time[core] );
+
+  DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start);
+
+  return start;
+}
+
+
+/* Given a MSC and a task inside it, this function computes
+ * the latest start time of the argument task. Finding out
+ * the latest start time is important as the bus aware WCET
+ * analysis depends on the same */
+void update_succ_task_latest_start_time( MSC* msc, task_t* task )
+{
+  DEBUG_PRINTF( "Number of Successors = %d\n", task->numSuccs );
+
+  int i;
+  for ( i = 0; i < task->numSuccs; i++ ) {
+    DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i] );
+    uint sid = task->succList[i];
+    if ( msc->taskList[sid].l_start < ( task->l_start + task->wcet ) )
+      msc->taskList[sid].l_start = task->l_start + task->wcet;
+    DEBUG_PRINTF( "Updating latest start time of successor = %Lu\n", msc->taskList[sid].l_start );
+  }
+}
+
+/* Returns the latest starting of a task in the MSC */
+ull get_latest_task_start_time( task_t* cur_task, uint core )
+{
+  /* If independent task mode return 0 */
+  if ( g_independent_task )
+    return 0;
+
+  /* A task in the MSC can be delayed because of two reasons. Either
+   * the tasks it is dependent upon has not finished executing or
+   * since we consider a non-preemptive scheduling policy the task can
+   * also be delayed because of some other processe's execution in the
+   * same core. Thus we need to consider the maximum of two
+   * possibilities */
+  ull start = MAX( cur_task->l_start, latest_core_time[core] );
+  DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start );
+
+  return start;
+}
+
+
 /* Compute waiting time for a memory request and a given 
  * deterministic TDMA schedule */
 static uint compute_waiting_time(core_sched_p head_core, ull start_time, acc_type type)

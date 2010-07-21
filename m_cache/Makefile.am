@@ -8,8 +8,9 @@ AM_CPPFLAGS=-D_PRINT
 # First program to build: The analyzer/optimizer for the user
 opt_SOURCES=analysisCache.c analysisCache.h \
 						analysisCacheL2.c analysisCacheL2.h \
-						analysisDAG_BCET.c analysisDAG_BCET.h \
-						analysisDAG_WCET.c analysisDAG_WCET.h \
+						analysisDAG_BCET_unroll.c analysisDAG_BCET_unroll.h \
+						analysisDAG_WCET_structural.c analysisDAG_WCET_structural.h \
+						analysisDAG_WCET_unroll.c analysisDAG_WCET_unroll.h \
 						analysisDAG_common.c analysisDAG_common.h \
 						analysisEnum.c analysisEnum.h \
 						analysisILP.c analysisILP.h \
@@ -26,16 +27,17 @@ opt_SOURCES=analysisCache.c analysisCache.h \
 						parseCFG.c parseCFG.h \
 						path.c path.h \
 						pathDAG.c pathDAG.h \
-            topo.c topo.h \
-            updateCacheL2.c updateCacheL2.h
+						topo.c topo.h \
+						updateCacheL2.c updateCacheL2.h
 opt_LDADD=wcrt/libwcrt.a
 
 # Second program to build: The analyzer/optimizer for the developer to play around
 opt_debug_SOURCES=analysisCache.c analysisCache.h \
 								  analysisCacheL2.c analysisCacheL2.h \
-								  analysisDAG_BCET.c analysisDAG_BCET.h \
-								  analysisDAG_WCET.c analysisDAG_WCET.h \
-									analysisDAG_common.c analysisDAG_common.h \
+								  analysisDAG_BCET_unroll.c analysisDAG_BCET_unroll.h \
+								  analysisDAG_WCET_structural.c analysisDAG_WCET_structural.h \
+								  analysisDAG_WCET_unroll.c analysisDAG_WCET_unroll.h \
+								  analysisDAG_common.c analysisDAG_common.h \
 								  analysisEnum.c analysisEnum.h \
 								  analysisILP.c analysisILP.h \
 								  block.c block.h \
@@ -46,11 +48,11 @@ opt_debug_SOURCES=analysisCache.c analysisCache.h \
 								  handler.c handler.h \
 								  header.h \
 								  infeasible.c infeasible.h \
-									main_debug.c \
+								  main_debug.c \
 								  loopdetect.c loopdetect.h \
 								  parseCFG.c parseCFG.h \
-                  path.c path.h \
-                  pathDAG.c pathDAG.h \
-                  topo.c topo.h \
-                  updateCacheL2.c updateCacheL2.h
+								  path.c path.h \
+								  pathDAG.c pathDAG.h \
+								  topo.c topo.h \
+								  updateCacheL2.c updateCacheL2.h
 opt_debug_LDADD=wcrt/libwcrt.a

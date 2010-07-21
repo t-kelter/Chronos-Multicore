@@ -5,17 +5,16 @@
 #include <string.h>
 #include <math.h>
 
-#include "analysisDAG_WCET.h"
+#include "analysisDAG_WCET_structural.h"
 #include "analysisDAG_common.h"
 #include "busSchedule.h"
 
+
 // Forward declarations of static functions
-
 static void computeWCET_loop( loop* lp, procedure* proc );
-
 static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp );
-
 static void computeWCET_proc( procedure* proc, ull start_time );
+
 
 /***********************************************************************/
 /* sudiptac:: This part of the code is only used for the WCET and
@@ -33,120 +32,6 @@ static void computeWCET_proc( procedure* proc, ull start_time );
  * shared data bus worst/best case execution time of a procedure/loop 
  * depends on its starting time */
 
-/* Attach hit/miss classification for L2 cache to the instruction */
-static void classify_inst_L2( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int inst_id )
-{
-  if ( !n_chmc_l2 )
-    return;
-
-  /* Allocate memory here */
-  if ( !inst->acc_t_l2 )
-    inst->acc_t_l2 = (acc_type *) malloc( n_chmc_l2 * sizeof(acc_type) );
-  if ( !inst->acc_t_l2 )
-    prerr( "Error: Out of memory" );
-
-  /* FIXME: Default value is L2 miss */
-  memset( inst->acc_t_l2, 0, n_chmc_l2 * sizeof(acc_type) );
-
-  int i;
-  for ( i = 0; i < n_chmc_l2; i++ ) {
-    assert(chmc_l2[i]);
-
-    if ( !chmc_l2[i]->hitmiss_addr )
-      continue;
-
-    if ( ( chmc_l2[i]->hitmiss_addr[inst_id] == ALWAYS_HIT ) && inst->acc_t[i] != L1_HIT ) {
-      inst->acc_t_l2[i] = L2_HIT;
-    }
-  }
-}
-
-/* Attach hit/miss classification to the instruction */
-static void classify_inst( instr* inst, CHMC** chmc, int n_chmc, int inst_id )
-{
-  if ( !n_chmc )
-    return;
-
-  /* Allocate memory here */
-  if ( !inst->acc_t )
-    inst->acc_t = (acc_type *) malloc( n_chmc * sizeof(acc_type) );
-  if ( !inst->acc_t )
-    prerr( "Error: Out of memory" );
-
-  /* FIXME: Default value is L2 miss */
-  memset( inst->acc_t, 0, n_chmc * sizeof(acc_type) );
-
-  int i;
-  for ( i = 0; i < n_chmc; i++ ) {
-    assert(chmc[i]);
-
-    /* FIXME: I think this is possible for a buggy implementation
-     * in cache analysis */
-    if ( !chmc[i]->hitmiss_addr ) {
-      continue;
-    }
-
-    if ( chmc[i]->hitmiss_addr[inst_id] == ALWAYS_HIT ) {
-      inst->acc_t[i] = L1_HIT;
-    }
-  }
-}
-
-/* Attach chmc classification for L2 cache to the instruction 
- * data structure */
-static void preprocess_chmc_L2( procedure* proc )
-{
-  int i;
-  for ( i = 0; i < proc->num_bb; i++ ) {
-    block* bb = proc->bblist[i];
-
-    int j;
-    for ( j = 0; j < bb->num_instr; j++ ) {
-      instr* inst = bb->instrlist[j];
-      classify_inst_L2( inst, bb->chmc_L2, bb->num_chmc_L2, j );
-    }
-  }
-}
-
-/* Attach chmc classification to the instruction data structure */
-static void preprocess_chmc( procedure* proc )
-{
-  int i;
-  for ( i = 0; i < proc->num_bb; i++ ) {
-    block *bb = proc->bblist[i];
-
-    int j;
-    for ( j = 0; j < bb->num_instr; j++ ) {
-      instr* inst = bb->instrlist[j];
-      classify_inst( inst, bb->chmc, bb->num_chmc, j );
-    }
-  }
-}
-
-/* This sets the latest starting time of a block during WCET calculation.
- * (Not context-aware)
- */
-static void set_start_time( block* bb, procedure* proc )
-{
-  ull max_start = bb->start_time;
-
-  assert(bb);
-
-  int i;
-  for ( i = 0; i < bb->num_incoming; i++ ) {
-    int in_index = bb->incoming[i];
-    assert(proc->bblist[in_index]);
-    /* Determine the predecessors' latest finish time */
-    if ( max_start < proc->bblist[in_index]->finish_time )
-      max_start = proc->bblist[in_index]->finish_time;
-  }
-
-  /* Now set the starting time of this block to be the latest 
-   * finish time of predecessors block */
-  bb->start_time = max_start;
-
-  DEBUG_PRINTF( "Setting max start of bb %d = %Lu\n", bb->bbid, max_start );
-}
 
 /* This sets the latest starting time of a block during WCET calculation.
  * (Context-aware)
@@ -154,7 +39,7 @@ static void set_start_time( block* bb, procedure* proc )
  * Additionally this function carries over the 'latest_bus' and 'latest_latency'
  * fields from the predecessor with maximum finishing time.
  */
-static void set_start_time_opt( block* bb, procedure* proc, uint context )
+static void set_start_time_WCET_opt( block* bb, procedure* proc, uint context )
 {
   ull max_start = bb->start_opt[context];
 
@@ -176,7 +61,7 @@ static void set_start_time_opt( block* bb, procedure* proc, uint context )
     }
   }
 
-  /* Now set the starting time of this block to be the latest 
+  /* Now set the starting time of this block to be the latest
    * finish time of predecessors block */
   bb->start_opt[context] = max_start;
 
@@ -317,7 +202,7 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
       loop * const inlp = check_loop( bb, proc );
       if ( inlp && i != lp->num_topo - 1 ) {
         /* FIXME: do I need this ? */
-        /* set_start_time_opt(bb, proc, j); */
+        /* set_start_time_WCET_opt(bb, proc, j); */
         preprocess_one_loop( inlp, proc );
         bb->fin_opt[j] = bb->start_opt[j] + startAlign() + inlp->wcet_opt[2 * j] + startAlign() + ( inlp->wcet_opt[2
             * j + 1] + endAlign( inlp->wcet_opt[2 * j + 1] ) ) * inlp->loopbound;
@@ -329,7 +214,7 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
       /* Otherwise, set the maximum of the finish time of predecesssor 
        * basic blocks */
       else
-        set_start_time_opt( bb, proc, j );
+        set_start_time_WCET_opt( bb, proc, j );
 
       NPRINT_PRINTF( "Current CHMC = 0x%x\n", (unsigned) cur_chmc );
       NPRINT_PRINTF( "Current CHMC L2 = 0x%x\n", (unsigned) cur_chmc_L2 );
@@ -407,54 +292,6 @@ static void preprocess_all_loops( procedure* proc )
   }
 }
 
-/* Computes the latest finish time and worst case cost of a loop.
- * This procedure fully unrolls the loop virtually during computation.
- */
-static void computeWCET_loop( loop* lp, procedure* proc )
-{
-  DEBUG_PRINTF( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t) lp );
-
-  /* FIXME: correcting loop bound */
-  const int lpbound = lp->loopexit ? lp->loopbound : ( lp->loopbound + 1 );
-
-  /* For computing wcet of the loop it must be visited 
-   * multiple times equal to the loop bound */
-  int i;
-  for ( i = 0; i < lpbound; i++ ) {
-    /* CAUTION: Update the current context */
-    if ( i == 0 )
-      cur_context *= 2;
-    else if ( i == 1 )
-      cur_context = cur_context + 1;
-
-    /* Go through the blocks in topological order */
-    int j;
-    for ( j = lp->num_topo - 1; j >= 0; j-- ) {
-      block * const bb = lp->topo[j];
-      assert(bb);
-
-      /* Set the start time of this block in the loop */
-      /* If this is the first iteration and loop header
-       * set the start time to be the latest finish time
-       * of predecessor otherwise latest finish time of
-       * loop sink */
-      if ( bb->bbid == lp->loophead->bbid && i == 0 ) {
-        set_start_time( bb, proc );
-      } else if ( bb->bbid == lp->loophead->bbid ) {
-        assert(lp->loopsink);
-        bb->start_time = MAX( lp->loopsink->finish_time, bb->start_time );
-        DEBUG_PRINTF( "Setting loop %d finish time = %Lu\n", lp->lpid, lp->loopsink->finish_time );
-      } else {
-        set_start_time( bb, proc );
-      }
-
-      computeWCET_block( bb, proc, lp );
-    }
-  }
-  /* CAUTION: Update the current context */
-  cur_context /= 2;
-}
-
 /* Compute worst case finish time and cost of a block */
 static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
 {
@@ -466,12 +303,9 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
    * the same loop */
   loop* inlp = check_loop( bb, proc );
   if ( inlp && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
-    if ( g_full_unrolling )
-      computeWCET_loop( inlp, proc );
-    else {
-      bb->finish_time = bb->start_time + startAlign() + inlp->wcet_opt[0] + startAlign() + ( inlp->wcet_opt[1]
-          + endAlign( inlp->wcet_opt[1] ) ) * inlp->loopbound;
-    }
+
+    bb->finish_time = bb->start_time + startAlign() + inlp->wcet_opt[0] + startAlign() + ( inlp->wcet_opt[1]
+        + endAlign( inlp->wcet_opt[1] ) ) * inlp->loopbound;
 
   /* It's not a loop. Go through all the instructions and
    * compute the WCET of the block */
@@ -541,11 +375,11 @@ static void computeWCET_proc( procedure* proc, ull start_time )
 
   /* Preprocess CHMC classification for each instruction inside
    * the procedure */
-  preprocess_chmc( proc );
+  preprocess_chmc_WCET( proc );
 
   /* Preprocess CHMC classification for L2 cache for each 
    * instruction inside the procedure */
-  preprocess_chmc_L2( proc );
+  preprocess_chmc_L2_WCET( proc );
 
   /* Preprocess all the loops for optimized WCET calculation */
   /********CAUTION*******/
@@ -570,7 +404,7 @@ static void computeWCET_proc( procedure* proc, ull start_time )
     if ( i == proc->num_topo - 1 )
       bb->start_time = start_time;
     else
-      set_start_time( bb, proc );
+      set_start_time_WCET( bb, proc );
     computeWCET_block( bb, proc, NULL );
   }
 
@@ -597,7 +431,7 @@ static void computeWCET_proc( procedure* proc, ull start_time )
  * does not consider the mscs, it just searches the list of known functions for the 'main' function
  * and starts the analysis there.
  */
-void computeWCET( ull start_time )
+void computeWCET_structural( ull start_time )
 {
   acc_bus_delay = 0;
   cur_task = NULL;
@@ -620,53 +454,14 @@ void computeWCET( ull start_time )
   PRINT_PRINTF( "\n\n**************************************************************\n" );
   PRINT_PRINTF( "Latest start time of the program = %Lu start_time\n", start_time );
   PRINT_PRINTF( "Latest finish time of the program = %Lu cycles\n", procs[top_func]->running_finish_time );
-  if ( g_shared_bus )
-    PRINT_PRINTF( "WCET of the program with shared bus = %Lu cycles\n", procs[top_func]->running_cost );
-  else
-    PRINT_PRINTF( "WCET of the program without shared bus = %Lu cycles\n", procs[top_func]->running_cost );
+  PRINT_PRINTF( "WCET of the program %s shared bus = %Lu cycles\n",
+      g_shared_bus ? "with" : "without", procs[top_func]->running_cost );
   PRINT_PRINTF( "**************************************************************\n\n" );
-}
-
-/* Given a MSC and a task inside it, this function computes 
- * the latest start time of the argument task. Finding out 
- * the latest start time is important as the bus aware WCET
- * analysis depends on the same */
-static void update_succ_task_latest_start_time( MSC* msc, task_t* task )
-{
-  DEBUG_PRINTF( "Number of Successors = %d\n", task->numSuccs );
-
-  int i;
-  for ( i = 0; i < task->numSuccs; i++ ) {
-    DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i] );
-    uint sid = task->succList[i];
-    if ( msc->taskList[sid].l_start < ( task->l_start + task->wcet ) )
-      msc->taskList[sid].l_start = task->l_start + task->wcet;
-    DEBUG_PRINTF( "Updating latest start time of successor = %Lu\n", msc->taskList[sid].l_start );
-  }
-}
-
-/* Returns the latest starting of a task in the MSC */
-static ull get_latest_task_start_time( task_t* cur_task, uint core )
-{
-  /* If independent task mode return 0 */
-  if ( g_independent_task )
-    return 0;
-
-  /* A task in the MSC can be delayed because of two reasons. Either
-   * the tasks it is dependent upon has not finished executing or 
-   * since we consider a non-preemptive scheduling policy the task can 
-   * also be delayed because of some other processe's execution in the 
-   * same core. Thus we need to consider the maximum of two 
-   * possibilities */
-  ull start = MAX( cur_task->l_start, latest_core_time[core] );
-  DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start );
-
-  return start;
 }
 
 /* Analyze worst case execution time of all the tasks inside 
  * a MSC. The MSC is given by the argument */
-void compute_bus_WCET_MSC( MSC *msc, const char *tdma_bus_schedule_file )
+void compute_bus_WCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_file )
 {
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
@@ -708,10 +503,8 @@ void compute_bus_WCET_MSC( MSC *msc, const char *tdma_bus_schedule_file )
     PRINT_PRINTF( "\n\n**************************************************************\n" );
     PRINT_PRINTF( "Latest start time of the program = %Lu start_time\n", start_time );
     PRINT_PRINTF( "Latest finish time of the task = %Lu cycles\n", task_main->running_finish_time );
-    if ( g_shared_bus )
-      PRINT_PRINTF( "WCET of the task with shared bus = %Lu cycles\n", task_main->running_cost );
-    else
-      PRINT_PRINTF( "WCET of the task without shared bus = %Lu cycles\n", task_main->running_cost );
+    PRINT_PRINTF( "WCET of the task %s shared bus = %Lu cycles\n",
+        g_shared_bus ? "with" : "without", task_main->running_cost );
     PRINT_PRINTF( "**************************************************************\n\n" );
   }
 }
