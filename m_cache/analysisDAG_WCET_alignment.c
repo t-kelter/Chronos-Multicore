@@ -5,31 +5,15 @@
 #include <string.h>
 #include <math.h>
 
-#include "analysisDAG_WCET_structural.h"
+#include "analysisDAG_WCET_alignment.h"
 #include "analysisDAG_common.h"
 #include "busSchedule.h"
 
 
 // Forward declarations of static functions
+static void computeWCET_loop( loop* lp, procedure* proc );
 static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp );
 static void computeWCET_proc( procedure* proc, ull start_time );
-
-
-/***********************************************************************/
-/* sudiptac:: This part of the code is only used for the WCET and
- * BCET analysis in presence shared data bus. All procedures in the
- * following is used only for this purpose and therefore can safely 
- * be ignored for analysis which does not include shared data bus 
- */
-/***********************************************************************/
-
-/* sudiptac:: Determines WCET of a procedure in presence of shared data
- * bus. We assume the shared cache analysis at this point and CHMC 
- * classification for every instruction has already been computed. We 
- * also assume a statically generated TDMA bus schedule and the 
- * worst/best case starting time of the procedure since in presence of 
- * shared data bus worst/best case execution time of a procedure/loop 
- * depends on its starting time */
 
 
 /* This sets the latest starting time of a block during WCET calculation.
@@ -186,7 +170,8 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
     uint bb_cost = 0;
     memset( max_fin, 0, 64 );
 
-    /* Traverse over all the CHMC-s of this basic block */
+    /* Traverse over all the CHMC-s of this basic block.
+     * For each CHMC, a loop WCET is computed. */
     int j;
     for ( j = 0; j < bb->num_chmc; j++ ) {
       const CHMC * const cur_chmc = (CHMC *) bb->chmc[j];
@@ -380,8 +365,6 @@ static void computeWCET_proc( procedure* proc, ull start_time )
    * instruction inside the procedure */
   preprocess_chmc_L2_WCET( proc );
 
-  /* Preprocess all the loops for optimized WCET calculation */
-  /********CAUTION*******/
   preprocess_all_loops( proc );
 
   /* Reset all timing information */
@@ -430,7 +413,7 @@ static void computeWCET_proc( procedure* proc, ull start_time )
  * does not consider the mscs, it just searches the list of known functions for the 'main' function
  * and starts the analysis there.
  */
-void computeWCET_structural( ull start_time )
+void computeWCET_alignment( ull start_time )
 {
   acc_bus_delay = 0;
   cur_task = NULL;
@@ -460,7 +443,7 @@ void computeWCET_structural( ull start_time )
 
 /* Analyze worst case execution time of all the tasks inside 
  * a MSC. The MSC is given by the argument */
-void compute_bus_WCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_file )
+void compute_bus_WCET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file )
 {
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
