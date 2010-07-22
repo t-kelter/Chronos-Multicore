@@ -5,14 +5,14 @@
 #include <string.h>
 #include <math.h>
 
-#include "analysisDAG_WCET_structural.h"
+#include "analysisDAG_ET_alignment.h"
 #include "analysisDAG_common.h"
 #include "busSchedule.h"
 
 
 // Forward declarations of static functions
-static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp );
-static void computeWCET_proc( procedure* proc, ull start_time );
+static void computeET_block( block* bb, procedure* proc, loop* cur_lp );
+static void computeET_proc( procedure* proc, ull start_time );
 
 
 /* This sets the latest starting time of a block during WCET calculation.
@@ -21,7 +21,7 @@ static void computeWCET_proc( procedure* proc, ull start_time );
  * Additionally this function carries over the 'latest_bus' and 'latest_latency'
  * fields from the predecessor with maximum finishing time.
  */
-static void set_start_time_WCET_opt( block* bb, procedure* proc, uint context )
+static void set_start_time_ET_opt( block* bb, procedure* proc, uint context )
 {
   ull max_start = bb->start_opt[context];
 
@@ -323,7 +323,7 @@ static void preprocess_all_loops( procedure* proc )
 }
 
 /* Compute worst case finish time and cost of a block */
-static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
+static void computeET_block( block* bb, procedure* proc, loop* cur_lp )
 {
   DEBUG_PRINTF( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t) bb );
 
@@ -402,7 +402,7 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
   DEBUG_PRINTF( "Setting block %d finish time = %Lu\n", bb->bbid, bb->finish_time );
 }
 
-static void computeWCET_proc( procedure* proc, ull start_time )
+static void computeET_proc( procedure* proc, ull start_time )
 {
   /* Preprocess CHMC classification for each instruction inside
    * the procedure */
@@ -462,7 +462,7 @@ static void computeWCET_proc( procedure* proc, ull start_time )
  * does not consider the mscs, it just searches the list of known functions for the 'main' function
  * and starts the analysis there.
  */
-void computeWCET_alignment( ull start_time )
+void computeET_alignment( ull start_time )
 {
   acc_bus_delay = 0;
   cur_task = NULL;
@@ -492,7 +492,7 @@ void computeWCET_alignment( ull start_time )
 
 /* Analyze worst case execution time of all the tasks inside
  * a MSC. The MSC is given by the argument */
-void compute_bus_WCET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file )
+void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file )
 {
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
