@@ -695,8 +695,5 @@ EXTERN uint g_private;
 /* Set if no bus modelling is turned on */
 EXTERN uint g_no_bus_modeling;
 
-/* Total number of instructions analysed */
-EXTERN ull all_inst;
-
 
 #endif

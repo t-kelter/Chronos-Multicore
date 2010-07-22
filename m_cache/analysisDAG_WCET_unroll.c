@@ -124,7 +124,6 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
       }
       /* No procedure call ---- normal instruction */
       else {
-        all_inst++;
         /* If its a L1 hit add only L1 cache latency */
         acc_type acc_t = check_hit_miss( bb, inst, cur_context );
         if ( acc_t == L1_HIT )
@@ -214,38 +213,6 @@ static void computeWCET_proc( procedure* proc, ull start_time )
   DEBUG_PRINTF( "Set worst case cost of the procedure %d = %Lu\n", proc->pid, proc->running_cost );
 }
 
-/* This is the entry point for the non-MSC-aware version of the DAG-based analysis. The function
- * does not consider the mscs, it just searches the list of known functions for the 'main' function
- * and starts the analysis there.
- */
-void computeWCET_unroll( ull start_time )
-{
-  acc_bus_delay = 0;
-  cur_task = NULL;
-
-  /* Send the pointer to the "main" to compute the WCET of the
-   * whole program */
-  assert(proc_cg);
-  int id = num_procs - 1;
-
-  int top_func = -1;
-  while ( id >= 0 ) {
-    top_func = proc_cg[id];
-    /* Ignore all un-intended library calls like "printf" */
-    if ( top_func >= 0 && top_func <= num_procs - 1 )
-      break;
-    id--;
-  }
-  computeWCET_proc( procs[top_func], start_time );
-
-  PRINT_PRINTF( "\n**************************************************************\n" );
-  PRINT_PRINTF( "Latest start time of the program = %Lu cycles\n", start_time );
-  PRINT_PRINTF( "Latest finish time of the program = %Lu cycles\n", procs[top_func]->running_finish_time );
-  PRINT_PRINTF( "WCET of the program %s shared bus = %Lu cycles\n",
-      g_shared_bus ? "with" : "without", procs[top_func]->running_cost );
-  PRINT_PRINTF( "**************************************************************\n\n" );
-}
-
 /* Analyze worst case execution time of all the tasks inside 
  * a MSC. The MSC is given by the argument */
 void compute_bus_WCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
@@ -265,7 +232,6 @@ void compute_bus_WCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
     PRINT_PRINTF( "Analyzing Task WCET %s......\n", msc->taskList[k].task_name );
 
     /* Get needed inputs. */
-    all_inst = 0;
     cur_task = &( msc->taskList[k] );
     ncore = get_core( cur_task );
     procedure * const task_main = msc->taskList[k].main_copy;

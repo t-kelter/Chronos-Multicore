@@ -212,40 +212,6 @@ static void computeBCET_proc( procedure* proc, ull start_time )
       proc->pid, proc->running_cost);
 }
 
-
-/* This is the entry point for the non-MSC-aware version of the DAG-based analysis. The function
- * does not consider the mscs, it just searches the list of known functions for the 'main' function
- * and starts the analysis there.
- */
-void computeBCET_unroll( ull start_time )
-{
-  acc_bus_delay = 0;
-  cur_task = NULL;
-
-  /* Send the pointer to the "main" to compute the WCET of the
-   * whole program */
-  assert(proc_cg);
-  int id = num_procs - 1;
-
-  int top_func = -1;
-  while ( id >= 0 ) {
-    top_func = proc_cg[id];
-    /* Ignore all un-intended library calls like "printf" */
-    if ( top_func >= 0 && top_func <= num_procs - 1 )
-      break;
-    id--;
-  }
-  computeBCET_proc( procs[top_func], start_time );
-
-  PRINT_PRINTF( "\n**************************************************************\n" );
-  PRINT_PRINTF( "Earliest start time of the program = %Lu cycles\n", start_time );
-  PRINT_PRINTF( "Earliest finish time of the program = %Lu cycles\n",
-      procs[top_func]->running_finish_time );
-  PRINT_PRINTF( "BCET of the program %s shared bus = %Lu cycles\n",
-      g_shared_bus ? "with" : "without", procs[top_func]->running_cost );
-  PRINT_PRINTF( "**************************************************************\n\n" );
-}
-
 /* Analyze best case execution time of all the tasks inside 
  * a MSC. The MSC is given by the argument */
 void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
