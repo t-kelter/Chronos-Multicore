@@ -21,6 +21,13 @@
 // ######### Datatype declarations  ###########
 
 
+/* A data type to represent an offset range. The offsets are measured from the
+ * beginning of the TDMA slot of the first core. */
+typedef struct {
+  uint lower_bound;
+  uint upper_bound;
+} tdma_offset_range;
+
 
 // ######### Function declarations  ###########
 
