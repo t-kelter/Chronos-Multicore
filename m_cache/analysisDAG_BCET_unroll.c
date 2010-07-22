@@ -237,8 +237,8 @@ void computeBCET_unroll( ull start_time )
   }
   computeBCET_proc( procs[top_func], start_time );
 
-  PRINT_PRINTF( "\n\n**************************************************************\n" );
-  PRINT_PRINTF( "Earliest start time of the program = %Lu start_time\n", start_time );
+  PRINT_PRINTF( "\n**************************************************************\n" );
+  PRINT_PRINTF( "Earliest start time of the program = %Lu cycles\n", start_time );
   PRINT_PRINTF( "Earliest finish time of the program = %Lu cycles\n",
       procs[top_func]->running_finish_time );
   PRINT_PRINTF( "BCET of the program %s shared bus = %Lu cycles\n",
@@ -262,7 +262,7 @@ void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
   for ( k = 0; k < msc->num_task; k++ ) {
     acc_bus_delay = 0;
 
-    NPRINT_PRINTF( "Analyzing Task BCET %s......\n", msc->taskList[k].task_name);
+    PRINT_PRINTF( "Analyzing Task BCET %s......\n", msc->taskList[k].task_name);
 
     /* Get needed inputs. */
     cur_task = &( msc->taskList[k] );
@@ -286,8 +286,8 @@ void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
      * update all its successor tasks' latest time */
     update_succ_earliest_time( msc, cur_task );
 
-    PRINT_PRINTF("\n\n**************************************************************\n");
-    PRINT_PRINTF("Earliest start time of the task = %Lu start_time\n", start_time);
+    PRINT_PRINTF("\n**************************************************************\n");
+    PRINT_PRINTF("Earliest start time of the task = %Lu cycles\n", start_time);
     PRINT_PRINTF("Earliest finish time of the task = %Lu cycles\n",
         task_main->running_finish_time);
     PRINT_PRINTF( "BCET of the task %s shared bus = %Lu cycles\n",

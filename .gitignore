@@ -35,7 +35,7 @@ m_cache/analysisCache.o
 m_cache/analysisCacheL2.o
 m_cache/analysisDAG_BCET_unroll.o
 m_cache/analysisDAG_common.o
-m_cache/analysisDAG_WCET_alignment.o
+m_cache/analysisDAG_ET_alignment.o
 m_cache/analysisDAG_WCET_structural.o
 m_cache/analysisDAG_WCET_unroll.o
 m_cache/analysisEnum.o

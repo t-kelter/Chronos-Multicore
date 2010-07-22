@@ -669,8 +669,6 @@ EXTERN uint g_no_bus_modeling;
 
 /* Total number of instructions analysed */
 EXTERN ull all_inst;
-/* Set whether we fully unroll loops during the analysis */
-EXTERN int g_full_unrolling;
 
 /* 
  * Regarding loops:

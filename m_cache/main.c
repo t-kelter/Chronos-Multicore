@@ -24,9 +24,10 @@
 //#include "DAG_WCET.h"
 #include "topo.h"
 //#include "analysisILP.h"
+#include "analysisDAG_BCET_unroll.h"
+#include "analysisDAG_ET_alignment.h"
 #include "analysisDAG_WCET_unroll.h"
 #include "analysisDAG_WCET_structural.h"
-#include "analysisDAG_BCET_unroll.h"
 //#include "analysisEnum.h"
 #include "analysisCache.h"
 #include "analysisCacheL2.h"
@@ -36,6 +37,14 @@
 #include "busSchedule.h"
 #include "wcrt/wcrt.h"
 #include "wcrt/cycle_time.h"
+
+
+// List of analysis methods
+enum AnalysisMethod {
+    ANALYSIS_UNROLL,
+    ANALYSIS_STRUCTURAL,
+    ANALYSIS_ALIGNMENT
+};
 
 
 // List of static helper functions (see bottom)
@@ -62,26 +71,31 @@ static __inline__ ticks getticks(void)
 /*
  * Switches between the alternatives of analysis methods.
  */
+static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
+                      enum AnalysisMethod method )
+{
+  switch ( method ) {
 
-/*
-int analysis() {
+    case ANALYSIS_UNROLL:
+      compute_bus_WCET_MSC_unroll(msc, tdma_bus_schedule_file);
+      compute_bus_BCET_MSC_unroll(msc, tdma_bus_schedule_file);
+      break;
 
-  if( method == ILP )
-    return analysis_ilp();
+    case ANALYSIS_STRUCTURAL:
+      compute_bus_WCET_MSC_structural(msc, tdma_bus_schedule_file);
+      compute_bus_BCET_MSC_unroll(msc, tdma_bus_schedule_file);
+      break;
 
-  if( method == DAG )
-    return analysis_dag();
+    case ANALYSIS_ALIGNMENT:
+      // Computes BCET and WCET together
+      compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file);
+      break;
 
-  if( method == ENUM ) {
-    analysis_dag();
-    return analysis_enum();
+    default:
+      fprintf( stderr, "Invalid choice of analysis method.\n" );
+      exit(1);
   }
-
-  printf( "Invalid choice of analysis method. Please choose %d:ILP, %d:DAG or %d:ENUM.\n", ILP, DAG, ENUM );
-  exit(1);
 }
-
-*/
 
 
 int main(int argc, char **argv )
@@ -104,8 +118,9 @@ int main(int argc, char **argv )
   g_independent_task = 0;
   /* For no bus modelling */
   g_no_bus_modeling = 0;
-  /* Set whether we fully unroll loops during the analysis. */
-  g_full_unrolling = 0;
+
+  /* Set the analysis method to use. */
+  const enum AnalysisMethod current_analysis_method = ANALYSIS_ALIGNMENT;
 
   /* also read conflict info and tasks info */
   interferePathName = argv[1];
@@ -261,14 +276,14 @@ int main(int argc, char **argv )
        * no longer needed */ 
       freeAllCacheState();
 
-      PRINT_PRINTF("\nL1 cache analysis finished\n");
+      PRINT_PRINTF("L1 cache analysis finished\n");
 
       /* Now do private L2 cache analysis of this task */
       cacheAnalysis_L2();
       /* Free L2 cache states */
       freeAll_L2();
 
-      PRINT_PRINTF("\nL2 cache analysis finished\n");
+      PRINT_PRINTF("L2 cache analysis finished\n\n");
     }
 
     /* Private cache analysis for all tasks are done here. But due 
@@ -276,7 +291,7 @@ int main(int argc, char **argv )
      * need to be updated */
     /* If private L2 cache analysis .... no update of interference */
     if( !g_private ) {
-      printf("update CS %s\n", currentMSC->msc_name);
+      PRINT_PRINTF("Update cache state in msc '%s'\n\n", currentMSC->msc_name);
       updateCacheState(currentMSC);
     }
 
@@ -289,11 +304,7 @@ int main(int argc, char **argv )
     /* CAUTION: In presence of shared bus these two function changes
      * to account for the bus delay */
     start = getticks();
-    if ( g_full_unrolling ) {
-      compute_bus_WCET_MSC_unroll(currentMSC, tdma_bus_schedule_file);
-    } else {
-      compute_bus_WCET_MSC_structural(currentMSC, tdma_bus_schedule_file);
-    }
+    analysis( currentMSC, tdma_bus_schedule_file, current_analysis_method );
     end = getticks();
 
     /* FIXME: What's this function doing here ? */ 	  
@@ -375,14 +386,9 @@ int main(int argc, char **argv )
         updateCacheState(msc[i]);
 
         pathDAG(msc[i]);
+
         /* Compute WCET and BCET of each task. */
-        if ( g_full_unrolling ) {
-          compute_bus_WCET_MSC_unroll(msc[i], tdma_bus_schedule_file);
-          compute_bus_BCET_MSC_unroll(msc[i], tdma_bus_schedule_file);
-        } else {
-          compute_bus_WCET_MSC_structural(msc[i], tdma_bus_schedule_file);
-          compute_bus_BCET_MSC_unroll(msc[i], tdma_bus_schedule_file);
-        }
+        analysis( msc[i], tdma_bus_schedule_file, current_analysis_method );
 
         /* FIXME: What's this function doing here ? */
         resetHitMiss_L2(msc[i]);

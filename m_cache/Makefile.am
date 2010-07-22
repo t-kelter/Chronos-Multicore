@@ -9,7 +9,7 @@ AM_CPPFLAGS=-D_PRINT
 opt_SOURCES=analysisCache.c analysisCache.h \
 						analysisCacheL2.c analysisCacheL2.h \
 						analysisDAG_BCET_unroll.c analysisDAG_BCET_unroll.h \
-						analysisDAG_WCET_alignment.c analysisDAG_WCET_alignment.h \
+						analysisDAG_ET_alignment.c analysisDAG_ET_alignment.h \
 						analysisDAG_WCET_structural.c analysisDAG_WCET_structural.h \
 						analysisDAG_WCET_unroll.c analysisDAG_WCET_unroll.h \
 						analysisDAG_common.c analysisDAG_common.h \
@@ -36,7 +36,7 @@ opt_LDADD=wcrt/libwcrt.a
 opt_debug_SOURCES=analysisCache.c analysisCache.h \
 								  analysisCacheL2.c analysisCacheL2.h \
 								  analysisDAG_BCET_unroll.c analysisDAG_BCET_unroll.h \
-									analysisDAG_WCET_alignment.c analysisDAG_WCET_alignment.h \
+									analysisDAG_ET_alignment.c analysisDAG_ET_alignment.h \
 								  analysisDAG_WCET_structural.c analysisDAG_WCET_structural.h \
 								  analysisDAG_WCET_unroll.c analysisDAG_WCET_unroll.h \
 								  analysisDAG_common.c analysisDAG_common.h \

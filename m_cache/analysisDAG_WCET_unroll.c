@@ -238,8 +238,8 @@ void computeWCET_unroll( ull start_time )
   }
   computeWCET_proc( procs[top_func], start_time );
 
-  PRINT_PRINTF( "\n\n**************************************************************\n" );
-  PRINT_PRINTF( "Latest start time of the program = %Lu start_time\n", start_time );
+  PRINT_PRINTF( "\n**************************************************************\n" );
+  PRINT_PRINTF( "Latest start time of the program = %Lu cycles\n", start_time );
   PRINT_PRINTF( "Latest finish time of the program = %Lu cycles\n", procs[top_func]->running_finish_time );
   PRINT_PRINTF( "WCET of the program %s shared bus = %Lu cycles\n",
       g_shared_bus ? "with" : "without", procs[top_func]->running_cost );
@@ -287,8 +287,8 @@ void compute_bus_WCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
      * update all its successor tasks' latest time */
     update_succ_task_latest_start_time( msc, cur_task );
 
-    PRINT_PRINTF( "\n\n**************************************************************\n" );
-    PRINT_PRINTF( "Latest start time of the task = %Lu start_time\n", start_time );
+    PRINT_PRINTF( "\n**************************************************************\n" );
+    PRINT_PRINTF( "Latest start time of the task = %Lu cycles\n", start_time );
     PRINT_PRINTF( "Latest finish time of the task = %Lu cycles\n", task_main->running_finish_time );
     PRINT_PRINTF( "WCET of the task %s shared bus = %Lu cycles\n",
         g_shared_bus ? "with" : "without", task_main->running_cost );

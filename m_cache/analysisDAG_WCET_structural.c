@@ -15,6 +15,10 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp );
 static void computeWCET_proc( procedure* proc, ull start_time );
 
 
+// The total cycles used for aligning the loops to TDMA slots during the WCET analysis
+static ull totalAlignCost = 0;
+
+
 /***********************************************************************/
 /* sudiptac:: This part of the code is only used for the WCET and
  * BCET analysis in presence shared data bus. All procedures in the
@@ -204,9 +208,14 @@ static ull getLoopWCET( const loop *lp, int enclosing_loop_context )
         lp->pid, lp->lpid, enclosing_context_bits, nextIterationsWCET );
   */
 
-  return startAlign() + firstIterationWCET + endAlign( firstIterationWCET )
-      + ( ( nextIterationsWCET + endAlign( nextIterationsWCET ) ) *
-          ( lp->loopbound - 1 ) );
+  const ull execution_cost = firstIterationWCET +
+        + ( nextIterationsWCET * ( lp->loopbound - 1 ) );
+  const ull alignment_cost = startAlign() + endAlign( firstIterationWCET )
+      + ( endAlign( nextIterationsWCET ) * ( lp->loopbound - 1 ) );
+
+  totalAlignCost += alignment_cost;
+
+  return execution_cost + alignment_cost;
 }
 
 /* Preprocess one loop for optimized bus aware WCET calculation */
@@ -499,8 +508,8 @@ void computeWCET_structural( ull start_time )
   }
   computeWCET_proc( procs[top_func], start_time );
 
-  PRINT_PRINTF( "\n\n**************************************************************\n" );
-  PRINT_PRINTF( "Latest start time of the program = %Lu start_time\n", start_time );
+  PRINT_PRINTF( "\n**************************************************************\n" );
+  PRINT_PRINTF( "Latest start time of the program = %Lu cycles\n", start_time );
   PRINT_PRINTF( "Latest finish time of the program = %Lu cycles\n", procs[top_func]->running_finish_time );
   PRINT_PRINTF( "WCET of the program %s shared bus = %Lu cycles\n",
       g_shared_bus ? "with" : "without", procs[top_func]->running_cost );
@@ -518,6 +527,8 @@ void compute_bus_WCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_fi
   memset( latest_core_time, 0, num_core * sizeof(ull) );
   /* reset latest time of all tasks */
   reset_all_task( msc );
+
+  totalAlignCost = 0;
 
   int k;
   for ( k = 0; k < msc->num_task; k++ ) {
@@ -548,11 +559,13 @@ void compute_bus_WCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_fi
      * update all its successor tasks' latest time */
     update_succ_task_latest_start_time( msc, cur_task );
 
-    PRINT_PRINTF( "\n\n**************************************************************\n" );
-    PRINT_PRINTF( "Latest start time of the program = %Lu start_time\n", start_time );
+    PRINT_PRINTF( "\n**************************************************************\n" );
+    PRINT_PRINTF( "Latest start time of the program = %Lu cycles\n", start_time );
     PRINT_PRINTF( "Latest finish time of the task = %Lu cycles\n", task_main->running_finish_time );
     PRINT_PRINTF( "WCET of the task %s shared bus = %Lu cycles\n",
         g_shared_bus ? "with" : "without", task_main->running_cost );
+    PRINT_PRINTF( "Final alignment cost in analysis = %llu (%llu%%)\n", totalAlignCost,
+        totalAlignCost * 100 / task_main->running_cost );
     PRINT_PRINTF( "**************************************************************\n\n" );
   }
 }
