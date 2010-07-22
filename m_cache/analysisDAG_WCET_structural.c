@@ -271,32 +271,28 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
 
         int k;
         for ( k = 0; k < bb->num_instr; k++ ) {
+
           instr * const inst = bb->instrlist[k];
-          /* Instruction cannot be empty */
           assert(inst);
 
-          /* Check for a L1 miss */
-          if ( cur_chmc->hitmiss_addr[k] != ALWAYS_HIT )
-            NPRINT_PRINTF( "L1 miss at 0x%x\n", (unsigned) bb->startaddr );
-          /* first check whether the instruction is an L1 hit or not */
-          /* In that easy case no bus access is required */
+          /* First check whether the instruction is an L1 hit or not
+           * In that easy case no bus access is required */
           if ( cur_chmc->hitmiss_addr[k] == ALWAYS_HIT ) {
             bb_cost += L1_HIT_LATENCY;
-          }
-          /* Otherwise if it is an L2 hit */
-          else if ( cur_chmc_L2->hitmiss_addr[k] == ALWAYS_HIT ) {
-            /* access shared bus */
-            uint latency = determine_latency( bb, j, bb_cost, L2_HIT );
+
+          /* Otherwise the instruction fetch will touch the L2 cache */
+          } else {
+
+            /* Access shared bus, use worst-case cache state */
+            uint latency = determine_latency( bb, j, bb_cost,
+              cur_chmc_L2->hitmiss_addr[k] == ALWAYS_HIT ? L2_HIT : L2_MISS );
             NPRINT_PRINTF( "Latency = %u\n", latency );
             bb_cost += latency;
+
+            // Debug output
+            NPRINT_PRINTF( "L1 miss at 0x%x\n", (unsigned) bb->startaddr );
           }
-          /* Else it is an L2 miss */
-          else {
-            /* access shared bus */
-            uint latency = determine_latency( bb, j, bb_cost, L2_MISS );
-            NPRINT_PRINTF( "Latency = %u\n", latency );
-            bb_cost += latency;
-          }
+
           /* Handle procedure call instruction */
           if ( IS_CALL(inst->op) ) {
             procedure* callee = getCallee( inst, proc );
