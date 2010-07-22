@@ -174,8 +174,6 @@ char updateAllocation( int peID, chart_t *msc ) {
   int i;
   char changed;
 
-  double t; // time measurement
-
   if( sc->numAssigned == 0 )
     return 0;
   if( spmCapacity[peID] <= 0 || sc->spm == NULL )
