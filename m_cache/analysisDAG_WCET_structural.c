@@ -168,6 +168,13 @@ static ull startAlign()
   return interval;
 }
 
+/* Returns the WCET of a single instruction. */
+static ull getInstructionWCET( const instr *instruction )
+{
+  // We use a constant here, because we are mainly 
+  // interested in the bus analyis.
+  return 1;
+}
 
 /* Returns the WCET of a loop, after loop WCETs have been computed for
  * all CHMC contexts. This method summarises the contexts' WCETs, adds the
@@ -282,9 +289,6 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
 
         uint bb_cost = 0;
 
-        NPRINT_PRINTF( "Current CHMC = 0x%x\n", (unsigned) cur_chmc );
-        NPRINT_PRINTF( "Current CHMC L2 = 0x%x\n", (unsigned) cur_chmc_L2 );
-
         int k;
         for ( k = 0; k < bb->num_instr; k++ ) {
 
@@ -294,6 +298,9 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
           /* First handle instruction cache access time */
           const acc_type acc_t = check_hit_miss( bb, inst, j );
           bb_cost += determine_latency( bb, j, bb_cost, acc_t );
+
+          /* Then add cost for executing the instruction. */
+          bb_cost += getInstructionWCET( inst );
 
           /* Handle procedure call instruction */
           if ( IS_CALL(inst->op) ) {
@@ -360,7 +367,7 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
   /* It's not a loop. Go through all the instructions and
    * compute the WCET of the block */
   } else {
-    uint acc_cost = 0;
+    uint bb_cost = 0;
 
     int i;
     for ( i = 0; i < bb->num_instr; i++ ) {
@@ -369,8 +376,11 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
 
       /* First handle instruction cache access. */
       const acc_type acc_t = check_hit_miss( bb, inst, proc_body_context );
-      acc_cost += determine_latency( bb, proc_body_context,
-                    bb->start_time + acc_cost, acc_t );
+      bb_cost += determine_latency( bb, proc_body_context,
+                    bb->start_time + bb_cost, acc_t );
+
+      /* Then add cost for executing the instruction. */
+      bb_cost += getInstructionWCET( inst );
 
       /* Handle procedure call instruction */
       if ( IS_CALL(inst->op) ) {
@@ -381,15 +391,15 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
           /* Compute the WCET of the callee procedure here.
            * We dont handle recursive procedure call chain
            */
-          computeWCET_proc( callee, bb->start_time + acc_cost );
+          computeWCET_proc( callee, bb->start_time + bb_cost );
           /* Single cost for call instruction */
-          acc_cost += ( callee->running_cost + 1 );
+          bb_cost += ( callee->running_cost + 1 );
         }
       }
     }
     /* The accumulated cost is computed. Now set the latest finish
      * time of this block */
-    bb->finish_time = bb->start_time + acc_cost;
+    bb->finish_time = bb->start_time + bb_cost;
   }
   DEBUG_PRINTF( "Setting block %d finish time = %Lu\n", bb->bbid, bb->finish_time );
 }
