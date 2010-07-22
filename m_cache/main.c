@@ -135,7 +135,6 @@ int main(int argc, char **argv )
   num_core = atoi( argv[4] );
   const char * const tdma_bus_schedule_file = argv[5];
   infeas   = 0;
-  regionmode = 0;
 
   /* For private L2 cache analysis */		  
   // TODO: This should be covered by a new input format for the input files

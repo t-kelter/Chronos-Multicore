@@ -8,6 +8,8 @@
 #include "handler.h"
 #include "wcrt/cycle_time.h"
 
+static FILE *ilpf;
+
 /*
  * Recursive function.
  * Returns 1 if there is a path from src to dest in the CFG, 0 otherwise.

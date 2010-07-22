@@ -2783,9 +2783,6 @@ void
 cacheAnalysis_L2()
 {
 	int i;
-
-	instr_per_block_L2 = cache_L2.ls / INSN_SIZE;
-	
 	for(i = 0; i < MAX_NEST_LOOP; i++)
 		loop_level_arr[i] = INVALID;
 

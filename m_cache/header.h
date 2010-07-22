@@ -13,16 +13,11 @@
 #include <time.h>
 #include <stdio.h>
 
-// TODO: remove unused data types here
-
 // ######### Macros #########
 
 
 typedef unsigned int uint;
 typedef unsigned long long ull;
-
-// #define BYTE_PER_INSTR 8
-// #define MISS_PENALTY 10
 
 #define OP_LEN 9  // length of assembly token
 
@@ -33,10 +28,7 @@ typedef unsigned long long ull;
 #define INSN_SIZE 8
 #define UNROLL 2
 
-
-/*for cache analysis
-  *
-*/
+/* For cache analysis */
 #define FIRST_ITERATION 1
 #define NEXT_ITERATION 2
 #define INVALID                  0
@@ -59,8 +51,6 @@ typedef unsigned long long ull;
 #define LSB_OFF(addr)       ((addr) >> cache.lsb)
 #define LSB_ON(addr)        ((addr) << cache.lsb)
 
-
-
 #define CACHE_LINE_L2(addr)    ((addr) & cache_L2.l_msk)
 #define SET_L2(addr)       (((addr) & cache_L2.s_msk) >> cache_L2.lsb)
 #define TAG_L2(addr)       (((addr) & cache_L2.t_msk) >> cache_L2.s_lb)
@@ -69,11 +59,8 @@ typedef unsigned long long ull;
 #define LSB_OFF_L2(addr)       ((addr) >> cache_L2.lsb)
 #define LSB_ON_L2(addr)        ((addr) << cache_L2.lsb)
 
-
 // clear the LSB bits (all LSB bits are set to 0 whatever they are)
-
 #define CLEAR_LSB(addr)     (((addr) >> cache.lsb) << cache.lsb)
-
 #define CLEAR_LSB_L2(addr)     (((addr) >> cache_L2.lsb) << cache_L2.lsb)
 
 #define MBLK_ID(sa, addr)   (TAGSET(addr) - TAGSET(sa))
@@ -99,10 +86,6 @@ typedef unsigned long long ull;
 
 #define MISS 0
 #define HIT 1
-
-//typedef struct block block;
-//typedef struct loop loop;
-//typedef struct procedure procedure;
 
 /* Memory allocation with error check. */
 
@@ -234,25 +217,6 @@ typedef struct {
     uint    t_s_msk;// set+tag mask
 } cache_t;
 
-/*
-// memory block data structure (complete memory block info)
-typedef struct {
-  int addr;
-  int cacheset;
-  int category; // always-hit, always-miss, persistent, unknown
-} mblk;
-
-
-// memory block data structure (complete memory block info)
-// in Chronos
-typedef struct {
-    unsigned short  set;    // cache line
-    unsigned short  tag;    // valid tag
-} mem_blk_t;
-*/
-
-
-//one way of a cache line  data structure
 
 typedef struct{
     int hitmiss;
@@ -269,8 +233,9 @@ typedef struct{
     
    uint  wcost;           // block execution time: worst case for cache analysis
    uint  wcost_copy;
-}CHMC;
+} CHMC;
 
+//one way of a cache line  data structure
 typedef struct {
     unsigned short  num_entry;    // number of entries
     int *entry;    // entry address
@@ -284,15 +249,6 @@ typedef struct {
     
     //block *source_bb;
 } cache_state;
-
-
-/*
-//data structure of all cache states for one bb 
-typedef struct {  
-    int loop_level;                   //loop level of the bb
-    cache_state_t **cs;
-}cache_state;
-*/
 
   
 //basic block data structure
@@ -313,19 +269,7 @@ typedef struct {
   uint  size;           // size of block in bytes
 
   uint  cost;           // block execution time
- // int reset;
-  
-  //ull   hit;
-  //ull   miss;
 
-//  uint  bcost;           // block execution time: best case for cache analysis
-//  uint  wcost;           // block execution time: worst case for cache analysis
-
-//  int numMblks;         // memory block of size == cache line size
-//  mblk *mBlks;
-//int *hitmisscategory; // hitmisscategory[i] = category of mBlk[i]
-
-  //int   regid;          // for dynamic optimizations: the id of the region it belongs to
   int   loopid;         // id of the (innermost) loop it participates in; -1 if not in loop
   char  is_loophead;
   instr **instrlist;    // list of assembly instructions in the block
@@ -354,24 +298,18 @@ typedef struct {
   cache_state *bb_cache_state, *bb_cache_state_L2;
   int num_cache_state, num_cache_state_L2;
   struct procs* proc_ptr;
-  //procedure *proc_self;
-  //loop * lp_ptr;
 
   int num_access; 
   
   int num_cache_fetch;    
   int num_cache_fetch_L2;    
   
-//  char *hitmiss;
-//  int hit, miss, unknow;
-//  int *hit_addr, *miss_addr, *unknow_addr;
-
-/* sudiptac :: needed for WCET aanalysis with shared data 
- * bus */
- ull start_time;
- ull finish_time;
- ull start_opt[64];
- ull fin_opt[64];
+  /* sudiptac :: needed for WCET aanalysis with shared data bus */
+  /* The loop contexts in the following are the indexes into the 'chmc' field. */
+  ull start_time;    // The latest starting time of the block (only valid, if it is in the function's body and not in a loop)
+  ull finish_time;   // The latest finishing time of the block (only valid, if it is in the function's body and not in a loop)
+  ull start_opt[64]; // The latest starting time of the block depending on its loop context (only valid, if it is in a loop)
+  ull fin_opt[64];   // The latest finishing time of the block depending on its loop context (only valid, if it is in a loop)
 } block;
 
 /*
@@ -442,9 +380,9 @@ typedef struct {
   char num_fm_L2;
   
   char  *wpath;         // wcet path, a binary sequence (as string) reflecting branch choices
-  ull start_opt[64];
-  ull fin_opt[64];
-  ull wcet_opt[64];
+  ull start_opt[64];    // The latest starting time of the loop depending on its loop context (see block:chmc above)
+  ull fin_opt[64];      // The latest finishing time of the loop depending on its loop context (see block:chmc above)
+  ull wcet_opt[64];     // The WCET of the loop depending on its loop context (see block:chmc above)
 }loop;
 
 
@@ -485,7 +423,6 @@ typedef struct procs {
   char  *wpath;         // wcet path, a binary sequence (as string) reflecting branch choices
   char *hit_cache_set_L2;
   cache_line_way_t *hit_addr;
-  //char *hit_cache_set_L2_copy;
 
   /* Required for WCET calculation in presence of shared bus */
   ull running_cost;
@@ -507,6 +444,7 @@ typedef struct
     int num_proc;
     proc_copy *proc_cg_ptr;
     procedure* entry_proc;
+
 	 /* sudiptac :: For bus-aware WCET analysis */
 	 int numSuccs;
 	 int* succList;
@@ -554,7 +492,6 @@ typedef enum acc_tag{
 } acc_type;	
 
 /* Types of TDMA bus schedule */
-#define PARTITION_CORE -1
 typedef enum {
 	SCHED_TYPE_1 = 0,
 	SCHED_TYPE_2,
@@ -563,8 +500,8 @@ typedef enum {
 
 struct core_sched {
 	ull start_time; /* starting time of the first slot for the core */	
-	uint interval;	 /* time interval between two consecutive slots of the same core */ 
-	uint slot_len;	 /* slot length of the core in this segment */	
+	uint interval;	/* time interval between two consecutive slots of the same core */
+	uint slot_len;	/* slot length of the core in this segment */
 };
 typedef struct core_sched core_sched_s;
 typedef struct core_sched* core_sched_p;
@@ -603,11 +540,7 @@ EXTERN char *filename;
 EXTERN char *numConflictTask; //to sum up number of tasks that map to the same cache set
 EXTERN char *numConflictMSC; //to sum up number of tasks that map to the same cache set within one MSC
 
-EXTERN int  method;            // analysis methods: ILP/DAG/ENUM
 EXTERN char infeas;            // infeasibility checking on/off
-
-EXTERN double t;          //record execution time
-
 
 EXTERN procedure **procs;      // list of procedures in the program
 EXTERN int  num_procs;
@@ -618,40 +551,18 @@ EXTERN MSC **msc;
 
 EXTERN int  total_bb;          // total number of basic blocks in the whole program
 
-//EXTERN int reset;
 EXTERN int times_iteration;
 EXTERN int num_core;
-EXTERN int instr_per_block;
-EXTERN int instr_per_block_L2;
-//EXTERN int numblks;
-//EXTERN int blksize;
-//EXTERN int blkstaddr;
-
-//EXTERN int total_loop_level;
 
 EXTERN cache_t cache, cache_L2;
-//EXTERN cache_state *copy;
-
-//EXTERN int cache_line_bits;
-//EXTERN int cache_line_len;
-
-//EXTERN int num_instr_line; //number of instructions for one cache line
 
 EXTERN int *loop_level_arr;
 
 EXTERN procedure *main_copy;
 
-// dynamic optimizations
-EXTERN int numregs;
-EXTERN uint *regioncost;
-
-EXTERN int regionmode; 
-
 /*
  * Declarations for WCET analysis.
  */
-EXTERN FILE *ilpf;
-
 EXTERN ull *enum_paths_proc;  // number of paths in each procedure
 EXTERN ull *enum_paths_loop;  // number of paths in each loop (in currently analysed procedure)
 

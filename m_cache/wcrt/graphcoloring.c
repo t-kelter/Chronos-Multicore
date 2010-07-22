@@ -201,8 +201,6 @@ int colorPartition( int *memberList, int numMembers, char *colorAssg, int **colo
   int i, k;
   int pid, size;
 
-  double t;
-
   // prepare parameter file
   fptr = wcrt_openfile( "dopartn.par", "w" );
   fprintf( fptr, "insnsize %d\n", INSN_SIZE );

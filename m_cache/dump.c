@@ -203,29 +203,6 @@ int printWCETProc( procedure *p ) {
 }
 
 
-int print_wcet() {
-
-  int i, j;
-  procedure *p;
-
-  for( i = 0; i < num_procs; i++ ) {
-    p = procs[ proc_cg[i] ];
-
-    // procedure blocks
-    printWCETProc( p );
-
-    // loops: only for DAG-based analysis
-    if( method == DAG ) {
-      for( j = 0; j < p->num_loops; j++ )
-	printWCETLoop( p->loops[j] );
-    }
-  }
-  printf( "\n--------------------------------\n" );
-
-  return 0;
-}
-
-
 int printInstr( FILE *fptr, instr *insn ) {
 
   fprintf( fptr, "%s %s %s %s %s\n", insn->addr, insn->op, insn->r1, insn->r2, insn->r3 );

@@ -24,7 +24,7 @@
 
 #define CYCLES_PER_MSEC 3000000
 #define STARTTIME cycle_time(0)
-#define STOPTIME t = cycle_time(1); printf( "=== %f ms\n", t/CYCLES_PER_MSEC ); fflush( stdout )
+#define STOPTIME double t = cycle_time(1); printf( "=== %f ms\n", t/CYCLES_PER_MSEC ); fflush( stdout )
 
 
 /* This functions starts and ends the time measurement.

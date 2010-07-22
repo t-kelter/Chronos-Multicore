@@ -2121,7 +2121,6 @@ cacheAnalysis(){
 	loop_level_arr = NULL;
 	loop_level_arr = (int*)CALLOC(loop_level_arr, MAX_NEST_LOOP, sizeof(int), "loop_level_arr");
 
-	instr_per_block = cache.ls / INSN_SIZE;
 	//not in loop for main, so all elements are invalid
 	for(i = 0; i < MAX_NEST_LOOP; i++)
 		loop_level_arr[i] = INVALID;

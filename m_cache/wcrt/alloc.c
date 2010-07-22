@@ -184,10 +184,10 @@ char updateAllocation( int peID, chart_t *msc ) {
   printf( "\nStart allocation for PE %d\n\n", peID ); fflush( stdout );
 
   switch( allocmethod ) {
-  case 1: STARTTIME; updateAllocationPK( sc, msc, spmCapacity[peID] ); STOPTIME; break;
-  case 2: STARTTIME; updateAllocationIC( sc, msc, spmCapacity[peID] ); STOPTIME; break;
+  case 1: { STARTTIME; updateAllocationPK( sc, msc, spmCapacity[peID] ); STOPTIME; break; }
+  case 2: { STARTTIME; updateAllocationIC( sc, msc, spmCapacity[peID] ); STOPTIME; break; }
   case 3:
-  case 4: STARTTIME; updateAllocationGC( sc, msc, spmCapacity[peID] ); STOPTIME; break;
+  case 4: { STARTTIME; updateAllocationGC( sc, msc, spmCapacity[peID] ); STOPTIME; break; }
   default:
     break;
   }
