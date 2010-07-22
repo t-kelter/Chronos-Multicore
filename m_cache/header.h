@@ -13,6 +13,7 @@
 #include <time.h>
 #include <stdio.h>
 
+// TODO: remove unused data types here
 
 // ######### Macros #########
 
@@ -371,9 +372,36 @@ typedef struct {
  ull finish_time;
  ull start_opt[64];
  ull fin_opt[64];
- ull latest_bus[64];
- ull latest_latency[64];
 } block;
+
+/*
+ * Regarding loops:
+ *
+ * loopexit:
+ *   There may be multiple exits from multiple points inside the loop
+ *   due to breaks or premature returns. For WCET estimation, should choose
+ *   the "normal" loop exit (i.e. exit due to violation of loop condition).
+ *   Loop exits are detected automatically; if multiple exits are detected,
+ *   user will be prompted to choose the normal exit.
+ *
+ * is_dowhile:
+ *   If the loop is a do-while loop, each block in the loop including loophead
+ *   is assumed to be executed [loopbound] times.
+ *   If the loop is not a do-while loop, the execution count of the loophead
+ *   is taken to be [loopbound] + 1, to include the last loop-condition testing
+ *   (that leads to exit) that happens in the loophead.
+ *
+ * loopbound and is_dowhile for all loops are to be provided by user
+ * in a file [filename].lb, using the following format:
+ *   <proc_id> <loop_id> <loopbound> <is_dowhile>
+ * User will be prompted to do so after all loops are detected and displayed.
+ *
+ * Note:
+ * If the file [filename].lb already exists (e.g. from previous run),
+ * it will directly be read in and user will not be prompted.
+ * So make sure that the file (if exists) is updated with correct information.
+ *
+ */
 
 // loop data structure
 typedef struct {
@@ -670,33 +698,5 @@ EXTERN uint g_no_bus_modeling;
 /* Total number of instructions analysed */
 EXTERN ull all_inst;
 
-/* 
- * Regarding loops:
- *
- * loopexit:
- *   There may be multiple exits from multiple points inside the loop 
- *   due to breaks or premature returns. For WCET estimation, should choose
- *   the "normal" loop exit (i.e. exit due to violation of loop condition).
- *   Loop exits are detected automatically; if multiple exits are detected, 
- *   user will be prompted to choose the normal exit.
- * 
- * is_dowhile:
- *   If the loop is a do-while loop, each block in the loop including loophead
- *   is assumed to be executed [loopbound] times.
- *   If the loop is not a do-while loop, the execution count of the loophead
- *   is taken to be [loopbound] + 1, to include the last loop-condition testing
- *   (that leads to exit) that happens in the loophead.
- *
- * loopbound and is_dowhile for all loops are to be provided by user 
- * in a file [filename].lb, using the following format:
- *   <proc_id> <loop_id> <loopbound> <is_dowhile>
- * User will be prompted to do so after all loops are detected and displayed.
- *
- * Note: 
- * If the file [filename].lb already exists (e.g. from previous run), 
- * it will directly be read in and user will not be prompted.
- * So make sure that the file (if exists) is updated with correct information.
- *
- */
 
 #endif

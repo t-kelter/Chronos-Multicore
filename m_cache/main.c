@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -95,6 +96,13 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
       fprintf( stderr, "Invalid choice of analysis method.\n" );
       exit(1);
   }
+
+  // Assert that all results are sound
+  int i;
+  for ( i = 0; i < msc->num_task; i++ ) {
+    assert( msc->taskList[i].bcet < msc->taskList[i].wcet &&
+        "Invalid BCET/WCET results for task" );
+  }
 }
 
 
@@ -120,7 +128,7 @@ int main(int argc, char **argv )
   g_no_bus_modeling = 0;
 
   /* Set the analysis method to use. */
-  const enum AnalysisMethod current_analysis_method = ANALYSIS_ALIGNMENT;
+  const enum AnalysisMethod current_analysis_method = ANALYSIS_STRUCTURAL;
 
   /* also read conflict info and tasks info */
   interferePathName = argv[1];
