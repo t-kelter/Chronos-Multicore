@@ -3,7 +3,7 @@
 /*
  * Declarations for general framework.
  *
- * When DEF_GLOBALS is defined, this file defines all global varaibles, if that
+ * When DEF_GLOBALS is defined, this file defines all global variables, if that
  * is not the case, then it just declares them as external.
  */
 
@@ -47,7 +47,7 @@ typedef unsigned long long ull;
 // 14-bit tag is selected for the following reason:
 // - it is enough: can analyze program up to 16MB for a 1-KB cache
 // - in cache.c, a valid bit is needed with tag in some cases, thus the valid
-//   bit and the tag can be accomodated in a short int
+//   bit and the tag can be accommodated in a short int
 #define MAX_TAG_BITS        14
 
 #define CACHE_LINE(addr)    ((addr) & cache.l_msk)
@@ -103,8 +103,6 @@ typedef unsigned long long ull;
 //typedef struct loop loop;
 //typedef struct procedure procedure;
 
-#define print 0
-
 /* Memory allocation with error check. */
 
 #define MALLOC( ptr, size, msg ) \
@@ -118,6 +116,54 @@ typedef unsigned long long ull;
 #define REALLOC( ptr, size, msg ) \
   realloc( (ptr), (size) ); \
   if( !(ptr) ) printf( "\nError: realloc failed for %s.\n\n", (msg) ), exit(1)
+
+// A macro for allocating and assigning memory of the given size to 'ptr',
+// depending on whether a previous allocation exists
+#define CALLOC_IF_NULL( ptr, type, size, msg ) \
+  if ( ptr == NULL ) { \
+    ptr = ( type ) calloc( 1, size ); \
+    if( !(ptr) ) { \
+      printf( "\nError: calloc_or_realloc failed for %s.\n\n", (msg) ); \
+      exit(1); \
+    } \
+  } \
+
+/* Conditional debug output */
+
+#ifdef _DEBUG
+// GNU-specific: remove trailing comma if no varargs given (##)
+#define DEBUG_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
+#else
+#define DEBUG_PRINTF(format, ...)
+#endif
+
+#ifdef _NDEBUG
+// GNU-specific: remove trailing comma if no varargs given (##)
+#define NDEBUG_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
+#else
+#define NDEBUG_PRINTF(format, ...)
+#endif
+
+#ifdef _PRINT
+// GNU-specific: remove trailing comma if no varargs given (##)
+#define PRINT_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
+#else
+#define PRINT_PRINTF(format, ...)
+#endif
+
+#ifdef _NPRINT
+// GNU-specific: remove trailing comma if no varargs given (##)
+#define NPRINT_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
+#else
+#define NPRINT_PRINTF(format, ...)
+#endif
+
+#ifdef _DEBUG_ANALYSIS
+// GNU-specific: remove trailing comma if no varargs given (##)
+#define DEBUG_ANALYSIS_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
+#else
+#define DEBUG_ANALYSIS_PRINTF(format, ...)
+#endif
 
 /*
  * Declarations for WCET analysis.
@@ -501,15 +547,12 @@ typedef struct schedule* sched_p;
 
 EXTERN char *interferePathName;
 EXTERN char *filename;
-EXTERN char *cache_config;
-EXTERN char *cache_config_L2;
 
 EXTERN char *numConflictTask; //to sum up number of tasks that map to the same cache set
 EXTERN char *numConflictMSC; //to sum up number of tasks that map to the same cache set within one MSC
 
 EXTERN int  method;            // analysis methods: ILP/DAG/ENUM
-EXTERN char infeas;            // infeasibility checking on/off 
-EXTERN char debug;             // text dump on/off
+EXTERN char infeas;            // infeasibility checking on/off
 
 EXTERN double t;          //record execution time
 
@@ -520,9 +563,6 @@ EXTERN int  main_id;           // id of main procedure
 EXTERN int  *proc_cg;          // reverse topological order of procedure call graph
 
 EXTERN MSC **msc;
-
-
-//EXTERN proc_copy *proc_cg_ptr;//pointers to all copies of the procedure
 
 EXTERN int  total_bb;          // total number of basic blocks in the whole program
 
@@ -581,7 +621,7 @@ EXTERN unsigned short ***enum_pathlen;    // enum_pathlen[p][b][n]: length of th
 EXTERN uint ncore;
 
 
-/* Global representing currently analyzed task */
+/* Global representing currently analysed task */
 EXTERN task_t* cur_task;
 
 /* Stores current latest time of all the cores */
@@ -598,15 +638,15 @@ EXTERN uint g_testing_mode;
 EXTERN uint g_shared_bus;
 /* Set if running independent tasks on multiple cores */
 EXTERN uint g_independent_task;
-/* Set if private L2 cache aanalysis mode is on */
+/* Set if private L2 cache analysis mode is on */
 EXTERN uint g_private;
-/* Set if no bus modeing is turned on */
+/* Set if no bus modelling is turned on */
 EXTERN uint g_no_bus_modeling;
 
-/* Total number of instructions analyzed */
+/* Total number of instructions analysed */
 EXTERN ull all_inst;
-/* Set if optimized mode is on */
-EXTERN int g_optimized;
+/* Set whether we fully unroll loops during the analysis */
+EXTERN int g_full_unrolling;
 
 /* 
  * Regarding loops:

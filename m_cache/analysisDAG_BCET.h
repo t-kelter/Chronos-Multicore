@@ -67,4 +67,13 @@ void analyseProc_BCET( procedure *p );
 int analysis_dag_BCET(MSC *msc);
 
 
+/* This is a top level call and always start computing the WCET from 
+ * "main" function */
+void computeBCET(ull start_time);
+
+/* Analyze best case execution time of all the tasks inside 
+ * a MSC. The MSC is given by the argument */
+void compute_bus_BCET_MSC(MSC *msc);
+
+
 #endif

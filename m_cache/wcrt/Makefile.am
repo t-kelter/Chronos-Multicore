@@ -1,6 +1,6 @@
 noinst_LIBRARIES=libwcrt.a
 
-CPPFLAGS=-D_DEBUG
+AM_CPPFLAGS=-D_DEBUG
 
 # Only program to build here
 libwcrt_a_SOURCES=alloc.c alloc.h \

@@ -1632,21 +1632,16 @@ mapLoop_L2(procedure *pro, loop *lp)
 		}
 	}
 */
-	if(print)
-	{
-		
-		//for(k = 0; k < current_chmc->hitmiss; k++)
-			//printf("L2: %d ", current_chmc->hitmiss_addr[k]);
-		printf("cnt = %d, bb->size = %d, bb->startaddr = %d\n", cnt, bb->size, bb->startaddr);
+	//for(k = 0; k < current_chmc->hitmiss; k++)
+		//printf("L2: %d ", current_chmc->hitmiss_addr[k]);
+	DEBUG_ANALYSIS_PRINTF("cnt = %d, bb->size = %d, bb->startaddr = %d\n", cnt, bb->size, bb->startaddr);
 
-		printf("L1:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
-		printf("L2:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
+	DEBUG_ANALYSIS_PRINTF("L1:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
+	DEBUG_ANALYSIS_PRINTF("L2:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
 
-		printf("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);	
-	}
+	DEBUG_ANALYSIS_PRINTF("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);
 
-	if(print)
-		printf("%c", tmp);
+	DEBUG_ANALYSIS_PRINTF("%c", tmp);
 
 		//compute output cache state of this bb
 		//check the bb if it is a function call
@@ -1923,7 +1918,7 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 			
 			if(bb->num_incoming > 1)
 			{
-				if(print) printf("\ndo operations if more than one incoming edge\n");
+			  DEBUG_ANALYSIS_PRINTF("\ndo operations if more than one incoming edge\n");
 
 				//dumpCacheState(cs_ptr);
 				//printBlock(incoming_bb);
@@ -1962,7 +1957,10 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 					}
 	
 				}	//end for all incoming
-				if(print) dumpCacheState_L2(cs_ptr);
+				
+#ifdef _DEBUG_ANALYSIS
+				dumpCacheState_L2(cs_ptr);
+#endif
 				//cs_ptr->source_bb = NULL;
 				//exit(1);
 			}
@@ -2514,20 +2512,15 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 		}
 		*/
 
-	if(print)
-	{
-		
-		//for(k = 0; k < current_chmc->hitmiss; k++)
-			//printf("L2: %d ", current_chmc->hitmiss_addr[k]);
-		printf("cnt = %d, bb->size = %d, bb->startaddr = %d\n", cnt, bb->size, bb->startaddr);
+	//for(k = 0; k < current_chmc->hitmiss; k++)
+		//printf("L2: %d ", current_chmc->hitmiss_addr[k]);
+		DEBUG_ANALYSIS_PRINTF("cnt = %d, bb->size = %d, bb->startaddr = %d\n", cnt, bb->size, bb->startaddr);
 
-		printf("L1:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
-		printf("L2:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
+		DEBUG_ANALYSIS_PRINTF("L1:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
+		DEBUG_ANALYSIS_PRINTF("L2:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
+		DEBUG_ANALYSIS_PRINTF("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);
 
-		printf("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);	
-	}
-	if(print)
-		printf("%c\n", tmp);
+		DEBUG_ANALYSIS_PRINTF("%c\n", tmp);
 		//check the bb if it is a function call
 		
 		if(bb->callpid != -1)

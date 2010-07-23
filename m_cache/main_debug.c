@@ -40,42 +40,43 @@
 int main( int argc, char **argv ) {
 
   if( argc < 2 ) {
-    printf( "\nUsage: opt <filename> <TDMA schedule file> [debug_on]\n" ), exit(1);}
+    printf( "\nUsage: opt <filename> <TDMA schedule file>\n" ), exit(1);}
 
   filename = argv[1];
-  if( argc > 3 )
-    debug  = atoi( argv[3] );
 
-  if(debug) {		  
-  printf( "\nReading CFG...\n" ); fflush( stdout );
-  }
+  DEBUG_PRINTF( "\nReading CFG...\n" );
+
   procs     = NULL;
   num_procs = 0;
   proc_cg   = NULL;
   /* Reading the control flow graph */
   read_cfg();
-  if( debug ) 
-	 print_cfg();
+	 
+#ifdef _DEBUG
+  print_cfg();
+#endif
 
-  if(debug)		  
-  {
-		printf( "\nReading assembly instructions...\n" ); 
-		fflush(stdout); 
-  }		
+  DEBUG_PRINTF( "\nReading assembly instructions...\n" ); 
+
   readInstr();
-  if( debug ) print_instrlist();
 
-  if(debug)	{	  
-  printf( "\nDetecting loops...\n" ); fflush( stdout );
-  }
+#ifdef _DEBUG
+  print_instrlist();
+#endif
+
+  DEBUG_PRINTF( "\nDetecting loops...\n" );
+
   detect_loops();
-  if( debug ) print_loops();
+#ifdef _DEBUG
+  print_loops();
+#endif
 
-  if(debug) {		  
-  printf( "\nConstructing topological order of procedures and loops...\n" ); fflush( stdout );
-  }
+  DEBUG_PRINTF( "\nConstructing topological order of procedures and loops...\n" );
+
   topo_sort();
-  if( debug ) print_topo();
+#ifdef _DEBUG
+  print_topo();
+#endif
   
   /* Compute incoming edge info for each basic block */
   calculate_incoming();

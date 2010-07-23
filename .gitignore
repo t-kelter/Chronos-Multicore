@@ -1,5 +1,11 @@
 *.swp
 
+.git
+
+.cproject
+.metadata/
+.project
+
 Makefile
 Makefile.in
 aclocal.m4
@@ -30,6 +36,7 @@ m_cache/Makefile.in
 m_cache/analysisCache.o
 m_cache/analysisCacheL2.o
 m_cache/analysisDAG_BCET.o
+m_cache/analysisDAG_common.o
 m_cache/analysisDAG_WCET.o
 m_cache/analysisEnum.o
 m_cache/analysisILP.o

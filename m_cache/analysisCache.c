@@ -403,8 +403,7 @@ constructFunctionCall(procedure *pro, task_t *task)
 		{
 	
 			bb->proc_ptr	= constructFunctionCall(procs[bb->callpid], task);
-			if(print) 
-				printf("\nbb->proc_ptr = f%lx for bb[%d] calling proc[%d]\n", (uintptr_t)bb->proc_ptr, bb->bbid, bb->callpid);
+			DEBUG_ANALYSIS_PRINTF("\nbb->proc_ptr = f%lx for bb[%d] calling proc[%d]\n", (uintptr_t)bb->proc_ptr, bb->bbid, bb->callpid);
 /*
 			j = indexOfProc(bb->callpid);
 			if(j >= 0)
@@ -423,7 +422,7 @@ constructFunctionCall(procedure *pro, task_t *task)
 				}
 			}
 */
-			if(print) printf("\ncopy over\n");
+			DEBUG_ANALYSIS_PRINTF("\nCopy over\n");
 		}	
 
 	}
@@ -998,28 +997,28 @@ mapLoop(procedure *proc, loop *lp)
 
 		bb->num_instr = bb->size / INSN_SIZE;
 
-		if(print) printf("deal with bb[ %d ] in proc[%d]\n", bb->bbid, bb->pid);	
+		DEBUG_ANALYSIS_PRINTF("deal with bb[ %d ] in proc[%d]\n", bb->bbid, bb->pid);
 		
 		if(bb->is_loophead && i != num_blk -1)
 		{
 			//printf("\nbb is a loop head in proc[%d]\n", pid);	
 
-			if(print) printf("\nthe first time go into loop %d", bb->loopid);		
+		  DEBUG_ANALYSIS_PRINTF("\nthe first time go into loop %d", bb->loopid);
 			loop_level_arr[lp_level + 1] = FIRST_ITERATION;
 			mapLoop(p, p->loops[bb->loopid]);
 
 			//cs_ptr = bb->bb_cache_state;
 		 
-			if(print) printf("\nthe second time go into loop %d", bb->loopid);				
+			DEBUG_ANALYSIS_PRINTF("\nthe second time go into loop %d", bb->loopid);
 			loop_level_arr[lp_level + 1] = NEXT_ITERATION;
 			mapLoop(p, p->loops[bb->loopid]);
 
 			loop_level_arr[lp_level + 1] = INVALID;
 			
-			if(print) dumpCacheState(cs_ptr);
-			//exit(1);
+#ifdef _DEBUG_ANALYSIS
+			dumpCacheState(cs_ptr);
+#endif
 
-			//freeCacheStateLoop(p,  p->loops[bb->loopid]);
 			continue;
 		}
 
@@ -1031,10 +1030,8 @@ mapLoop(procedure *proc, loop *lp)
 		{
 			incoming_bb = p->bblist[bb->incoming[0]];
 
-#ifdef _DEBUG
-		   fprintf(stdout, "Calculating bb cache state of bbid = %d of proc = %d at X1\n",
+		   DEBUG_PRINTF( "Calculating bb cache state of bbid = %d of proc = %d at X1\n",
 					 bb->bbid, bb->pid);
-#endif
 		   
 			//if(incoming_bb->bb_cache_state == NULL) continue;
 
@@ -1106,10 +1103,8 @@ mapLoop(procedure *proc, loop *lp)
 		{
 			if(loop_level_arr[lp_level] == FIRST_ITERATION)
 			{
-#ifdef _DEBUG
-		   fprintf(stdout, "Calculating bb cache state of bbid = %d of proc %d at X2\n",
+		   DEBUG_PRINTF( "Calculating bb cache state of bbid = %d of proc %d at X2\n",
 					 bb->bbid, bb->pid);
-#endif
 				incoming_bb = p->bblist[bb->incoming[0]];
 
 				//free(cs_ptr);
@@ -1216,10 +1211,8 @@ mapLoop(procedure *proc, loop *lp)
 
 		bb->bb_cache_state = cs_ptr;
 
-#ifdef _DEBUG
-		   fprintf(stdout, "Calculating bb cache state of bbid = %d of proc %d at X3\n",
+		   DEBUG_PRINTF( "Calculating bb cache state of bbid = %d of proc %d at X3\n",
 					 bb->bbid, bb->pid);
-#endif
 		
 		current_chmc = bb->chmc[cnt];
 		
@@ -1465,20 +1458,14 @@ mapLoop(procedure *proc, loop *lp)
 			}
 			addr = addr + INSN_SIZE;
 		}
-//if(print)
 
 		//current_chmc->wcost = current_chmc->hit * IC_HIT + (current_chmc->hitmiss - current_chmc->hit) * IC_MISS;
 		//current_chmc->bcost  = current_chmc->miss * IC_MISS + (current_chmc->hitmiss - current_chmc->miss) * IC_HIT;
 
-	if(print)
-	{
-		
-		//for(k = 0; k < current_chmc->hitmiss; k++)
-			//printf("L1: %d ", current_chmc->hitmiss_addr[k]);
-		printf("\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
-		printf("hit = %d, miss= %d, unknow = %d\n", current_chmc->hit, current_chmc->miss, current_chmc->unknow);
-		printf("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);	
-	}
+	DEBUG_ANALYSIS_PRINTF("\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
+	DEBUG_ANALYSIS_PRINTF("hit = %d, miss= %d, unknow = %d\n", current_chmc->hit, current_chmc->miss, current_chmc->unknow);
+  DEBUG_ANALYSIS_PRINTF("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);
+
 	//scanf("%c", &tmp);
 
 	//exit(1);
@@ -1487,14 +1474,14 @@ mapLoop(procedure *proc, loop *lp)
 		//start_addr = bb->startaddr;
 		//bb->num_cache_fetch = bb->size / cache.ls;
 
-		
+
 		//start_addr_fetch = (start_addr >> cache.lsb) << cache.lsb;
 		//tmp = start_addr - start_addr_fetch;
 
 		//tmp is not 0 if start address is not multiple of sizeof(cache line) in bytes
-		//if(tmp) 	
+		//if(tmp)
 			//bb->num_cache_fetch++;
-	
+
 		//check the bb if it is a function call
 	
 		if(bb->callpid != -1)
@@ -1522,7 +1509,9 @@ mapLoop(procedure *proc, loop *lp)
 
 			//freeCacheStateFunction(bb->proc_ptr);
 			
-			if(print) dumpCacheState(cs_ptr);
+#ifdef _DEBUG_ANALYSIS
+			dumpCacheState(cs_ptr);
+#endif
 		}	
 		else
 		{
@@ -1540,7 +1529,9 @@ mapLoop(procedure *proc, loop *lp)
 			}
 			//cs_ptr = copyCacheState(bb->bb_cache_state);
 			//cs_ptr->source_bb = bb;
-			if(print) dumpCacheState(cs_ptr);
+#ifdef _DEBUG_ANALYSIS
+			dumpCacheState(cs_ptr);
+#endif
 		}
 		
 	}
@@ -1630,14 +1621,16 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 		bb = p->bblist[ bb->bbid ];
 		
 		bb->num_instr = bb->size / INSN_SIZE;
-		
-		if(print) printf("\nThis is  bb %d in proc %d\n", bb->bbid, proc->pid);
-		if(bb->callpid!= -1)
-			if(print) printBlock(bb);
+
+#ifdef _DEBUG_ANALYSIS
+    printf("\nThis is  bb %d in proc %d\n", bb->bbid, proc->pid);
+    if(bb->callpid!= -1)
+		  printBlock(bb);
+#endif
 		
 
 		//printf("\ncnt =  %d\n", cnt);
-		if(print) printf("\nbb->num_incoming =  %d\n", bb->num_incoming);
+		DEBUG_ANALYSIS_PRINTF("\nbb->num_incoming =  %d\n", bb->num_incoming);
 		//exit(1);
 		
 		//if more than one incoming do operation of cache state  
@@ -1655,14 +1648,14 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 			
 			p->loops[bb->loopid]->num_fm = 0;
 			
-			if(print) printf("\nThe first time go into loop\n");
+      DEBUG_ANALYSIS_PRINTF("\nThe first time go into loop\n");
 			mapLoop(p, p->loops[bb->loopid]);
 			//free(cs_ptr);
 			//cs_ptr = bb->bb_cache_state;
 
 			//cs_temp = bb->bb_cache_state;
 
-			if(print) printf("\nThe second time go into loop\n");
+			DEBUG_ANALYSIS_PRINTF("\nThe second time go into loop\n");
 			//traverse this loop the second time
 			//get the cache state of the first iteration as the input of the second
 			loop_level_arr[lp_level +1] = NEXT_ITERATION;
@@ -1683,10 +1676,8 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 		{
 			incoming_bb = p->bblist[bb->incoming[0]];
 
-#ifdef _DEBUG
-		   fprintf(stdout, "Calculating bb cache state of bbid = %d of proc %d at X4\n",
+		   DEBUG_PRINTF( "Calculating bb cache state of bbid = %d of proc %d at X4\n",
 					 bb->bbid, bb->pid);
-#endif
 			
 			//printBlock(incoming_bb);
 		   //if(incoming_bb->bb_cache_state == NULL) continue;
@@ -1705,7 +1696,7 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 			
 			if(bb->num_incoming > 1)
 			{
-				if(print) printf("\ndo operations if more than one incoming edge\n");
+        DEBUG_ANALYSIS_PRINTF("\ndo operations if more than one incoming edge\n");
 
 				//dumpCacheState(cs_ptr);
 				//printBlock(incoming_bb);
@@ -1744,7 +1735,9 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 					}
 	
 				}	//end for all incoming
-				if(print) dumpCacheState(cs_ptr);
+#ifdef _DEBUG_ANALYSIS
+				dumpCacheState(cs_ptr);
+#endif
 				//cs_ptr->source_bb = NULL;
 				//exit(1);
 			}
@@ -1774,22 +1767,15 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 
 		}
 
-#ifdef _DEBUG
-		   fprintf(stdout, "Calculating bb cache state of bbid = %d of proc %d at X5\n",
+		   DEBUG_PRINTF( "Calculating bb cache state of bbid = %d of proc %d at X5\n",
 					 bb->bbid, bb->pid);
-#endif
 
 		bb->bb_cache_state = cs_ptr;
 		
 		//tmp = cs_ptr->may[0][0]->num_entry;
 
-		if(print)
-		{
-			if(cs_ptr->may[0][0]->num_entry)
-			{
-				tmp = cs_ptr->may[0][0]->entry[0];
-				printf("\ntmp = %d\n", tmp);
-			}
+		if(cs_ptr->may[0][0]->num_entry) {
+		  DEBUG_ANALYSIS_PRINTF("\ntmp = %d\n", cs_ptr->may[0][0]->entry[0]);
 		}
 
 		current_chmc = bb->chmc[cnt];
@@ -2024,14 +2010,12 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 		//current_chmc->wcost = current_chmc->hit * IC_HIT + (current_chmc->hitmiss - current_chmc->hit) * IC_MISS;
 		//current_chmc->bcost  = current_chmc->miss * IC_MISS + (current_chmc->hitmiss - current_chmc->miss) * IC_HIT;
 
-	if(print){
-		
-		for(k = 0; k < current_chmc->hitmiss; k++)
-			printf("L1: %d ", current_chmc->hitmiss_addr[k]);
-		printf("\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
-		printf("hit = %d, miss= %d, unknow = %d\n", current_chmc->hit, current_chmc->miss, current_chmc->unknow);
-		printf("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);	
-	}
+	for(k = 0; k < current_chmc->hitmiss; k++)
+		DEBUG_ANALYSIS_PRINTF("L1: %d ", current_chmc->hitmiss_addr[k]);
+	DEBUG_ANALYSIS_PRINTF("\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
+	DEBUG_ANALYSIS_PRINTF("hit = %d, miss= %d, unknow = %d\n", current_chmc->hit, current_chmc->miss, current_chmc->unknow);
+	DEBUG_ANALYSIS_PRINTF("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);
+
 	//scanf("%c", &tmp);
 		
 		//dumpCacheState(bb->bb_cache_state );
@@ -2087,7 +2071,9 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 			//freeCacheStateFunction(bb->proc_ptr);
 
 			
-			if(print) dumpCacheState(cs_ptr);	
+#ifdef _DEBUG_ANALYSIS
+			dumpCacheState(cs_ptr);
+#endif
 			//exit(1);
 		}	
 		else
@@ -2111,7 +2097,9 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 			//cs_ptr = bb->bb_cache_state;
 			//cs_ptr = copyCacheState(bb->bb_cache_state);
 			//cs_ptr->source_bb = bb;
-			if(print) dumpCacheState(cs_ptr);
+#ifdef _DEBUG_ANALYSIS
+			dumpCacheState(cs_ptr);
+#endif
 		}// end if else
 
 	}
