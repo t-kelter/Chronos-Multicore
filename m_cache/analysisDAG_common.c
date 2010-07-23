@@ -9,6 +9,34 @@
 #include "handler.h"
 
 
+/* This function returns a context id for the iterations an inner loop inside a
+ * surrounding loop.
+ *
+ * 'lp' the loop for which a context is requested.
+ * 'surroundingLoopContext' may be the context of the surrounding loop, or '0',
+ *                          to denote that there is no surrounding loop.
+ * 'firstInnerIteration' if this is true, then a context for the first iteration
+ *                       of the inner loop is returned, else a context for the
+ *                       other iterations of the inner loop is returned.
+ */
+uint getInnerLoopContext( const loop *lp, uint surroundingLoopContext, _Bool firstInnerIteration )
+{
+  const int index_bitlength = lp->level + 1;
+  const int enclosing_index_bitlength = index_bitlength - 1;
+
+  const int index_bitmask = ( 1 << ( index_bitlength - 1 ) );
+  const int enclosing_index_bitmask = ( 1 << enclosing_index_bitlength ) - 1;
+
+  // Assert that only the bits for the surrounding loop levels may be set
+  assert( ( surroundingLoopContext & ( ~enclosing_index_bitmask ) ) == 0 &&
+      "Invalid context for enclosing loop!" );
+
+  const int enclosing_context_bits = surroundingLoopContext &
+                                     enclosing_index_bitmask;
+  return ( firstInnerIteration ? 0 : 1 ) * index_bitmask + enclosing_context_bits;
+}
+
+
 /* Attach best-case hit/miss classification for L2 cache to the instruction */
 static void classify_inst_L2_BCET( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int inst_id )
 {

@@ -109,20 +109,8 @@ static ull getLoopWCET( const loop *lp, int enclosing_loop_context )
    * For further information about CHMC contexts see header.h:num_chmc
    */
 
-  const int index_bitlength = lp->level + 1;
-  const int enclosing_index_bitlength = index_bitlength - 1;
-
-  const int index_bitmask = ( 1 << ( index_bitlength - 1 ) );
-  const int enclosing_index_bitmask = ( 1 << enclosing_index_bitlength ) - 1;
-
-  // Assert that only the bits for the surrounding loop levels may be set
-  assert( ( enclosing_loop_context & ( ~enclosing_index_bitmask ) ) == 0 &&
-      "Invalid context for enclosing loop!" );
-
-  const int enclosing_context_bits = enclosing_loop_context &
-                                     enclosing_index_bitmask;
-  const int index_first_iteration = ( 0 * index_bitmask ) + enclosing_context_bits;
-  const int index_next_iterations = ( 1 * index_bitmask ) + enclosing_context_bits;
+  const int index_first_iteration = getInnerLoopContext( lp, enclosing_loop_context, 1 );
+  const int index_next_iterations = getInnerLoopContext( lp, enclosing_loop_context, 0 );
 
   const ull firstIterationWCET = lp->wcet_opt[index_first_iteration];
   const ull nextIterationsWCET = lp->wcet_opt[index_next_iterations];

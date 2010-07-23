@@ -39,19 +39,13 @@ static void computeBCET_loop( loop* lp, procedure* proc, uint context )
   DEBUG_PRINTF( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t)lp);
 
   const int lpbound = lp->loopbound;
-  const uint outer_loops_context = context;
 
   /* For computing BCET of the loop it must be visited 
    * multiple times equal to the loop bound */
   int i;
   for ( i = 0; i < lpbound; i++ ) {
     /* See header.h:num_chmc for further details about CHMC contexts. */
-    const uint current_level_bitmask = ( 1 << lp->level );
-    assert( ( outer_loops_context & current_level_bitmask ) == 0 &&
-      "Outer context has bits set which belong to inner loop!" );
-    const uint inner_context = ( i == 0
-        ? outer_loops_context
-        : outer_loops_context + current_level_bitmask );
+    const uint inner_context = getInnerLoopContext( lp, context, i == 0 );
 
     /* Go through the blocks in topological order */
     int j;

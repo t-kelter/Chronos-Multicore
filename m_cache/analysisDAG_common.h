@@ -21,6 +21,19 @@
 
 /* #### Cache analysis helper functions #### */
 
+/* This function returns a context id for the iterations an inner loop inside a
+ * surrounding loop.
+ *
+ * 'lp' the loop for which a context is requested.
+ * 'surroundingLoopContext' may be the context of the surrounding loop, or '0',
+ *                          to denote that there is no surrounding loop.
+ * 'firstInnerIteration' if this is true, then a context for the first iteration
+ *                       of the inner loop is returned, else a context for the
+ *                       other iterations of the inner loop is returned.
+ */
+uint getInnerLoopContext( const loop *lp, uint surroundingLoopContext,
+    _Bool firstInnerIteration );
+
 /* Attach best-case chmc classification to the instruction data structure */
 void preprocess_chmc_BCET( procedure* proc );
 /* Attach best-case chmc classification for L2 cache to the instruction
