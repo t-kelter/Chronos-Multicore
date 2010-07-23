@@ -22,10 +22,6 @@
 // ######### Function declarations  ###########
 
 
-/* This is a top level call and always start computing the WCET from 
- * "main" function */
-void computeBCET_unroll(ull start_time);
-
 /* Analyze best case execution time of all the tasks inside 
  * a MSC. The MSC is given by the argument */
 void compute_bus_BCET_MSC_unroll(MSC *msc, const char *tdma_bus_schedule_file);
