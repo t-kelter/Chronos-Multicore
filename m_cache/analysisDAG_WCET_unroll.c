@@ -11,8 +11,8 @@
 
 
 // Forward declarations of static functions
-static void computeWCET_loop( loop* lp, procedure* proc );
-static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp );
+static void computeWCET_loop( loop* lp, procedure* proc, uint context );
+static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp, uint context );
 static void computeWCET_proc( procedure* proc, ull start_time );
 
 
@@ -36,26 +36,25 @@ static void computeWCET_proc( procedure* proc, ull start_time );
 /* Computes the latest finish time and worst case cost of a loop.
  * This procedure fully unrolls the loop virtually during computation.
  */
-static void computeWCET_loop( loop* lp, procedure* proc )
+static void computeWCET_loop( loop* lp, procedure* proc, uint context )
 {
   DEBUG_PRINTF( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t) lp );
 
   /* FIXME: correcting loop bound */
   const int lpbound = lp->loopexit ? lp->loopbound : ( lp->loopbound + 1 );
+  const uint outer_loops_context = context;
 
   /* For computing wcet of the loop it must be visited 
    * multiple times equal to the loop bound */
   int i;
   for ( i = 0; i < lpbound; i++ ) {
-    /* CAUTION: Update the current context */
-    /* TODO: The handling of contexts here is wrong. There are
-     *       2^{no. of loop nesting levels} CHMCs for the basic
-     *       block, but only two of them are used here. See
-     *       header.h:num_chmc for further details. */
-    if ( i == 0 )
-      cur_context *= 2;
-    else if ( i == 1 )
-      cur_context = cur_context + 1;
+    /* See header.h:num_chmc for further details about CHMC contexts. */
+    const uint current_level_bitmask = ( 1 << lp->level );
+    assert( ( outer_loops_context & current_level_bitmask ) == 0 &&
+      "Outer context has bits set which belong to inner loop!" );
+    const uint inner_context = ( i == 0
+        ? outer_loops_context
+        : outer_loops_context + current_level_bitmask );
 
     /* Go through the blocks in topological order */
     int j;
@@ -78,15 +77,13 @@ static void computeWCET_loop( loop* lp, procedure* proc )
         set_start_time_WCET( bb, proc );
       }
 
-      computeWCET_block( bb, proc, lp );
+      computeWCET_block( bb, proc, lp, inner_context );
     }
   }
-  /* CAUTION: Update the current context */
-  cur_context /= 2;
 }
 
 /* Compute worst case finish time and cost of a block */
-static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
+static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp, uint context )
 {
   DEBUG_PRINTF( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t) bb );
 
@@ -96,73 +93,48 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
    * the same loop */
   loop* inlp = check_loop( bb, proc );
   if ( inlp && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
-    computeWCET_loop( inlp, proc );
+
+    computeWCET_loop( inlp, proc, context );
 
   /* It's not a loop. Go through all the instructions and
    * compute the WCET of the block */
   } else {
-    uint acc_cost = 0;
+    uint bb_cost = 0;
 
     int i;
     for ( i = 0; i < bb->num_instr; i++ ) {
       instr* inst = bb->instrlist[i];
       assert(inst);
 
+      /* First handle instruction cache access time */
+      const acc_type acc_t = check_hit_miss( bb, inst, context );
+      bb_cost += determine_latency( bb, bb->start_time + bb_cost, acc_t );
+
+      /* Then add cost for executing the instruction. */
+      bb_cost += getInstructionWCET( inst );
+
       /* Handle procedure call instruction */
       if ( IS_CALL(inst->op) ) {
-        procedure* callee = getCallee( inst, proc );
+        procedure * const callee = getCallee( inst, proc );
 
         /* For ignoring library calls */
         if ( callee ) {
           /* Compute the WCET of the callee procedure here.
-           * We dont handle recursive procedure call chain
-           */
-          computeWCET_proc( callee, bb->start_time + acc_cost );
-          /* Single cost for call instruction */
-          acc_cost += ( callee->running_cost + 1 );
-        }
-      }
-      /* No procedure call ---- normal instruction */
-      else {
-        /* If its a L1 hit add only L1 cache latency */
-        acc_type acc_t = check_hit_miss( bb, inst, cur_context );
-        if ( acc_t == L1_HIT )
-          acc_cost += ( L1_HIT_LATENCY );
-        /* If its a L1 miss and L2 hit add only L2 cache
-         * latency */
-        else if ( acc_t == L2_HIT ) {
-          if ( g_shared_bus )
-            acc_cost += compute_bus_delay( bb->start_time + acc_cost, ncore, L2_HIT );
-          else
-            acc_cost += ( L2_HIT_LATENCY + 1 );
-        } else {
-          /* Otherwise the instruction must be fetched from memory.
-           * Since the request will go through a shared bus, we have
-           * the amount of delay is not constant and depends on the
-           * start time of the request. This is computed by the
-           * compute_bus_delay function (bus delay + memory latency)
-           *---ncore representing the core in which the program is
-           * being executed */
-          if ( g_shared_bus )
-            acc_cost += compute_bus_delay( bb->start_time + acc_cost, ncore, L2_MISS );
-          else
-            acc_cost += ( MISS_PENALTY + 1 );
+           * We dont handle recursive procedure call chain */
+          computeWCET_proc( callee, bb->start_time + bb_cost );
+          bb_cost += callee->running_cost;
         }
       }
     }
     /* The accumulated cost is computed. Now set the latest finish
      * time of this block */
-    bb->finish_time = bb->start_time + acc_cost;
+    bb->finish_time = bb->start_time + bb_cost;
   }
   DEBUG_PRINTF( "Setting block %d finish time = %Lu\n", bb->bbid, bb->finish_time );
 }
 
 static void computeWCET_proc( procedure* proc, ull start_time )
 {
-  /* Initialize current context. Set to zero before the start 
-   * of each new procedure */
-  cur_context = 0;
-
   /* Preprocess CHMC classification for each instruction inside
    * the procedure */
   preprocess_chmc_WCET( proc );
@@ -191,7 +163,7 @@ static void computeWCET_proc( procedure* proc, ull start_time )
       bb->start_time = start_time;
     else
       set_start_time_WCET( bb, proc );
-    computeWCET_block( bb, proc, NULL );
+    computeWCET_block( bb, proc, NULL, 0 );
   }
 
 #ifdef _DEBUG
@@ -227,7 +199,6 @@ void compute_bus_WCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
 
   int k;
   for ( k = 0; k < msc->num_task; k++ ) {
-    acc_bus_delay = 0;
 
     PRINT_PRINTF( "Analyzing Task WCET %s......\n", msc->taskList[k].task_name );
 

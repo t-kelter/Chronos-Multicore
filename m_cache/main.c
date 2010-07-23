@@ -100,7 +100,7 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
   // Assert that all results are sound
   int i;
   for ( i = 0; i < msc->num_task; i++ ) {
-    assert( msc->taskList[i].bcet < msc->taskList[i].wcet &&
+    assert( msc->taskList[i].bcet <= msc->taskList[i].wcet &&
         "Invalid BCET/WCET results for task" );
   }
 }

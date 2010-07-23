@@ -309,42 +309,108 @@ ull get_latest_task_start_time( task_t* cur_task, uint core )
   return start;
 }
 
-
-/* Compute waiting time for a memory request and a given 
- * deterministic TDMA schedule */
-static uint compute_waiting_time(core_sched_p head_core, ull start_time, acc_type type)
+/* Returns the BCET of a single instruction. */
+ull getInstructionBCET( const instr *instruction )
 {
-  long long delta, check_len, check_len_p;
-  uint delay_elem;
-  uint latency;
+  /* Normally this value should have been computed by the pipeline analysis
+   * (for whole blocks), but we use a constant here, because we are mainly
+   * interested in the shared bus analyis. */
+  return 1;
+}
 
-  if(type == L2_HIT)
-    latency = L2_HIT_LATENCY;
-  else if(type == L2_MISS)
-    latency = MISS_PENALTY;  
+/* Returns the WCET of a single instruction. */
+ull getInstructionWCET( const instr *instruction )
+{
+  /* Normally this value should have been computed by the pipeline analysis
+   * (for whole blocks), but we use a constant here, because we are mainly
+   * interested in the shared bus analyis. */
+  return 1;
+}
 
-  assert(head_core);
+/* Determine latency of a memory access in the presence of a shared bus
+ *
+ * 'bb' is the block after which the access takes place
+ * 'access_time' is the precise time when the access takes place
+ * 'type' specifies whether the bus access is a L2 cache hit or miss
+ *        ( L2_HIT / L2_MISS )
+ */
+uint determine_latency( block* bb, ull access_time, acc_type type )
+{
+  // If the access is a L1 hit, then the access time is constant
+  if ( type == L1_HIT ) {
+    return L1_HIT_LATENCY;
 
-  delta = start_time - head_core->start_time;
+  // All other cases may suffer a variable delay
+  } else {
 
-  /* sudiptac :::: It's a bit mathematical. Feel free to consult the draft 
-   * instead of breaking your head here */
-  
-  if(delta < 0)
-    delay_elem = abs(delta);
-  else
-  {
-    check_len_p = (delta - ((delta/head_core->interval) * head_core->interval));   
-    if(check_len_p < head_core->slot_len)  
-      delay_elem = 0;
-    else
-    {
-      check_len = (((delta / head_core->interval) + 1) * head_core->interval);
-      delay_elem = check_len - delta; 
-    } 
+    /* Get schedule data */
+    const sched_p glob_sched = getSchedule();
+    assert(glob_sched && ncore < glob_sched->n_cores &&
+        "Internal error: Invalid data structures!" );
+
+    /* Find the proper segment for start time in case there are
+     * multiple segments present in the full bus schedule */
+    segment_p cur_seg = ( glob_sched->type != SCHED_TYPE_1 )
+      ? find_segment( glob_sched->seg_list, glob_sched->n_segments,
+                      access_time )
+      : glob_sched->seg_list[0];
+    const core_sched_p core_schedule = cur_seg->per_core_sched[ncore];
+    assert(core_schedule &&
+        "Internal error: Invalid data structures!" );
+
+    const uint slot_start = core_schedule->start_time;
+    const uint slot_len = core_schedule->slot_len;
+    const ull interval = core_schedule->interval;
+    assert( num_core * slot_len == interval && "Inconsistent model!" );
+
+    // Determine the offset of the access in the TDMA schedule
+    const ull offset = access_time % interval;
+    assert( offset < interval && "Internal error: Invalid offset!" );
+
+    /* Return maximum if no bus is modeled. The maximum occurs when a bus request
+     * arrives at (slot_end_time - request_duration - 1) which thus cannot be
+     * fulfilled in the core's remaining slot time and thus must be delayed. Total
+     * delay is then:
+     *
+     * - request_duration - 1 cycles for the first request which fails
+     * - ( num_core - 1 ) * slot_len for waiting for the next free slot
+     * - request_duration for issuing the request a second time in the next bus slot
+     * */
+    if ( g_no_bus_modeling ) {
+      return ( num_core - 1 ) * slot_len +
+        2 * ( type == L2_HIT ? L2_HIT_LATENCY : MISS_PENALTY );
+    }
+
+    /* Get the time needed to perform the access itself. */
+    const ull simple_access_duration = ( type == L2_HIT ? L2_HIT_LATENCY :
+                                                          MISS_PENALTY );
+
+    /* First compute the waiting time that is needed before the successful
+     * bus access can begin. */
+    ull waiting_time = 0;
+
+    /* If the access if before the core's slot begins, then wait until the
+     * slot begins and do the access then. */
+    if ( offset < slot_start ) {
+      waiting_time = slot_start - offset;
+    /* If the access fits into the current core's slot, then register this. */
+    } else if ( offset <= slot_start + slot_len - simple_access_duration ) {
+      waiting_time = 0;
+    /* Else compute the time until the beginning of the next slot of the core
+     * and add the access time itself to get the total delay. */
+    } else {
+      waiting_time = ( interval - offset + slot_start );
+    }
+
+    /* Then sum up the waiting and the access time to form the final delay. */
+    const ull delay = waiting_time + simple_access_duration;
+
+    /* Assert that the delay does not exceed the maximum possible delay */
+    assert( delay <= ( num_core - 1 ) * slot_len + 2 * MISS_PENALTY &&
+        "Bus delay exceeded maximum limit" );
+
+    return delay;
   }
-  
-  return delay_elem;
 }
 
 /* Return the procedure pointer in the task data structure */
@@ -519,54 +585,6 @@ acc_type check_hit_miss(block* bb, instr* inst,uint context)
   return L2_MISS;   
 }
 
-
-/* Given a starting time and a particular core, this function 
- * calculates the variable memory latency for the request */
-int compute_bus_delay(ull start_time, uint ncore, acc_type type)
-{
-  sched_p glob_sched = NULL;
-  segment_p cur_seg = NULL; 
-  core_sched_p cur_core_sched;
-  uint add_delay = 0;
-
-  /* The global TDMA schedule must have been set here */         
-  glob_sched = getSchedule();
-  assert(glob_sched);
-  assert(ncore < glob_sched->n_cores);
-
-  /* Find the proper segment for start time in case there are 
-   * multiple segments present in the full bus schedule */  
-  if(glob_sched->type != SCHED_TYPE_1)
-  {
-     cur_seg = find_segment(glob_sched->seg_list, glob_sched->n_segments,
-        start_time); 
-  }
-  else
-     cur_seg = glob_sched->seg_list[0]; 
-
-  assert(cur_seg->per_core_sched);    
-  assert(cur_seg->per_core_sched[ncore]);
-
-  cur_core_sched = cur_seg->per_core_sched[ncore];
-
-  add_delay = compute_waiting_time(cur_core_sched, start_time, type);
-
-  /* Print not-desired bus related delay */   
-   if(add_delay < 0 || add_delay > 50)
-        NPRINT_PRINTF( "Request time = %Lu and Waiting time = %d\n", 
-           start_time, add_delay);    
-  acc_bus_delay += add_delay;
-
-  if(!g_no_bus_modeling)    
-  {
-    if(type == L2_HIT)  
-      return (uint)(add_delay + L2_HIT_LATENCY);
-    else if(type == L2_MISS)
-      return (uint)(add_delay + MISS_PENALTY);
-  }
-
-  return (uint)(MISS_PENALTY + MAX_BUS_DELAY);  
-}
 
 /* Check whether the block specified in the header "bb"
  * is header of some loop in the procedure "proc" */

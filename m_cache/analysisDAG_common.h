@@ -56,15 +56,26 @@ void set_start_time_BCET( block* bb, procedure* proc );
  * (Not context-aware) */
 void set_start_time_WCET( block* bb, procedure* proc );
 
+/* Returns the BCET of a single instruction. */
+ull getInstructionBCET( const instr *instruction );
+/* Returns the WCET of a single instruction. */
+ull getInstructionWCET( const instr *instruction );
+
 /* Reset start and finish time of all basic blocks in this 
  * procedure */
 void reset_timestamps(procedure* proc, ull start_time);
 /* Reset latest start time of all tasks in the MSC before 
  * the analysis of the MSC starts */
 void reset_all_task(MSC* msc);
-/* Given a starting time and a particular core, this function 
- * calculates the variable memory latency for the request */
-int compute_bus_delay(ull start_time, uint ncore, acc_type type);
+
+/* Determine latency of a memory access in the presence of a shared bus
+ *
+ * 'bb' is the block after which the access takes place
+ * 'access_time' is the precise time when the access takes place
+ * 'type' specifies whether the bus access is a L2 cache hit or miss
+ *        ( L2_HIT / L2_MISS )
+ */
+uint determine_latency( block* bb, ull access_time, acc_type type );
 
 /* #### WCRT analysis helper functions #### */
 

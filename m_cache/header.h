@@ -592,8 +592,6 @@ EXTERN ull* latest_core_time;
 
 /* Global TDMA bus schedule */
 EXTERN sched_p global_sched_data;
-EXTERN uint cur_context;
-EXTERN uint acc_bus_delay;
 
 /* Set if testing mode is ON */
 EXTERN uint g_testing_mode;
