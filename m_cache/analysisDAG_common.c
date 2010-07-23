@@ -245,11 +245,21 @@ void update_succ_task_earliest_start_time( MSC* msc, task_t* task )
 
     DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i]);
 
-    uint sid = task->succList[i];
-    msc->taskList[sid].l_start = task->l_start + task->bcet;
+    task_t * const successor = &msc->taskList[task->succList[i]];
+    /* The earliest start times are initialized with 0. This will always
+     * dominate the following minimum operation, though a task with a
+     * predecessor may not start at time 0. Therefore we must filter this
+     * case out manually in the following. */
+    if ( successor->earliest_start_time != 0 ) {
+      successor->earliest_start_time = MIN(
+        successor->earliest_start_time,
+        task->earliest_start_time + task->bcet );
+    } else {
+      successor->earliest_start_time = task->earliest_start_time + task->bcet;
+    }
 
     DEBUG_PRINTF( "Updating earliest start time of successor = %Lu\n",
-        msc->taskList[sid].l_start);
+        successor->earliest_start_time );
   }
 }
 
@@ -265,9 +275,9 @@ ull get_earliest_task_start_time( task_t* cur_task, uint core )
    * also be delayed because of some other processe's execution in the
    * same core. Thus we need to consider the minimum of two
    * possibilities */
-  ull start = MIN( cur_task->l_start, latest_core_time[core] );
+  ull start = MIN( cur_task->earliest_start_time, earliest_core_time[core] );
 
-  DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start);
+  DEBUG_PRINTF( "Assigning the earliest starting time of the task = %Lu\n", start);
 
   return start;
 }
@@ -284,10 +294,14 @@ void update_succ_task_latest_start_time( MSC* msc, task_t* task )
   int i;
   for ( i = 0; i < task->numSuccs; i++ ) {
     DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i] );
-    uint sid = task->succList[i];
-    if ( msc->taskList[sid].l_start < ( task->l_start + task->wcet ) )
-      msc->taskList[sid].l_start = task->l_start + task->wcet;
-    DEBUG_PRINTF( "Updating latest start time of successor = %Lu\n", msc->taskList[sid].l_start );
+
+    task_t * const successor = &msc->taskList[task->succList[i]];
+    successor->latest_start_time = MAX(
+        successor->latest_start_time,
+        task->latest_start_time + task->wcet );
+
+    DEBUG_PRINTF( "Updating latest start time of successor = %Lu\n",
+        successor->latest_start_time );
   }
 }
 
@@ -304,7 +318,7 @@ ull get_latest_task_start_time( task_t* cur_task, uint core )
    * also be delayed because of some other processe's execution in the
    * same core. Thus we need to consider the maximum of two
    * possibilities */
-  ull start = MAX( cur_task->l_start, latest_core_time[core] );
+  ull start = MAX( cur_task->latest_start_time, latest_core_time[core] );
   DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start );
 
   return start;
@@ -601,7 +615,8 @@ void reset_all_task(MSC* msc)
   assert(msc);
   for(k = 0; k < msc->num_task; k++)
   {
-    msc->taskList[k].l_start = 0;  
+    msc->taskList[k].earliest_start_time = 0;
+    msc->taskList[k].latest_start_time = 0;
   }
 }
 

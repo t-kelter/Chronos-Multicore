@@ -121,8 +121,10 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file 
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
 
-  /* Reset the latest time of all cores */
+  /* Reset the earliest/latest time of all cores */
+  memset( earliest_core_time, 0, num_core * sizeof(ull) );
   memset( latest_core_time, 0, num_core * sizeof(ull) );
+
   /* reset latest time of all tasks */
   reset_all_task( msc );
 
@@ -146,8 +148,9 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file 
     cur_task->bcet = main_result.bcet;
     cur_task->wcet = main_result.wcet;
 
-    /* Now update the latest starting time in this core */
-    latest_core_time[ncore] = latest_start + cur_task->wcet;
+    /* Now update the earliest/latest starting time in this core */
+    earliest_core_time[ncore] = earliest_start + cur_task->bcet;
+    latest_core_time[ncore]   = latest_start + cur_task->wcet;
 
     /* Since the interference file for a MSC was dumped in topological
      * order and read back in the same order we are assured of the fact

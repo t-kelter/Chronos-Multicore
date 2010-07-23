@@ -197,8 +197,9 @@ void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
 
-  /* Reset the latest time of all cores */
-  memset( latest_core_time, 0, num_core * sizeof(ull) );
+  /* Reset the earliest time of all cores */
+  memset( earliest_core_time, 0, num_core * sizeof(ull) );
+
   /* reset latest time of all tasks */
   reset_all_task( msc );
 
@@ -220,7 +221,7 @@ void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
     cur_task->bcet = task_main->running_cost;
 
     /* Now update the latest starting time in this core */
-    latest_core_time[ncore] = start_time + cur_task->bcet;
+    earliest_core_time[ncore] = start_time + cur_task->bcet;
 
     /* Since the interference file for a MSC was dumped in topological 
      * order and read back in the same order we are assured of the fact

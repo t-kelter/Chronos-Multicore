@@ -470,7 +470,8 @@ typedef struct
     ull unknow_bcet_L2; 
 
 	 /* sudiptac :: For bus aware WCET analysis */
-	 ull l_start;	  
+   ull earliest_start_time;
+	 ull latest_start_time;
 }task_t;
 
 typedef struct
@@ -587,7 +588,9 @@ EXTERN uint ncore;
 /* Global representing currently analysed task */
 EXTERN task_t* cur_task;
 
-/* Stores current latest time of all the cores */
+/* Stores current earliest time at which a certain core (index) is available. */
+EXTERN ull* earliest_core_time;
+/* Stores current latest time at which a certain core (index) is available. */
 EXTERN ull* latest_core_time;
 
 /* Global TDMA bus schedule */

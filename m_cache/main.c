@@ -144,12 +144,12 @@ int main(int argc, char **argv )
     g_private = 0;
   }
 
-  /* sudiptac :: Allocate the latest start time structure for 
+  /* sudiptac :: Allocate the earliest/latest start time structure for
    * all the cores */
-  latest_core_time = (ull *)malloc(num_core * sizeof(ull));		  
-  if(!latest_core_time)
-    prerr("Error: Out of memory");
-  memset(latest_core_time, 0, num_core * sizeof(ull)); 	  
+  earliest_core_time = (ull *)CALLOC( earliest_core_time, num_core,
+                              sizeof(ull), "earliest_core_time" );
+  latest_core_time = (ull *)CALLOC( latest_core_time, num_core,
+                              sizeof(ull), "latest_core_time" );
 
   /* Set the basic parameters of L1 and L2 instruction caches */		  
   set_cache_basic( argv[2] );
