@@ -4,6 +4,14 @@
 #include "header.h"
 #include "wcrt/cycle_time.h"
 
+/* Improper exit with error message */
+void prerr(char* msg)
+{
+  fprintf(stderr, "%s\n", msg);
+  fflush(stderr);
+  exit(-1);
+}
+
 /*
  * fopen with error check.
  * Assumes filename is the one given in the command line option.

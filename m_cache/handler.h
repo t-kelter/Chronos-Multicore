@@ -20,6 +20,9 @@
 // ######### Function declarations  ###########
 
 
+/* Improper exit with error message */
+void prerr(char* msg);
+
 /*
  * fopen with error check.
  * Assumes filename is the one given in the command line option.

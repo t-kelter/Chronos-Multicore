@@ -6,6 +6,7 @@
 
 #include "analysisDAG_common.h"
 #include "busSchedule.h"
+#include "handler.h"
 
 
 /* Attach best-case hit/miss classification for L2 cache to the instruction */

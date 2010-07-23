@@ -3,21 +3,13 @@
 #include <assert.h>
 
 #include "busSchedule.h"
+#include "handler.h"
 
 // Forward declarations of static functions
 
 static void set_core_specific_data(core_sched_p* head_core, 
                                    int ncore, FILE* fp);
 
-
-
-/* Improper exit with error message */
-void prerr(char* msg)
-{
-	fprintf(stderr, "%s\n", msg);
-	fflush(stderr);
-	exit(-1);
-}
 
 /* Prints read TDMA bus schedule */
 #ifdef _DEBUG
