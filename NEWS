@@ -1,2 +1,1 @@
-2010-06-16:
-  Added support for building Chronos via autotools, to enable a simpler reconfiguration and adaption to local conditions
+See ChangeLog or the git log (this will be more up to date) for the latest changes.
