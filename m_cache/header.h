@@ -15,7 +15,7 @@
 
 // ######### Macros #########
 
-
+typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long long ull;
 
@@ -110,7 +110,7 @@ typedef unsigned long long ull;
       printf( "\nError: calloc_or_realloc failed for %s.\n\n", (msg) ); \
       exit(1); \
     } \
-  } \
+  }
 
 /* Conditional debug output */
 

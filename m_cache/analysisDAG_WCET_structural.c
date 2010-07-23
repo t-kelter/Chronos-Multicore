@@ -38,9 +38,6 @@ static ull totalAlignCost = 0;
 
 /* This sets the latest starting time of a block during WCET calculation.
  * (Context-aware)
- *
- * Additionally this function carries over the 'latest_bus' and 'latest_latency'
- * fields from the predecessor with maximum finishing time.
  */
 static void set_start_time_WCET_opt( block* bb, procedure* proc, uint context )
 {

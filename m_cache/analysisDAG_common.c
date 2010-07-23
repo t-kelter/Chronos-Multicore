@@ -15,22 +15,16 @@ static void classify_inst_L2_BCET( instr* inst, CHMC** chmc_l2, int n_chmc_l2, i
   if ( !n_chmc_l2 )
     return;
 
-  /* Allocate memory here */
-  if ( !inst->acc_t_l2 )
-    inst->acc_t_l2 = (acc_type *) malloc( n_chmc_l2 * sizeof(acc_type) );
-  if ( !inst->acc_t_l2 )
-    prerr( "Error: Out of memory" );
-
-  memset( inst->acc_t_l2, 0, n_chmc_l2 * sizeof(acc_type) );
+  CALLOC_IF_NULL( inst->acc_t_l2, acc_type*, n_chmc_l2 * sizeof(acc_type), "inst->acc_t_l2" );
 
   int i;
   for ( i = 0; i < n_chmc_l2; i++ ) {
-    assert(chmc_l2[i]);
-
-    if ( chmc_l2[i]->hitmiss_addr[inst_id] != ALWAYS_MISS &&
-         inst->acc_t[i] != L1_HIT ) {
-      inst->acc_t_l2[i] = L2_HIT;
-    }
+    assert(chmc_l2[i] && "Internal error");
+    inst->acc_t_l2[i] = ( ( !chmc_l2[i]->hitmiss_addr ||
+                            chmc_l2[i]->hitmiss_addr[inst_id] != ALWAYS_MISS ) &&
+                          inst->acc_t[i] != L1_HIT )
+                        ? L2_HIT
+                        : L2_MISS;
   }
 }
 
@@ -40,21 +34,15 @@ static void classify_inst_BCET( instr* inst, CHMC** chmc, int n_chmc, int inst_i
   if ( !n_chmc )
     return;
 
-  /* Allocate memory here */
-  if ( !inst->acc_t )
-    inst->acc_t = (acc_type *) malloc( n_chmc * sizeof(acc_type) );
-  if ( !inst->acc_t )
-    prerr( "Error: Out of memory" );
-
-  memset( inst->acc_t, 0, n_chmc * sizeof(acc_type) );
+  CALLOC_IF_NULL( inst->acc_t, acc_type*, n_chmc * sizeof(acc_type), "inst->acc_t" );
 
   int i;
   for ( i = 0; i < n_chmc; i++ ) {
-    assert(chmc[i]);
-
-    if ( chmc[i]->hitmiss_addr[inst_id] != ALWAYS_MISS ) {
-      inst->acc_t[i] = L1_HIT;
-    }
+    assert(chmc[i] && "Internal error");
+    inst->acc_t[i] = ( ( !chmc[i]->hitmiss_addr ||
+                         chmc[i]->hitmiss_addr[inst_id] != ALWAYS_MISS ) )
+                        ? L1_HIT
+                        : L2_MISS;
   }
 }
 
@@ -96,25 +84,16 @@ static void classify_inst_L2_WCET( instr* inst, CHMC** chmc_l2, int n_chmc_l2, i
   if ( !n_chmc_l2 )
     return;
 
-  /* Allocate memory here */
-  if ( !inst->acc_t_l2 )
-    inst->acc_t_l2 = (acc_type *) malloc( n_chmc_l2 * sizeof(acc_type) );
-  if ( !inst->acc_t_l2 )
-    prerr( "Error: Out of memory" );
-
-  /* FIXME: Default value is L2 miss */
-  memset( inst->acc_t_l2, 0, n_chmc_l2 * sizeof(acc_type) );
+  CALLOC_IF_NULL( inst->acc_t_l2, acc_type*, n_chmc_l2 * sizeof(acc_type), "inst->acc_t_l2" );
 
   int i;
   for ( i = 0; i < n_chmc_l2; i++ ) {
-    assert(chmc_l2[i]);
-
-    if ( !chmc_l2[i]->hitmiss_addr )
-      continue;
-
-    if ( ( chmc_l2[i]->hitmiss_addr[inst_id] == ALWAYS_HIT ) && inst->acc_t[i] != L1_HIT ) {
-      inst->acc_t_l2[i] = L2_HIT;
-    }
+    assert(chmc_l2[i] && "Internal error");
+    inst->acc_t_l2[i] = ( chmc_l2[i]->hitmiss_addr &&
+                          chmc_l2[i]->hitmiss_addr[inst_id] == ALWAYS_HIT &&
+                          inst->acc_t[i] != L1_HIT )
+                        ? L2_HIT
+                        : L2_MISS;
   }
 }
 
@@ -124,28 +103,15 @@ static void classify_inst_WCET( instr* inst, CHMC** chmc, int n_chmc, int inst_i
   if ( !n_chmc )
     return;
 
-  /* Allocate memory here */
-  if ( !inst->acc_t )
-    inst->acc_t = (acc_type *) malloc( n_chmc * sizeof(acc_type) );
-  if ( !inst->acc_t )
-    prerr( "Error: Out of memory" );
-
-  /* FIXME: Default value is L2 miss */
-  memset( inst->acc_t, 0, n_chmc * sizeof(acc_type) );
+  CALLOC_IF_NULL( inst->acc_t, acc_type*, n_chmc * sizeof(acc_type), "inst->acc_t" );
 
   int i;
   for ( i = 0; i < n_chmc; i++ ) {
-    assert(chmc[i]);
-
-    /* FIXME: I think this is possible for a buggy implementation
-     * in cache analysis */
-    if ( !chmc[i]->hitmiss_addr ) {
-      continue;
-    }
-
-    if ( chmc[i]->hitmiss_addr[inst_id] == ALWAYS_HIT ) {
-      inst->acc_t[i] = L1_HIT;
-    }
+    assert(chmc[i] && "Internal error");
+    inst->acc_t[i] = ( chmc[i]->hitmiss_addr &&
+                       chmc[i]->hitmiss_addr[inst_id] == ALWAYS_HIT )
+                        ? L1_HIT
+                        : L2_MISS;
   }
 }
 
@@ -191,11 +157,12 @@ void set_start_time_WCET( block* bb, procedure* proc )
 
   int i;
   for ( i = 0; i < bb->num_incoming; i++ ) {
-    int in_index = bb->incoming[i];
-    assert(proc->bblist[in_index]);
+
+    block * const predecessor = proc->bblist[bb->incoming[i]];
+    assert( predecessor && "Missing basic block!" );
+
     /* Determine the predecessors' latest finish time */
-    if ( max_start < proc->bblist[in_index]->finish_time )
-      max_start = proc->bblist[in_index]->finish_time;
+    max_start = MAX( max_start, predecessor->finish_time );
   }
 
   /* Now set the starting time of this block to be the latest
@@ -215,13 +182,16 @@ void set_start_time_BCET( block* bb, procedure* proc )
 
   int i;
   for ( i = 0; i < bb->num_incoming; i++ ) {
-    int in_index = bb->incoming[i];
-    assert(proc->bblist[in_index]);
-    if ( i == 0 )
-      min_start = proc->bblist[in_index]->finish_time;
-    /* Determine the predecessors' latest finish time */
-    else if ( min_start > proc->bblist[in_index]->finish_time )
-      min_start = proc->bblist[in_index]->finish_time;
+
+    block * const predecessor = proc->bblist[bb->incoming[i]];
+    assert( predecessor && "Missing basic block!" );
+
+    /* Determine the predecessors' earliest finish time */
+    if ( i == 0 ) {
+      min_start = predecessor->finish_time;
+    } else {
+      min_start = MIN( min_start, predecessor->finish_time );
+    }
   }
 
   /* Now set the starting time of this block to be the earliest

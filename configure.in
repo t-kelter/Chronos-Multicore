@@ -129,9 +129,9 @@ AC_ARG_WITH(release-quality,
                 ac_cv_release_quality="$withval", ac_cv_release_quality=no)
 
 if test "$ac_cv_release_quality" = yes; then
-  CFLAGS="-O3"
+  CFLAGS="-O3 -std=c99"
 else
-  CFLAGS="-O0 -g -Wall"
+  CFLAGS="-O0 -g -Wall -std=c99"
 fi
 
 # Specify which Makefiles to construct

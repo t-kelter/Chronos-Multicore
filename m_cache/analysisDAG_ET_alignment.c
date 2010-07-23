@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <limits.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -9,9 +10,11 @@
 #include "analysisDAG_common.h"
 #include "busSchedule.h"
 
+
 // ############################################################
 // #### Local data type definitions (will not be exported) ####
 // ############################################################
+
 
 /* A data type to represent an offset range. The offsets are measured from the
  * beginning of the TDMA slot of the first core. */
@@ -27,18 +30,56 @@ typedef struct {
   ull wcet;
 } combined_result;
 
+
 // ##################################################
 // #### Forward declarations of static functions ####
 // ##################################################
 
+
 static combined_result analyze_block( block* bb, procedure* proc,
-    loop* cur_lp, const tdma_offset_bounds offsets );
-static combined_result analyze_loop( loop* lp, procedure* proc, const tdma_offset_bounds start_offsets );
+    loop* cur_lp, uint loop_context, const tdma_offset_bounds offsets );
+static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_context,
+    const tdma_offset_bounds start_offsets );
 static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds start_offsets );
+
 
 // #########################################
 // #### Definitions of static functions ####
 // #########################################
+
+
+/* Returns the union of the given bounds. */
+static tdma_offset_bounds mergeOffsetBounds( const tdma_offset_bounds *b1, const tdma_offset_bounds *b2 )
+{
+  assert( b1 && b2 && "Invalid arguments!" );
+
+  tdma_offset_bounds result;
+  result.lower_bound = MIN( b1->lower_bound, b2->lower_bound );
+  result.upper_bound = MAX( b1->upper_bound, b2->upper_bound );
+  return result;
+}
+
+/* Returns the offset bounds for basic block 'bb' from procedure 'proc' where the
+ * offset bound results for its predecessors have already been computed and are
+ * stored in 'block_results'. */
+static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * proc,
+                                           const combined_result *block_results )
+{
+  assert( bb && proc && block_results && "Invalid arguments!" );
+  tdma_offset_bounds result = { 0, 0 };
+
+  int i;
+  for ( i = 0; i < bb->num_incoming; i++ ) {
+
+    const int pred_index = bb->incoming[i];
+    assert( proc->bblist[pred_index] && "Missing basic block!" );
+
+    result = mergeOffsetBounds( &result, &block_results[pred_index].offsets );
+  }
+
+  return result;
+}
+
 
 /* Returns the offset bounds for a given time range. */
 static tdma_offset_bounds getOffsetBounds( ull minTime, ull maxTime )
@@ -88,31 +129,120 @@ static tdma_offset_bounds getOffsetBounds( ull minTime, ull maxTime )
   }
 }
 
+
 /* Computes the BCET, WCET and offset bounds for the given block when starting from the given offset range. */
 static combined_result analyze_block( block* bb, procedure* proc,
-    loop* cur_lp, const tdma_offset_bounds offsets )
+    loop* cur_lp, uint loop_context, const tdma_offset_bounds offsets )
 {
   combined_result return_value;
   return return_value;
 }
 
+
 /* Computes the BCET, WCET and offset bounds for the given loop when starting from the given offset range. */
-static combined_result analyze_loop( loop* lp, procedure* proc, const tdma_offset_bounds start_offsets )
+static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_context,
+    const tdma_offset_bounds start_offsets )
 {
   combined_result return_value;
   return return_value;
 }
+
 
 /* Computes the BCET, WCET and offset bounds for the given procedure when starting from the given offset range. */
 static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds start_offsets )
 {
-  combined_result return_value;
-  return return_value;
+  /* Preprocessing: Build CHMC classifications for the procedure */
+  preprocess_chmc_WCET( proc );
+
+  /* Get an array for the result values per basic block. */
+  combined_result * const block_results = (combined_result *)CALLOC(
+      block_results, proc->num_topo, sizeof( combined_result ), "block_result" );
+
+  /* Iterate over the basic blocks in topological order */
+  int i;
+  for ( i = proc->num_topo - 1; i >= 0; i-- ) {
+
+    block * const bb = proc->topo[i];
+    assert(bb && "Missing basic block!");
+
+    /* If this is the first block of the procedure then set the start interval
+     * of this block to be the same with the start interval of the procedure itself */
+    const tdma_offset_bounds block_start_bounds = ( i == proc->num_topo - 1
+        ? start_offsets
+        : getStartOffsets( bb, proc, block_results ) );
+    block_results[i] = analyze_block( bb, proc, NULL, 0, block_start_bounds );
+  }
+
+  /* Now all BCETS, WCETs and offset bounds for individual blocks are finished */
+
+  /* Compute final procedure BCET and WCET by propagating the values through the DAG. */
+  ull *block_bcet_propagation_values = (ull*)CALLOC( block_bcet_propagation_values,
+      proc->num_topo, sizeof( ull ), "block_bcet_propagation_values" );
+  ull *block_wcet_propagation_values = (ull*)CALLOC( block_wcet_propagation_values,
+        proc->num_topo, sizeof( ull ), "block_wcet_propagation_values" );
+  for ( i = proc->num_topo - 1; i >= 0; i-- ) {
+
+    block * const bb = proc->topo[i];
+    assert(bb && "Missing basic block!");
+
+    if ( i == proc->num_topo - 1 ) {
+      // Head block: Take over block BCET/WCET
+      block_bcet_propagation_values[i] = block_results[i].bcet;
+      block_wcet_propagation_values[i] = block_results[i].wcet;
+    } else {
+      // Merge over predecessors
+      int j;
+      for ( j = 0; j < bb->num_incoming; j++ ) {
+
+        const int pred_index = bb->incoming[j];
+        assert( proc->bblist[pred_index] && "Missing basic block!" );
+
+        block_bcet_propagation_values[i] = ( j == 0
+            ? block_bcet_propagation_values[j] + block_results[j].bcet
+            : MIN( block_bcet_propagation_values[i],
+                block_bcet_propagation_values[j] + block_results[j].bcet ) );
+        block_wcet_propagation_values[i] = MAX(
+            block_wcet_propagation_values[i],
+            block_wcet_propagation_values[j] + block_results[j].wcet );
+      }
+    }
+  }
+
+  /* Create a result object */
+  combined_result result;
+  result.bcet = ULLONG_MAX;
+  result.wcet = 0;
+  result.offsets.lower_bound = 0;
+  result.offsets.upper_bound = 0;
+
+  /* Extract the final BCET, WCET and offset bounds from the DAG leaves. */
+  for ( i = 0; i < proc->num_topo; i++ ) {
+
+    block * const bb = proc->topo[i];
+    assert(bb && "Missing basic block!");
+
+    if ( bb->num_outgoing > 0 )
+      break;
+
+    // Compute BCET
+    result.bcet = MIN( result.bcet, block_bcet_propagation_values[i] );
+    // Compute WCET
+    result.wcet = MAX( result.wcet, block_wcet_propagation_values[i] );
+    // Compute offsets
+    result.offsets = mergeOffsetBounds( &result.offsets, &block_results[i].offsets );
+  }
+
+  free( block_bcet_propagation_values );
+  free( block_wcet_propagation_values );
+  free( block_results );
+
+  return result;
 }
 
 // #########################################
 // #### Definitions of public functions ####
 // #########################################
+
 
 /* Analyze worst case execution time of all the tasks inside
  * a MSC. The MSC is given by the argument */

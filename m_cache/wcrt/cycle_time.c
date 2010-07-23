@@ -4,7 +4,7 @@ static void
 access_counter(unsigned *hi, unsigned *lo)
 {
     /* Get cycle counter */
-    asm("rdtsc; movl %%edx,%0; movl %%eax,%1"
+    __asm__("rdtsc; movl %%edx,%0; movl %%eax,%1"
 	    : "=r" (*hi), "=r" (*lo)
 	    : /* No input */
 	    : "%edx", "%eax");
