@@ -14,14 +14,14 @@ static void set_core_specific_data(core_sched_p* head_core,
 /* Improper exit with error message */
 void prerr(char* msg)
 {
-	fprintf(stdout, "%s\n", msg);
-	fflush(stdout);
+	fprintf(stderr, "%s\n", msg);
+	fflush(stderr);
 	exit(-1);
 }
 
 /* Prints read TDMA bus schedule */
 #ifdef _DEBUG
-void print_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
+static void print_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
 {
 	int i;
 
@@ -36,7 +36,7 @@ void print_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
 	}
 }
 
-void print_TDMA_sched()
+static void print_TDMA_sched()
 {
 	FILE* fp = stdout;
 	int i;
@@ -69,16 +69,35 @@ void print_TDMA_sched()
 #endif
 
 /* Find proper segment given a list of segments and a starting time */
-segment_p find_segment(segment_p* head_seg, int nsegs, ull start_time)
+static segment_p find_segment(segment_p* head_seg, int nsegs, ull start_time)
 {
 	/* FIXME*/	  
 	return NULL;	  
 }
 
-/* return the global TDMA bus schedule set previously */
+/* Return the global TDMA bus schedule set previously */
 sched_p getSchedule()
 {
 	return global_sched_data;	  
+}
+
+/* Gets the schedule for the core with index 'core_index' at time 'time'
+ * in the current global TDMA schedule. */
+core_sched_p getCoreSchedule( uint core_index, ull time )
+{
+  const sched_p glob_sched = getSchedule();
+  assert(glob_sched && core_index < glob_sched->n_cores &&
+      "Internal error: Invalid data structures!" );
+
+  /* Find the proper segment for start time in case there are
+   * multiple segments present in the full bus schedule */
+  segment_p cur_seg = ( glob_sched->type != SCHED_TYPE_1 )
+    ? find_segment( glob_sched->seg_list, glob_sched->n_segments, time )
+    : glob_sched->seg_list[0];
+  const core_sched_p core_schedule = cur_seg->per_core_sched[core_index];
+  assert(core_schedule &&
+      "Internal error: Invalid data structures!" );
+  return core_schedule;
 }
 
 /* Set core specific TDMA bus schedule data in a segment */

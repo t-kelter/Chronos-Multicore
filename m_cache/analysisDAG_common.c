@@ -235,7 +235,7 @@ void set_start_time_BCET( block* bb, procedure* proc )
  * the earliest start time of the argument task. Finding out
  * the earliest start time is important as the bus aware BCET
  * analysis depends on the same */
-void update_succ_earliest_time( MSC* msc, task_t* task )
+void update_succ_task_earliest_start_time( MSC* msc, task_t* task )
 {
   DEBUG_PRINTF( "Number of Successors = %d\n", task->numSuccs);
 
@@ -256,7 +256,7 @@ void update_succ_earliest_time( MSC* msc, task_t* task )
 /* Latest starting time of a task is computed as the maximum
  * of the latest finish times of all its predecessor tasks
  * imposed by the partial order of the MSC */
-ull get_earliest_start_time( task_t* cur_task, uint core )
+ull get_earliest_task_start_time( task_t* cur_task, uint core )
 {
   /* A task in the MSC can be delayed because of two reasons. Either
    * the tasks it is dependent upon has not finished executing or
@@ -344,20 +344,7 @@ uint determine_latency( block* bb, ull access_time, acc_type type )
   } else {
 
     /* Get schedule data */
-    const sched_p glob_sched = getSchedule();
-    assert(glob_sched && ncore < glob_sched->n_cores &&
-        "Internal error: Invalid data structures!" );
-
-    /* Find the proper segment for start time in case there are
-     * multiple segments present in the full bus schedule */
-    segment_p cur_seg = ( glob_sched->type != SCHED_TYPE_1 )
-      ? find_segment( glob_sched->seg_list, glob_sched->n_segments,
-                      access_time )
-      : glob_sched->seg_list[0];
-    const core_sched_p core_schedule = cur_seg->per_core_sched[ncore];
-    assert(core_schedule &&
-        "Internal error: Invalid data structures!" );
-
+    const core_sched_p core_schedule = getCoreSchedule( ncore, access_time );
     const uint slot_start = core_schedule->start_time;
     const uint slot_len = core_schedule->slot_len;
     const ull interval = core_schedule->interval;

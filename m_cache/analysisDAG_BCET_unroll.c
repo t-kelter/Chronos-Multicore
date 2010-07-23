@@ -210,24 +210,24 @@ void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
     /* Get needed inputs. */
     cur_task = &( msc->taskList[k] );
     ncore = get_core( cur_task );
-    procedure * const task_main = msc->taskList[k].main_copy;
+    procedure * const task_main = cur_task->main_copy;
 
     /* First get the earliest start time of the current task. */
-    ull start_time = get_earliest_start_time( cur_task, ncore );
+    ull start_time = get_earliest_task_start_time( cur_task, ncore );
 
     /* Then compute and set the worst case cost of this task */
     computeBCET_proc( task_main, start_time );
-    msc->taskList[k].bcet = msc->taskList[k].main_copy->running_cost;
+    cur_task->bcet = task_main->running_cost;
 
     /* Now update the latest starting time in this core */
-    latest_core_time[ncore] = start_time + msc->taskList[k].bcet;
+    latest_core_time[ncore] = start_time + cur_task->bcet;
 
     /* Since the interference file for a MSC was dumped in topological 
      * order and read back in the same order we are assured of the fact
      * that we analyze the tasks inside a MSC only after all of its
      * predecessors have been analyzed. Thus After analyzing one task
      * update all its successor tasks' latest time */
-    update_succ_earliest_time( msc, cur_task );
+    update_succ_task_earliest_start_time( msc, cur_task );
 
     PRINT_PRINTF("\n**************************************************************\n");
     PRINT_PRINTF("Earliest start time of the task = %Lu cycles\n", start_time);
