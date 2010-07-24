@@ -21,13 +21,23 @@
 // ######### Datatype declarations  ###########
 
 
+/* A list of the supported loop analysis methods. */
+enum LoopAnalysisType {
+  /* Computes globally valid alignment bounds for the loop header. */
+  LOOP_ANALYSIS_GLOBAL_CONVERGENCE,
+  /* Tracks the development of the alignment bounds in a graph. */
+  LOOP_ANALYSIS_GRAPH_TRACKING
+};
+
 
 // ######### Function declarations  ###########
 
 
 /* Analyze worst case execution time of all the tasks inside 
  * a MSC. The MSC is given by the argument */
-void compute_bus_ET_MSC_alignment(MSC *msc, const char *tdma_bus_schedule_file);
+void compute_bus_ET_MSC_alignment(MSC *msc, 
+    const char *tdma_bus_schedule_file, 
+    enum LoopAnalysisType analysisTypeToUse );
 
 
 #endif

@@ -32,6 +32,14 @@ typedef struct {
 } combined_result;
 
 
+// #########################################
+// #### Declaration of static variables ####
+// #########################################
+
+
+static enum LoopAnalysisType currentLoopAnalysisType;
+
+
 // ##################################################
 // #### Forward declarations of static functions ####
 // ##################################################
@@ -50,10 +58,18 @@ static combined_result analyze_proc( procedure* proc,
 // #########################################
 
 
+/* Verifies that the bound information is valid. */
+static _Bool checkBound( const tdma_offset_bounds *b )
+{
+  return b->lower_bound <= b->upper_bound;
+}
+
+
 /* Returns the union of the given offset bounds. */
 static tdma_offset_bounds mergeOffsetBounds( const tdma_offset_bounds *b1, const tdma_offset_bounds *b2 )
 {
-  assert( b1 && b2 && "Invalid arguments!" );
+  assert( b1 && checkBound( b1 ) && b2 && checkBound( b2 ) && 
+          "Invalid arguments!" );
 
   tdma_offset_bounds result;
   result.lower_bound = MIN( b1->lower_bound, b2->lower_bound );
@@ -61,6 +77,30 @@ static tdma_offset_bounds mergeOffsetBounds( const tdma_offset_bounds *b1, const
   return result;
 }
 
+
+/* Returns
+ * - a negative number: if lhs is no subset of rhs, nor are they equal
+ * - 0                : if lhs == rhs
+ * - apositive number : if lhs is a subset of rhs */
+static int isSubsetOrEqual( const tdma_offset_bounds *lhs, const tdma_offset_bounds *rhs )
+{
+  assert( lhs && checkBound( lhs ) && rhs && checkBound( rhs ) && 
+          "Invalid arguments!" );
+
+  // Check equality
+  if ( lhs->lower_bound == rhs->lower_bound &&
+       lhs->upper_bound == rhs->upper_bound ) {
+    return 0;
+  } else {
+    // Check for subset
+    if ( lhs->lower_bound >= rhs->lower_bound &&
+         lhs->upper_bound <= rhs->upper_bound ) {
+      return 1;
+    } else {
+      return -1;
+    }
+  }
+}
 
 /* Returns the offset bounds for basic block 'bb' from procedure 'proc' where the
  * offset bound results for its predecessors have already been computed and are
@@ -87,7 +127,7 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
 /* Returns the offset bounds for a given (absolute) time range. */
 static tdma_offset_bounds getOffsetBounds( ull minTime, ull maxTime )
 {
-  assert( minTime < maxTime && "Invalid arguments" );
+  assert( minTime <= maxTime && "Invalid arguments" );
 
   // Get schedule data
   const core_sched_p core_schedule = getCoreSchedule( ncore, minTime );
@@ -105,31 +145,32 @@ static tdma_offset_bounds getOffsetBounds( ull minTime, ull maxTime )
    * a) Between the two time values lies a full TDMA iteration
    *    --> all offsets are possible */
   const uint factorDifference = maxTime_factor - minTime_factor;
+  tdma_offset_bounds result;
   if ( factorDifference > 1 ) {
-    tdma_offset_bounds result;
     result.lower_bound = 0;
     result.upper_bound = interval - 1;
-    return result;
   /* b) The interval [minTime, maxTime] crosses exactly one TDMA interval boundary
    *    --> Not all offsets may be possible (depending on the remainders) but
    *        offset 0 and offset interval-1 are definitely possible and thus our
    *        offset representation does not allow a tighter bound than [0, interval-1] */
   } else if ( factorDifference == 1 ) {
-    tdma_offset_bounds result;
     result.lower_bound = 0;
     result.upper_bound = interval - 1;
-    return result;
   /* c) The interval [minTime, maxTime] lies inside a single TDMA interval
    *    --> Use the remainders as the offset bounds */
   } else {
     assert( minTime_factor == maxTime_factor &&
             minTime_remainder <= maxTime_remainder &&
             "Invalid internal state!" );
-    tdma_offset_bounds result;
     result.lower_bound = minTime_remainder;
     result.upper_bound = maxTime_remainder;
-    return result;
   }
+
+  assert( result.lower_bound >= 0 && result.lower_bound < interval &&
+          result.upper_bound >= 0 && result.upper_bound < interval &&
+          checkBound( &result ) &&
+          "Invalid offset result!" );
+  return result;
 }
 
 
@@ -153,6 +194,9 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
     block ** topologically_sorted_blocks, const combined_result * block_results,
     const procedure *dag_proc )
 {
+  assert( topologically_sorted_blocks && block_results && dag_proc &&
+          "Invalid arguments!" );
+
   // Allocate space for the propagation values
   ull *block_bcet_propagation_values = (ull*)CALLOC( block_bcet_propagation_values,
       number_of_blocks, sizeof( ull ), "block_bcet_propagation_values" );
@@ -235,6 +279,9 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
 static combined_result analyze_block( block* bb, procedure* proc,
     loop* cur_lp, uint loop_context, const tdma_offset_bounds start_offsets )
 {
+  assert( bb && proc && cur_lp && checkBound( &start_offsets ) &&
+          "Invalid arguments!" );
+
   /* Check whether the block is some header of a loop structure.
    * In that case do separate analysis of the loop */
   /* Exception is when we are currently in the process of analyzing
@@ -263,8 +310,8 @@ static combined_result analyze_block( block* bb, procedure* proc,
       uint min_latency = UINT_MAX;
       uint max_latency = 0;
       int j;
-      for ( j = result.offsets.lower_bound + result.bcet;
-            j < result.offsets.upper_bound + result.wcet;
+      for ( j =  result.offsets.lower_bound;
+            j <= result.offsets.upper_bound;
             j++ ) {
         const uint latency = determine_latency( bb, j, acc_t );
         min_latency = MIN( min_latency, latency );
@@ -307,6 +354,9 @@ static combined_result analyze_block( block* bb, procedure* proc,
 static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc, uint loop_context,
     const tdma_offset_bounds start_offsets )
 {
+  assert( lp && proc && checkBound( &start_offsets ) &&
+          "Invalid arguments!" );
+
   /* Get an array for the result values per basic block. */
   combined_result * const block_results = (combined_result *)CALLOC(
       block_results, proc->num_topo, sizeof( combined_result ), "block_result" );
@@ -337,22 +387,101 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
   return result;
 }
 
-/* Computes the BCET, WCET and offset bounds for the given loop when starting from the given offset range. */
+
+/* Computes the BCET, WCET and offset bounds for the given loop when starting from 
+ * the given offset range.
+ *
+ * This function iteratively computes an offset bound for the loop header until
+ * the offset bound converges. This is less precise than the graph-based method
+ * which tracks the development of the offset bounds. */
+static combined_result analyze_loop_global_convergence( loop* lp, procedure* proc, 
+    uint loop_context, const tdma_offset_bounds start_offsets )
+{
+  assert( lp && proc && checkBound( &start_offsets ) &&
+          "Invalid arguments!" );
+
+  // This will store the offsets during convergence
+  tdma_offset_bounds current_offsets = start_offsets;
+  // Specifies whether this is the first iteration of the loop
+  _Bool is_first_iteration = 1;
+  // Holds the result from the last iteration analysis
+  combined_result last_result;
+
+  PRINT_PRINTF( "Loop %d.%d starts analysis with offsets [%u,%u]",
+      lp->pid, lp->lpid, start_offsets.lower_bound, start_offsets.upper_bound );
+
+  // Perform single-iteration-analyses until the offset bound converges
+  do {
+    const uint inner_context = getInnerLoopContext( lp, loop_context, is_first_iteration );
+    last_result = analyze_single_loop_iteration( lp, proc, inner_context, current_offsets );
+
+    if ( is_first_iteration ) {
+      // We always need at least two iterations
+      is_first_iteration = 0;
+    } else {
+      // After the second iteration, terminate, if the offset bound stabilizes
+      if ( isSubsetOrEqual( &last_result.offsets, &current_offsets ) < 0 ) {
+        current_offsets = mergeOffsetBounds( &current_offsets, &last_result.offsets );
+
+        PRINT_PRINTF( "Loop %d.%d has new offset bound [%u,%u]",
+            lp->pid, lp->lpid, current_offsets.lower_bound, current_offsets.upper_bound );
+      } else {
+        break;
+      }
+    }
+  } while( 1 );
+
+  return last_result;
+}
+
+
+/* Computes the BCET, WCET and offset bounds for the given loop when starting from 
+ * the given offset range.
+ *
+ * This function builds a graph which models the possible development of the
+ * loop header offset bounds and computes the final WCET by solving a maximum
+ * cost flow problem on that graph. */
+static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc, 
+    uint loop_context, const tdma_offset_bounds start_offsets )
+{
+  assert( lp && proc && checkBound( &start_offsets ) &&
+          "Invalid arguments!" );
+
+  combined_result result;
+  return result;
+}
+
+
+/* Computes the BCET, WCET and offset bounds for the given loop when starting from 
+ * the given offset range.
+ * 
+ * This method just delegates the work to the currently active submethod. */
 static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_context,
     const tdma_offset_bounds start_offsets )
 {
-  combined_result result_first = analyze_single_loop_iteration( lp, proc, getInnerLoopContext( lp, loop_context, 1 ), start_offsets );
-  combined_result result_second = analyze_single_loop_iteration( lp, proc, getInnerLoopContext( lp, loop_context, 0 ), result_first.offsets );
-  // ...
+  assert( lp && proc && checkBound( &start_offsets ) &&
+          "Invalid arguments!" );
 
-  // TODO: Implement techniques from draft here
-  return result_second;
+  switch( currentLoopAnalysisType ) {
+    case LOOP_ANALYSIS_GLOBAL_CONVERGENCE:
+      return analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
+    case LOOP_ANALYSIS_GRAPH_TRACKING:
+      return analyze_loop_graph_tracking( lp, proc, loop_context, start_offsets );
+    default:
+      assert( 0 && "Unsupported analysis method!" );
+      // To make compiler happy
+      combined_result result;
+      return result;
+  }
 }
 
 
 /* Computes the BCET, WCET and offset bounds for the given procedure when starting from the given offset range. */
 static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds start_offsets )
 {
+  assert( proc && checkBound( &start_offsets ) &&
+          "Invalid arguments!" );
+
   /* Preprocessing: Build CHMC classifications for the procedure if needed*/
   /* TODO: This still preprocesses fro WCET __OR__ BCET but we need a flexible
    * solution that can switch between the two during the analysis */
@@ -396,10 +525,16 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
 
 /* Analyze worst case execution time of all the tasks inside
  * a MSC. The MSC is given by the argument */
-void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file )
+void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
+   enum LoopAnalysisType analysisTypeToUse )
 {
+  assert( msc && tdma_bus_schedule_file && "Invalid arguments!" );
+
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
+
+  /* Set the loop analysis to use. */
+  currentLoopAnalysisType = analysisTypeToUse;
 
   /* Reset the earliest/latest time of all cores */
   memset( earliest_core_time, 0, num_core * sizeof(ull) );
