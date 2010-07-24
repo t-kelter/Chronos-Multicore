@@ -311,16 +311,20 @@ static combined_result analyze_block( block* bb, procedure* proc,
       assert(inst);
 
       /* First handle instruction cache access. */
-      const acc_type acc_t = check_hit_miss( bb, inst, loop_context );
+      const acc_type best_acc  = check_hit_miss( bb, inst, loop_context, 
+                                                 ACCESS_SCENARIO_BCET );
+      const acc_type worst_acc = check_hit_miss( bb, inst, loop_context, 
+                                                 ACCESS_SCENARIO_WCET );
       uint min_latency = UINT_MAX;
       uint max_latency = 0;
       int j;
       for ( j =  result.offsets.lower_bound;
             j <= result.offsets.upper_bound;
             j++ ) {
-        const uint latency = determine_latency( bb, j, acc_t );
-        min_latency = MIN( min_latency, latency );
-        max_latency = MAX( max_latency, latency );
+        const uint best_latency  = determine_latency( bb, j, best_acc );
+        const uint worst_latency = determine_latency( bb, j, worst_acc );
+        min_latency = MIN( min_latency, best_latency );
+        max_latency = MAX( max_latency, worst_latency );
       }
       result.bcet += min_latency;
       result.wcet += max_latency;
@@ -491,12 +495,6 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
 {
   assert( proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
-
-  /* Preprocessing: Build CHMC classifications for the procedure if needed*/
-  /* TODO: This still preprocesses fro WCET __OR__ BCET but we need a flexible
-   * solution that can switch between the two during the analysis */
-  preprocess_chmc_WCET( proc );
-  preprocess_chmc_L2_WCET( proc );
 
   /* Get an array for the result values per basic block. */
   combined_result * const block_results = (combined_result *)CALLOC(

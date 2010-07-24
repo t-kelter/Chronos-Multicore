@@ -16,6 +16,13 @@
 // ######### Datatype declarations  ###########
 
 
+/* The different scenarios for which a memory access classification 
+ * can be made. */
+enum AccessScenario {
+  ACCESS_SCENARIO_BCET,
+  ACCESS_SCENARIO_WCET
+};
+
 
 // ######### Function declarations  ###########
 
@@ -49,8 +56,12 @@ void preprocess_chmc_L2_WCET( procedure* proc );
 /* Return the type of the instruction access MISS/L1_HIT/L2_HIT.
  * This is computed from the shared cache analysis. The context
  * is given as a context index, see header.h:num_chmc for further
- * details. */
-acc_type check_hit_miss(block* bb, instr* inst,uint context);
+ * details.
+ *
+ * 'scenario' determines for which scenario (BCET/WCET) the access
+ * type shall be determined. */
+acc_type check_hit_miss(const block *bb, const instr *inst, 
+                        uint context, enum AccessScenario scenario);
 
 /* #### Structural analysis helper functions #### */
 

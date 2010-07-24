@@ -8,6 +8,7 @@
 #define __CHRONOS_DUMP_H
 
 #include "header.h"
+#include "analysisDAG_common.h"
 #include "infeasible.h"
 
 // ######### Macros #########
@@ -64,6 +65,6 @@ void dumpCacheState_L2(cache_state *cs);
 void dump_prog_info(procedure* proc);
 
 /* This is for debugging. Dumped chmc info after preprocessing */
-void dump_pre_proc_chmc(procedure* proc);
+void dump_pre_proc_chmc(procedure* proc, enum AccessScenario scenario);
 
 #endif

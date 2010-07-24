@@ -178,7 +178,6 @@ typedef unsigned long long ull;
 
 
 struct procs;
-enum acc_tag;
 
 typedef struct { 
   char addr[OP_LEN];
@@ -186,8 +185,6 @@ typedef struct {
   char r1[OP_LEN];
   char r2[OP_LEN];
   char r3[OP_LEN];
-  enum acc_tag* acc_t;
-  enum acc_tag* acc_t_l2;
 } instr;
 
 

@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "analysisDAG_common.h"
+#include "block.h"
 #include "busSchedule.h"
 #include "handler.h"
 
@@ -37,144 +38,6 @@ uint getInnerLoopContext( const loop *lp, uint surroundingLoopContext, _Bool fir
 }
 
 
-/* Attach best-case hit/miss classification for L2 cache to the instruction */
-static void classify_inst_L2_BCET( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int inst_id )
-{
-  if ( !n_chmc_l2 )
-    return;
-
-  CALLOC_IF_NULL( inst->acc_t_l2, acc_type*, n_chmc_l2 * sizeof(acc_type), "inst->acc_t_l2" );
-
-  int i;
-  for ( i = 0; i < n_chmc_l2; i++ ) {
-    assert(chmc_l2[i] && "Internal error");
-    inst->acc_t_l2[i] = ( ( !chmc_l2[i]->hitmiss_addr ||
-                            chmc_l2[i]->hitmiss_addr[inst_id] != ALWAYS_MISS ) &&
-                          inst->acc_t[i] != L1_HIT )
-                        ? L2_HIT
-                        : L2_MISS;
-  }
-}
-
-/* Attach best-case hit/miss classification to the instruction */
-static void classify_inst_BCET( instr* inst, CHMC** chmc, int n_chmc, int inst_id )
-{
-  if ( !n_chmc )
-    return;
-
-  CALLOC_IF_NULL( inst->acc_t, acc_type*, n_chmc * sizeof(acc_type), "inst->acc_t" );
-
-  int i;
-  for ( i = 0; i < n_chmc; i++ ) {
-    assert(chmc[i] && "Internal error");
-    inst->acc_t[i] = ( ( !chmc[i]->hitmiss_addr ||
-                         chmc[i]->hitmiss_addr[inst_id] != ALWAYS_MISS ) )
-                        ? L1_HIT
-                        : L2_MISS;
-  }
-}
-
-/* Attach best-case chmc classification for L2 cache to the instruction
- * data structure */
-void preprocess_chmc_L2_BCET( procedure* proc )
-{
-  int i;
-  for ( i = 0; i < proc->num_bb; i++ ) {
-    block* bb = proc->bblist[i];
-
-    int j;
-    for ( j = 0; j < bb->num_instr; j++ ) {
-      instr* inst = bb->instrlist[j];
-      classify_inst_L2_BCET( inst, bb->chmc_L2, bb->num_chmc_L2, j );
-    }
-  }
-}
-
-/* Attach best-case chmc classification to the instruction data structure */
-void preprocess_chmc_BCET( procedure* proc )
-{
-  int i;
-  for ( i = 0; i < proc->num_bb; i++ ) {
-    block* bb = proc->bblist[i];
-
-    int j;
-    for ( j = 0; j < bb->num_instr; j++ ) {
-      instr* inst = bb->instrlist[j];
-      classify_inst_BCET( inst, bb->chmc, bb->num_chmc, j );
-    }
-  }
-}
-
-
-/* Attach worst-case hit/miss classification for L2 cache to the instruction */
-static void classify_inst_L2_WCET( instr* inst, CHMC** chmc_l2, int n_chmc_l2, int inst_id )
-{
-  if ( !n_chmc_l2 )
-    return;
-
-  CALLOC_IF_NULL( inst->acc_t_l2, acc_type*, n_chmc_l2 * sizeof(acc_type), "inst->acc_t_l2" );
-
-  int i;
-  for ( i = 0; i < n_chmc_l2; i++ ) {
-    assert(chmc_l2[i] && "Internal error");
-    inst->acc_t_l2[i] = ( chmc_l2[i]->hitmiss_addr &&
-                          chmc_l2[i]->hitmiss_addr[inst_id] == ALWAYS_HIT &&
-                          inst->acc_t[i] != L1_HIT )
-                        ? L2_HIT
-                        : L2_MISS;
-  }
-}
-
-/* Attach worst-case hit/miss classification to the instruction */
-static void classify_inst_WCET( instr* inst, CHMC** chmc, int n_chmc, int inst_id )
-{
-  if ( !n_chmc )
-    return;
-
-  CALLOC_IF_NULL( inst->acc_t, acc_type*, n_chmc * sizeof(acc_type), "inst->acc_t" );
-
-  int i;
-  for ( i = 0; i < n_chmc; i++ ) {
-    assert(chmc[i] && "Internal error");
-    inst->acc_t[i] = ( chmc[i]->hitmiss_addr &&
-                       chmc[i]->hitmiss_addr[inst_id] == ALWAYS_HIT )
-                        ? L1_HIT
-                        : L2_MISS;
-  }
-}
-
-/* Attach worst-case chmc classification for L2 cache to the instruction
- * data structure */
-void preprocess_chmc_L2_WCET( procedure* proc )
-{
-  int i;
-  for ( i = 0; i < proc->num_bb; i++ ) {
-    block* bb = proc->bblist[i];
-
-    int j;
-    for ( j = 0; j < bb->num_instr; j++ ) {
-      instr* inst = bb->instrlist[j];
-      classify_inst_L2_WCET( inst, bb->chmc_L2, bb->num_chmc_L2, j );
-    }
-  }
-}
-
-/* Attach worst-case chmc classification to the instruction data structure */
-void preprocess_chmc_WCET( procedure* proc )
-{
-  int i;
-  for ( i = 0; i < proc->num_bb; i++ ) {
-    block *bb = proc->bblist[i];
-
-    int j;
-    for ( j = 0; j < bb->num_instr; j++ ) {
-      instr* inst = bb->instrlist[j];
-      classify_inst_WCET( inst, bb->chmc, bb->num_chmc, j );
-    }
-  }
-}
-
-
 /* This sets the latest starting time of a block during WCET calculation.
  * (Not context-aware) */
 void set_start_time_WCET( block* bb, procedure* proc )
@@ -199,6 +62,7 @@ void set_start_time_WCET( block* bb, procedure* proc )
 
   DEBUG_PRINTF( "Setting max start of bb %d = %Lu\n", bb->bbid, max_start );
 }
+
 
 /* This sets the earliest starting time of a block during BCET calculation
  * (Not context-aware) */
@@ -261,6 +125,7 @@ void update_succ_task_earliest_start_time( MSC* msc, task_t* task )
   }
 }
 
+
 /* Returns the latest starting of a task in the MSC */
 /* Latest starting time of a task is computed as the maximum
  * of the latest finish times of all its predecessor tasks
@@ -303,6 +168,7 @@ void update_succ_task_latest_start_time( MSC* msc, task_t* task )
   }
 }
 
+
 /* Returns the latest starting of a task in the MSC */
 ull get_latest_task_start_time( task_t* cur_task, uint core )
 {
@@ -322,6 +188,7 @@ ull get_latest_task_start_time( task_t* cur_task, uint core )
   return start;
 }
 
+
 /* Returns the BCET of a single instruction. */
 ull getInstructionBCET( const instr *instruction )
 {
@@ -331,6 +198,7 @@ ull getInstructionBCET( const instr *instruction )
   return 1;
 }
 
+
 /* Returns the WCET of a single instruction. */
 ull getInstructionWCET( const instr *instruction )
 {
@@ -339,6 +207,7 @@ ull getInstructionWCET( const instr *instruction )
    * interested in the shared bus analyis. */
   return 1;
 }
+
 
 /* Determine latency of a memory access in the presence of a shared bus
  *
@@ -413,6 +282,7 @@ uint determine_latency( block* bb, ull access_time, acc_type type )
   }
 }
 
+
 /* Return the procedure pointer in the task data structure */
 static procedure* get_task_callee(uint startaddr)
 {
@@ -485,6 +355,7 @@ uint get_hex(char* hex_string)
    return value;
 }
 
+
 /* Returns the callee procedure for a procedure call instruction */
 procedure* getCallee(instr* inst, procedure* proc)
 {
@@ -556,33 +427,70 @@ void reset_timestamps(procedure* proc, ull start_time)
 }
 
 
-/* Return the type of the instruction access MISS/L1_HIT/L2_HIT.
+/* Return the type of the instruction access L1_HIT/L2_HIT/L2_MISS
  * This is computed from the shared cache analysis. The context
  * is given as a context index, see header.h:num_chmc for further
- * details. */
-acc_type check_hit_miss(block* bb, instr* inst,uint context)
+ * details.
+ *
+ * 'scenario' determines for which scenario (BCET/WCET) the access
+ * type shall be determined. */
+acc_type check_hit_miss( const block *bb, const instr *inst, 
+                         uint context, enum AccessScenario scenario )
 {
+  assert( bb && inst && 
+          context < bb->num_chmc &&
+          context < bb->num_chmc_L2 &&
+          "Invalid arguments!" );
+
   /* If the flow is under testing mode....dont 
    * bother about CHMC. Just return all miss */
   if(g_testing_mode)
     return L2_MISS;
 
-  /* FIXME: If no chmc return miss */
-  if(!inst->acc_t)    
-    return L2_MISS;
+  // Get the cache analysis results (CHMCs) from the block
+  CHMC ** const chmc_l1 = bb->chmc;
+  CHMC ** const chmc_l2 = bb->chmc_L2;
+  const char *l1_result = chmc_l1[context]->hitmiss_addr;
+  const char *l2_result = chmc_l2[context]->hitmiss_addr;
+  // Get the index of the instruction inside the block
+  const int instr_index = getinstruction( inst, 
+      (const instr**)bb->instrlist, 0, bb->num_instr );
 
-  if(inst->acc_t[context] == L1_HIT)
-    return L1_HIT;
-  
-  if(!inst->acc_t_l2)   
-    return L2_MISS;
-  if(inst->acc_t_l2[context] == L2_HIT)
-  {
-    DEBUG_PRINTF( "Returning L2 HIT\n"); 
-    return L2_HIT;  
-  } 
+  // Compute the result
+  switch( scenario ) {
+    
+    case ACCESS_SCENARIO_BCET:
+    
+      // Check level 1 analysis result
+      if ( !l1_result || l1_result[instr_index] != ALWAYS_MISS ) {
+        return L1_HIT;
+      } else 
+      // Check level 2 analysis result
+      if ( !l2_result || l2_result[instr_index] != ALWAYS_MISS ) {
+        return L2_HIT;
+      }
 
-  return L2_MISS;   
+      break;
+
+    case ACCESS_SCENARIO_WCET:
+   
+      // Check level 1 analysis result
+      if ( !l1_result || l1_result[instr_index] == ALWAYS_HIT ) {
+        return L1_HIT;
+      } else 
+      // Check level 2 analysis result
+      if ( !l2_result || l2_result[instr_index] == ALWAYS_HIT ) {
+        return L2_HIT;
+      }
+
+      break;
+
+    default:
+      assert( 0 && "Unknown access scenario!" );
+  }
+
+  // If no better assumption can be made, assume a L2 miss
+  return L2_MISS;
 }
 
 
@@ -617,6 +525,7 @@ void reset_all_task(MSC* msc)
     msc->taskList[k].latest_start_time = 0;
   }
 }
+
 
 /* Given a task this function returns the core number in which 
  * the task is assigned to. Assignment to cores to individual 

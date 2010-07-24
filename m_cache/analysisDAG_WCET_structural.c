@@ -202,7 +202,8 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
           assert(inst);
 
           /* First handle instruction cache access time */
-          const acc_type acc_t = check_hit_miss( bb, inst, j );
+          const acc_type acc_t = check_hit_miss( bb, inst, j,
+                                                 ACCESS_SCENARIO_WCET );
           bb_cost += determine_latency( bb, bb->start_opt[j] + bb_cost, acc_t );
 
           /* Then add cost for executing the instruction. */
@@ -234,7 +235,7 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
   int j;
   for ( j = 0; j < lp->loophead->num_chmc; j++ ) {
     lp->wcet_opt[j] = ( max_fin[j] - 1 );
-    PRINT_PRINTF( "WCET of loop (%d.%d.0x%lx)[%d] = %Lu\n", lp->pid, lp->lpid, (uintptr_t) lp, j, lp->wcet_opt[j] );
+    PRINT_PRINTF( "WCET of loop (%d.%d.0x%x)[%d] = %Lu\n", lp->pid, lp->lpid, (uintptr_t) lp, j, lp->wcet_opt[j] );
   }
 }
 
@@ -279,7 +280,8 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
       assert(inst);
 
       /* First handle instruction cache access. */
-      const acc_type acc_t = check_hit_miss( bb, inst, proc_body_context );
+      const acc_type acc_t = check_hit_miss( bb, inst, proc_body_context,
+                                             ACCESS_SCENARIO_WCET );
       bb_cost += determine_latency( bb, bb->start_time + bb_cost, acc_t );
 
       /* Then add cost for executing the instruction. */
@@ -307,14 +309,6 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
 
 static void computeWCET_proc( procedure* proc, ull start_time )
 {
-  /* Preprocess CHMC classification for each instruction inside
-   * the procedure */
-  preprocess_chmc_WCET( proc );
-
-  /* Preprocess CHMC classification for L2 cache for each 
-   * instruction inside the procedure */
-  preprocess_chmc_L2_WCET( proc );
-
   /* Preprocess all the loops for optimized WCET calculation */
   /********CAUTION*******/
   preprocess_all_loops( proc );
@@ -323,7 +317,8 @@ static void computeWCET_proc( procedure* proc, ull start_time )
   reset_timestamps( proc, start_time );
 
 #ifdef _DEBUG
-  dump_pre_proc_chmc(proc);
+  dump_pre_proc_chmc(proc, ACCESS_SCENARIO_BCET);
+  dump_pre_proc_chmc(proc, ACCESS_SCENARIO_WCET);
 #endif
 
   /* Recursively compute the finish time and WCET of each 

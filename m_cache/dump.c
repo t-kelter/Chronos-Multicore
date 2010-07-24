@@ -648,26 +648,29 @@ void dump_prog_info(procedure* proc)
 }
 
 /* This is for debugging. Dumped chmc info after preprocessing */
-void dump_pre_proc_chmc(procedure* proc)
+void dump_pre_proc_chmc(procedure* proc, enum AccessScenario scenario )
 {
-  int i,j,k;
-  block* bb;
-  instr* inst;
+  fprintf( stdout, "%s-case CHMC info: \n\n", 
+      scenario == ACCESS_SCENARIO_BCET ? "Best" : "Worst" );
 
-  for(i = 0; i < proc->num_bb; i++)
-  {
-    bb = proc->bblist[i];
+  int i;
+  for(i = 0; i < proc->num_bb; i++) {
+    const block * const bb = proc->bblist[i];
 
-    for(j = 0; j < bb->num_instr; j++)
-    {
-      inst = bb->instrlist[j];
-      fprintf(stdout, "Instruction address = %s ==>\n", inst->addr);
-      for(k = 0; k < bb->num_chmc; k++)
-      {
-        if(inst->acc_t[k] == L1_HIT)
-        fprintf(stdout, "L1_HIT\n");
-        else
-        fprintf(stdout, "L2_MISS\n");
+    int j;
+    for(j = 0; j < bb->num_instr; j++) {
+      instr * const inst = bb->instrlist[j];
+      fprintf( stdout, "Instruction address = %s ==>\n", inst->addr );
+
+      int k;
+      for(k = 0; k < bb->num_chmc; k++) {
+        const acc_type acc = check_hit_miss( bb, inst, k, scenario );
+        if( acc == L1_HIT )
+          fprintf( stdout, "L1_HIT\n" );
+        else if( acc == L2_HIT )
+          fprintf( stdout, "L2_HIT\n");
+        else 
+          fprintf( stdout, "L2_MISS\n");
       }
     }
   }

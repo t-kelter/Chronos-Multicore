@@ -98,7 +98,8 @@ static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp, uint co
       assert(inst);
 
       /* First handle instruction cache access time */
-      const acc_type acc_t = check_hit_miss( bb, inst, context );
+      const acc_type acc_t = check_hit_miss( bb, inst, context, 
+                                             ACCESS_SCENARIO_BCET );
       bb_cost += determine_latency( bb, bb->start_time + bb_cost, acc_t );
 
       /* Then add cost for executing the instruction. */
@@ -127,19 +128,12 @@ static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp, uint co
 
 static void computeBCET_proc( procedure* proc, ull start_time )
 {
-  /* Preprocess CHMC classification for each instruction inside
-   * the procedure */
-  preprocess_chmc_BCET( proc );
-
-  /* Preprocess CHMC classification for L2 cache for each 
-   * instruction inside the procedure */
-  preprocess_chmc_L2_BCET( proc );
-
   /* Reset all timing information */
   reset_timestamps( proc, start_time );
 
 #ifdef _DEBUG
-  dump_pre_proc_chmc(proc);
+  dump_pre_proc_chmc(proc, ACCESS_SCENARIO_BCET);
+  dump_pre_proc_chmc(proc, ACCESS_SCENARIO_WCET);
 #endif
 
   /* Recursively compute the finish time and BCET of each
