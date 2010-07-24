@@ -454,7 +454,7 @@ acc_type check_hit_miss( const block *bb, const instr *inst,
   const char *l2_result = chmc_l2[context]->hitmiss_addr;
   // Get the index of the instruction inside the block
   const int instr_index = getinstruction( inst, 
-      (const instr**)bb->instrlist, 0, bb->num_instr );
+      (const instr**)bb->instrlist, 0, bb->num_instr - 1 );
 
   // Compute the result
   switch( scenario ) {

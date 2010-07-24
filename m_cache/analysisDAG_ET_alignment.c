@@ -106,20 +106,37 @@ static int isSubsetOrEqual( const tdma_offset_bounds *lhs, const tdma_offset_bou
 
 /* Returns the offset bounds for basic block 'bb' from procedure 'proc' where the
  * offset bound results for its predecessors have already been computed and are
- * stored in 'block_results'. */
+ * stored in 'dag_block_results'.
+ *
+ * 'dag_block_list' should be the list which contains the blocks of the currently
+ * analyzed DAG in the same order in which the results are stored in 'block_results'.
+ * This list is used to identify the index in the result array that belongs to
+ * a certain block. 
+ * 'dag_block_number' should be the number of blocks in 'dag_block_list'. */
 static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * proc,
-                                           const combined_result *block_results )
+                                           block ** dag_block_list,
+                                           uint dag_block_number,
+                                           const combined_result *dag_block_results )
 {
-  assert( bb && proc && block_results && "Invalid arguments!" );
+  assert( bb && proc && dag_block_results && dag_block_list && "Invalid arguments!" );
   tdma_offset_bounds result = { 0, 0 };
 
   int i;
   for ( i = 0; i < bb->num_incoming; i++ ) {
 
     const int pred_index = bb->incoming[i];
-    assert( proc->bblist[pred_index] && "Missing basic block!" );
+    const block * const pred = proc->bblist[pred_index];
+    assert( pred && "Missing basic block!" );
 
-    result = mergeOffsetBounds( &result, &block_results[pred_index].offsets );
+    /* The pred_index is an index into the bblist of the procedure.
+     * What we need is an index into the topologically_sorted_blocks.
+     * Therefore we must convert that index into an index into the
+     * topologically sorted list. For that purpose we use the block
+     * id which identifies the block inside the function. */
+    const int conv_pred_idx = getblock( pred->bbid, dag_block_list,
+                                        0, dag_block_number - 1 );
+
+    result = mergeOffsetBounds( &result, &dag_block_results[conv_pred_idx].offsets );
   }
 
   assert( checkBound( &result ) && "Invalid result!" );
@@ -231,7 +248,7 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
          * topologically sorted list. For that purpose we use the block
          * id which identifies the block inside the function. */
         const int conv_pred_idx = getblock( pred->bbid, topologically_sorted_blocks,
-                                            0, number_of_blocks );
+                                            0, number_of_blocks - 1 );
 
         const ull bcet_via_pred = block_bcet_propagation_values[conv_pred_idx] +
                                   block_results[conv_pred_idx].bcet;
@@ -369,7 +386,7 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
 
   /* Get an array for the result values per basic block. */
   combined_result * const block_results = (combined_result *)CALLOC(
-      block_results, proc->num_topo, sizeof( combined_result ), "block_result" );
+      block_results, lp->num_topo, sizeof( combined_result ), "block_result" );
 
   /* Iterate over the basic blocks in topological order */
   int i;
@@ -389,7 +406,7 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
   /* Now all BCETS, WCETs and offset bounds for individual blocks are finished */
 
   /* Compute final procedure BCET and WCET by propagating the values through the DAG. */
-  combined_result result = summarizeDAGResults( proc->num_topo, proc->topo,
+  combined_result result = summarizeDAGResults( lp->num_topo, lp->topo,
                                                 block_results, proc );
 
   free( block_results );
