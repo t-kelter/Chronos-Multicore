@@ -89,7 +89,8 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
 
     case ANALYSIS_ALIGNMENT:
       // Computes BCET and WCET together
-      compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file);
+      compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file, 
+          LOOP_ANALYSIS_GLOBAL_CONVERGENCE);
       break;
 
     default:
@@ -123,12 +124,12 @@ int main(int argc, char **argv )
   /* Compute with shared bus */
   g_shared_bus = 1;
   /* For independent tasks running on multiple cores */
-  g_independent_task = 0;
+  g_independent_task = 1;
   /* For no bus modelling */
   g_no_bus_modeling = 0;
 
   /* Set the analysis method to use. */
-  const enum AnalysisMethod current_analysis_method = ANALYSIS_STRUCTURAL;
+  const enum AnalysisMethod current_analysis_method = ANALYSIS_ALIGNMENT;
 
   /* also read conflict info and tasks info */
   interferePathName = argv[1];

@@ -74,6 +74,8 @@ static tdma_offset_bounds mergeOffsetBounds( const tdma_offset_bounds *b1, const
   tdma_offset_bounds result;
   result.lower_bound = MIN( b1->lower_bound, b2->lower_bound );
   result.upper_bound = MAX( b1->upper_bound, b2->upper_bound );
+  
+  assert( checkBound( &result ) && "Invalid result!" );
   return result;
 }
 
@@ -120,6 +122,7 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
     result = mergeOffsetBounds( &result, &block_results[pred_index].offsets );
   }
 
+  assert( checkBound( &result ) && "Invalid result!" );
   return result;
 }
 
@@ -271,6 +274,7 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
   free( block_bcet_propagation_values );
   free( block_wcet_propagation_values );
 
+  assert( checkBound( &result.offsets ) && "Invalid result!" );
   return result;
 }
 
@@ -279,7 +283,7 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
 static combined_result analyze_block( block* bb, procedure* proc,
     loop* cur_lp, uint loop_context, const tdma_offset_bounds start_offsets )
 {
-  assert( bb && proc && cur_lp && checkBound( &start_offsets ) &&
+  assert( bb && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
 
   /* Check whether the block is some header of a loop structure.
@@ -298,6 +302,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
     combined_result result;
     result.bcet = 0;
     result.wcet = 0;
+    result.offsets = start_offsets;
 
     int i;
     for ( i = 0; i < bb->num_instr; i++ ) {
@@ -345,6 +350,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
       }
     }
 
+    assert( checkBound( &result.offsets ) && "Invalid result!" );
     return result;
   }
 }
@@ -384,6 +390,7 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
 
   free( block_results );
 
+  assert( checkBound( &result.offsets ) && "Invalid result!" );
   return result;
 }
 
@@ -407,7 +414,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
   // Holds the result from the last iteration analysis
   combined_result last_result;
 
-  PRINT_PRINTF( "Loop %d.%d starts analysis with offsets [%u,%u]",
+  PRINT_PRINTF( "Loop %d.%d starts analysis with offsets [%u,%u]\n",
       lp->pid, lp->lpid, start_offsets.lower_bound, start_offsets.upper_bound );
 
   // Perform single-iteration-analyses until the offset bound converges
@@ -423,7 +430,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
       if ( isSubsetOrEqual( &last_result.offsets, &current_offsets ) < 0 ) {
         current_offsets = mergeOffsetBounds( &current_offsets, &last_result.offsets );
 
-        PRINT_PRINTF( "Loop %d.%d has new offset bound [%u,%u]",
+        PRINT_PRINTF( "Loop %d.%d has new offset bound [%u,%u]\n",
             lp->pid, lp->lpid, current_offsets.lower_bound, current_offsets.upper_bound );
       } else {
         break;
@@ -431,6 +438,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
     }
   } while( 1 );
 
+  assert( checkBound( &last_result.offsets ) && "Invalid result!" );
   return last_result;
 }
 
@@ -448,6 +456,8 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
           "Invalid arguments!" );
 
   combined_result result;
+
+  assert( checkBound( &result.offsets ) && "Invalid result!" );
   return result;
 }
 
@@ -515,6 +525,7 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
 
   free( block_results );
 
+  assert( checkBound( &result.offsets ) && "Invalid result!" );
   return result;
 }
 
