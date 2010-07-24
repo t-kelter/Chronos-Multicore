@@ -41,7 +41,8 @@ int resetAllocation( chart_t *msc ) {
 
   int i, k, pidx;
   overlay_t ox;
-  time_t wcet, bcet;
+  time_t wcet = 0;
+  time_t bcet = 0;
 
   ox.numOwnerTasks = 1;
   ox.ownerTaskList = (int*) MALLOC( ox.ownerTaskList, sizeof(int), "ownerTaskList" );
@@ -195,7 +196,8 @@ char updateAllocation( int peID, chart_t *msc ) {
   changed = 0;
   for( i = 0; i < sc->numAssigned; i++ ) {
 
-    time_t wcet, bcet;
+    time_t wcet = 0;
+    time_t bcet = 0;
     task_t *tc = taskList[sc->assignedList[i]];
 
     //wcet = (int) analysis( tc );

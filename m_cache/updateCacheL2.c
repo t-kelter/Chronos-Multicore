@@ -14,7 +14,7 @@ updateFunctionCall(MSC *msc, int index, procedure* proc);
 
 
 
-/*static int
+static int
 conflictStatistics(MSC *msc, int index, int set_no, int current_addr)
 {
   int i, j, entry, conflict = 0;
@@ -39,7 +39,7 @@ conflictStatistics(MSC *msc, int index, int set_no, int current_addr)
     }
 	free(history);
     return conflict;
-}*/
+}
 
 
 static void
@@ -114,7 +114,7 @@ updateLoop(MSC *msc, int index, procedure *proc, loop *lp)
 								offset = (addr - bb->startaddr) / INSN_SIZE;
                         if(msc->taskList[k].main_copy->hit_cache_set_L2[set_no] == USED)
                         {
-                            //num_conflict = conflictStatistics(msc, index, set_no, addr);
+                            num_conflict = conflictStatistics(msc, index, set_no, addr);
                             //printf("num_conflict = %d\n", num_conflict);
    
                             if(current_chmc->age[j] + num_conflict >= cache_L2.na)
@@ -231,7 +231,7 @@ updateFunctionCall(MSC *msc, int index, procedure* proc)
 								offset = (addr - bb->startaddr) / INSN_SIZE;
                         if(msc->taskList[k].main_copy->hit_cache_set_L2[set_no] == USED)
                         {
-                            //num_conflict = conflictStatistics(msc, index, set_no, addr);
+                            num_conflict = conflictStatistics(msc, index, set_no, addr);
                             //printf("num_conflict = %d\n", num_conflict);
                             
                            if(current_chmc->age[j] + num_conflict >= cache_L2.na)

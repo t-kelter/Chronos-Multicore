@@ -26,7 +26,7 @@ int printBlock( block *bb ) {
   else
     printf( "    " );
 
-  printf("	bb->proc_ptr: %lu\n", (uintptr_t)bb->proc_ptr);
+  printf("	bb->proc_ptr: %u\n", (uintptr_t)bb->proc_ptr);
 
   if( bb->loopid != -1 ) {
     printf( "  L%d", bb->loopid );
@@ -588,12 +588,12 @@ void dump_prog_info(procedure* proc)
   {
     assert(proc->bblist[i]);
     bb = proc->bblist[i];
-    fprintf(fp, "Basic block id = (%d.%d.0x%lx.start=%Lu.finish=%Lu)\n", proc->pid,
+    fprintf(fp, "Basic block id = (%d.%d.0x%x.start=%Lu.finish=%Lu)\n", proc->pid,
         bb->bbid, (uintptr_t)bb, bb->start_time, bb->finish_time);
     fprintf(fp, "Incoming blocks (Total = %d)======> \n", bb->num_incoming);
     for(j = 0; j < bb->num_incoming; j++)
     {
-      fprintf(fp, "(bb=%d.%lx)\n", bb->incoming[j],
+      fprintf(fp, "(bb=%d.%x)\n", bb->incoming[j],
           (uintptr_t)proc->bblist[bb->incoming[j]]);
     }
   }
