@@ -1,3 +1,4 @@
+// Include standard library headers
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
@@ -6,6 +7,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers (some folder)
 #include "analysisDAG_ET_alignment.h"
 #include "analysisDAG_common.h"
 #include "block.h"
@@ -38,6 +46,8 @@ typedef struct {
 // #########################################
 
 
+/* Stores whether the debugmacros have already been initialized for this file. */
+static _Bool firstDebugmacroInit = 1;
 /* The type of analysis that we use for the alignment tracking. */
 static enum LoopAnalysisType currentLoopAnalysisType;
 /* In this mode the alignment analysis "emulates" the purely structural
@@ -316,6 +326,7 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
 static combined_result analyze_block( block* bb, procedure* proc,
     loop* cur_lp, uint loop_context, const tdma_offset_bounds start_offsets )
 {
+  DSTART( "analyze_block" );
   assert( bb && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
 
@@ -326,7 +337,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
   loop * const inlp = check_loop( bb, proc );
   if ( inlp && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
 
-    return analyze_loop( inlp, proc, loop_context, start_offsets );
+    DRETURN( analyze_loop( inlp, proc, loop_context, start_offsets ) );
 
   /* It's not a loop. Go through all the instructions and
    * compute the WCET of the block */
@@ -389,7 +400,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
     }
 
     assert( checkBound( &result.offsets ) && "Invalid result!" );
-    return result;
+    DRETURN( result );
   }
 }
 
@@ -398,6 +409,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
 static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc, uint loop_context,
     tdma_offset_bounds start_offsets )
 {
+  DSTART( "analyze_single_loop_iteration" );
   assert( lp && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
 
@@ -429,7 +441,7 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
   free( block_results );
 
   assert( checkBound( &result.offsets ) && "Invalid result!" );
-  return result;
+  DRETURN( result );
 }
 
 
@@ -444,6 +456,7 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
 static combined_result analyze_loop_global_convergence( loop* lp, procedure* proc, 
     uint loop_context, const tdma_offset_bounds start_offsets )
 {
+  DSTART( "analyze_loop_global_convergence" );
   assert( lp && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
 
@@ -472,10 +485,6 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
     // Compute new offsets if they changed
     if ( isSubsetOrEqual( &last_std_result->offsets, &current_offsets ) < 0 ) {
       current_offsets = mergeOffsetBounds( &current_offsets, &last_std_result->offsets );
-
-      DEBUG_ALIGNMENT_PRINTF( "    Loop {%d.%d} has new offset bound [%u,%u]\n",
-          lp->pid, lp->lpid, current_offsets.lower_bound, current_offsets.upper_bound );
-
     // If they did not change, terminate the analysis
     } else {
       // We always need at least two iterations to fully exploit the cache analysis
@@ -504,8 +513,6 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
     
     const unsigned int bcet = results[current_iteration]->bcet;
     const unsigned int wcet = results[current_iteration]->wcet;
-    DEBUG_ALIGNMENT_PRINTF( "    Accounting BCET %d / WCET %d for iterations [%u,%u]\n",
-      bcet, wcet, current_iteration, current_iteration + multiplier - 1 );
 
     result.bcet += bcet * multiplier;
     result.wcet += wcet * multiplier;
@@ -519,7 +526,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
   free( results );
 
   assert( checkBound( &result.offsets ) && "Invalid result!" );
-  return result;
+  DRETURN( result );
 }
 
 
@@ -534,13 +541,14 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
 static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc, 
     uint loop_context, const tdma_offset_bounds start_offsets )
 {
+  DSTART( "analyze_loop_graph_tracking" );
   assert( lp && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
 
   combined_result result;
 
   assert( checkBound( &result.offsets ) && "Invalid result!" );
-  return result;
+  DRETURN( result );
 }
 
 
@@ -551,10 +559,11 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
 static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_context,
     const tdma_offset_bounds start_offsets )
 {
+  DSTART( "analyze_loop" );
   assert( lp && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
 
-  DEBUG_ALIGNMENT_PRINTF( "    Loop {%d.%d} [lb %d] starts analysis with offsets [%u,%u]\n",
+  DOUT( "Loop {%d.%d} [lb %d] starts analysis with offsets [%u,%u]\n",
       lp->pid, lp->lpid, lp->loopbound, start_offsets.lower_bound, start_offsets.upper_bound );
 
   combined_result result;
@@ -601,12 +610,12 @@ static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_contex
 
     // If the result is better, then take this one
     if ( pal_result.wcet < result.wcet ) {
-      DEBUG_ALIGNMENT_PRINTF( "      took over penalized alignment result!\n" );
+      DOUT( "  Took over penalized alignment result!\n" );
       result = pal_result;
     }
   }
 
-  return result;
+  DRETURN( result );
 }
 
 
@@ -615,11 +624,9 @@ static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_contex
  * This function should not be called directly, only through its wrapper 'analyze_proc'. */
 static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma_offset_bounds start_offsets )
 {
+  DSTART( "analyze_proc_alignment_aware" );
   assert( proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
-
-  DEBUG_ALIGNMENT_PRINTF( "  Analyzing procedure %d with offsets [%u,%u]\n",
-        proc->pid, start_offsets.lower_bound, start_offsets.upper_bound );
 
   /* Get an array for the result values per basic block. */
   combined_result * const block_results = (combined_result *)CALLOC(
@@ -648,12 +655,8 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
 
   free( block_results );
 
-  DEBUG_ALIGNMENT_PRINTF( "  Procedure %d WCET / BCET result is %llu / %llu"
-      " with offsets [%u,%u]\n", proc->pid, result.bcet, result.wcet, 
-      result.offsets.lower_bound, result.offsets.upper_bound );
-
   assert( checkBound( &result.offsets ) && "Invalid result!" );
-  return result;
+  DRETURN( result );
 }
 
 
@@ -662,8 +665,17 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
  * This method is just an intelligent wrapper for the respective sub-methods. */
 static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds start_offsets )
 {
+  DSTART( "analyze_proc" );
+
+  DOUT( "Analyzing procedure %d with offsets [%u,%u]\n",
+        proc->pid, start_offsets.lower_bound, start_offsets.upper_bound );
+
   // Get the result using our alignment-aware procedure analysis
   combined_result result = analyze_proc_alignment_aware( proc, start_offsets );
+
+  DOUT( "Procedure %d WCET / BCET result is %llu / %llu"
+      " with offsets [%u,%u]\n", proc->pid, result.bcet, result.wcet,
+      result.offsets.lower_bound, result.offsets.upper_bound );
 
   /* If we are supposed to try the penalized alignment too, then we also compute the result
    * using the zero-alignment and add the appropriate alignment penalties. If this yields a
@@ -681,12 +693,12 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
     if ( pal_result.wcet < result.wcet ) {
       // TODO: Implement standard output format which always emits pid, lpid, bbid and starts at
       //       the first column
-      DEBUG_ALIGNMENT_PRINTF( "    took over penalized alignment result!\n" );
+      DOUT( "  Took over penalized alignment result!\n" );
       result = pal_result;
     }
   }
 
-  return result;
+  DRETURN( result );
 }
 
 // #########################################
@@ -706,6 +718,8 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
 void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
    enum LoopAnalysisType analysis_type_to_use, _Bool try_penalized_alignment )
 {
+  DINITDEBUGMACROS( firstDebugmacroInit, "analysisDAG_ET_alignment.conf" );
+  DSTART( "compute_bus_ET_MSC_alignment" );
   assert( msc && tdma_bus_schedule_file && "Invalid arguments!" );
 
   /* Set the global TDMA bus schedule */
@@ -725,7 +739,7 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
   int k;
   for ( k = 0; k < msc->num_task; k++ ) {
 
-    PRINT_PRINTF( "Analyzing Task WCET %s (alignment-aware) ......\n", msc->taskList[k].task_name );
+    DOUT( "Analyzing Task WCET %s (alignment-aware) ......\n", msc->taskList[k].task_name );
 
     /* Get needed inputs. */
     cur_task = &( msc->taskList[k] );
@@ -737,7 +751,7 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
     const ull latest_start   = get_latest_task_start_time( cur_task, ncore );
     const tdma_offset_bounds initial_bounds = 
       getOffsetBounds( earliest_start, latest_start );
-    DEBUG_ALIGNMENT_PRINTF( "  Initial offset bounds: [%u,%u]\n",
+    DOUT( "  Initial offset bounds: [%u,%u]\n",
         initial_bounds.lower_bound, initial_bounds.upper_bound );
 
     /* Then compute and set the best and worst case cost of this task */
@@ -758,13 +772,15 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
     update_succ_task_earliest_start_time( msc, cur_task );
     update_succ_task_latest_start_time( msc, cur_task );
 
-    PRINT_PRINTF( "\n**************************************************************\n" );
-    PRINT_PRINTF( "Earliest / Latest start time of the program = %Lu / %Lu cycles\n",
+    DOUT( "\n**************************************************************\n" );
+    DOUT( "Earliest / Latest start time of the program = %Lu / %Lu cycles\n",
         earliest_start, latest_start );
-    PRINT_PRINTF( "Earliest / Latest finish time of the task = %Lu / %Lu cycles\n",
+    DOUT( "Earliest / Latest finish time of the task = %Lu / %Lu cycles\n",
         earliest_start + cur_task->bcet, latest_start + cur_task->wcet );
-    PRINT_PRINTF( "BCET / WCET of the task %s shared bus = %Lu / %Lu cycles\n",
+    DOUT( "BCET / WCET of the task %s shared bus = %Lu / %Lu cycles\n",
         g_shared_bus ? "with" : "without", cur_task->bcet, cur_task->wcet );
-    PRINT_PRINTF( "**************************************************************\n\n" );
+    DOUT( "**************************************************************\n\n" );
   }
+
+  DEND();
 }

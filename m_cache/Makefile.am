@@ -3,7 +3,7 @@ SUBDIRS=wcrt
 noinst_PROGRAMS=opt
 
 # Settings for both programs
-AM_CPPFLAGS=-D_PRINT
+AM_CPPFLAGS=-D_PRINT -I@chronos_path@
 
 # First program to build: The analyzer/optimizer for the user
 opt_SOURCES=analysisCache.c analysisCache.h \
@@ -30,4 +30,14 @@ opt_SOURCES=analysisCache.c analysisCache.h \
 						pathDAG.c pathDAG.h \
 						topo.c topo.h \
 						updateCacheL2.c updateCacheL2.h
-opt_LDADD=wcrt/libwcrt.a
+						
+# This forces Automake to use g++ to link the application.
+nodist_opt_SOURCES = dummy.cpp
+
+# We generate the dummy C++ source file so we don't have  to think about it.
+dummy.cpp:
+	echo 'void dummy();' > $@
+
+CLEANFILES = dummy.cpp
+						
+opt_LDADD=wcrt/libwcrt.a ../debugmacros/libdebugmacros.a

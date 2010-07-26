@@ -62,7 +62,7 @@ getarg()
 # Builds the CFG of the given disassembly
 buildcfg()
 {
-  declare MAIN=@CHRONOS_PATH@/cfg/main
+  declare MAIN=@chronos_path@/cfg/main
 
   # Build the CFG
   arg=`head -1 $1.arg`
@@ -85,10 +85,10 @@ compile()
   declare SYMBOLS=$1.sym
 
   if [ -f "$SOURCE" ]; then
-    @SS_GCC@/sslittle-na-sstrix-gcc -g -o $EXECUTABLE $SOURCE      && \
-    @SS_GCC@/sslittle-na-sstrix-objdump -dlS --disassemble-zeroes     \
+    @ac_cv_simplescalar_gcc@/sslittle-na-sstrix-gcc -g -o $EXECUTABLE $SOURCE      && \
+    @ac_cv_simplescalar_gcc@/sslittle-na-sstrix-objdump -dlS --disassemble-zeroes     \
       --prefix-addresses $EXECUTABLE >& $DISASSEMBLY               && \
-    @SS_GCC@/sslittle-na-sstrix-objdump -t $EXECUTABLE >& $SYMBOLS
+    @ac_cv_simplescalar_gcc@/sslittle-na-sstrix-objdump -t $EXECUTABLE >& $SYMBOLS
     return $?
   else
     return 1;

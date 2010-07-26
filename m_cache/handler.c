@@ -4,6 +4,7 @@
 #include "header.h"
 #include "wcrt/cycle_time.h"
 
+
 /* Improper exit with error message */
 void prerr(char* msg)
 {
@@ -11,6 +12,7 @@ void prerr(char* msg)
   fflush(stderr);
   exit(-1);
 }
+
 
 /*
  * fopen with error check.

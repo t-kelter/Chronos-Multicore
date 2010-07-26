@@ -45,15 +45,15 @@ declare BUS_CONFIG="-bus:tdma_schedule /home/kelter/chronos/multicore/iterative/
 # Call the desired simulator
 case "$SIMULATION_TYPE" in
   $TYPE_SINGLECORE)
-    @SIM_SINGLECORE@/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $EXECUTABLE
+    @ac_cv_sim_singlecore@/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $EXECUTABLE
     ;;
   $TYPE_BUS_AWARE)
-    @SIM_SHAREDBUS@/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $BUS_CONFIG $EXECUTABLE
+    @ac_cv_sim_sharedbus@/sim-outorder $CACHE_CONFIG $BRANCH_CONFIG $ISSUE_CONFIG $MEM_CONFIG $BUS_CONFIG $EXECUTABLE
     ;;
   $TYPE_MULTICORE)
     echo "Not yet implemented!";
     exit 1;
-    @SIM_MULTICORE@/ss_smt ... # TODO: Insert correct call here
+    @ac_cv_sim_multicore@/ss_smt ... # TODO: Insert correct call here
     ;;
   *)
     echo "Internal error: Invalid simulator type!";
