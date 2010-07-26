@@ -413,6 +413,9 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
   assert( lp && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
 
+  DOUT( "Loop iteration analysis starts with offsets [%u,%u]\n",
+      start_offsets.lower_bound, start_offsets.upper_bound );
+
   /* Get an array for the result values per basic block. */
   combined_result * const block_results = (combined_result *)CALLOC(
       block_results, lp->num_topo, sizeof( combined_result ), "block_result" );
@@ -440,6 +443,10 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
 
   free( block_results );
 
+  DOUT( "Loop iteration analysis WCET / BCET result is %llu / %llu"
+      " with offsets [%u,%u]\n", result.bcet, result.wcet,
+      result.offsets.lower_bound, result.offsets.upper_bound );
+
   assert( checkBound( &result.offsets ) && "Invalid result!" );
   DRETURN( result );
 }
@@ -459,6 +466,9 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
   DSTART( "analyze_loop_global_convergence" );
   assert( lp && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
+
+  DOUT( "Loop %d.%d [lb %d] starts analysis with offsets [%u,%u]\n",
+      lp->pid, lp->lpid, lp->loopbound, start_offsets.lower_bound, start_offsets.upper_bound );
 
   // This will store the offsets during convergence
   tdma_offset_bounds current_offsets = start_offsets;
@@ -525,6 +535,10 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
   }
   free( results );
 
+  DOUT( "Loop %d.%d WCET / BCET result is %llu / %llu"
+      " with offsets [%u,%u]\n", lp->pid, lp->lpid, result.bcet, result.wcet,
+      result.offsets.lower_bound, result.offsets.upper_bound );
+
   assert( checkBound( &result.offsets ) && "Invalid result!" );
   DRETURN( result );
 }
@@ -563,9 +577,7 @@ static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_contex
   assert( lp && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
 
-  DOUT( "Loop {%d.%d} [lb %d] starts analysis with offsets [%u,%u]\n",
-      lp->pid, lp->lpid, lp->loopbound, start_offsets.lower_bound, start_offsets.upper_bound );
-
+  DOUT( "Performing alignment-sensitive analysis\n" );
   combined_result result;
   switch( currentLoopAnalysisType ) {
     case LOOP_ANALYSIS_GLOBAL_CONVERGENCE:
@@ -589,6 +601,7 @@ static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_contex
     pal_result.wcet = startAlign( 0 );
 
     // Analyze the first two iterations to exploit the cache information
+    DOUT( "Attempting penaltized alignment analysis\n" );
     const tdma_offset_bounds zero_offsets = { 0, 0 };
     const uint first_context = getInnerLoopContext( lp, loop_context, 1 );
     const combined_result first_iteration_result = analyze_single_loop_iteration( lp, proc,
@@ -610,7 +623,7 @@ static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_contex
 
     // If the result is better, then take this one
     if ( pal_result.wcet < result.wcet ) {
-      DOUT( "  Took over penalized alignment result!\n" );
+      DOUT( "Took over penalized alignment result!\n" );
       result = pal_result;
     }
   }
@@ -627,6 +640,9 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
   DSTART( "analyze_proc_alignment_aware" );
   assert( proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
+
+  DOUT( "Analyzing procedure %d with offsets [%u,%u]\n",
+        proc->pid, start_offsets.lower_bound, start_offsets.upper_bound );
 
   /* Get an array for the result values per basic block. */
   combined_result * const block_results = (combined_result *)CALLOC(
@@ -655,6 +671,10 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
 
   free( block_results );
 
+  DOUT( "Procedure %d WCET / BCET result is %llu / %llu"
+      " with offsets [%u,%u]\n", proc->pid, result.bcet, result.wcet,
+      result.offsets.lower_bound, result.offsets.upper_bound );
+
   assert( checkBound( &result.offsets ) && "Invalid result!" );
   DRETURN( result );
 }
@@ -667,15 +687,9 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
 {
   DSTART( "analyze_proc" );
 
-  DOUT( "Analyzing procedure %d with offsets [%u,%u]\n",
-        proc->pid, start_offsets.lower_bound, start_offsets.upper_bound );
-
   // Get the result using our alignment-aware procedure analysis
+  DOUT( "Performing alignment-sensitive analysis\n" );
   combined_result result = analyze_proc_alignment_aware( proc, start_offsets );
-
-  DOUT( "Procedure %d WCET / BCET result is %llu / %llu"
-      " with offsets [%u,%u]\n", proc->pid, result.bcet, result.wcet,
-      result.offsets.lower_bound, result.offsets.upper_bound );
 
   /* If we are supposed to try the penalized alignment too, then we also compute the result
    * using the zero-alignment and add the appropriate alignment penalties. If this yields a
@@ -683,6 +697,7 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
   if ( tryPenalizedAlignment ) {
     // TODO: The alignments may be computed for a wrong segment in case of multi-segment
     //       schedules (see definitions of startAlign/endAlign)
+    DOUT( "Attempting penaltized alignment analysis\n" );
     const tdma_offset_bounds zero_offsets = { 0, 0 };
     combined_result pal_result = analyze_proc_alignment_aware( proc, zero_offsets );
     pal_result.wcet += endAlign( pal_result.wcet );
@@ -691,9 +706,7 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
 
     // If the result is better, then take this one
     if ( pal_result.wcet < result.wcet ) {
-      // TODO: Implement standard output format which always emits pid, lpid, bbid and starts at
-      //       the first column
-      DOUT( "  Took over penalized alignment result!\n" );
+      DOUT( "Took over penalized alignment result!\n" );
       result = pal_result;
     }
   }
@@ -751,7 +764,7 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
     const ull latest_start   = get_latest_task_start_time( cur_task, ncore );
     const tdma_offset_bounds initial_bounds = 
       getOffsetBounds( earliest_start, latest_start );
-    DOUT( "  Initial offset bounds: [%u,%u]\n",
+    DOUT( "Initial offset bounds: [%u,%u]\n",
         initial_bounds.lower_bound, initial_bounds.upper_bound );
 
     /* Then compute and set the best and worst case cost of this task */
