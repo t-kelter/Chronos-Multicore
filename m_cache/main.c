@@ -128,19 +128,32 @@ int main(int argc, char **argv )
   /* For no bus modelling */
   g_no_bus_modeling = 0;
 
-  /* Set the analysis method to use. */
-  const enum AnalysisMethod current_analysis_method = ANALYSIS_ALIGNMENT;
-
   /* also read conflict info and tasks info */
   interferePathName = argv[1];
   num_core = atoi( argv[4] );
   const char * const tdma_bus_schedule_file = argv[5];
   infeas   = 0;
 
+  /* Set the analysis method to use. */
+  enum AnalysisMethod current_analysis_method;
+  switch( argv[6][0] ) {
+    case 'a':
+      current_analysis_method = ANALYSIS_ALIGNMENT;
+      break;
+    case 's':
+      current_analysis_method = ANALYSIS_STRUCTURAL;
+      break;
+    case 'u':
+      current_analysis_method = ANALYSIS_UNROLL;
+      break;
+    default:
+      assert( 0 && "Unknown analysis method!" );
+  }
+
   /* For private L2 cache analysis */		  
   // TODO: This should be covered by a new input format for the input files
-  if(argc > 6) {
-    g_private = atoi(argv[6]);  
+  if(argc > 7) {
+    g_private = atoi(argv[7]);  
   } else {
     g_private = 0;
   }
