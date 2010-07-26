@@ -30,6 +30,7 @@ configure
 debugmacros/.deps/
 debugmacros/debugmacros.o
 debugmacros/libdebugmacros.a
+debugmacros/*.conf
 m_cache/.deps/
 m_cache/DAG_WCET.o
 m_cache/Makefile
