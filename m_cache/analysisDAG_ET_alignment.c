@@ -120,7 +120,7 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
                                            const combined_result *dag_block_results )
 {
   assert( bb && proc && dag_block_results && dag_block_list && "Invalid arguments!" );
-  tdma_offset_bounds result = { 0, 0 };
+  tdma_offset_bounds result;
 
   int i;
   for ( i = 0; i < bb->num_incoming; i++ ) {
@@ -137,7 +137,12 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
     const int conv_pred_idx = getblock( pred->bbid, dag_block_list,
                                         0, dag_block_number - 1 );
 
-    result = mergeOffsetBounds( &result, &dag_block_results[conv_pred_idx].offsets );
+    const tdma_offset_bounds * const pred_offsets = &dag_block_results[conv_pred_idx].offsets;
+    if ( i == 0 ) {
+      result = *pred_offsets;
+    } else {
+      result = mergeOffsetBounds( &result, pred_offsets );
+    }
   }
 
   assert( checkBound( &result ) && "Invalid result!" );
@@ -257,21 +262,19 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
         const ull wcet_via_pred = block_wcet_propagation_values[conv_pred_idx] +
                                   block_results[conv_pred_idx].wcet;
 
-        block_bcet_propagation_values[i] = ( j == 0
-            ? bcet_via_pred
-            : MIN( block_bcet_propagation_values[i], bcet_via_pred ) );
-        block_wcet_propagation_values[i] =
-              MAX( block_wcet_propagation_values[i], wcet_via_pred );
+        if ( j == 0 ) {
+          block_bcet_propagation_values[i] = bcet_via_pred;
+          block_wcet_propagation_values[i] = wcet_via_pred;
+        } else {
+          block_bcet_propagation_values[i] = MIN( block_bcet_propagation_values[i], bcet_via_pred );
+          block_wcet_propagation_values[i] = MAX( block_wcet_propagation_values[i], wcet_via_pred );
+        }
       }
     }
   }
 
   /* Create a result object */
   combined_result result;
-  result.bcet = ULLONG_MAX;
-  result.wcet = 0;
-  result.offsets.lower_bound = 0;
-  result.offsets.upper_bound = 0;
 
   /* Extract the final BCET, WCET and offset bounds from the DAG leaves. */
   for ( i = 0; i < number_of_blocks; i++ ) {
@@ -282,14 +285,15 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
     if ( bb->num_outgoing > 0 )
       break;
 
-    // Compute BCET
-    result.bcet = MIN( result.bcet, block_bcet_propagation_values[i] );
-    // Compute WCET
-    result.wcet = MAX( result.wcet, block_wcet_propagation_values[i] );
-    // Compute offsets
-    result.offsets = ( i == 0 
-        ? block_results[i].offsets 
-        : mergeOffsetBounds( &result.offsets, &block_results[i].offsets ) );
+    if ( i == 0 ) {
+      result.bcet = block_bcet_propagation_values[i];
+      result.wcet = block_wcet_propagation_values[i];
+      result.offsets = block_results[i].offsets;
+    } else {
+      result.bcet = MIN( result.bcet, block_bcet_propagation_values[i] );
+      result.wcet = MAX( result.wcet, block_wcet_propagation_values[i] );
+      result.offsets = mergeOffsetBounds( &result.offsets, &block_results[i].offsets );
+    }
   }
 
   free( block_bcet_propagation_values );
@@ -501,6 +505,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
   result.bcet = 0;
   result.wcet = 0;
   result.offsets = current_offsets;
+
   for( current_iteration = 0; current_iteration < analyzed_iterations; current_iteration++ ) {
     // The number of iterations for which the current result entry is valid
     const unsigned int multiplier = ( current_iteration == analyzed_iterations - 1 )
