@@ -149,6 +149,13 @@ typedef unsigned long long ull;
 #define DEBUG_ANALYSIS_PRINTF(format, ...)
 #endif
 
+#ifdef _DEBUG_ALIGNMENT
+// GNU-specific: remove trailing comma if no varargs given (##)
+#define DEBUG_ALIGNMENT_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
+#else
+#define DEBUG_ALIGNMENT_PRINTF(format, ...)
+#endif
+
 
 // MIN / MAX macros
 
