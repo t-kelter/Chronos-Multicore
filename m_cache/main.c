@@ -90,7 +90,7 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
     case ANALYSIS_ALIGNMENT:
       // Computes BCET and WCET together
       compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file, 
-          LOOP_ANALYSIS_GLOBAL_CONVERGENCE);
+          LOOP_ANALYSIS_GLOBAL_CONVERGENCE, 0);
       break;
 
     default:

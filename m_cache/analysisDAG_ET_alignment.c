@@ -43,8 +43,10 @@ static enum LoopAnalysisType currentLoopAnalysisType;
 /* In this mode the alignment analysis "emulates" the purely structural
  * analysis, by assuming an offset of [0,0] at each loop / function head
  * and by adding the appropriate alignment penalty to the current
- * WCET/BCET. */
-static _Bool emulateStructural = 0;
+ * WCET/BCET. It only does this when this has a positive effect on the
+ * WCET computation, and not in all cases as the purely structural
+ * analysis. */
+static _Bool tryPenalizedAlignment = 1;
 
 
 // ##################################################
@@ -88,9 +90,9 @@ static tdma_offset_bounds mergeOffsetBounds( const tdma_offset_bounds *b1, const
 
 
 /* Returns
- * - a negative number: if lhs is no subset of rhs, nor are they equal
- * - 0                : if lhs == rhs
- * - apositive number : if lhs is a subset of rhs */
+ * - a negative number : if 'lhs' is no subset of 'rhs', nor are they equal
+ * - 0                 : if 'lhs' == 'rhs'
+ * - a positive number : if 'lhs' is a subset of 'rhs' */
 static int isSubsetOrEqual( const tdma_offset_bounds *lhs, const tdma_offset_bounds *rhs )
 {
   assert( lhs && checkBound( lhs ) && rhs && checkBound( rhs ) && 
@@ -399,12 +401,6 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
   assert( lp && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
 
-  /* Emulate the purely structural analysis if that is desired. */
-  if ( emulateStructural ) {
-    start_offsets.lower_bound = 0;
-    start_offsets.upper_bound = 0;
-  }
-
   /* Get an array for the result values per basic block. */
   combined_result * const block_results = (combined_result *)CALLOC(
       block_results, lp->num_topo, sizeof( combined_result ), "block_result" );
@@ -430,13 +426,6 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
   combined_result result = summarizeDAGResults( lp->num_topo, lp->topo,
                                                 block_results, proc );
 
-  /* Emulate the purely structural analysis if that is desired. */
-  if ( emulateStructural ) {
-    // TODO: The alignments may be computed for a wrong segment in case of multi-segment
-    //       schedules (see definitions of startAlign/endAlign)
-    result.wcet += endAlign( result.wcet );
-  }
-
   free( block_results );
 
   assert( checkBound( &result.offsets ) && "Invalid result!" );
@@ -449,7 +438,9 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
  *
  * This function iteratively computes an offset bound for the loop header until
  * the offset bound converges. This is less precise than the graph-based method
- * which tracks the development of the offset bounds. */
+ * which tracks the development of the offset bounds.
+ *
+ * This function should not be called directly, only through its wrapper 'analyze_loop'. */
 static combined_result analyze_loop_global_convergence( loop* lp, procedure* proc, 
     uint loop_context, const tdma_offset_bounds start_offsets )
 {
@@ -464,26 +455,23 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
   combined_result **results = (combined_result**)CALLOC( results,
       lp->loopbound, sizeof( combined_result* ), "results" );
 
-  DEBUG_ALIGNMENT_PRINTF( "    Loop {%d.%d} [lb %d] starts analysis with offsets [%u,%u]\n",
-      lp->pid, lp->lpid, lp->loopbound, start_offsets.lower_bound, start_offsets.upper_bound );
-
   // Perform single-iteration-analyses until the offset bound converges
   for( current_iteration = 0; current_iteration < lp->loopbound; current_iteration++ ) {
 
     // Allocate new result slot
     results[current_iteration] = (combined_result*)MALLOC( results[current_iteration],
         sizeof( combined_result ), "results[current_iteration]" );
-    combined_result * const last_result = results[current_iteration];
+    combined_result * const last_std_result = results[current_iteration];
 
     // Analyze the iteration
     const uint inner_context = getInnerLoopContext( lp, loop_context, 
                                    current_iteration == 0 );
-    *last_result = analyze_single_loop_iteration( lp, proc, 
+    *last_std_result = analyze_single_loop_iteration( lp, proc, 
                        inner_context, current_offsets );
 
     // Compute new offsets if they changed
-    if ( isSubsetOrEqual( &last_result->offsets, &current_offsets ) < 0 ) {
-      current_offsets = mergeOffsetBounds( &current_offsets, &last_result->offsets );
+    if ( isSubsetOrEqual( &last_std_result->offsets, &current_offsets ) < 0 ) {
+      current_offsets = mergeOffsetBounds( &current_offsets, &last_std_result->offsets );
 
       DEBUG_ALIGNMENT_PRINTF( "    Loop {%d.%d} has new offset bound [%u,%u]\n",
           lp->pid, lp->lpid, current_offsets.lower_bound, current_offsets.upper_bound );
@@ -523,13 +511,6 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
     result.wcet += wcet * multiplier;
   }
 
-  /* Emulate the purely structural analysis if that is desired. */
-  if ( emulateStructural ) {
-    // TODO: The alignments may be computed for a wrong segment in case of multi-segment
-    //       schedules (see definitions of startAlign/endAlign)
-    result.wcet += startAlign( 0 );
-  }
-  
   // Free the iteration results array
   for( current_iteration = 0; current_iteration < analyzed_iterations; current_iteration++ ) {
     free( results[current_iteration] );
@@ -547,7 +528,9 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
  *
  * This function builds a graph which models the possible development of the
  * loop header offset bounds and computes the final WCET by solving a maximum
- * cost flow problem on that graph. */
+ * cost flow problem on that graph.
+ *
+ * This function should not be called directly, only through its wrapper 'analyze_loop'. */
 static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc, 
     uint loop_context, const tdma_offset_bounds start_offsets )
 {
@@ -564,29 +547,73 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
 /* Computes the BCET, WCET and offset bounds for the given loop when starting from 
  * the given offset range.
  * 
- * This method just delegates the work to the currently active submethod. */
+ * This method is just an intelligent wrapper for the respective sub-methods. */
 static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_context,
     const tdma_offset_bounds start_offsets )
 {
   assert( lp && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
 
+  DEBUG_ALIGNMENT_PRINTF( "    Loop {%d.%d} [lb %d] starts analysis with offsets [%u,%u]\n",
+      lp->pid, lp->lpid, lp->loopbound, start_offsets.lower_bound, start_offsets.upper_bound );
+
+  combined_result result;
   switch( currentLoopAnalysisType ) {
     case LOOP_ANALYSIS_GLOBAL_CONVERGENCE:
-      return analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
+      result = analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
+      break;
     case LOOP_ANALYSIS_GRAPH_TRACKING:
-      return analyze_loop_graph_tracking( lp, proc, loop_context, start_offsets );
+      result = analyze_loop_graph_tracking( lp, proc, loop_context, start_offsets );
+      break;
     default:
       assert( 0 && "Unsupported analysis method!" );
-      // To make compiler happy
-      combined_result result;
-      return result;
   }
+
+  /* If we are supposed to try the penalized alignment too, then we also compute the result
+   * using the zero-alignment and add the appropriate alignment penalties. If this yields a
+   * superior solution, then we pick that one instead of the previously computed result. */
+  if ( tryPenalizedAlignment ) {
+    // TODO: The alignments may be computed for a wrong segment in case of multi-segment
+    //       schedules (see definitions of startAlign/endAlign)
+    combined_result pal_result;
+    pal_result.bcet = 0;
+    pal_result.wcet = startAlign( 0 );
+
+    // Analyze the first two iterations to exploit the cache information
+    const tdma_offset_bounds zero_offsets = { 0, 0 };
+    const uint first_context = getInnerLoopContext( lp, loop_context, 1 );
+    const combined_result first_iteration_result = analyze_single_loop_iteration( lp, proc,
+                                                     first_context, zero_offsets );
+    pal_result.bcet += first_iteration_result.bcet;
+    pal_result.wcet += first_iteration_result.wcet +
+                       endAlign( first_iteration_result.wcet );
+
+    const uint second_context = getInnerLoopContext( lp, loop_context, 0 );
+    const combined_result second_iteration_result = analyze_single_loop_iteration( lp, proc,
+                                                     second_context, zero_offsets );
+    pal_result.bcet += ( second_iteration_result.bcet ) *
+                       ( lp->loopbound - 1 );
+    pal_result.wcet += ( second_iteration_result.wcet +
+                         endAlign( second_iteration_result.wcet ) ) *
+                       ( lp->loopbound - 1 );
+
+    pal_result.offsets = zero_offsets;
+
+    // If the result is better, then take this one
+    if ( pal_result.wcet < result.wcet ) {
+      DEBUG_ALIGNMENT_PRINTF( "      took over penalized alignment result!\n" );
+      result = pal_result;
+    }
+  }
+
+  return result;
 }
 
 
-/* Computes the BCET, WCET and offset bounds for the given procedure when starting from the given offset range. */
-static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds start_offsets )
+/* Computes the BCET, WCET and offset bounds for the given procedure when starting from the given offset range.
+ *
+ * This function should not be called directly, only through its wrapper 'analyze_proc'. */
+static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma_offset_bounds start_offsets )
 {
   assert( proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
@@ -619,14 +646,6 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
   combined_result result = summarizeDAGResults( proc->num_topo, proc->topo,
                                                 block_results, proc );
 
-  /* Emulate the purely structural analysis if that is desired. */
-  if ( emulateStructural ) {
-    // TODO: The alignments may be computed for a wrong segment in case of multi-segment
-    //       schedules (see definitions of startAlign/endAlign)
-    result.wcet += endAlign( result.wcet );
-    result.wcet += startAlign( 0 );
-  }
-
   free( block_results );
 
   DEBUG_ALIGNMENT_PRINTF( "  Procedure %d WCET / BCET result is %llu / %llu"
@@ -637,23 +656,64 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
   return result;
 }
 
+
+/* Computes the BCET, WCET and offset bounds for the given procedure when starting from the given offset range.
+ *
+ * This method is just an intelligent wrapper for the respective sub-methods. */
+static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds start_offsets )
+{
+  // Get the result using our alignment-aware procedure analysis
+  combined_result result = analyze_proc_alignment_aware( proc, start_offsets );
+
+  /* If we are supposed to try the penalized alignment too, then we also compute the result
+   * using the zero-alignment and add the appropriate alignment penalties. If this yields a
+   * superior solution, then we pick that one instead of the previously computed result. */
+  if ( tryPenalizedAlignment ) {
+    // TODO: The alignments may be computed for a wrong segment in case of multi-segment
+    //       schedules (see definitions of startAlign/endAlign)
+    const tdma_offset_bounds zero_offsets = { 0, 0 };
+    combined_result pal_result = analyze_proc_alignment_aware( proc, zero_offsets );
+    pal_result.wcet += endAlign( pal_result.wcet );
+    pal_result.wcet += startAlign( 0 );
+    pal_result.offsets = zero_offsets;
+
+    // If the result is better, then take this one
+    if ( pal_result.wcet < result.wcet ) {
+      // TODO: Implement standard output format which always emits pid, lpid, bbid and starts at
+      //       the first column
+      DEBUG_ALIGNMENT_PRINTF( "    took over penalized alignment result!\n" );
+      result = pal_result;
+    }
+  }
+
+  return result;
+}
+
 // #########################################
 // #### Definitions of public functions ####
 // #########################################
 
 
-/* Analyze worst case execution time of all the tasks inside
- * a MSC. The MSC is given by the argument */
+/* Analyze worst case execution time of all the tasks inside a MSC.
+ *
+ * 'msc' is the MSC to analyze.
+ * 'tdma_bus_schedule_file' holds the filename of the TDMA bus specification to use
+ * 'analysis_type_to_use' should be the type of loop analysis that shall be used
+ * 'try_penalized_alignment' if this is true, then the alignment analysis will try to
+ *                           work like the purely structural analysis by assuming an
+ *                           offset range of [0,0] and adding the appropriate
+ *                           alignment penalties. */
 void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
-   enum LoopAnalysisType analysisTypeToUse )
+   enum LoopAnalysisType analysis_type_to_use, _Bool try_penalized_alignment )
 {
   assert( msc && tdma_bus_schedule_file && "Invalid arguments!" );
 
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
 
-  /* Set the loop analysis to use. */
-  currentLoopAnalysisType = analysisTypeToUse;
+  /* Set the analysis options to use. */
+  currentLoopAnalysisType = analysis_type_to_use;
+  tryPenalizedAlignment = try_penalized_alignment;
 
   /* Reset the earliest/latest time of all cores */
   memset( earliest_core_time, 0, num_core * sizeof(ull) );

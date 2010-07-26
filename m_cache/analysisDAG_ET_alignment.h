@@ -33,11 +33,17 @@ enum LoopAnalysisType {
 // ######### Function declarations  ###########
 
 
-/* Analyze worst case execution time of all the tasks inside 
- * a MSC. The MSC is given by the argument */
-void compute_bus_ET_MSC_alignment(MSC *msc, 
-    const char *tdma_bus_schedule_file, 
-    enum LoopAnalysisType analysisTypeToUse );
+/* Analyze worst case execution time of all the tasks inside a MSC.
+ *
+ * 'msc' is the MSC to analyze.
+ * 'tdma_bus_schedule_file' holds the filename of the TDMA bus specification to use
+ * 'analysis_type_to_use' should be the type of loop analysis that shall be used
+ * 'try_penalized_alignment' if this is true, then the alignment analysis will try to
+ *                           work like the purely structural analysis by assuming an
+ *                           offset range of [0,0] and adding the appropriate
+ *                           alignment penalties. */
+void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
+   enum LoopAnalysisType analysis_type_to_use, _Bool try_penalized_alignment );
 
 
 #endif
