@@ -235,7 +235,8 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
   int j;
   for ( j = 0; j < lp->loophead->num_chmc; j++ ) {
     lp->wcet_opt[j] = ( max_fin[j] - 1 );
-    PRINT_PRINTF( "WCET of loop (%d.%d.0x%x)[%d] = %Lu\n", lp->pid, lp->lpid, (uintptr_t) lp, j, lp->wcet_opt[j] );
+    PRINT_PRINTF( "WCET of loop (%d.%d.0x%x)[%d] = %Lu\n", lp->pid, lp->lpid,
+        (unsigned int)(uintptr_t) lp, j, lp->wcet_opt[j] );
   }
 }
 
