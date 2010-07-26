@@ -218,8 +218,6 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
   assert( topologically_sorted_blocks && block_results && dag_proc &&
           "Invalid arguments!" );
 
-  DEBUG_ALIGNMENT_PRINTF( "        DAG result summary\n" );
-
   // Allocate space for the propagation values
   ull *block_bcet_propagation_values = (ull*)CALLOC( block_bcet_propagation_values,
       number_of_blocks, sizeof( ull ), "block_bcet_propagation_values" );
@@ -289,11 +287,17 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
     // Compute WCET
     result.wcet = MAX( result.wcet, block_wcet_propagation_values[i] );
     // Compute offsets
-    result.offsets = mergeOffsetBounds( &result.offsets, &block_results[i].offsets );
+    result.offsets = ( i == 0 
+        ? block_results[i].offsets 
+        : mergeOffsetBounds( &result.offsets, &block_results[i].offsets ) );
   }
 
   free( block_bcet_propagation_values );
   free( block_wcet_propagation_values );
+
+  DEBUG_ALIGNMENT_PRINTF( "        DAG result summary: %llu / %llu [%u,%u]\n",
+     result.bcet, result.wcet, result.offsets.lower_bound, 
+     result.offsets.upper_bound );
 
   assert( checkBound( &result.offsets ) && "Invalid result!" );
   return result;
