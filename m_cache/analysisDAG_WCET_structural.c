@@ -63,28 +63,6 @@ static void set_start_time_WCET_opt( block* bb, procedure* proc, uint context )
       bb->bbid, context, max_start );
 }
 
-/* Computes end alignment cost of the loop */
-static ull endAlign( ull fin_time )
-{
-  const ull interval = global_sched_data->seg_list[0]->per_core_sched[ncore]->interval;
-
-  if ( fin_time % interval == 0 ) {
-    DEBUG_PRINTF( "End align = 0\n" );
-    return 0;
-  } else {
-    DEBUG_PRINTF( "End align = %Lu\n", ( fin_time / interval + 1 ) * interval - fin_time );
-    return ( ( fin_time / interval + 1 ) * interval - fin_time );
-  }
-}
-
-/* computes start alignment cost */
-static ull startAlign()
-{
-  const ull interval = global_sched_data->seg_list[0]->per_core_sched[ncore]->interval;
-
-  DEBUG_PRINTF( "Start align = %u\n", interval );
-  return interval;
-}
 
 /* Returns the WCET of a loop, after loop WCETs have been computed for
  * all CHMC contexts. This method summarises the contexts' WCETs, adds the
@@ -124,7 +102,9 @@ static ull getLoopWCET( const loop *lp, int enclosing_loop_context )
 
   const ull execution_cost = firstIterationWCET +
         + ( nextIterationsWCET * ( lp->loopbound - 1 ) );
-  const ull alignment_cost = startAlign() + endAlign( firstIterationWCET )
+  // TODO: The alignments may be computed for a wrong segment in case of multi-segment
+  //       schedules (see definitions of startAlign/endAlign)
+  const ull alignment_cost = startAlign( 0 ) + endAlign( firstIterationWCET )
       + ( endAlign( nextIterationsWCET ) * ( lp->loopbound - 1 ) );
 
   totalAlignCost += alignment_cost;

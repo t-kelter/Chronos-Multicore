@@ -132,6 +132,10 @@ void update_succ_task_earliest_start_time( MSC* msc, task_t* task )
  * imposed by the partial order of the MSC */
 ull get_earliest_task_start_time( task_t* cur_task, uint core )
 {
+  /* If independent task mode return 0 */
+  if ( g_independent_task )
+    return 0;
+
   /* A task in the MSC can be delayed because of two reasons. Either
    * the tasks it is dependent upon has not finished executing or
    * since we consider a non-preemptive scheduling policy the task can
@@ -535,4 +539,36 @@ uint get_core(task_t* cur_task)
   /* FIXME: Currently returns 0 */
 
   return 0;
+}
+
+
+/* Computes the end alignment cost of a loop iteration which ends at 'fin_time'.
+ * This is only needed for analyses which use the concept of aligning loops
+ * to the TDMA slots to increase the analysis precision. */
+ull endAlign( ull fin_time )
+{
+  const core_sched_p core_schedule = getCoreSchedule( ncore, fin_time );
+  const ull interval = core_schedule->interval;
+
+  if ( fin_time % interval == 0 ) {
+    DEBUG_PRINTF( "End align = 0\n" );
+    return 0;
+  } else {
+    const ull align = ( fin_time / interval + 1 ) * interval - fin_time;
+    DEBUG_PRINTF( "End align = %Lu\n", align );
+    return align;
+  }
+}
+
+
+/* Computes the start alignment cost of a loop which starts at 'start_time'.
+ * This is only needed for analyses which use the concept of aligning loops
+ * to the TDMA slots to increase the analysis precision. */
+ull startAlign( ull start_time )
+{
+  const core_sched_p core_schedule = getCoreSchedule( ncore, start_time );
+  const ull interval = core_schedule->interval;
+
+  DEBUG_PRINTF( "Start align = %u\n", interval );
+  return interval;
 }

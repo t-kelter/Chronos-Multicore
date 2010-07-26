@@ -124,7 +124,7 @@ int main(int argc, char **argv )
   /* Compute with shared bus */
   g_shared_bus = 1;
   /* For independent tasks running on multiple cores */
-  g_independent_task = 1;
+  g_independent_task = 0;
   /* For no bus modelling */
   g_no_bus_modeling = 0;
 

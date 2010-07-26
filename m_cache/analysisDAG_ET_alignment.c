@@ -38,7 +38,13 @@ typedef struct {
 // #########################################
 
 
+/* The type of analysis that we use for the alignment tracking. */
 static enum LoopAnalysisType currentLoopAnalysisType;
+/* In this mode the alignment analysis "emulates" the purely structural
+ * analysis, by assuming an offset of [0,0] at each loop / function head
+ * and by adding the appropriate alignment penalty to the current
+ * WCET/BCET. */
+static _Bool emulateStructural = 0;
 
 
 // ##################################################
@@ -299,10 +305,6 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
   free( block_bcet_propagation_values );
   free( block_wcet_propagation_values );
 
-  DEBUG_ALIGNMENT_PRINTF( "        DAG result summary: %llu / %llu [%u,%u]\n",
-     result.bcet, result.wcet, result.offsets.lower_bound, 
-     result.offsets.upper_bound );
-
   assert( checkBound( &result.offsets ) && "Invalid result!" );
   return result;
 }
@@ -314,10 +316,6 @@ static combined_result analyze_block( block* bb, procedure* proc,
 {
   assert( bb && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
-
-  DEBUG_ALIGNMENT_PRINTF( "    Analyzing block %d.%d[%u] with offsets [%u,%u]\n",
-      bb->bbid, proc->pid, loop_context, start_offsets.lower_bound,
-      start_offsets.upper_bound );
 
   /* Check whether the block is some header of a loop structure.
    * In that case do separate analysis of the loop */
@@ -389,10 +387,6 @@ static combined_result analyze_block( block* bb, procedure* proc,
           result.offsets  = call_cost.offsets;
         }
       }
-
-      DEBUG_ALIGNMENT_PRINTF( "      updated result after instruction "
-          "%d: %llu / %llu [%u,%u]\n", i, result.bcet, result.wcet,
-          result.offsets.lower_bound, result.offsets.upper_bound );
     }
 
     assert( checkBound( &result.offsets ) && "Invalid result!" );
@@ -403,10 +397,16 @@ static combined_result analyze_block( block* bb, procedure* proc,
 /* Computes the BCET, WCET and offset bounds for a single iteration of the given loop
  * when starting from the given offset range. */
 static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc, uint loop_context,
-    const tdma_offset_bounds start_offsets )
+    tdma_offset_bounds start_offsets )
 {
   assert( lp && proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
+
+  /* Emulate the purely structural analysis if that is desired. */
+  if ( emulateStructural ) {
+    start_offsets.lower_bound = 0;
+    start_offsets.upper_bound = 0;
+  }
 
   /* Get an array for the result values per basic block. */
   combined_result * const block_results = (combined_result *)CALLOC(
@@ -432,6 +432,13 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
   /* Compute final procedure BCET and WCET by propagating the values through the DAG. */
   combined_result result = summarizeDAGResults( lp->num_topo, lp->topo,
                                                 block_results, proc );
+
+  /* Emulate the purely structural analysis if that is desired. */
+  if ( emulateStructural ) {
+    // TODO: The alignments may be computed for a wrong segment in case of multi-segment
+    //       schedules (see definitions of startAlign/endAlign)
+    result.wcet += endAlign( result.wcet );
+  }
 
   free( block_results );
 
@@ -460,7 +467,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
   combined_result **results = (combined_result**)CALLOC( results,
       lp->loopbound, sizeof( combined_result* ), "results" );
 
-  DEBUG_ALIGNMENT_PRINTF( "Loop {%d.%d} [lb %d] starts analysis with offsets [%u,%u]\n",
+  DEBUG_ALIGNMENT_PRINTF( "    Loop {%d.%d} [lb %d] starts analysis with offsets [%u,%u]\n",
       lp->pid, lp->lpid, lp->loopbound, start_offsets.lower_bound, start_offsets.upper_bound );
 
   // Perform single-iteration-analyses until the offset bound converges
@@ -481,7 +488,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
     if ( isSubsetOrEqual( &last_result->offsets, &current_offsets ) < 0 ) {
       current_offsets = mergeOffsetBounds( &current_offsets, &last_result->offsets );
 
-      DEBUG_ALIGNMENT_PRINTF( "Loop {%d.%d} has new offset bound [%u,%u]\n",
+      DEBUG_ALIGNMENT_PRINTF( "    Loop {%d.%d} has new offset bound [%u,%u]\n",
           lp->pid, lp->lpid, current_offsets.lower_bound, current_offsets.upper_bound );
 
     // If they did not change, terminate the analysis
@@ -495,8 +502,6 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
 
   // The number of iterations which were analyzed explicitly
   unsigned int analyzed_iterations = current_iteration + 1;
-  DEBUG_ALIGNMENT_PRINTF( "  -- {%d.%d} Analyzed %u iterations explicitly\n",
-      lp->pid, lp->lpid, analyzed_iterations );
 
   // Compute the final result. The BCET and WCET values can be extracted from the
   // individual iterations, the result from the last analyzed iteration stays 
@@ -514,11 +519,18 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
     
     const unsigned int bcet = results[current_iteration]->bcet;
     const unsigned int wcet = results[current_iteration]->wcet;
-    DEBUG_ALIGNMENT_PRINTF( "  Accounting BCET %d / WCET %d for iterations [%u,%u]\n",
+    DEBUG_ALIGNMENT_PRINTF( "    Accounting BCET %d / WCET %d for iterations [%u,%u]\n",
       bcet, wcet, current_iteration, current_iteration + multiplier - 1 );
 
     result.bcet += bcet * multiplier;
     result.wcet += wcet * multiplier;
+  }
+
+  /* Emulate the purely structural analysis if that is desired. */
+  if ( emulateStructural ) {
+    // TODO: The alignments may be computed for a wrong segment in case of multi-segment
+    //       schedules (see definitions of startAlign/endAlign)
+    result.wcet += startAlign( 0 );
   }
   
   // Free the iteration results array
@@ -581,7 +593,7 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
 {
   assert( proc && checkBound( &start_offsets ) &&
           "Invalid arguments!" );
-    
+
   DEBUG_ALIGNMENT_PRINTF( "  Analyzing procedure %d with offsets [%u,%u]\n",
         proc->pid, start_offsets.lower_bound, start_offsets.upper_bound );
 
@@ -609,6 +621,14 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
   /* Compute final procedure BCET and WCET by propagating the values through the DAG. */
   combined_result result = summarizeDAGResults( proc->num_topo, proc->topo,
                                                 block_results, proc );
+
+  /* Emulate the purely structural analysis if that is desired. */
+  if ( emulateStructural ) {
+    // TODO: The alignments may be computed for a wrong segment in case of multi-segment
+    //       schedules (see definitions of startAlign/endAlign)
+    result.wcet += endAlign( result.wcet );
+    result.wcet += startAlign( 0 );
+  }
 
   free( block_results );
 

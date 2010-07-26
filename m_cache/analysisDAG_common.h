@@ -101,6 +101,17 @@ void reset_all_task(MSC* msc);
  */
 uint determine_latency( block* bb, ull access_time, acc_type type );
 
+
+/* Computes the end alignment cost of a loop iteration which ends at 'fin_time'.
+ * This is only needed for analyses which use the concept of aligning loops
+ * to the TDMA slots to increase the analysis precision. */
+ull endAlign( ull fin_time );
+/* Computes the start alignment cost of a loop which starts at 'start_time'.
+ * This is only needed for analyses which use the concept of aligning loops
+ * to the TDMA slots to increase the analysis precision. */
+ull startAlign( ull start_time );
+
+
 /* #### WCRT analysis helper functions #### */
 
 /* Given a MSC and a task inside it, this function computes
