@@ -350,19 +350,16 @@ static combined_result analyze_block( block* bb, procedure* proc,
                                                  ACCESS_SCENARIO_BCET );
       const acc_type worst_acc = check_hit_miss( bb, inst, loop_context, 
                                                  ACCESS_SCENARIO_WCET );
-      uint min_latency = UINT_MAX;
-      uint max_latency = 0;
-      int j;
-      for ( j =  result.offsets.lower_bound;
-            j <= result.offsets.upper_bound;
-            j++ ) {
-        const uint best_latency  = determine_latency( bb, j, best_acc );
-        const uint worst_latency = determine_latency( bb, j, worst_acc );
-        min_latency = MIN( min_latency, best_latency );
-        max_latency = MAX( max_latency, worst_latency );
-      }
-      result.bcet += min_latency;
-      result.wcet += max_latency;
+
+      /* In our current offset bound representation we can assume that
+       * the upper (lower) bound was induced by the worst-case (best-case)
+       * time that is needed to reach the current instruction. To obtain
+       * the local BCET / WCET we therefore only need to consider the
+       * lower and upper bound of the offset range. */
+      const uint best_latency  = determine_latency( bb, result.offsets.lower_bound, best_acc );
+      const uint worst_latency = determine_latency( bb, result.offsets.upper_bound, worst_acc );
+      result.bcet += best_latency;
+      result.wcet += worst_latency;
 
       /* Then add cost for executing the instruction. */
       result.bcet += getInstructionBCET( inst );
