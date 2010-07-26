@@ -2,7 +2,9 @@ EXTRA_DIST=chronos_compile.in  \
            chronos_analyze.in  \
            chronos_simulate.in
 
-CHRONOS_SCRIPT=$(basename $(EXTRA_DIST))
+CHRONOS_SCRIPT=chronos_compile  \
+							 chronos_analyze  \
+							 chronos_simulate
 
 .PHONY: all check_executability
 
