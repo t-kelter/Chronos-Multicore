@@ -93,6 +93,7 @@ typedef unsigned long long ull;
   calloc( (len), (size) ); \
   if( !(ptr) ) printf( "\nError: calloc failed for %s.\n\n", (msg) ), exit(1)
 
+// TODO: The next macro is wrong, it does only work when realloc does not move the buffer
 #define REALLOC( ptr, size, msg ) \
   realloc( (ptr), (size) ); \
   if( !(ptr) ) printf( "\nError: realloc failed for %s.\n\n", (msg) ), exit(1)

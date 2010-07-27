@@ -81,6 +81,9 @@ offset_graph_node *getOffsetGraphNode( offset_graph *og, uint offset );
 offset_graph_edge *getOffsetGraphEdge( offset_graph *og,
     const offset_graph_node *start, const offset_graph_node *end );
 
+/* Prints the offset graph to th given file descriptor. */
+void dumpOffsetGraph( const offset_graph *og, FILE *out );
+
 /* Solves a minimum cost flow problem to obtain the final BCET.
  *
  * 'loopbound_min' specifies the minimum number of iterations of the loop.

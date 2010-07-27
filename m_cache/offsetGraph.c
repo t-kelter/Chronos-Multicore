@@ -49,15 +49,19 @@ static inline void printILPEdgeName( FILE *f, const offset_graph_edge *edge )
  *
  * The caller must free the returned string.
  * */
-static char *generateILP( const offset_graph *og, uint loopbound, enum ILPComputationType type )
+static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enum ILPComputationType type )
 {
+  DSTART( "generateOffsetGraphILP" );
+
   // Get output file
   char *tmpfilename = (char*)MALLOC( tmpfilename, 50 * sizeof( char ), "tmpfilename" );
-  tmpnam( tmpfilename );
+  strcpy( tmpfilename, "test.ilp" );
+  //tmpnam( tmpfilename );
   FILE *f = fopen( tmpfilename, "w" );
   if ( !f ) {
     prerr( "Unable to write to ILP file '%s'\n", tmpfilename );
   }
+  DOUT( "Writing ILP to %s\n", tmpfilename );
 
   // In the ILP we map each edge to a variable 'x<edge_id>'
   // This variable represents the flow through the edge.
@@ -86,9 +90,10 @@ static char *generateILP( const offset_graph *og, uint loopbound, enum ILPComput
 
 
   // Write out constraints section.
-  fprintf( f, "\n/*\n * Constraints\n */\n" );
+  fprintf( f, "\n/*\n * Constraints\n */\n\n" );
 
   // Write out flow conservation constraints
+  fprintf( f, "/* Flow conservation constraints */\n" );
   for ( i = 0; i < og->num_nodes; i++ ) {
     offset_graph_node * const node = &og->nodes[i];
 
@@ -122,6 +127,7 @@ static char *generateILP( const offset_graph *og, uint loopbound, enum ILPComput
   }
 
   // Write out demand / supply values
+  fprintf( f, "\n/* Demand / supply constraints */\n" );
   const offset_graph_node * const suso = &( og->supersource );
   for ( i = 0; i < suso->num_outgoing_edges; i++ ) {
     printILPEdgeName( f, suso->outgoing_edges[i] );
@@ -165,13 +171,15 @@ static char *generateILP( const offset_graph *og, uint loopbound, enum ILPComput
 
   fclose( f );
 
-  return tmpfilename;
+  DRETURN( tmpfilename );
 }
 
 
 /* Solves a given ilp with lp_solve. */
 ull solveILP( const char *ilp_file )
 {
+  DSTART( "solveILP" );
+
   // Invoke external ILP solver.
   char commandline[500];
   char output_file[100];
@@ -202,8 +210,30 @@ ull solveILP( const char *ilp_file )
     prerr( "Failed to solve ILP. Maybe solver not available." );
   }
 
+  DOUT( "Solved ILP, output is in %s\n", output_file );
+
   // Parse result file
-  return 0;
+  FILE *result_file = fopen( output_file, "r" );
+  ull result;
+  int read_count = 0;
+  read_count = fscanf( result_file, "\n" );
+  read_count = fscanf( result_file, "Value of objective function %llu", &result );
+  fclose( result_file );
+
+  // Delete output file
+  remove( output_file );
+
+  if ( read_count != 1 ) {
+
+    prerr( "Could not read output file!" );
+    DRETURN( 0 );
+
+  } else {
+
+    DOUT( "Result was: %llu\n", result );
+    DRETURN( result );
+
+  }
 }
 
 
@@ -219,6 +249,9 @@ offset_graph *createOffsetGraph( uint number_of_nodes )
   offset_graph *result = (offset_graph*)CALLOC( result, 1,
                             sizeof( offset_graph ), "result" );
 
+  result->supersource.offset = 4000000;
+  result->supersink.offset = 3000000;
+
   // Create the nodes
   result->nodes = (offset_graph_node*)CALLOC( result->nodes,
       number_of_nodes, sizeof( offset_graph_node ), "result->nodes" );
@@ -229,17 +262,10 @@ offset_graph *createOffsetGraph( uint number_of_nodes )
     offset_graph_node * const node = &( result->nodes[i] );
     node->offset = i;
     // Initialize all incident edge lists with size 0
+    node->incoming_edges = 0;
+    node->outgoing_edges = 0;
     node->num_incoming_edges = 0;
     node->num_outgoing_edges = 0;
-  }
-
-  for ( i = 0; i < result->num_nodes; i++ ) {
-    // Add edges from supersource
-    addOffsetGraphEdge( result, &result->supersource,
-        getOffsetGraphNode( result, i ), 0, 0 );
-    // Add edges to supersink
-    addOffsetGraphEdge( result, getOffsetGraphNode( result, i ),
-        &result->supersink, 0, 0 );
   }
 
   return result;
@@ -251,10 +277,15 @@ offset_graph_edge *addOffsetGraphEdge(
     offset_graph *og, offset_graph_node *start,
     offset_graph_node *end, ull bcet, ull wcet )
 {
+  DSTART( "addOffsetGraphEdge" );
   assert( og && start && end && "Invalid arguments!" );
 
+  DOUT( "Requesting creation of edge %u --> %u with BCET %llu"
+      " and WCET %llu\n", start->offset, end->offset, bcet, wcet );
+
   if ( getOffsetGraphEdge( og, start, end ) != NULL ) {
-    return NULL;
+    DOUT( "Edge existed, returning NULL!\n" );
+    DRETURN( NULL );
   } else {
 
     // Create new edge
@@ -263,13 +294,26 @@ offset_graph_edge *addOffsetGraphEdge(
         og->num_edges * sizeof( offset_graph_edge ), "og->edges" );
     offset_graph_edge *new_edge = &( og->edges[og->num_edges - 1] );
 
-    new_edge->start = start;
-    new_edge->end = end;
-    new_edge->bcet = bcet;
-    new_edge->wcet = wcet;
-
+    new_edge->start   = start;
+    new_edge->end     = end;
+    new_edge->bcet    = bcet;
+    new_edge->wcet    = wcet;
     new_edge->edge_id = og->num_edges;
-    og->num_edges++;
+
+    // Dump edges
+    DACTION(
+        uint j;
+        DOUT( "Outgoing edges at %u: (previously)\n", start->offset );
+        for ( j = 0; j < start->num_outgoing_edges; j++ ) {
+          const offset_graph_edge * const edge = start->outgoing_edges[j];
+          DOUT( "  %u to node %u\n", edge->edge_id, edge->end->offset );
+        }
+        DOUT( "Incoming edges at %u: (previously)\n", end->offset );
+        for ( j = 0; j < end->num_incoming_edges; j++ ) {
+          const offset_graph_edge * const edge = end->incoming_edges[j];
+          DOUT( "  %u from node %u\n", edge->edge_id, edge->start->offset );
+        }
+    );
 
     // Register with the nodes
     start->num_outgoing_edges++;
@@ -284,8 +328,23 @@ offset_graph_edge *addOffsetGraphEdge(
         "end->incoming_edges" );
     end->incoming_edges[end->num_incoming_edges - 1] = new_edge;
 
+    // Dump edges
+    DACTION(
+        uint j;
+        DOUT( "Outgoing edges at %u: (afterwards)\n", start->offset );
+        for ( j = 0; j < start->num_outgoing_edges; j++ ) {
+          const offset_graph_edge * const edge = start->outgoing_edges[j];
+          DOUT( "  %u to node %u\n", edge->edge_id, edge->end->offset );
+        }
+        DOUT( "Incoming edges at %u: (afterwards)\n", end->offset );
+        for ( j = 0; j < end->num_incoming_edges; j++ ) {
+          const offset_graph_edge * const edge = end->incoming_edges[j];
+          DOUT( "  %u from node %u\n", edge->edge_id, edge->start->offset );
+        }
+    );
+
     // Return the new edge
-    return new_edge;
+    DRETURN( new_edge );
   }
 }
 
@@ -319,6 +378,55 @@ offset_graph_node *getOffsetGraphNode( offset_graph *og, uint offset )
 }
 
 
+/* Prints the offset graph to th given file descriptor. */
+void dumpOffsetGraph( const offset_graph *og, FILE *out )
+{
+  fprintf( out, "Offset graph with %u nodes and %u edges\n",
+      og->num_nodes, og->num_edges );
+  fprintf( out, "\n");
+
+  uint i;
+  fprintf( out, "Nodes: \n" );
+  for ( i = 0; i < og->num_nodes; i++ ) {
+    const offset_graph_node * const node = &og->nodes[i];
+
+    fprintf( out, "  %u:\n", node->offset );
+
+    uint j;
+    fprintf( out, "    In-Edges : " );
+    for ( j = 0; j < node->num_incoming_edges; j++ ) {
+      const offset_graph_edge * const edge = node->incoming_edges[j];
+      fprintf( out, "%u (from node %u)", edge->edge_id, edge->start->offset );
+      if ( j != node->num_incoming_edges - 1 ) {
+        fprintf( out, ", " );
+      }
+    }
+    fprintf( out, "\n" );
+
+    fprintf( out, "    Out-Edges: " );
+    for ( j = 0; j < node->num_outgoing_edges; j++ ) {
+      const offset_graph_edge * const edge = node->outgoing_edges[j];
+      fprintf( out, "%u (to node %u)", edge->edge_id, edge->end->offset );
+      if ( j != node->num_outgoing_edges - 1 ) {
+        fprintf( out, ", " );
+      }
+    }
+    fprintf( out, "\n" );
+  }
+
+  fprintf( out, "\n");
+
+  fprintf( out, "Edges: \n" );
+  for ( i = 0; i < og->num_edges; i++ ) {
+    const offset_graph_edge * const edge = &og->edges[i];
+
+    fprintf( out, "  %u: node %u --> node %u with BCET %llu, WCET %llu \n",
+        edge->edge_id, edge->start->offset, edge->end->offset, edge->bcet,
+        edge->wcet );
+  }
+}
+
+
 /* Solves a minimum cost flow problem to obtain the final BCET.
  *
  * 'loopbound_min' specifies the minimum number of iterations of the loop.
@@ -327,10 +435,10 @@ ull computeOffsetGraphLoopBCET( const offset_graph *og, uint loopbound_min )
 {
   assert( og && "Invalid arguments!" );
 
-  char * const tmpfile = generateILP( og, loopbound_min, ILP_TYPE_BCET );
+  char * const tmpfile = generateOffsetGraphILP( og, loopbound_min, ILP_TYPE_BCET );
   const ull result = solveILP( tmpfile );
 
-  remove( tmpfile );
+  //remove( tmpfile );
   free( tmpfile );
 
   return result;
@@ -343,10 +451,10 @@ ull computeOffsetGraphLoopWCET( const offset_graph *og, uint loopbound_max )
 {
   assert( og && "Invalid arguments!" );
 
-  char * const tmpfile = generateILP( og, loopbound_max, ILP_TYPE_WCET );
+  char * const tmpfile = generateOffsetGraphILP( og, loopbound_max, ILP_TYPE_WCET );
   const ull result = solveILP( tmpfile );
 
-  remove( tmpfile );
+  //remove( tmpfile );
   free( tmpfile );
 
   return result;

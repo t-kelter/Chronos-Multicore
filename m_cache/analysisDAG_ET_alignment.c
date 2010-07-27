@@ -739,6 +739,27 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
   DSTART( "compute_bus_ET_MSC_alignment" );
   assert( msc && tdma_bus_schedule_file && "Invalid arguments!" );
 
+
+ /* offset_graph *graph = createOffsetGraph( 5 );
+  addOffsetGraphEdge( graph, &graph->supersource,
+                             getOffsetGraphNode( graph, 0 ), 10, 10 );
+  addOffsetGraphEdge( graph, getOffsetGraphNode( graph, 0 ),
+                             getOffsetGraphNode( graph, 1 ), 10, 10 );
+  addOffsetGraphEdge( graph, getOffsetGraphNode( graph, 1 ),
+                             getOffsetGraphNode( graph, 2 ), 10, 10 );
+  addOffsetGraphEdge( graph, getOffsetGraphNode( graph, 2 ),
+                             getOffsetGraphNode( graph, 3 ), 10, 10 );
+  addOffsetGraphEdge( graph, getOffsetGraphNode( graph, 3 ),
+                             getOffsetGraphNode( graph, 4 ), 10, 10 );
+  addOffsetGraphEdge( graph, getOffsetGraphNode( graph, 3 ),
+                             &graph->supersink, 10, 10 );
+  addOffsetGraphEdge( graph, getOffsetGraphNode( graph, 4 ),
+                             &graph->supersink, 10, 10 );
+  dumpOffsetGraph( graph, stdout );
+  computeOffsetGraphLoopBCET( graph, 3 );
+  computeOffsetGraphLoopWCET( graph, 3 );
+*/
+
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
 
