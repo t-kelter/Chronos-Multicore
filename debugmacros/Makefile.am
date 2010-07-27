@@ -4,7 +4,7 @@ noinst_LIBRARIES=libdebugmacros.a
 libdebugmacros_a_SOURCES=debugmacros.cc debugmacros.h
 
 # Copy the configuration files
-CONFIG_FILES=analysisDAG_ET_alignment.conf
+CONFIG_FILES=debugmacros.conf
 
 %.conf: %.conf.bak
 	cp -f $< $@

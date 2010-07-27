@@ -13,7 +13,7 @@
 #endif
 #include <debugmacros/debugmacros.h>
 
-// Include local headers (some folder)
+// Include local headers
 #include "analysisDAG_ET_alignment.h"
 #include "analysisDAG_common.h"
 #include "block.h"

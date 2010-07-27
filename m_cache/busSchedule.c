@@ -1,18 +1,21 @@
+// Include standard library headers
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "busSchedule.h"
 #include "handler.h"
 
-// Forward declarations of static functions
-
-static void set_core_specific_data(core_sched_p* head_core, 
-                                   int ncore, FILE* fp);
-
 
 /* Prints read TDMA bus schedule */
-#ifdef _DEBUG
+
 static void print_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
 {
 	int i;
@@ -28,9 +31,8 @@ static void print_core_specific_data(core_sched_p* head_core, int ncore, FILE* f
 	}
 }
 
-static void print_TDMA_sched()
+static void print_TDMA_sched( FILE* fp )
 {
-	FILE* fp = stdout;
 	int i;
 	segment_p seg;
 
@@ -58,7 +60,6 @@ static void print_TDMA_sched()
 	fprintf(fp, "\n****************END TDMA BUS SCHEDULE INFO********************\n\n");
 	fprintf(fp, "\n");
 }
-#endif
 
 /* Find proper segment given a list of segments and a starting time */
 static segment_p find_segment(segment_p* head_seg, int nsegs, ull start_time)
@@ -117,6 +118,8 @@ static void set_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
 
 void setSchedule(const char* sched_file)
 {
+  DSTART( "setSchedule" );
+
 	FILE* fp;
 	uint getdata;
 	uint ncore;
@@ -204,7 +207,6 @@ void setSchedule(const char* sched_file)
 
 	fclose(fp);
 
-#ifdef _DEBUG
-	print_TDMA_sched();
-#endif
+	DACTION( print_TDMA_sched( stdout ); );
+	DEND();
 }

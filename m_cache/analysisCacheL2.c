@@ -1,10 +1,19 @@
+// Include standard library headers
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "analysisCache.h"
 #include "analysisCacheL2.h"
 #include "dump.h"
+
 
 // Forward declarations of static functions
 
@@ -203,8 +212,6 @@ calculateMust_L2(cache_line_way_t **must, int instr_addr)
 		must[i] = must[i -1];
 
 	free(tmp);
-
-	//printf("\nalready free tail of the old cs\n");
 	
 	head = (cache_line_way_t *)CALLOC(head, 1, sizeof(cache_line_way_t), "cache_line_way_t");
 	head->entry = (int*)CALLOC(head->entry, 1, sizeof(int), "in head->entry");
@@ -345,12 +352,9 @@ calculatePersist_L2(cache_line_way_t **persist, int instr_addr)
 static void
 calculateCacheState_L2(cache_line_way_t **must, cache_line_way_t **may, cache_line_way_t **persist, int instr_addr)
 {
-	//printf("\nalready in calculate cs\n");
-
 	calculateMust_L2(must, instr_addr);
 	calculateMay_L2(may, instr_addr);
 	calculatePersist_L2(persist, instr_addr);
-	
 }
 
 /* Needed for checking membership when updating cache
@@ -593,14 +597,13 @@ unionMaxCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 static cache_state *
 allocCacheState_L2()
 {
+  DSTART( "allocCacheState_L2" );
+
 	int j, k;
 	cache_state *result = NULL;
-	//printf("\nalloc CS memory copies = %d \n", copies);
 
 	result = (cache_state *)CALLOC(result, 1, sizeof(cache_state), "cache_state_t");
 	
-	//printf("\nalloc CS memory result->loop_level = %d \n", result->loop_level );
-
 		result->must = NULL;
 		result->must = (cache_line_way_t***)CALLOC(result->must, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
@@ -612,7 +615,7 @@ allocCacheState_L2()
 
 		for(j = 0; j < cache_L2.ns; j++)
 		{
-			//printf("\nalloc CS memory for j = %d \n", j );
+			DOUT("\nalloc CS memory for j = %d \n", j );
 			result->must[j]= (cache_line_way_t**)	CALLOC(result->must[j], cache_L2.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
 			result->may[j]= (cache_line_way_t**)CALLOC(result->may[j], cache_L2.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
@@ -621,7 +624,7 @@ allocCacheState_L2()
 
 			for( k = 0; k < cache_L2.na; k++)
 			{
-				//printf("\nalloc CS memory for k = %d \n", k );
+				DOUT("\nalloc CS memory for k = %d \n", k );
 				result->must[j][k] = (cache_line_way_t*)CALLOC(result->must[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
 				result->must[j][k]->num_entry = 0;
 				result->must[j][k]->entry = NULL;
@@ -640,9 +643,8 @@ allocCacheState_L2()
 
 			
 		}
-	//}
 
-	return result;
+	DRETURN( result );
 }
 
 
@@ -838,7 +840,6 @@ freeAll_L2()
 static char
 isInCache_L2(int addr, cache_line_way_t**must)
 {
-	//printf("\nIn isInCache\n");
 	int i;
 	addr = TAGSET_L2(addr);
 	
@@ -911,7 +912,6 @@ freeCacheSet_L2(cache_line_way_t **cache_set)
 static char
 isNeverInCache_L2(int addr, cache_line_way_t**may)
 {
-	//printf("\nIn isNeverInCache\n");
 	int i;
 	addr = TAGSET_L2(addr);
 	
@@ -927,6 +927,8 @@ isNeverInCache_L2(int addr, cache_line_way_t**may)
 static cache_state *
 mapLoop_L2(procedure *pro, loop *lp)
 {
+  DSTART( "mapLoop_L2" );
+
 	int i, j, k, n, set_no, cnt, tmp, addr, addr_next, copies, age; 
 	int lp_level, tag, tag_next;
 	
@@ -999,9 +1001,8 @@ mapLoop_L2(procedure *pro, loop *lp)
 
 			if(bb->num_incoming > 1)
 			{
-				//printf("\ndo operations if more than one incoming edge\n");
-
-				//dumpCacheState(cs_ptr);
+				DOUT("\ndo operations if more than one incoming edge\n");
+				DACTION( dumpCacheState(cs_ptr); );
 				
 				for(j = 1; j < bb->num_incoming; j++)
 				{
@@ -1048,9 +1049,8 @@ mapLoop_L2(procedure *pro, loop *lp)
 
 				if(bb->num_incoming > 1)
 				{
-					//printf("\ndo operations if more than one incoming edge\n");
-
-					//dumpCacheState(cs_ptr);
+					DOUT("\ndo operations if more than one incoming edge\n");
+					DACTION( dumpCacheState(cs_ptr); );
 					
 					for(j = 1; j < bb->num_incoming; j++)
 					{
@@ -1095,7 +1095,7 @@ mapLoop_L2(procedure *pro, loop *lp)
 			}
 			else
 			{
-				printf("\nCFG error!\n");
+				DOUT("\nCFG error!\n");
 				exit(1);
 			}
 		}
@@ -1632,16 +1632,12 @@ mapLoop_L2(procedure *pro, loop *lp)
 		}
 	}
 */
-	//for(k = 0; k < current_chmc->hitmiss; k++)
-		//printf("L2: %d ", current_chmc->hitmiss_addr[k]);
-	DEBUG_ANALYSIS_PRINTF("cnt = %d, bb->size = %d, bb->startaddr = %d\n", cnt, bb->size, bb->startaddr);
-
-	DEBUG_ANALYSIS_PRINTF("L1:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
-	DEBUG_ANALYSIS_PRINTF("L2:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
-
-	DEBUG_ANALYSIS_PRINTF("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);
-
-	DEBUG_ANALYSIS_PRINTF("%c", tmp);
+	for(k = 0; k < current_chmc->hitmiss; k++)
+		DOUT("L2: %d ", current_chmc->hitmiss_addr[k]);
+	DOUT("cnt = %d, bb->size = %d, bb->startaddr = %d\n", cnt, bb->size, bb->startaddr);
+	DOUT("L1:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
+	DOUT("L2:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
+	DOUT("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);
 
 		//compute output cache state of this bb
 		//check the bb if it is a function call
@@ -1739,7 +1735,7 @@ mapLoop_L2(procedure *pro, loop *lp)
 		
 	}
 	
-	return p->bblist[lp ->topo[0]->bbid]->bb_cache_state_L2;
+	DRETURN( p->bblist[lp->topo[0]->bbid]->bb_cache_state_L2 );
 }
 
 
@@ -1750,21 +1746,13 @@ copyCacheState_L2(cache_state *cs)
 	int j, k, num_entry;
 	cache_state *copy = NULL;
 
-	//printf("\nIn copy Cache State now\n");
-
 	copy = (cache_state*)CALLOC(copy, 1, sizeof(cache_state), "cache_state");
 	copy->must = NULL;
 	copy->may = NULL;
 	copy->persist = NULL;
 
-		
-	//lp_level = cs->loop_level;
-  //int i;
-//	for( i = 0; i < copies; i ++)
-//	{
-		//printf("\nIn copyCacheState: i is %d\n", i);
 
-		copy->must = (cache_line_way_t***)CALLOC(copy->must, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+	  copy->must = (cache_line_way_t***)CALLOC(copy->must, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
 		copy->may = (cache_line_way_t***)CALLOC(copy->may, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
@@ -1836,6 +1824,8 @@ copyCacheState_L2(cache_state *cs)
 static cache_state *
 mapFunctionCall_L2(procedure *proc, cache_state *cs)
 {
+  DSTART( "mapFunctionCall_L2" );
+
 	int i, j, k, n, set_no, cnt, addr, addr_next, copies, tmp, tag, tag_next; 
 	int lp_level, age;
 
@@ -1847,7 +1837,7 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 	cache_line_way_t **cache_set_must, **cache_set_may, **clw;
 	CHMC *current_chmc;
 	
-	//printf("\nIn mapFunctionCall, p[%d]\n", p->pid);
+	DOUT("\nIn mapFunctionCall, p[%d]\n", p->pid);
 	
 	cs_ptr = copyCacheState_L2(cs);
 	
@@ -1918,7 +1908,7 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 			
 			if(bb->num_incoming > 1)
 			{
-			  DEBUG_ANALYSIS_PRINTF("\ndo operations if more than one incoming edge\n");
+			  DOUT("\ndo operations if more than one incoming edge\n");
 
 				//dumpCacheState(cs_ptr);
 				//printBlock(incoming_bb);
@@ -1958,11 +1948,7 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 	
 				}	//end for all incoming
 				
-#ifdef _DEBUG_ANALYSIS
-				dumpCacheState_L2(cs_ptr);
-#endif
-				//cs_ptr->source_bb = NULL;
-				//exit(1);
+				DACTION( dumpCacheState_L2(cs_ptr); );
 			}
 		}
 
@@ -2036,7 +2022,8 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 		addr = bb->startaddr;
 
 
-		//printf("bbid = %d, num_instr = %d, hit = %d, miss = %d, unknow = %d\n", bb->bbid, bb->num_instr, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
+		DOUT("bbid = %d, num_instr = %d, hit = %d, miss = %d, unknow = %d\n", bb->bbid,
+		    bb->num_instr, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
 
 		for(n = 0; n < bb->num_instr; n++)
 		{
@@ -2047,7 +2034,6 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 			//hit in L1?
 			if(isInWay(addr, bb->chmc[cnt]->hit_addr, bb->chmc[cnt]->hit))
 			{
-                                //printf("hello world %d\n", addr);
 				current_chmc->hitmiss_addr[n] = HIT_UPPER;
 				addr = addr +  INSN_SIZE;
 				continue;
@@ -2367,10 +2353,10 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 			addr = addr_next;
 		}
 
-	       //printf("bbid = %d, num_instr = %d, hit = %d, miss = %d, unknow = %d\n", bb->bbid, bb->num_instr, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
-
-		//printf("bbid = %d, num_instr = %d, L2: hit = %d, miss = %d, unknow = %d\n", bb->bbid, bb->num_instr, current_chmc->hit,current_chmc->miss, current_chmc->unknow);
-	        assert((bb->chmc[cnt]->miss + bb->chmc[cnt]->unknow) == (current_chmc->hit + current_chmc->miss + current_chmc->unknow));
+	  DOUT("bbid = %d, num_instr = %d, hit = %d, miss = %d, unknow = %d\n", bb->bbid,
+	      bb->num_instr, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
+    assert((bb->chmc[cnt]->miss + bb->chmc[cnt]->unknow) ==
+           (current_chmc->hit + current_chmc->miss + current_chmc->unknow));
 		
 		for(n = 0; n < bb->num_instr; n++)
 		{
@@ -2512,16 +2498,13 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 		}
 		*/
 
-	//for(k = 0; k < current_chmc->hitmiss; k++)
-		//printf("L2: %d ", current_chmc->hitmiss_addr[k]);
-		DEBUG_ANALYSIS_PRINTF("cnt = %d, bb->size = %d, bb->startaddr = %d\n", cnt, bb->size, bb->startaddr);
+		for(k = 0; k < current_chmc->hitmiss; k++)
+		  DOUT("L2: %d ", current_chmc->hitmiss_addr[k]);
+		DOUT("cnt = %d, bb->size = %d, bb->startaddr = %d\n", cnt, bb->size, bb->startaddr);
 
-		DEBUG_ANALYSIS_PRINTF("L1:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
-		DEBUG_ANALYSIS_PRINTF("L2:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
-		DEBUG_ANALYSIS_PRINTF("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);
-
-		DEBUG_ANALYSIS_PRINTF("%c\n", tmp);
-		//check the bb if it is a function call
+		DOUT("L1:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
+		DOUT("L2:\nnum of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
+		DOUT("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);
 		
 		if(bb->callpid != -1)
 		{
@@ -2619,7 +2602,7 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 	for(i = 0; i < p->num_bb; i ++)
 		p->bblist[i]->num_outgoing = p->bblist[i]->num_outgoing_copy;
 
-	return p ->bblist[ p->topo[0]->bbid]->bb_cache_state_L2;
+	DRETURN( p ->bblist[ p->topo[0]->bbid]->bb_cache_state_L2 );
 }
 
 
@@ -2701,8 +2684,6 @@ resetLoop_L2(procedure * proc, loop * lp)
 
 	num_blk = lp_ptr->num_topo;
 
-	//printf("pathLoop\n");
-
 	for(i = 0; i < MAX_NEST_LOOP; i++)
 		if(loop_level_arr[i] == INVALID)
 		{
@@ -2766,7 +2747,6 @@ void
 resetHitMiss_L2(MSC *msc)
 {
 	int i;
-	//printf("\nreset %s\n", msc->msc_name);
 	
 	for(i = 0; i < MAX_NEST_LOOP; i++)
 		loop_level_arr[i] = INVALID;
@@ -2782,6 +2762,8 @@ resetHitMiss_L2(MSC *msc)
 void
 cacheAnalysis_L2()
 {
+  DSTART( "cacheAnalysis_L2" );
+
 	int i;
 	for(i = 0; i < MAX_NEST_LOOP; i++)
 		loop_level_arr[i] = INVALID;
@@ -2799,11 +2781,10 @@ cacheAnalysis_L2()
 	
 	start = mapFunctionCall_L2(main_copy, start);
 
-        //exit(1);
-
-	//printf("\nprocedure %d\n\n", main_copy->pid);
-	//for(i = 0; i < cache_L2.ns; i++)
-		//printf("%d ", main_copy->hit_cache_set_L2[i]);
-	//printf("\n");
-
+	DOUT("\nprocedure %d\n\n", main_copy->pid);
+	DACTION(
+	    for(i = 0; i < cache_L2.ns; i++)
+	      DOUT("%d ", main_copy->hit_cache_set_L2[i]);
+      DOUT("\n");
+  );
 }

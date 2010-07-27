@@ -1,13 +1,22 @@
+// Include standard library headers
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include <stdint.h>
 #include <string.h>
 #include <math.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "analysisDAG_WCET_structural.h"
 #include "analysisDAG_common.h"
 #include "busSchedule.h"
+#include "dump.h"
 
 
 // Forward declarations of static functions
@@ -41,6 +50,7 @@ static ull totalAlignCost = 0;
  */
 static void set_start_time_WCET_opt( block* bb, procedure* proc, uint context )
 {
+  DSTART( "set_start_time_WCET_opt" );
   ull max_start = bb->start_opt[context];
 
   assert(bb);
@@ -59,8 +69,9 @@ static void set_start_time_WCET_opt( block* bb, procedure* proc, uint context )
    * finish time of predecessors block */
   bb->start_opt[context] = max_start;
 
-  DEBUG_PRINTF( "Setting max start of bb %d (context %u) = %Lu\n",
+  DOUT( "Setting max start of bb %d (context %u) = %Lu\n",
       bb->bbid, context, max_start );
+  DEND();
 }
 
 
@@ -117,15 +128,17 @@ static ull getLoopWCET( const loop *lp, int enclosing_loop_context )
  * end */
 static void preprocess_one_loop( loop* lp, procedure* proc )
 {
+  DSTART( "preprocess_one_loop" );
+
   /* We can assume the start time to be always zero */
   const ull start_time = 0;
   uint max_fin[64] = { 0 };
 
   /* Compute only once */
   if ( lp->wcet_opt[0] )
-    return;
+    DRETURN();
 
-  NPRINT_PRINTF( "Visiting loop = %d.%d.0x%x\n", lp->pid, lp->lpid, (unsigned) lp );
+  DOUT( "Visiting loop = %d.%d.0x%x\n", lp->pid, lp->lpid, (uintptr_t)lp );
 
   /* Traverse all the blocks in topological order. Topological
    * order does not assume internal loops. Thus all internal 
@@ -215,9 +228,11 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
   int j;
   for ( j = 0; j < lp->loophead->num_chmc; j++ ) {
     lp->wcet_opt[j] = ( max_fin[j] - 1 );
-    PRINT_PRINTF( "WCET of loop (%d.%d.0x%x)[%d] = %Lu\n", lp->pid, lp->lpid,
+    DOUT( "WCET of loop (%d.%d.0x%x)[%d] = %Lu\n", lp->pid, lp->lpid,
         (unsigned int)(uintptr_t) lp, j, lp->wcet_opt[j] );
   }
+
+  DEND();
 }
 
 /* Preprocess each loop for optimized bus aware WCET calculation */
@@ -237,7 +252,8 @@ static void preprocess_all_loops( procedure* proc )
 /* Compute worst case finish time and cost of a block */
 static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
 {
-  DEBUG_PRINTF( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t) bb );
+  DSTART( "computeWCET_block" );
+  DOUT( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t) bb );
 
   const uint proc_body_context = 0;
 
@@ -285,11 +301,15 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
      * time of this block */
     bb->finish_time = bb->start_time + bb_cost;
   }
-  DEBUG_PRINTF( "Setting block %d finish time = %Lu\n", bb->bbid, bb->finish_time );
+
+  DOUT( "Setting block %d finish time = %Lu\n", bb->bbid, bb->finish_time );
+  DEND();
 }
 
 static void computeWCET_proc( procedure* proc, ull start_time )
 {
+  DSTART( "computeWCET_proc" );
+
   /* Preprocess all the loops for optimized WCET calculation */
   /********CAUTION*******/
   preprocess_all_loops( proc );
@@ -297,10 +317,10 @@ static void computeWCET_proc( procedure* proc, ull start_time )
   /* Reset all timing information */
   reset_timestamps( proc, start_time );
 
-#ifdef _DEBUG
-  dump_pre_proc_chmc(proc, ACCESS_SCENARIO_BCET);
-  dump_pre_proc_chmc(proc, ACCESS_SCENARIO_WCET);
-#endif
+  DACTION(
+      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_BCET);
+      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_WCET);
+  );
 
   /* Recursively compute the finish time and WCET of each 
    * predecessors first */
@@ -318,9 +338,9 @@ static void computeWCET_proc( procedure* proc, ull start_time )
     computeWCET_block( bb, proc, NULL );
   }
 
-#ifdef _DEBUG
-  dump_prog_info(proc);
-#endif
+  DACTION(
+      dump_prog_info(proc);
+  );
 
   /* Now calculate the final WCET */
   ull max_f_time = 0;
@@ -334,13 +354,17 @@ static void computeWCET_proc( procedure* proc, ull start_time )
 
   proc->running_finish_time = max_f_time;
   proc->running_cost = max_f_time - start_time;
-  DEBUG_PRINTF( "Set worst case cost of the procedure %d = %Lu\n", proc->pid, proc->running_cost );
+
+  DOUT( "Set worst case cost of the procedure %d = %Lu\n", proc->pid, proc->running_cost );
+  DEND();
 }
 
 /* Analyze worst case execution time of all the tasks inside 
  * a MSC. The MSC is given by the argument */
 void compute_bus_WCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_file )
 {
+  DSTART( "compute_bus_WCET_MSC_structural" );
+
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
 
@@ -354,7 +378,7 @@ void compute_bus_WCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_fi
   int k;
   for ( k = 0; k < msc->num_task; k++ ) {
 
-    PRINT_PRINTF( "Analyzing Task WCET %s......\n", msc->taskList[k].task_name );
+    DOUT( "Analyzing Task WCET %s......\n", msc->taskList[k].task_name );
 
     /* Get needed inputs. */
     cur_task = &( msc->taskList[k] );
@@ -378,13 +402,15 @@ void compute_bus_WCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_fi
      * update all its successor tasks' latest time */
     update_succ_task_latest_start_time( msc, cur_task );
 
-    PRINT_PRINTF( "\n**************************************************************\n" );
-    PRINT_PRINTF( "Latest start time of the program = %Lu cycles\n", start_time );
-    PRINT_PRINTF( "Latest finish time of the task = %Lu cycles\n", task_main->running_finish_time );
-    PRINT_PRINTF( "WCET of the task %s shared bus = %Lu cycles\n",
+    DOUT( "\n**************************************************************\n" );
+    DOUT( "Latest start time of the program = %Lu cycles\n", start_time );
+    DOUT( "Latest finish time of the task = %Lu cycles\n", task_main->running_finish_time );
+    DOUT( "WCET of the task %s shared bus = %Lu cycles\n",
         g_shared_bus ? "with" : "without", task_main->running_cost );
-    PRINT_PRINTF( "Final alignment cost in analysis = %llu (%llu%%)\n", totalAlignCost,
+    DOUT( "Final alignment cost in analysis = %llu (%llu%%)\n", totalAlignCost,
         totalAlignCost * 100 / task_main->running_cost );
-    PRINT_PRINTF( "**************************************************************\n\n" );
+    DOUT( "**************************************************************\n\n" );
   }
+
+  DEND();
 }

@@ -1,11 +1,19 @@
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "analysisDAG_BCET_unroll.h"
 #include "analysisDAG_common.h"
 #include "busSchedule.h"
+#include "dump.h"
+
+#include <debugmacros/debugmacros.h>
 
 
 // Forward declarations of static functions
@@ -36,7 +44,9 @@ static void computeBCET_proc( procedure* proc, ull start_time );
  */
 static void computeBCET_loop( loop* lp, procedure* proc, uint context )
 {
-  DEBUG_PRINTF( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t)lp);
+  DSTART( "computeBCET_loop" );
+
+  DOUT( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t)lp);
 
   const int lpbound = lp->loopbound;
 
@@ -63,7 +73,7 @@ static void computeBCET_loop( loop* lp, procedure* proc, uint context )
       } else if ( bb->bbid == lp->loophead->bbid ) {
         assert(lp->loopsink);
         bb->start_time = MAX( lp->loopsink->finish_time, bb->start_time );
-        DEBUG_PRINTF( "Setting loop %d finish time = %Lu\n", lp->lpid, lp->loopsink->finish_time );
+        DOUT( "Setting loop %d finish time = %Lu\n", lp->lpid, lp->loopsink->finish_time );
       } else {
         set_start_time_BCET( bb, proc );
       }
@@ -71,12 +81,15 @@ static void computeBCET_loop( loop* lp, procedure* proc, uint context )
       computeBCET_block( bb, proc, lp, inner_context );
     }
   }
+
+  DEND();
 }
 
 /* Compute worst case finish time and cost of a block */
 static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp, uint context )
 {
-  DEBUG_PRINTF( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t)bb);
+  DSTART( "computeBCET_block" );
+  DOUT( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t)bb );
 
   /* Check whether the block is some header of a loop structure.
    * In that case do separate analysis of the loop */
@@ -122,19 +135,22 @@ static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp, uint co
      * time of this block */
     bb->finish_time = bb->start_time + bb_cost;
   }
-  DEBUG_PRINTF( "Setting block %d finish time = %Lu\n", bb->bbid,
-      bb->finish_time);
+
+  DOUT( "Setting block %d finish time = %Lu\n", bb->bbid, bb->finish_time);
+  DEND();
 }
 
 static void computeBCET_proc( procedure* proc, ull start_time )
 {
+  DSTART( "computeBCET_proc" );
+
   /* Reset all timing information */
   reset_timestamps( proc, start_time );
 
-#ifdef _DEBUG
-  dump_pre_proc_chmc(proc, ACCESS_SCENARIO_BCET);
-  dump_pre_proc_chmc(proc, ACCESS_SCENARIO_WCET);
-#endif
+  DACTION(
+      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_BCET);
+      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_WCET);
+  );
 
   /* Recursively compute the finish time and BCET of each
    * predecessors first */
@@ -174,14 +190,17 @@ static void computeBCET_proc( procedure* proc, ull start_time )
   proc->running_finish_time = min_f_time;
   proc->running_cost = min_f_time - start_time;
 
-  DEBUG_PRINTF( "Set best case cost of the procedure %d = %Lu\n",
+  DOUT( "Set best case cost of the procedure %d = %Lu\n",
       proc->pid, proc->running_cost);
+  DEND();
 }
 
 /* Analyze best case execution time of all the tasks inside 
  * a MSC. The MSC is given by the argument */
 void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
 {
+  DSTART( "compute_bus_BCET_MSC_unroll" );
+
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
 
@@ -194,7 +213,7 @@ void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
   int k;
   for ( k = 0; k < msc->num_task; k++ ) {
 
-    PRINT_PRINTF( "Analyzing Task BCET %s......\n", msc->taskList[k].task_name);
+    DOUT( "Analyzing Task BCET %s......\n", msc->taskList[k].task_name);
 
     /* Get needed inputs. */
     cur_task = &( msc->taskList[k] );
@@ -218,13 +237,14 @@ void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
      * update all its successor tasks' latest time */
     update_succ_task_earliest_start_time( msc, cur_task );
 
-    PRINT_PRINTF("\n**************************************************************\n");
-    PRINT_PRINTF("Earliest start time of the task = %Lu cycles\n", start_time);
-    PRINT_PRINTF("Earliest finish time of the task = %Lu cycles\n",
+    DOUT("\n**************************************************************\n");
+    DOUT("Earliest start time of the task = %Lu cycles\n", start_time);
+    DOUT("Earliest finish time of the task = %Lu cycles\n",
         task_main->running_finish_time);
-    PRINT_PRINTF( "BCET of the task %s shared bus = %Lu cycles\n",
+    DOUT( "BCET of the task %s shared bus = %Lu cycles\n",
         g_shared_bus ? "with" : "without", task_main->running_cost );
-    PRINT_PRINTF("**************************************************************\n\n");
+    DOUT("**************************************************************\n\n");
   }
-  /* DONE :: BCET computation of the MSC */
+
+  DEND();
 }

@@ -558,7 +558,7 @@ int execute() {
 
 	else if( strcmp( insn->op, "j" ) == 0 );
 
-  DEBUG_PRINTF( "Ignoring opcode: %s\n", insn->op );
+  printf( "Ignoring opcode: %s\n", insn->op );
 
 	/*
 	else if( strcmp( insn->op, "mtc1" ) == 0 || strcmp( insn->op, "cvt.d.w" ) == 0 ) {

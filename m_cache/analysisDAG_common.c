@@ -1,13 +1,22 @@
+// Include standard library headers
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #include <math.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "analysisDAG_common.h"
 #include "block.h"
 #include "busSchedule.h"
 #include "handler.h"
+
 
 
 /* This function returns a context id for the iterations an inner loop inside a
@@ -42,6 +51,8 @@ uint getInnerLoopContext( const loop *lp, uint surroundingLoopContext, _Bool fir
  * (Not context-aware) */
 void set_start_time_WCET( block* bb, procedure* proc )
 {
+  DSTART( "set_start_time_WCET" );
+
   ull max_start = bb->start_time;
 
   assert(bb);
@@ -60,7 +71,8 @@ void set_start_time_WCET( block* bb, procedure* proc )
    * finish time of predecessors block */
   bb->start_time = max_start;
 
-  DEBUG_PRINTF( "Setting max start of bb %d = %Lu\n", bb->bbid, max_start );
+  DOUT( "Setting max start of bb %d = %Lu\n", bb->bbid, max_start );
+  DEND();
 }
 
 
@@ -68,6 +80,8 @@ void set_start_time_WCET( block* bb, procedure* proc )
  * (Not context-aware) */
 void set_start_time_BCET( block* bb, procedure* proc )
 {
+  DSTART( "set_start_time_BCET" );
+
   ull min_start = 0;
 
   assert(bb);
@@ -90,7 +104,8 @@ void set_start_time_BCET( block* bb, procedure* proc )
    * finish time of predecessors block */
   bb->start_time = min_start;
 
-  DEBUG_PRINTF( "Setting min start of bb %d = %Lu\n", bb->bbid, min_start);
+  DOUT( "Setting min start of bb %d = %Lu\n", bb->bbid, min_start);
+  DEND();
 }
 
 
@@ -100,12 +115,13 @@ void set_start_time_BCET( block* bb, procedure* proc )
  * analysis depends on the same */
 void update_succ_task_earliest_start_time( MSC* msc, task_t* task )
 {
-  DEBUG_PRINTF( "Number of Successors = %d\n", task->numSuccs);
+  DSTART( "update_succ_task_earliest_start_time" );
+  DOUT( "Number of Successors = %d\n", task->numSuccs);
 
   int i;
   for ( i = 0; i < task->numSuccs; i++ ) {
 
-    DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i]);
+    DOUT( "Successor id with %d found\n", task->succList[i]);
 
     task_t * const successor = &msc->taskList[task->succList[i]];
     /* The earliest start times are initialized with 0. This will always
@@ -120,9 +136,10 @@ void update_succ_task_earliest_start_time( MSC* msc, task_t* task )
       successor->earliest_start_time = task->earliest_start_time + task->bcet;
     }
 
-    DEBUG_PRINTF( "Updating earliest start time of successor = %Lu\n",
+    DOUT( "Updating earliest start time of successor = %Lu\n",
         successor->earliest_start_time );
   }
+  DEND();
 }
 
 
@@ -132,9 +149,11 @@ void update_succ_task_earliest_start_time( MSC* msc, task_t* task )
  * imposed by the partial order of the MSC */
 ull get_earliest_task_start_time( task_t* cur_task, uint core )
 {
+  DSTART( "get_earliest_task_start_time" );
+
   /* If independent task mode return 0 */
   if ( g_independent_task )
-    return 0;
+    DRETURN( 0 );
 
   /* A task in the MSC can be delayed because of two reasons. Either
    * the tasks it is dependent upon has not finished executing or
@@ -144,9 +163,9 @@ ull get_earliest_task_start_time( task_t* cur_task, uint core )
    * possibilities */
   ull start = MIN( cur_task->earliest_start_time, earliest_core_time[core] );
 
-  DEBUG_PRINTF( "Assigning the earliest starting time of the task = %Lu\n", start);
+  DOUT( "Assigning the earliest starting time of the task = %Lu\n", start);
 
-  return start;
+  DRETURN( start );
 }
 
 
@@ -156,29 +175,33 @@ ull get_earliest_task_start_time( task_t* cur_task, uint core )
  * analysis depends on the same */
 void update_succ_task_latest_start_time( MSC* msc, task_t* task )
 {
-  DEBUG_PRINTF( "Number of Successors = %d\n", task->numSuccs );
+  DSTART( "update_succ_task_latest_start_time" );
+  DOUT( "Number of Successors = %d\n", task->numSuccs );
 
   int i;
   for ( i = 0; i < task->numSuccs; i++ ) {
-    DEBUG_PRINTF( "Successor id with %d found\n", task->succList[i] );
+    DOUT( "Successor id with %d found\n", task->succList[i] );
 
     task_t * const successor = &msc->taskList[task->succList[i]];
     successor->latest_start_time = MAX(
         successor->latest_start_time,
         task->latest_start_time + task->wcet );
 
-    DEBUG_PRINTF( "Updating latest start time of successor = %Lu\n",
+    DOUT( "Updating latest start time of successor = %Lu\n",
         successor->latest_start_time );
   }
+  DEND();
 }
 
 
 /* Returns the latest starting of a task in the MSC */
 ull get_latest_task_start_time( task_t* cur_task, uint core )
 {
+  DSTART( "get_latest_task_start_time" );
+
   /* If independent task mode return 0 */
   if ( g_independent_task )
-    return 0;
+    DRETURN( 0 );
 
   /* A task in the MSC can be delayed because of two reasons. Either
    * the tasks it is dependent upon has not finished executing or
@@ -187,9 +210,9 @@ ull get_latest_task_start_time( task_t* cur_task, uint core )
    * same core. Thus we need to consider the maximum of two
    * possibilities */
   ull start = MAX( cur_task->latest_start_time, latest_core_time[core] );
-  DEBUG_PRINTF( "Assigning the latest starting time of the task = %Lu\n", start );
+  DOUT( "Assigning the latest starting time of the task = %Lu\n", start );
 
-  return start;
+  DRETURN( start );
 }
 
 
@@ -317,13 +340,15 @@ static procedure* get_task_callee(uint startaddr)
 
 uint get_hex(char* hex_string)
 {
+  DSTART( "get_hex" );
+
    int len,i;
    char dig;
    uint value = 0;
 
-    len = strlen(hex_string);
+   len = strlen(hex_string);
 
-   NDEBUG_PRINTF( "hex string = %s\n", hex_string);
+   DOUT( "hex string = %s\n", hex_string);
 
    for(i = 0; i < len; i++)
    {
@@ -354,15 +379,17 @@ uint get_hex(char* hex_string)
       };
    }
 
-   NDEBUG_PRINTF( "hex value = %x\n", value);
+   DOUT( "hex value = %x\n", value);
 
-   return value;
+   DRETURN( value );
 }
 
 
 /* Returns the callee procedure for a procedure call instruction */
 procedure* getCallee(instr* inst, procedure* proc)
 {
+  DSTART( "getCallee" );
+
   int i;
   procedure* callee;
   block* f_block;
@@ -374,14 +401,14 @@ procedure* getCallee(instr* inst, procedure* proc)
    * function and its cost is ignored */
   /* assert(proc->calls); */
   if(!proc->calls)
-     return NULL;
+     DRETURN( NULL );
 
   addr = get_hex(GET_CALLEE(inst));
 
   /* For MSC based analysis return the procedure pointer in the 
    * task */
   if(cur_task)
-    return get_task_callee(addr);
+    DRETURN( get_task_callee(addr) );
   
   for(i = 0; i < proc->num_calls; i++)
   {  
@@ -393,7 +420,7 @@ procedure* getCallee(instr* inst, procedure* proc)
       * with the jump instruction of the callee procedure
       * then this is the callee --- in that case return 
       * the callee procedure */
-     DEBUG_PRINTF( "jump address = %x, callee address = %x\n", 
+     DOUT( "jump address = %x, callee address = %x\n",
         get_hex(GET_CALLEE(inst)), f_block->startaddr); 
      
      /* Check the starting address of the procedure */
@@ -402,7 +429,7 @@ procedure* getCallee(instr* inst, procedure* proc)
        /* FIXME: If no MSC-based calculation return callee 
         * directly otherwise return the modified pointer in
         * the task */
-          return callee;
+          DRETURN( callee );
      }   
   }
 
@@ -412,7 +439,7 @@ procedure* getCallee(instr* inst, procedure* proc)
   /*  prerr("Error: Called procedure not found"); */
 
   /* to make compiler happy */    
-  return NULL;
+  DRETURN( NULL );
 }
 
 
@@ -547,17 +574,19 @@ uint get_core(task_t* cur_task)
  * to the TDMA slots to increase the analysis precision. */
 ull endAlign( ull fin_time )
 {
+  DSTART( "endAlign" );
+
   const core_sched_p core_schedule = getCoreSchedule( ncore, fin_time );
   const ull interval = core_schedule->interval;
 
+  ull align = 0;
   if ( fin_time % interval == 0 ) {
-    DEBUG_PRINTF( "End align = 0\n" );
-    return 0;
+    align = 0;
   } else {
-    const ull align = ( fin_time / interval + 1 ) * interval - fin_time;
-    DEBUG_PRINTF( "End align = %Lu\n", align );
-    return align;
+    align = ( fin_time / interval + 1 ) * interval - fin_time;
   }
+  DOUT( "End align = %Lu\n", align );
+  DRETURN( align );
 }
 
 
@@ -566,9 +595,11 @@ ull endAlign( ull fin_time )
  * to the TDMA slots to increase the analysis precision. */
 ull startAlign( ull start_time )
 {
+  DSTART( "startAlign" );
+
   const core_sched_p core_schedule = getCoreSchedule( ncore, start_time );
   const ull interval = core_schedule->interval;
 
-  DEBUG_PRINTF( "Start align = %u\n", interval );
-  return interval;
+  DOUT( "Start align = %u\n", interval );
+  DRETURN( interval );
 }

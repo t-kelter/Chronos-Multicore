@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "block.h"
+#include "handler.h"
 
 
 /*
@@ -43,7 +44,7 @@ int getblock( int bbid, block **bblist, int start, int end )
 int testBlockRange( int addr, block *bb ) {
 
   if( !bb )
-    printf( "Null basic block encountered in search.\n" ), exit(1);
+    prerr( "Null basic block encountered in search.\n" );
 
   if( addr < bb->startaddr )
     return -1;
@@ -188,7 +189,7 @@ char *getJumpDest( instr *insn ) {
       strcmp( insn->op, "beq" ) == 0 )
     return insn->r3;
 
-  printf( "Unrecognized or not a jump instruction: %s\n", insn->op );
+  fprintf( stderr, "Unrecognized or not a jump instruction: %s\n", insn->op );
   return NULL;
 }
 

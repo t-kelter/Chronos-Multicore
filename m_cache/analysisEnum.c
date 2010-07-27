@@ -1,11 +1,20 @@
+// Include standard library headers
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "analysisEnum.h"
 #include "DAG_WCET.h"
 #include "handler.h"
 #include "block.h"
+
 
 char enum_in_seq_bef( int bbid, int target, ushort *bb_seq, ushort bb_len ) {
 
@@ -77,10 +86,8 @@ char enum_BBconflictInPath( branch *bru, char direction, block *bv,
       id = enum_effectCancelled( br, NULL, bb_seq, len, bblist, num_bb );
 
       if( id == -1 ) {
-        DEBUG_PRINTF( "BB %d:%d~%d - %d(%d)\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res );
         return 1;
       }
-      DEBUG_PRINTF( "BB %d:%d~%d - %d(%d) cancel[%d]\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res, id );
     }
   }
   return 0;
@@ -116,10 +123,8 @@ char enum_BAconflictInPath( block *bu, ushort *bb_seq, ushort len, block **bblis
 	id = enum_effectCancelled( br, assg, bb_seq, len, bblist, num_bb );
 
 	if( id == -1 ) {
-    DEBUG_PRINTF( "BA %d:%d - %d(%d)\n", bu->pid, bu->bbid, br->bb->bbid, res );
 	  return 1;
 	}
-	DEBUG_PRINTF( "BA %d:%d - %d(%d) cancel[%d]\n", bu->pid, bu->bbid, br->bb->bbid, res, id );
       }
     }
   }
@@ -158,9 +163,10 @@ int analyseEnumDAG( char objtype, void *obj ) {
     p            = procs[ lp->pid ];
     topo         = lp->topo;
     num_topo     = lp->num_topo;
+  } else {
+    fprintf( stderr, "Invalid objtype passed to analysisDAG: %d\n", objtype );
+    exit(1);
   }
-  else
-    printf( "Invalid objtype passed to analysisDAG: %d\n", objtype ), exit(1);
 
   pathcounts = (ull*) CALLOC( pathcounts, p->num_bb, sizeof(ull), "pathcounts" );
 
@@ -350,7 +356,9 @@ int analyseEnumProc( procedure *p ) {
 }
 
 
-int analysis_enum() {
+int analysis_enum()
+{
+  DSTART( "analysis_enum" );
 
   int i;
 
@@ -366,11 +374,11 @@ int analysis_enum() {
   // analyse each procedure in reverse topological order of call graph
   for( i = 0; i < num_procs; i++ ) {
     analyseEnumProc( procs[ proc_cg[i] ] );
-    printf( "#paths in proc %d: %Lu\n", proc_cg[i], enum_paths_proc[proc_cg[i]] );
+    DOUT( "#paths in proc %d: %Lu\n", proc_cg[i], enum_paths_proc[proc_cg[i]] );
   }
 
   if( do_inline )
-    printf( "\nTotal number of paths: %Lu\n", enum_paths_proc[main_id] );
+    DOUT( "\nTotal number of paths: %Lu\n", enum_paths_proc[main_id] );
 
   free( enum_paths_proc );
 
@@ -378,5 +386,6 @@ int analysis_enum() {
     free( enum_pathlist );
     free( enum_pathlen );
   }
-  return 0;
+
+  DRETURN( 0 );
 }

@@ -1,11 +1,17 @@
+// Include standard library headers
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
 
-#include "config.h"
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
 
+// Include local headers
 #define DEF_GLOBALS
 #include "header.h"
 #undef DEF_GLOBALS
@@ -34,10 +40,14 @@
 #include "analysisCacheL2.h"
 #include "updateCacheL2.h"
 #include "pathDAG.h"
-/* For bus-aware WCET calculation */
 #include "busSchedule.h"
 #include "wcrt/wcrt.h"
 #include "wcrt/cycle_time.h"
+
+
+// ############################################################
+// #### Local data type definitions (will not be exported) ####
+// ############################################################
 
 
 // List of analysis methods
@@ -46,11 +56,28 @@ enum AnalysisMethod {
     ANALYSIS_STRUCTURAL,
     ANALYSIS_ALIGNMENT
 };
+typedef unsigned long long ticks;
+#define CPU_MHZ 3000000000
 
 
-// List of static helper functions (see bottom)
+// #########################################
+// #### Declaration of static variables ####
+// #########################################
+
+
+/* Stores whether the debugmacros have already been initialized for this file. */
+static _Bool firstDebugmacroInit = 1;
+
+
+// #########################################
+// #### Declaration of static functions ####
+// #########################################
+
+
+static void analysis( MSC *msc, const char *tdma_bus_schedule_file, enum AnalysisMethod method );
 static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool *interference_changed );
 static void writeWCETandCacheInfoFiles( int num_msc );
+static __inline__ ticks getticks(void);;
 
 #ifdef WITH_WEI_COMPARISON
 static void writeWeiComparison( int num_msc, const char *finalStatsBasename );
@@ -58,57 +85,16 @@ static void writeWeiStatistic( int num_msc );
 #endif
 
 
-/* sudiptac:: For performance measurement */
-typedef unsigned long long ticks;
-#define CPU_MHZ 3000000000
-static __inline__ ticks getticks(void)
-{
-  unsigned a, d;
-  __asm__ __volatile__("rdtsc" : "=a" (a), "=d" (d));
-  return ((ticks)a) | (((ticks)d) << 32);
-}
-
-
-/*
- * Switches between the alternatives of analysis methods.
- */
-static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
-                      enum AnalysisMethod method )
-{
-  switch ( method ) {
-
-    case ANALYSIS_UNROLL:
-      compute_bus_WCET_MSC_unroll(msc, tdma_bus_schedule_file);
-      compute_bus_BCET_MSC_unroll(msc, tdma_bus_schedule_file);
-      break;
-
-    case ANALYSIS_STRUCTURAL:
-      compute_bus_WCET_MSC_structural(msc, tdma_bus_schedule_file);
-      compute_bus_BCET_MSC_unroll(msc, tdma_bus_schedule_file);
-      break;
-
-    case ANALYSIS_ALIGNMENT:
-      // Computes BCET and WCET together
-      compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file, 
-          LOOP_ANALYSIS_GLOBAL_CONVERGENCE, 0);
-      break;
-
-    default:
-      fprintf( stderr, "Invalid choice of analysis method.\n" );
-      exit(1);
-  }
-
-  // Assert that all results are sound
-  int i;
-  for ( i = 0; i < msc->num_task; i++ ) {
-    assert( msc->taskList[i].bcet <= msc->taskList[i].wcet &&
-        "Invalid BCET/WCET results for task" );
-  }
-}
+// #########################################
+// #### Definitions of public functions ####
+// #########################################
 
 
 int main(int argc, char **argv )
 {
+  DINITDEBUGMACROS( firstDebugmacroInit, "debugmacros.conf" );
+  DSTART( "main" );
+
   char hitmiss[MAX_LEN];
   int n, i, j;
   _Bool flag;
@@ -132,7 +118,7 @@ int main(int argc, char **argv )
   interferePathName = argv[1];
   num_core = atoi( argv[4] );
   const char * const tdma_bus_schedule_file = argv[5];
-  infeas   = 0;
+  infeas = 0;
 
   /* Set the analysis method to use. */
   enum AnalysisMethod current_analysis_method;
@@ -183,10 +169,10 @@ int main(int argc, char **argv )
 
   /* find out: (1) size of each cache line, (2) number of cache sets,
    * (3) associativity */
-#ifdef _DEBUG
+  DACTION(
     dumpCacheConfig();
     dumpCacheConfig_L2();
-#endif
+  );
 
   /* Monitor time from this point */
   STARTTIME;
@@ -231,10 +217,7 @@ int main(int argc, char **argv )
 
       /* Read the cfg of the task */
       read_cfg();
-
-#ifdef _DEBUG
-        print_cfg();
-#endif
+      DACTION( print_cfg(); );
 
       /* Create the procedure pointer in the task --- just allocate
        * the memory */
@@ -250,27 +233,21 @@ int main(int argc, char **argv )
       }
 
       readInstr();
-
-#ifdef _DEBUG
-        print_instrlist();
-#endif
+      DACTION( print_instrlist(); );
 
       /* Detect loops in all procedures of the task */ 
       detect_loops();
 
-#ifdef _DEBUG
-        print_loops();
+      DACTION(
+          print_loops();
 
-      /* for dynamic locking in memarchi */
-        dump_callgraph();
-        dump_loops();
-#endif
+          /* for dynamic locking in memarchi */
+          dump_callgraph();
+          dump_loops();
+      );
 
       topo_sort();
-
-#ifdef _DEBUG
-        print_topo();
-#endif
+      DACTION( print_topo(); );
 
       /* compute incoming info for each basic block */
       calculate_incoming();
@@ -297,14 +274,14 @@ int main(int argc, char **argv )
        * no longer needed */ 
       freeAllCacheState();
 
-      PRINT_PRINTF("L1 cache analysis finished\n");
+      printf("L1 cache analysis finished\n");
 
       /* Now do private L2 cache analysis of this task */
       cacheAnalysis_L2();
       /* Free L2 cache states */
       freeAll_L2();
 
-      PRINT_PRINTF("L2 cache analysis finished\n\n");
+      printf("L2 cache analysis finished\n\n");
     }
 
     /* Private cache analysis for all tasks are done here. But due 
@@ -312,7 +289,7 @@ int main(int argc, char **argv )
      * need to be updated */
     /* If private L2 cache analysis .... no update of interference */
     if( !g_private ) {
-      PRINT_PRINTF("Update cache state in msc '%s'\n\n", currentMSC->msc_name);
+      printf("Update cache state in msc '%s'\n\n", currentMSC->msc_name);
       updateCacheState(currentMSC);
     }
 
@@ -348,7 +325,7 @@ int main(int argc, char **argv )
     printf("===================================================\n");
     printf("WCET computation time = %lf secs\n", (end - start)/((1.0) * CPU_MHZ));
     printf("===================================================\n");
-    return 0;
+    DRETURN( 0 );
   }	 
 
   /* Start of the iterative algorithm */		  
@@ -495,7 +472,50 @@ int main(int argc, char **argv )
 
   printf("%d core, No change in interfere now, exit\n", num_core);
 
-  return 0;
+  DRETURN( 0 );
+}
+
+
+// #########################################
+// #### Definitions of static functions ####
+// #########################################
+
+
+/*
+ * Switches between the alternatives of analysis methods.
+ */
+static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
+                      enum AnalysisMethod method )
+{
+  switch ( method ) {
+
+    case ANALYSIS_UNROLL:
+      compute_bus_WCET_MSC_unroll(msc, tdma_bus_schedule_file);
+      compute_bus_BCET_MSC_unroll(msc, tdma_bus_schedule_file);
+      break;
+
+    case ANALYSIS_STRUCTURAL:
+      compute_bus_WCET_MSC_structural(msc, tdma_bus_schedule_file);
+      compute_bus_BCET_MSC_unroll(msc, tdma_bus_schedule_file);
+      break;
+
+    case ANALYSIS_ALIGNMENT:
+      // Computes BCET and WCET together
+      compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file,
+          LOOP_ANALYSIS_GLOBAL_CONVERGENCE, 1);
+      break;
+
+    default:
+      fprintf( stderr, "Invalid choice of analysis method.\n" );
+      exit(1);
+  }
+
+  // Assert that all results are sound
+  int i;
+  for ( i = 0; i < msc->num_task; i++ ) {
+    assert( msc->taskList[i].bcet <= msc->taskList[i].wcet &&
+        "Invalid BCET/WCET results for task" );
+  }
 }
 
 
@@ -816,3 +836,12 @@ static void writeWeiComparison( int num_msc, const char *finalStatsBasename )
    fclose(hitmiss_statistic);
 }
 #endif
+
+
+/* sudiptac:: For performance measurement */
+static __inline__ ticks getticks(void)
+{
+  unsigned a, d;
+  __asm__ __volatile__("rdtsc" : "=a" (a), "=d" (d));
+  return ((ticks)a) | (((ticks)d) << 32);
+}

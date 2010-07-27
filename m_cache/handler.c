@@ -1,3 +1,5 @@
+#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "handler.h"
@@ -5,10 +7,15 @@
 #include "wcrt/cycle_time.h"
 
 
-/* Improper exit with error message */
-void prerr(char* msg)
+/* Improper exit with formatted error message */
+void prerr(char* msg, ...)
 {
-  fprintf(stderr, "%s\n", msg);
+  va_list argument_list;
+  va_start( argument_list, msg );
+
+  vfprintf( stderr, msg, argument_list );
+  va_end( argument_list );
+
   fflush(stderr);
   exit(-1);
 }
@@ -26,8 +33,7 @@ FILE* openfile( char *ext, char *mode ) {
   sprintf( fn, "%s.%s", filename, ext );
   fptr = fopen( fn, mode );
   if( !fptr ) {
-    fprintf(stderr, "Failed to open file: %s (handler.c:50)\n", fn);
-    exit(1);
+    prerr( "Failed to open file: %s (handler.c:50)\n", fn);
   }
 
   return fptr;

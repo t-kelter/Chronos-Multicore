@@ -20,8 +20,8 @@
 // ######### Function declarations  ###########
 
 
-/* Improper exit with error message */
-void prerr(char* msg);
+/* Improper exit with formatted error message */
+void prerr(char* msg, ...);
 
 /*
  * fopen with error check.

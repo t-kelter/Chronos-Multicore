@@ -112,50 +112,6 @@ typedef unsigned long long ull;
     } \
   }
 
-/* Conditional debug output */
-
-#ifdef _DEBUG
-// GNU-specific: remove trailing comma if no varargs given (##)
-#define DEBUG_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
-#else
-#define DEBUG_PRINTF(format, ...)
-#endif
-
-#ifdef _NDEBUG
-// GNU-specific: remove trailing comma if no varargs given (##)
-#define NDEBUG_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
-#else
-#define NDEBUG_PRINTF(format, ...)
-#endif
-
-#ifdef _PRINT
-// GNU-specific: remove trailing comma if no varargs given (##)
-#define PRINT_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
-#else
-#define PRINT_PRINTF(format, ...)
-#endif
-
-#ifdef _NPRINT
-// GNU-specific: remove trailing comma if no varargs given (##)
-#define NPRINT_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
-#else
-#define NPRINT_PRINTF(format, ...)
-#endif
-
-#ifdef _DEBUG_ANALYSIS
-// GNU-specific: remove trailing comma if no varargs given (##)
-#define DEBUG_ANALYSIS_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
-#else
-#define DEBUG_ANALYSIS_PRINTF(format, ...)
-#endif
-
-#ifdef _DEBUG_ALIGNMENT
-// GNU-specific: remove trailing comma if no varargs given (##)
-#define DEBUG_ALIGNMENT_PRINTF(format, ...) fprintf( stdout, format, ## __VA_ARGS__ )
-#else
-#define DEBUG_ALIGNMENT_PRINTF(format, ...)
-#endif
-
 
 // MIN / MAX macros
 
