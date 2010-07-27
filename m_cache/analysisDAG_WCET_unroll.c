@@ -234,7 +234,7 @@ void compute_bus_WCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
      * update all its successor tasks' latest time */
     update_succ_task_latest_start_time( msc, cur_task );
 
-    DOUT( "\n**************************************************************\n" );
+    DOUT( "**************************************************************\n" );
     DOUT( "Latest start time of the task = %Lu cycles\n", start_time );
     DOUT( "Latest finish time of the task = %Lu cycles\n", task_main->running_finish_time );
     DOUT( "WCET of the task %s shared bus = %Lu cycles\n",

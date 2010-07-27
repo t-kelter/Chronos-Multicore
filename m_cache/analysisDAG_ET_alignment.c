@@ -809,7 +809,7 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
     update_succ_task_earliest_start_time( msc, cur_task );
     update_succ_task_latest_start_time( msc, cur_task );
 
-    DOUT( "\n**************************************************************\n" );
+    DOUT( "**************************************************************\n" );
     DOUT( "Earliest / Latest start time of the program = %Lu / %Lu cycles\n",
         earliest_start, latest_start );
     DOUT( "Earliest / Latest finish time of the task = %Lu / %Lu cycles\n",

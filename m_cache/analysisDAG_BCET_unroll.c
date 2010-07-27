@@ -237,7 +237,7 @@ void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
      * update all its successor tasks' latest time */
     update_succ_task_earliest_start_time( msc, cur_task );
 
-    DOUT("\n**************************************************************\n");
+    DOUT("**************************************************************\n");
     DOUT("Earliest start time of the task = %Lu cycles\n", start_time);
     DOUT("Earliest finish time of the task = %Lu cycles\n",
         task_main->running_finish_time);
