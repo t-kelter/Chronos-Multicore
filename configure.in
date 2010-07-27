@@ -30,6 +30,7 @@ AC_ARG_WITH(debugmacro-configuration,
         AC_HELP_STRING([--with-debugmacro-configuration=PATH],
                [Prefix where the debug macro configuration files reside (default=${srcdir}/debugmacros/)]),
                 debugmacro_prefix="$withval", debugmacro_prefix="${chronos_path}/debugmacros")
+debugmacro_prefix+="/"
 
 AC_DEFINE_UNQUOTED([DEBUGMACRO_CONF], ["$debugmacro_prefix"], [Defines the path to the debug conf files.])
 
