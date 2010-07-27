@@ -38,6 +38,34 @@ enum ILPComputationType {
 // #########################################
 
 
+/* Dumps a single node to the given file descriptor. */
+static void dumpOffsetGraphNode( const offset_graph_node *node, FILE *out )
+{
+  fprintf( out, "  %u:\n", node->offset );
+
+  uint j;
+  fprintf( out, "    In-Edges : " );
+  for ( j = 0; j < node->num_incoming_edges; j++ ) {
+    const offset_graph_edge * const edge = node->incoming_edges[j];
+    fprintf( out, "%u (from node %u)", edge->edge_id, edge->start->offset );
+    if ( j != node->num_incoming_edges - 1 ) {
+      fprintf( out, ", " );
+    }
+  }
+  fprintf( out, "\n" );
+
+  fprintf( out, "    Out-Edges: " );
+  for ( j = 0; j < node->num_outgoing_edges; j++ ) {
+    const offset_graph_edge * const edge = node->outgoing_edges[j];
+    fprintf( out, "%u (to node %u)", edge->edge_id, edge->end->offset );
+    if ( j != node->num_outgoing_edges - 1 ) {
+      fprintf( out, ", " );
+    }
+  }
+  fprintf( out, "\n" );
+}
+
+
 /* Prints the ILP-name of 'edge' to 'f'. */
 static inline void printILPEdgeName( FILE *f, const offset_graph_edge *edge )
 {
@@ -300,21 +328,6 @@ offset_graph_edge *addOffsetGraphEdge(
     new_edge->wcet    = wcet;
     new_edge->edge_id = og->num_edges;
 
-    // Dump edges
-    DACTION(
-        uint j;
-        DOUT( "Outgoing edges at %u: (previously)\n", start->offset );
-        for ( j = 0; j < start->num_outgoing_edges; j++ ) {
-          const offset_graph_edge * const edge = start->outgoing_edges[j];
-          DOUT( "  %u to node %u\n", edge->edge_id, edge->end->offset );
-        }
-        DOUT( "Incoming edges at %u: (previously)\n", end->offset );
-        for ( j = 0; j < end->num_incoming_edges; j++ ) {
-          const offset_graph_edge * const edge = end->incoming_edges[j];
-          DOUT( "  %u from node %u\n", edge->edge_id, edge->start->offset );
-        }
-    );
-
     // Register with the nodes
     start->num_outgoing_edges++;
     CALLOC_OR_REALLOC( start->outgoing_edges, offset_graph_edge**,
@@ -329,19 +342,7 @@ offset_graph_edge *addOffsetGraphEdge(
     end->incoming_edges[end->num_incoming_edges - 1] = new_edge;
 
     // Dump edges
-    DACTION(
-        uint j;
-        DOUT( "Outgoing edges at %u: (afterwards)\n", start->offset );
-        for ( j = 0; j < start->num_outgoing_edges; j++ ) {
-          const offset_graph_edge * const edge = start->outgoing_edges[j];
-          DOUT( "  %u to node %u\n", edge->edge_id, edge->end->offset );
-        }
-        DOUT( "Incoming edges at %u: (afterwards)\n", end->offset );
-        for ( j = 0; j < end->num_incoming_edges; j++ ) {
-          const offset_graph_edge * const edge = end->incoming_edges[j];
-          DOUT( "  %u from node %u\n", edge->edge_id, edge->start->offset );
-        }
-    );
+    DACTION( dumpOffsetGraph( og, stdout ) );
 
     // Return the new edge
     DRETURN( new_edge );
@@ -387,31 +388,11 @@ void dumpOffsetGraph( const offset_graph *og, FILE *out )
 
   uint i;
   fprintf( out, "Nodes: \n" );
+  dumpOffsetGraphNode( &og->supersource, out );
+  dumpOffsetGraphNode( &og->supersink, out );
   for ( i = 0; i < og->num_nodes; i++ ) {
     const offset_graph_node * const node = &og->nodes[i];
-
-    fprintf( out, "  %u:\n", node->offset );
-
-    uint j;
-    fprintf( out, "    In-Edges : " );
-    for ( j = 0; j < node->num_incoming_edges; j++ ) {
-      const offset_graph_edge * const edge = node->incoming_edges[j];
-      fprintf( out, "%u (from node %u)", edge->edge_id, edge->start->offset );
-      if ( j != node->num_incoming_edges - 1 ) {
-        fprintf( out, ", " );
-      }
-    }
-    fprintf( out, "\n" );
-
-    fprintf( out, "    Out-Edges: " );
-    for ( j = 0; j < node->num_outgoing_edges; j++ ) {
-      const offset_graph_edge * const edge = node->outgoing_edges[j];
-      fprintf( out, "%u (to node %u)", edge->edge_id, edge->end->offset );
-      if ( j != node->num_outgoing_edges - 1 ) {
-        fprintf( out, ", " );
-      }
-    }
-    fprintf( out, "\n" );
+    dumpOffsetGraphNode( node, out );
   }
 
   fprintf( out, "\n");
