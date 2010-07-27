@@ -1,10 +1,21 @@
+2010-07-26:
+* Integrated debugmacros into Chronos. The C++ debugmacros library which enables a selective, run-time decided, fully removable (per define) debug output support.
+* All debug output in the main analyzer was switched to debugmacros (The 'wcrt' and 'cfg' modules still use their old debug output)
+
+2010-07-24:
+* First version of global convergence analysis finished
+* Changed cache analysis result evaluation. Instead of statically attaching either a best- or a worst-case classification to each instruction, a new function was introduced that derives the access behaviour from the CHMC dynamically. All the DAG-based analyses were adapted to use that function (check_hit_miss). This enables concurrent BCET/WCET analyses like the alignment analysis. 
+
 2010-07-23:
 * Streamlined different DAG-based WCET analyses
 - All analyses now use the same function for getting the memory access delay + latency
 - The context-handling in the unroll-analyses was corrected
 - All analyses now have a configurable per-instruction WCET and BCET (This was previously 0 or 1 (heterogenous))
+* Switched to C99 in the Makefiles because long long is not supported in older standards
+* BCET analysis now has separate data structures. This enables a parallel BCET and WCET analysis, which would have written to the same struct fields, and thus would have overwritten each	other, previously.
 
 2010-07-22:
+* Simplified the bus delay computation.    
 * Nested loop headers do now get the correct starting time, which was not handled correctly before. Inner loops always got starting time 0 in the outer loop too, which leads to wrong results.
 
 2010-07-21:
