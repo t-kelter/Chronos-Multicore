@@ -21,10 +21,6 @@ typedef unsigned long long ull;
 
 #define OP_LEN 9  // length of assembly token
 
-#define ILP  1    // ILP formulation
-#define DAG  2    // DAG based analysis
-#define ENUM 3    // path enumeration
-
 #define INSN_SIZE 8
 #define UNROLL 2
 
@@ -107,11 +103,25 @@ typedef unsigned long long ull;
   if ( ptr == NULL ) { \
     ptr = ( type ) calloc( 1, size ); \
     if( !(ptr) ) { \
-      printf( "\nError: calloc_or_realloc failed for %s.\n\n", (msg) ); \
+      printf( "\nError: CALLOC_IF_NULL failed for %s.\n\n", (msg) ); \
       exit(1); \
     } \
   }
 
+// A macro for allocating /reallocating and assigning memory of the given
+// size to 'ptr', depending on whether a previous allocation exists
+#define CALLOC_OR_REALLOC( ptr, type, size, msg ) \
+  { \
+    if ( ptr == NULL ) { \
+      ptr = ( type ) calloc( 1, size ); \
+    } else { \
+      ptr = ( type ) realloc( ptr, size ); \
+    } \
+    if( !(ptr) ) { \
+      printf( "\nError: CALLOC_OR_REALLOC failed for %s.\n\n", (msg) ); \
+      exit(1); \
+    } \
+  }
 
 // MIN / MAX macros
 
@@ -138,6 +148,13 @@ typedef unsigned long long ull;
 
 
 // ######### Datatype declarations  ###########
+
+
+enum AnalysisType {
+    ANALYSIS_ILP = 1, // ILP formulation
+    ANALYSIS_DAG,    // DAG based analysis
+    ANALYSIS_ENUM    // path enumeration
+};
 
 
 struct procs;

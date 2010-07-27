@@ -56,6 +56,7 @@ m_cache/input/
 m_cache/loopdetect.o
 m_cache/main.o
 m_cache/main_debug.o
+m_cache/offsetGraph.o
 m_cache/opt
 m_cache/opt_debug
 m_cache/parseCFG.o

@@ -19,6 +19,7 @@
 #include "block.h"
 #include "busSchedule.h"
 #include "dump.h"
+#include "offsetGraph.h"
 
 
 // ############################################################
@@ -544,6 +545,8 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
 }
 
 
+
+
 /* Computes the BCET, WCET and offset bounds for the given loop when starting from 
  * the given offset range.
  *
@@ -713,6 +716,7 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
 
   DRETURN( result );
 }
+
 
 // #########################################
 // #### Definitions of public functions ####

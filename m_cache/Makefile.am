@@ -25,6 +25,7 @@ opt_SOURCES=analysisCache.c analysisCache.h \
 						infeasible.c infeasible.h \
 						main.c \
 						loopdetect.c loopdetect.h \
+						offsetGraph.c offsetGraph.h \
 						parseCFG.c parseCFG.h \
 						path.c path.h \
 						pathDAG.c pathDAG.h \
