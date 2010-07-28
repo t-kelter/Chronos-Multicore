@@ -2790,4 +2790,6 @@ cacheAnalysis_L2()
 	      DOUT("%d ", main_copy->hit_cache_set_L2[i]);
       DOUT("\n");
   );
+
+	DEND();
 }

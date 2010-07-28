@@ -846,7 +846,6 @@ mapLoop(procedure *proc, loop *lp)
 	DOUT("\nIn mapLoop loopid[%d]\n", lp->lpid);
 
 	DACTION(
-	    printBlock(bb);
       printProc(p);
       printLoop(lp);
   );
@@ -887,13 +886,13 @@ mapLoop(procedure *proc, loop *lp)
 		{
 			DOUT("\nbb is a loop head in proc[%d]\n", bb->pid);
 
-		  DOUT("\nthe first time go into loop %d", bb->loopid);
+		  DOUT("\nthe first time go into loop %d\n", bb->loopid);
 			loop_level_arr[lp_level + 1] = FIRST_ITERATION;
 			mapLoop(p, p->loops[bb->loopid]);
 
 			//cs_ptr = bb->bb_cache_state;
 		 
-			DOUT("\nthe second time go into loop %d", bb->loopid);
+			DOUT("\nthe second time go into loop %d\n", bb->loopid);
 			loop_level_arr[lp_level + 1] = NEXT_ITERATION;
 			mapLoop(p, p->loops[bb->loopid]);
 
@@ -1380,8 +1379,6 @@ mapLoop(procedure *proc, loop *lp)
 			//cs_ptr->source_bb = bb;
 
 			//freeCacheStateFunction(bb->proc_ptr);
-			
-			DACTION( dumpCacheState(cs_ptr); );
 		}	
 		else
 		{
@@ -1395,7 +1392,6 @@ mapLoop(procedure *proc, loop *lp)
 			}
 			//cs_ptr = copyCacheState(bb->bb_cache_state);
 			//cs_ptr->source_bb = bb;
-			DACTION( dumpCacheState(cs_ptr); );
 		}
 		
 	}
@@ -1923,8 +1919,6 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 			
 			//freeCacheStateFunction(bb->proc_ptr);
 
-			DACTION( dumpCacheState(cs_ptr); );
-
 			//exit(1);
 		}	
 		else
@@ -1943,8 +1937,6 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 			//cs_ptr = copyCacheState(bb->bb_cache_state);
 			//cs_ptr->source_bb = bb;
 
-			DACTION( dumpCacheState(cs_ptr); );
-
 		}// end if else
 
 	}
@@ -1952,7 +1944,7 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 	for(i = 0; i < p->num_bb; i ++)
 		p->bblist[i]->num_outgoing = p->bblist[i]->num_outgoing_copy;
 	
-	return p ->bblist[ p->topo[0]->bbid]->bb_cache_state;
+	DRETURN( p->bblist[p->topo[0]->bbid]->bb_cache_state );
 }
 
 

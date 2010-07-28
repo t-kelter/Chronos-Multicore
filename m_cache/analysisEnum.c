@@ -354,7 +354,7 @@ int analysis_enum()
 
   int i;
 
-   CALLOC( enum_paths_proc, ull*, num_procs, sizeof(ull), "enum_paths_proc" );
+  CALLOC( enum_paths_proc, ull*, num_procs, sizeof(ull), "enum_paths_proc" );
 
   if( infeas ) {
      MALLOC( enum_pathlist, ushort****, num_procs * sizeof(ushort***), "enum_pathlist" );

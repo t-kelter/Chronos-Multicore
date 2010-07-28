@@ -260,6 +260,7 @@ int main(int argc, char **argv )
        * taskList[0]->task_name = filename;
        * taskList[0]->main_copy = main_copy;*/
 
+
       /* Now do L1 cache analysis of the current task and compute 
        * hit-miss-unknown classification of every instruction....
        * Data cache is assumed to be perfect in this case */
@@ -311,6 +312,9 @@ int main(int argc, char **argv )
   }
   /* Done with timing analysis of all the MSC-s */
   fclose(interferPath);
+
+  /* Assert correct function of debug macros. */
+  DASSERT( DSIZE() == 1 );
 
   /* sudiptac :::: Return from here in case of independent task running on 
    * multiple cores. Because in that case no timing interval computation is 
@@ -465,6 +469,9 @@ int main(int argc, char **argv )
   fclose(wcrt);
 
   printf("%d core, No change in interfere now, exit\n", num_core);
+
+  /* Assert correct function of debug macros. */
+  DASSERT( DSIZE() == 1 );
 
   DRETURN( 0 );
 }
