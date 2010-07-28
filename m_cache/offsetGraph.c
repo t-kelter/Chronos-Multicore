@@ -205,15 +205,14 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enu
 
 
 /* Solves a given ilp with lp_solve. */
-ull solveILP( const char *ilp_file )
+offset_graph_solve_result solveILP( const offset_graph *og, const char *ilp_file )
 {
   DSTART( "solveILP" );
 
   // Invoke external ILP solver.
   char commandline[500];
   char output_file[100];
-  strcpy( output_file, "out.ilp" );
-  //tmpnam( output_file );
+  tmpnam( output_file );
   sprintf( commandline, "%s/lp_solve %s > %s\n", LP_SOLVE_PATH, ilp_file, output_file );
   DOUT( "Called lp_solve: %s", commandline );
 
@@ -245,19 +244,42 @@ ull solveILP( const char *ilp_file )
 
   // Parse result file
   FILE *result_file = fopen( output_file, "r" );
-  ull result;
-  char output_file_line[500];
+  offset_graph_solve_result result;
+  const uint line_size = 500;
+  char result_file_line[line_size];
   char result_string[50];
+
   _Bool successfully_read = // Skip first line
-                            fgets( output_file_line, 500, result_file ) &&
+                            fgets( result_file_line, line_size, result_file ) &&
                             // Read the result in the second line
-                            fgets( output_file_line, 500, result_file ) &&
-                            sscanf( output_file_line, "%*s %*s %*s %*s %s", result_string );
+                            fgets( result_file_line, line_size, result_file ) &&
+                            sscanf( result_file_line, "%*s %*s %*s %*s %s", result_string );
   if ( successfully_read ) {
     // Parse the number
     char *end_ptr = NULL;
-    result = strtoull(result_string, &end_ptr, 10 );
-    successfully_read = ( *end_ptr == '\0' );
+    result.time_result = strtoull( result_string, &end_ptr, 10 );
+    successfully_read = ( *end_ptr == '\0' ) &&
+                        // Skip next two lines
+                        fgets( result_file_line, line_size, result_file ) &&
+                        fgets( result_file_line, line_size, result_file );
+
+    // Parse the result entries
+    _Bool foundExitOffset = 0;
+    uint edge_id, flow_value;
+    while( fgets( result_file_line, line_size, result_file ) ) {
+      sscanf( result_file_line, "x%u %u", &edge_id, &flow_value );
+      DOUT( "Scanned: Edge %u has flow value %u\n", edge_id, flow_value );
+
+      const offset_graph_edge * const edge = &og->edges[edge_id - 1];
+      if ( edge->end == &og->supersink && flow_value > 0 ) {
+        result.offset_result = edge->start->offset;
+        foundExitOffset = 1;
+        DOUT( "Found loop exit edge: Starts from node with offset %u\n",
+            result.offset_result );
+        break;
+      }
+    }
+    assert( foundExitOffset && "Internal error: Did not find exit offset!" );
   }
   fclose( result_file );
 
@@ -265,15 +287,12 @@ ull solveILP( const char *ilp_file )
   remove( output_file );
 
   if ( successfully_read ) {
-
-    DOUT( "Result was: %llu\n", result );
+    DOUT( "Result was: %llu (time), %u (offset)\n", result.time_result,
+                                                    result.offset_result );
     DRETURN( result );
-
   } else {
-
     prerr( "Could not read output file!" );
-    DRETURN( 0 );
-
+    DRETURN( result );
   }
 }
 
@@ -424,12 +443,13 @@ void dumpOffsetGraph( const offset_graph *og, FILE *out )
  *
  * 'loopbound_min' specifies the minimum number of iterations of the loop.
  */
-ull computeOffsetGraphLoopBCET( const offset_graph *og, uint loopbound_min )
+offset_graph_solve_result computeOffsetGraphLoopBCET(
+    const offset_graph *og, uint loopbound_min )
 {
   assert( og && "Invalid arguments!" );
 
   char * const tmpfile = generateOffsetGraphILP( og, loopbound_min, ILP_TYPE_BCET );
-  const ull result = solveILP( tmpfile );
+  const offset_graph_solve_result result = solveILP( og, tmpfile );
 
   remove( tmpfile );
   free( tmpfile );
@@ -440,12 +460,13 @@ ull computeOffsetGraphLoopBCET( const offset_graph *og, uint loopbound_min )
  *
  * 'loopbound_max' specifies the maximum number of iterations of the loop.
  */
-ull computeOffsetGraphLoopWCET( const offset_graph *og, uint loopbound_max )
+offset_graph_solve_result computeOffsetGraphLoopWCET(
+    const offset_graph *og, uint loopbound_max )
 {
   assert( og && "Invalid arguments!" );
 
   char * const tmpfile = generateOffsetGraphILP( og, loopbound_max, ILP_TYPE_WCET );
-  const ull result = solveILP( tmpfile );
+  const offset_graph_solve_result result = solveILP( og, tmpfile );
 
   remove( tmpfile );
   free( tmpfile );
