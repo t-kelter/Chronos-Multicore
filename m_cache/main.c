@@ -505,7 +505,7 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
     case ANALYSIS_ALIGNMENT:
       // Computes BCET and WCET together
       compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file,
-          LOOP_ANALYSIS_GLOBAL_CONVERGENCE, 1);
+          LOOP_ANALYSIS_GLOBAL_CONVERGENCE, 0);
       break;
 
     default:
@@ -857,5 +857,4 @@ static __inline__ ticks getticks(void)
 {
   unsigned a, d;
   __asm__ __volatile__("rdtsc" : "=a" (a), "=d" (d));
-  return ((ticks)a) | (((ticks)d) << 32);
-}
+  return ((ticks)a) | (((ticks)d) << 32)

@@ -34,11 +34,11 @@ struct og_edge {
 
 /* Represents a node in the offset graph (see below) */
 struct og_node {
-  uint offset;
-  offset_graph_edge **incoming_edges;
-  uint num_incoming_edges;
-  offset_graph_edge **outgoing_edges;
-  uint num_outgoing_edges;
+  uint offset;             /* The offset that is represented by the node. */
+  uint *incoming_edges;    /* The indexes (into the edge array) of the incoming edges. */
+  uint num_incoming_edges; /* The current size of 'num_incoming_edges'. */
+  uint *outgoing_edges;    /* The indexes (into the edge array) of the outgoing edges. */
+  uint num_outgoing_edges; /* The current size of 'num_outgoing_edges'. */
 };
 
 /* Represents a graph whose nodes represent a loop execution at a certain
@@ -78,7 +78,7 @@ offset_graph_edge *addOffsetGraphEdge(
 offset_graph_node *getOffsetGraphNode( offset_graph *og, uint offset );
 
 /* Returns the edge with the given start and end nodes, or NULL if it doesn't exist. */
-offset_graph_edge *getOffsetGraphEdge( offset_graph *og,
+offset_graph_edge *getOffsetGraphEdge( const offset_graph *og,
     const offset_graph_node *start, const offset_graph_node *end );
 
 /* Prints the offset graph to th given file descriptor. */
