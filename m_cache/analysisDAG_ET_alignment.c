@@ -243,10 +243,10 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
           "Invalid arguments!" );
 
   // Allocate space for the propagation values
-  ull *block_bcet_propagation_values = (ull*)CALLOC( block_bcet_propagation_values,
-      number_of_blocks, sizeof( ull ), "block_bcet_propagation_values" );
-  ull *block_wcet_propagation_values = (ull*)CALLOC( block_wcet_propagation_values,
-      number_of_blocks, sizeof( ull ), "block_wcet_propagation_values" );
+  ull *block_bcet_propagation_values;
+  CALLOC( block_bcet_propagation_values, ull*, number_of_blocks, sizeof( ull ), "block_bcet_propagation_values" );
+  ull *block_wcet_propagation_values;
+  CALLOC( block_wcet_propagation_values, ull*, number_of_blocks, sizeof( ull ), "block_wcet_propagation_values" );
 
   // Propagate the BCETs/WCETs through the DAG
   int i;
@@ -418,8 +418,9 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
       start_offsets.lower_bound, start_offsets.upper_bound );
 
   /* Get an array for the result values per basic block. */
-  combined_result * const block_results = (combined_result *)CALLOC(
-      block_results, lp->num_topo, sizeof( combined_result ), "block_result" );
+  combined_result *block_results;
+  CALLOC( block_results, combined_result *, lp->num_topo, 
+          sizeof( combined_result ), "block_result" );
 
   /* Iterate over the basic blocks in topological order */
   int i;
@@ -476,15 +477,15 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
   // Specifies the index of the currently analyzed iteration
   unsigned int current_iteration;
   // Holds the result from the iterations (if they were done)
-  combined_result **results = (combined_result**)CALLOC( results,
-      lp->loopbound, sizeof( combined_result* ), "results" );
+  combined_result **results;
+  CALLOC( results, combined_result**, lp->loopbound, sizeof( combined_result* ), "results" );
 
   // Perform single-iteration-analyses until the offset bound converges
   for( current_iteration = 0; current_iteration < lp->loopbound; current_iteration++ ) {
 
     // Allocate new result slot
-    results[current_iteration] = (combined_result*)MALLOC( results[current_iteration],
-        sizeof( combined_result ), "results[current_iteration]" );
+    MALLOC( results[current_iteration], combined_result*, sizeof( combined_result ), 
+        "results[current_iteration]" );
     combined_result * const last_std_result = results[current_iteration];
 
     // Analyze the iteration
@@ -668,8 +669,9 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
         proc->pid, start_offsets.lower_bound, start_offsets.upper_bound );
 
   /* Get an array for the result values per basic block. */
-  combined_result * const block_results = (combined_result *)CALLOC(
-      block_results, proc->num_topo, sizeof( combined_result ), "block_result" );
+  combined_result *block_results;
+  CALLOC( block_results, combined_result *, proc->num_topo, 
+          sizeof( combined_result ), "block_result" );
 
   /* Iterate over the basic blocks in topological order */
   int i;

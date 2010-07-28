@@ -85,43 +85,36 @@ typedef unsigned long long ull;
 
 /* Memory allocation with error check. */
 
-#define MALLOC( ptr, size, msg ) \
-  malloc( (size) ); \
-  if( !(ptr) ) printf( "\nError: malloc failed for %s.\n\n", (msg) ), exit(1)
+#define MALLOC( ptr, type, size, msg ) \
+  { ptr = ( type ) malloc( (size) ); \
+  if( !(ptr) ) { printf( "\nError: malloc failed for %s.\n\n", (msg) ); exit(1); } }
 
-#define CALLOC( ptr, len, size, msg ) \
-  calloc( (len), (size) ); \
-  if( !(ptr) ) printf( "\nError: calloc failed for %s.\n\n", (msg) ), exit(1)
+#define CALLOC( ptr, type, len, size, msg ) \
+  { ptr = ( type ) calloc( (len), (size) ); \
+  if( !(ptr) ) { printf( "\nError: calloc failed for %s.\n\n", (msg) ); exit(1); } }
 
-// TODO: The next macro is wrong, it does only work when realloc does not move the buffer
-#define REALLOC( ptr, size, msg ) \
-  realloc( (ptr), (size) ); \
-  if( !(ptr) ) printf( "\nError: realloc failed for %s.\n\n", (msg) ), exit(1)
+#define REALLOC( ptr, type, size, msg ) \
+  { ptr = ( type ) realloc( (ptr), (size) ); \
+  if( !(ptr) ) { printf( "\nError: realloc failed for %s.\n\n", (msg) ); exit(1); } }
 
 // A macro for allocating and assigning memory of the given size to 'ptr',
 // depending on whether a previous allocation exists
 #define CALLOC_IF_NULL( ptr, type, size, msg ) \
-  if ( ptr == NULL ) { \
-    ptr = ( type ) calloc( 1, size ); \
-    if( !(ptr) ) { \
-      printf( "\nError: CALLOC_IF_NULL failed for %s.\n\n", (msg) ); \
-      exit(1); \
+  { if ( ptr == NULL ) { \
+      ptr = ( type ) calloc( 1, size ); \
+      if( !(ptr) ) { printf( "\nError: CALLOC_IF_NULL failed for %s.\n\n", (msg) ); exit(1); } \
     } \
   }
 
 // A macro for allocating /reallocating and assigning memory of the given
 // size to 'ptr', depending on whether a previous allocation exists
 #define CALLOC_OR_REALLOC( ptr, type, size, msg ) \
-  { \
-    if ( ptr == NULL ) { \
+  { if ( ptr == NULL ) { \
       ptr = ( type ) calloc( 1, size ); \
     } else { \
       ptr = ( type ) realloc( ptr, size ); \
     } \
-    if( !(ptr) ) { \
-      printf( "\nError: CALLOC_OR_REALLOC failed for %s.\n\n", (msg) ); \
-      exit(1); \
-    } \
+    if( !(ptr) ) { printf( "\nError: CALLOC_OR_REALLOC failed for %s.\n\n", (msg) ); exit(1); } \
   }
 
 // MIN / MAX macros

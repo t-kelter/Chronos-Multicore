@@ -33,10 +33,10 @@ int topo_sort_loop( loop *lp ) {
 
   comefrom     = NULL;
   comefromsize = 0;
-  markfin = (char*) CALLOC( markfin, lp->num_topo, sizeof(char), "loop topo fin array" );
+  CALLOC( markfin, char*, lp->num_topo, sizeof(char), "loop topo fin array" );
 
   // copy topo's unsorted contents
-  unsorted = (block**) MALLOC( unsorted, lp->num_topo * sizeof(block*), "loop topo copy" );
+  MALLOC( unsorted, block**, lp->num_topo * sizeof(block*), "loop topo copy" );
   for( i = 0; i < lp->num_topo; i++ )
     unsorted[i] = lp->topo[i];
 
@@ -65,7 +65,7 @@ int topo_sort_loop( loop *lp ) {
 	lpn = procs[ lp->pid ]->loops[ bb->loopid ];
 
 	// construct blackbox
-	nb = (block*) MALLOC( nb, sizeof(block), "blackbox" );
+	MALLOC( nb, block*, sizeof(block), "blackbox" );
 	memset(nb, 0, sizeof(block));
 	createBlock( nb, lp->pid, bb->bbid, bb->startaddr, lpn->loopexit->bbid, -1, -1, lpn->lpid );
 	nb->is_loophead = 1;
@@ -99,7 +99,7 @@ int topo_sort_loop( loop *lp ) {
       }
       else {
 	markfin[k] = 1;
-	comefrom = (block**) REALLOC( comefrom, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
+	REALLOC( comefrom, block**, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
 	comefrom[ comefromsize++ ] = bb;
 
 	// directly go to loop exit
@@ -130,7 +130,7 @@ int topo_sort_loop( loop *lp ) {
     }
     else if( !markfin[k] ) {  // just visited
       markfin[k] = 1;
-      comefrom = (block**) REALLOC( comefrom, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
+      REALLOC( comefrom, block**, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
       comefrom[ comefromsize++ ] = bb;
       
       // if first outgoing edge in loop, go there
@@ -145,7 +145,7 @@ int topo_sort_loop( loop *lp ) {
       }
     }
     else if( bb->num_outgoing > 1 ) {  // must be branch
-      comefrom = (block**) REALLOC( comefrom, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
+      REALLOC( comefrom, block**, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
       comefrom[ comefromsize++ ] = bb;
       
       // first branch must have finished
@@ -167,7 +167,7 @@ int topo_sort_loop( loop *lp ) {
 
   // if nested loops have multiple exits, there may be ignored blocks
   lp->num_topo = countdone;
-  // lp->topo     = (int*) REALLOC( lp->topo, lp->num_topo * sizeof(int), "loop topo array" );
+  // REALLOC( lp->topo, int*, lp->num_topo * sizeof(int), "loop topo array" );
 
   free( unsorted );
   free( comefrom );
@@ -192,8 +192,8 @@ int topo_sort_proc( procedure *p ) {
 
   comefrom     = NULL;
   comefromsize = 0;
-  markfin = (char*) CALLOC( markfin, p->num_bb, sizeof(char), "proc topo fin array" );
-  p->topo = (block**) REALLOC( p->topo, p->num_bb * sizeof(block*), "proc topo array" );
+  CALLOC( markfin, char*, p->num_bb, sizeof(char), "proc topo fin array" );
+  REALLOC( p->topo, block**, p->num_bb * sizeof(block*), "proc topo array" );
 
   countdone = 0;
 
@@ -219,7 +219,7 @@ int topo_sort_proc( procedure *p ) {
 	lp = p->loops[ bb->loopid ];
 
 	// construct blackbox
-	nb = (block*) MALLOC( nb, sizeof(block), "blackbox" );
+	MALLOC( nb, block*, sizeof(block), "blackbox" );
 	memset(nb, 0, sizeof(block));
 	createBlock( nb, p->pid, bb->bbid, bb->startaddr, lp->loopexit->bbid, -1, -1, lp->lpid );
 
@@ -250,7 +250,7 @@ int topo_sort_proc( procedure *p ) {
       }
       else {
 	markfin[ bb->bbid ] = 1;
-	comefrom = (block**) REALLOC( comefrom, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
+	REALLOC( comefrom, block**, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
 	comefrom[ comefromsize++ ] = bb;
 
 	// directly go to loop exit
@@ -286,14 +286,14 @@ int topo_sort_proc( procedure *p ) {
     }
     else if( !markfin[ bb->bbid ] ) {  // just visited
       markfin[ bb->bbid ] = 1;
-      comefrom = (block**) REALLOC( comefrom, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
+      REALLOC( comefrom, block**, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
       comefrom[ comefromsize++ ] = bb;
 
       // go to first outgoing edge
       bb = p->bblist[ bb->outgoing[0] ];
     }
     else if( bb->num_outgoing > 1 ) {  // must be branch
-      comefrom = (block**) REALLOC( comefrom, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
+      REALLOC( comefrom, block**, (comefromsize + 1) * sizeof(block*), "topo comefrom array" );
       comefrom[ comefromsize++ ] = bb;
 
       // first branch must have finished
@@ -306,7 +306,7 @@ int topo_sort_proc( procedure *p ) {
 
   // since we skip loops, contents of topo is subset of bblist
   p->num_topo = countdone;
-  // p->topo     = (int*) REALLOC( p->topo, p->num_topo * sizeof(int), "proc topo array" );
+  // REALLOC( p->topo, int*, p->num_topo * sizeof(int), "proc topo array" );
 
   free( comefrom );
   free( markfin );

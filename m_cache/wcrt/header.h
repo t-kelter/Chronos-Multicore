@@ -50,17 +50,17 @@ typedef unsigned int uint;
 
 /* Memory allocation with error check. */
 
-#define MALLOC( ptr, size, msg ) \
-  malloc( (size) ); \
-  if( !(ptr) ) printf( "\nError: malloc %d bytes failed for %s.\n\n", (int)(size), (msg) ), exit(1)
+#define MALLOC( ptr, type, size, msg ) \
+  { ptr = ( type ) malloc( (size) ); \
+  if( !(ptr) ) { printf( "\nError: malloc failed for %s.\n\n", (msg) ); exit(1); } }
 
-#define CALLOC( ptr, len, size, msg ) \
-  calloc( (len), (size) ); \
-  if( !(ptr) ) printf( "\nError: calloc %d bytes failed for %s.\n\n", (int)(size), (msg) ), exit(1)
+#define CALLOC( ptr, type, len, size, msg ) \
+  { ptr = ( type ) calloc( (len), (size) ); \
+  if( !(ptr) ) { printf( "\nError: calloc failed for %s.\n\n", (msg) ); exit(1); } }
 
-#define REALLOC( ptr, size, msg ) \
-  realloc( (ptr), (size) ); \
-  if( !(ptr) ) printf( "\nError: realloc %d bytes failed for %s.\n\n", (int)(size), (msg) ), exit(1)
+#define REALLOC( ptr, type, size, msg ) \
+  { ptr = ( type ) realloc( (ptr), (size) ); \
+  if( !(ptr) ) { printf( "\nError: realloc failed for %s.\n\n", (msg) ); exit(1); } }
 
 
 // ######### Datatype declarations  ###########

@@ -183,7 +183,7 @@ constructLoop(int pid, int lp_id)
 	int  num_blk = lp->num_topo;	
 	block *bb;
 
-	//lp_ptr = (loop *) CALLOC(lp_ptr, 1, sizeof(loop), "for loop");
+	//CALLOC(lp_ptr, loop*, 1, sizeof(loop), "for loop");
 
 	//copy loop[lp_id] in proc[pid] to this procedure; necessary???
 	
@@ -210,7 +210,7 @@ copyBlock(block *bb)
 	src = bb;
 	int i, j;
 
-	copy = (block*) CALLOC(copy, 1, sizeof(block), "block");
+	CALLOC(copy, block*, 1, sizeof(block), "block");
 	
 	copy->bbid = src->bbid;
 	DOUT("\nnow copying bb %d\n", copy->bbid);
@@ -223,7 +223,7 @@ copyBlock(block *bb)
 	
 	if(copy->num_outgoing)
 	{
-		copy->outgoing = (int *)CALLOC(copy->outgoing, copy->num_outgoing, sizeof(int), "outgoing");
+		CALLOC(copy->outgoing, int *, copy->num_outgoing, sizeof(int), "outgoing");
 		for(i = 0; i < copy->num_outgoing; i++)
 			copy->outgoing[i] = src->outgoing[i];
 	}
@@ -231,7 +231,7 @@ copyBlock(block *bb)
 	
 	if(copy->num_incoming)	
 	{
-		copy->incoming = (int *)CALLOC(copy->incoming, copy->num_incoming, sizeof(int), "incoming");
+		CALLOC(copy->incoming, int *, copy->num_incoming, sizeof(int), "incoming");
 		for(i = 0; i < copy->num_incoming; i++)
 			copy->incoming[i] = src->incoming[i];
 	}
@@ -252,10 +252,10 @@ copyBlock(block *bb)
 	
 	copy->num_instr = src->num_instr;
 	
-	copy->instrlist = (instr **)CALLOC(copy->instrlist, copy->num_instr, sizeof(instr *), "instruction list");
+	CALLOC(copy->instrlist, instr **, copy->num_instr, sizeof(instr *), "instruction list");
 	for(i = 0; i < copy->num_instr; i++)
 	{
-		copy->instrlist[i] = (instr*)CALLOC(copy->instrlist[i], 1, sizeof(instr), "instruction");
+		CALLOC(copy->instrlist[i], instr*, 1, sizeof(instr), "instruction");
 		
 		for(j = 0; j < OP_LEN; j++)
 		{
@@ -281,7 +281,7 @@ copyLoop(procedure *proc, procedure* copy_proc, loop *lp)
 	src = lp;
 	int i;
 
-	copy = (loop *)CALLOC(copy, 1, sizeof(loop), "loop");
+	CALLOC(copy, loop *, 1, sizeof(loop), "loop");
 	copy->lpid = src->lpid;
 	DOUT("\nnow copying loop %d\n", copy->lpid);
 	
@@ -308,7 +308,7 @@ copyLoop(procedure *proc, procedure* copy_proc, loop *lp)
 	copy->num_topo = src->num_topo;
 	if(copy->num_topo)
 	{
-		copy->topo = (block**)CALLOC(copy->topo, copy->num_topo, sizeof(block*), "topo");
+		CALLOC(copy->topo, block**, copy->num_topo, sizeof(block*), "topo");
 		for(i = 0; i < copy->num_topo; i++)
 			//copy->topo[i] = copyBlock(procs[src->pid]->bblist[src->topo[i]->bbid]);
 			copy->topo[i] = copy_proc->bblist[src->topo[i]->bbid];
@@ -329,7 +329,7 @@ copyFunction(procedure* proc)
 	src = proc;
 	int i;
 
-	copy = (procedure*) CALLOC(copy, 1, sizeof(procedure), "procedure");
+	CALLOC(copy, procedure*, 1, sizeof(procedure), "procedure");
 	copy->pid = src->pid;
 
 	DOUT("\nnow copying procdure %d\n", copy->pid);
@@ -337,14 +337,14 @@ copyFunction(procedure* proc)
 	copy->num_bb = src->num_bb;	
 	if(copy->num_bb)
 	{
-		copy->bblist = (block**) CALLOC(copy->bblist, copy->num_bb, sizeof(block*), "block*");
+		CALLOC(copy->bblist, block**, copy->num_bb, sizeof(block*), "block*");
 		for(i = 0; i < copy->num_bb; i++)
 			copy->bblist[i] = copyBlock(src->bblist[i]);
 	}
 	copy->num_loops = src->num_loops;
 	if(copy->num_loops)
 	{
-		copy->loops = (loop**)CALLOC(copy->loops, copy->num_loops, sizeof(loop*), "loops");
+		CALLOC(copy->loops, loop**, copy->num_loops, sizeof(loop*), "loops");
 		for(i = 0; i < copy->num_loops; i++)
 			copy->loops[i] = copyLoop(proc, copy, src->loops[i]);
 	}
@@ -352,7 +352,7 @@ copyFunction(procedure* proc)
 	copy->num_calls = src->num_calls;
 	if(copy->num_calls)
 	{
-		copy->calls = (int *)CALLOC(copy->calls, copy->num_calls, sizeof(int), "calls");
+		CALLOC(copy->calls, int *, copy->num_calls, sizeof(int), "calls");
 		for(i = 0; i < copy->num_calls; i++)
 			copy->calls[i] = src->calls[i];
 	}
@@ -360,7 +360,7 @@ copyFunction(procedure* proc)
 	copy->num_topo = src->num_topo;
 	if(copy->num_topo)
 	{
-		copy->topo = (block**)CALLOC(copy->topo, copy->num_topo, sizeof(block*), "topo");
+		CALLOC(copy->topo, block**, copy->num_topo, sizeof(block*), "topo");
 		for(i = 0; i < copy->num_topo; i++)
 			//copy->topo[i] = copyBlock(src->bblist[src->topo[i]->bbid]);
 			copy->topo[i] = copy->bblist[src->topo[i]->bbid];
@@ -390,13 +390,13 @@ constructFunctionCall(procedure *pro, task_t *task)
 		if(task->proc_cg_ptr[j].num_proc == 0)
 		{
 			task->proc_cg_ptr[j].num_proc = 1;
-			task->proc_cg_ptr[j].proc = (procedure**)CALLOC(task->proc_cg_ptr[j].proc, 1, sizeof(procedure*), "procedure*");
+			CALLOC(task->proc_cg_ptr[j].proc, procedure**, 1, sizeof(procedure*), "procedure*");
 			task->proc_cg_ptr[j].proc[0] = p;
 		}
 		else	
 		{
 			task->proc_cg_ptr[j].num_proc ++;
-			task->proc_cg_ptr[j].proc = (procedure**) REALLOC(task->proc_cg_ptr[j].proc, task->proc_cg_ptr[j].num_proc * sizeof(procedure*), "procedure*");
+			REALLOC(task->proc_cg_ptr[j].proc, procedure**, task->proc_cg_ptr[j].num_proc * sizeof(procedure*), "procedure*");
 			task->proc_cg_ptr[j].proc[task->proc_cg_ptr[j].num_proc -1] = p;
 		}
 
@@ -424,13 +424,13 @@ constructFunctionCall(procedure *pro, task_t *task)
 				if(proc_cg_ptr[j].num_proc == 0)
 				{
 					proc_cg_ptr[j].num_proc = 1;
-					proc_cg_ptr[j].proc = (procedure**) CALLOC(proc_cg_ptr[j].proc, 1, sizeof(procedure*), "procedure*");
+					CALLOC(proc_cg_ptr[j].proc, procedure**, 1, sizeof(procedure*), "procedure*");
 					proc_cg_ptr[j].proc[0] = bb->proc_ptr;
 				}
 				else	
 				{
 					proc_cg_ptr[j].num_proc ++;
-					proc_cg_ptr[j].proc = (procedure**) REALLOC(proc_cg_ptr[j].proc, proc_cg_ptr[j].num_proc * sizeof(procedure*), "procedure*");
+					REALLOC(proc_cg_ptr[j].proc, procedure**, proc_cg_ptr[j].num_proc * sizeof(procedure*), "procedure*");
 					proc_cg_ptr[j].proc[proc_cg_ptr[j].num_proc -1] = bb->proc_ptr;
 				}
 			}
@@ -467,8 +467,11 @@ calculateMust(cache_line_way_t **must, int instr_addr)
 			if(i != 0)
 			{
 				must[0]->num_entry++;
-				if(must[0]->num_entry == 1) must[0]->entry = (int*)CALLOC(must[0]->entry, must[0]->num_entry, sizeof(int), "enties");
-				else	must[0]->entry = (int*)REALLOC(must[0]->entry, (must[0]->num_entry) * sizeof(int), "enties");
+				if(must[0]->num_entry == 1) {
+          CALLOC(must[0]->entry, int*, must[0]->num_entry, sizeof(int), "enties");
+        } else {
+          REALLOC(must[0]->entry, int*, (must[0]->num_entry) * sizeof(int), "enties");
+        }
 
 				must[0]->entry[(must[0]->num_entry) -1] = instr_addr;
 
@@ -480,8 +483,10 @@ calculateMust(cache_line_way_t **must, int instr_addr)
 						if(j != must[i]->num_entry -1)
 							must[i]->entry[j] = must[i]->entry[must[i]->num_entry -1];
 						must[i]->num_entry --;
-						if(must[i]->num_entry == 0) free(must[i]->entry);
-						else must[i]->entry = (int*)REALLOC(must[i]->entry, must[i]->num_entry * sizeof(int), "entry");
+						if(must[i]->num_entry == 0)
+              free(must[i]->entry);
+						else
+              REALLOC(must[i]->entry, int*, must[i]->num_entry * sizeof(int), "entry");
 	 				}
 				} // end for(j)
 			}	// 	end if(i!=0)
@@ -498,8 +503,8 @@ calculateMust(cache_line_way_t **must, int instr_addr)
 
 	free(tmp);
 	
-	head = (cache_line_way_t *)CALLOC(head, 1, sizeof(cache_line_way_t), "cache_line_way_t");
-	head->entry = (int*)CALLOC(head->entry, 1, sizeof(int), "in head->entry");
+	CALLOC(head, cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t");
+	CALLOC(head->entry, int*, 1, sizeof(int), "in head->entry");
 	head->entry[0] = instr_addr;
 	head->num_entry = 1;
 	must[0] = head;
@@ -521,11 +526,11 @@ calculateMay(cache_line_way_t **may, int instr_addr)
 				may[0]->num_entry++;
 				if(may[0]->num_entry == 1)
 				{
-					may[0]->entry = (int*)CALLOC(may[0]->entry, may[0]->num_entry, sizeof(int), "enties");
+					CALLOC(may[0]->entry, int*, may[0]->num_entry, sizeof(int), "enties");
 				}
 				else	
 				{
-					may[0]->entry = (int*)REALLOC(may[0]->entry, (may[0]->num_entry) * sizeof(int), "enties");
+					REALLOC(may[0]->entry, int*, (may[0]->num_entry) * sizeof(int), "enties");
 				}
 				may[0]->entry[(may[0]->num_entry) -1] = instr_addr;
 
@@ -542,7 +547,7 @@ calculateMay(cache_line_way_t **may, int instr_addr)
 						}
 						else
 						{
-							may[i]->entry = (int*)REALLOC(may[i]->entry, may[i]->num_entry * sizeof(int), "entry");
+							REALLOC(may[i]->entry, int*, may[i]->num_entry * sizeof(int), "entry");
 						}
 					}
 				} // end for(j)
@@ -559,8 +564,8 @@ calculateMay(cache_line_way_t **may, int instr_addr)
 	free(tmp);
 
 
-	head = (cache_line_way_t *)CALLOC(head, 1, sizeof(cache_line_way_t), "cache_line_way_t");
-	head->entry = (int*)CALLOC(head->entry, 1, sizeof(int), "in head->entry");
+	CALLOC(head, cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t");
+	CALLOC(head->entry, int*, 1, sizeof(int), "in head->entry");
 	head->entry[0] = instr_addr;
 	head->num_entry = 1;
 	may[0] = head;
@@ -584,11 +589,11 @@ calculatePersist(cache_line_way_t **persist, int instr_addr)
 				persist[0]->num_entry++;
 				if(persist[0]->num_entry == 1)
 				{
-					persist[0]->entry = (int*)CALLOC(persist[0]->entry, persist[0]->num_entry, sizeof(int), "enties");
+					CALLOC(persist[0]->entry, int*, persist[0]->num_entry, sizeof(int), "enties");
 				}
 				else	
 				{
-					persist[0]->entry = (int*)REALLOC(persist[0]->entry, (persist[0]->num_entry) * sizeof(int), "enties");
+					REALLOC(persist[0]->entry, int*, (persist[0]->num_entry) * sizeof(int), "enties");
 				}
 				persist[0]->entry[(persist[0]->num_entry) -1] = instr_addr;
 
@@ -605,7 +610,7 @@ calculatePersist(cache_line_way_t **persist, int instr_addr)
 						}
 						else
 						{
-							persist[i]->entry = (int*)REALLOC(persist[i]->entry, persist[i]->num_entry * sizeof(int), "entry");
+							REALLOC(persist[i]->entry, int*, persist[i]->num_entry * sizeof(int), "entry");
 						}
 					}
 				} // end for(j)
@@ -622,8 +627,8 @@ calculatePersist(cache_line_way_t **persist, int instr_addr)
 	free(tmp);
 
 
-	head = (cache_line_way_t *)CALLOC(head, 1, sizeof(cache_line_way_t), "cache_line_way_t");
-	head->entry = (int*)CALLOC(head->entry, 1, sizeof(int), "in head->entry");
+	CALLOC(head, cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t");
+	CALLOC(head->entry, int*, 1, sizeof(int), "in head->entry");
 	head->entry[0] = instr_addr;
 	head->num_entry = 1;
 	persist[0] = head;
@@ -649,43 +654,43 @@ allocCacheState()
 	int j, k;
 	cache_state *result = NULL;
 
-	result = (cache_state*) CALLOC(result, 1, sizeof(cache_state), "cache_state");
+	CALLOC(result, cache_state*, 1, sizeof(cache_state), "cache_state");
 	
 		result->must = NULL;
-		result->must = (cache_line_way_t***)CALLOC(result->must, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+		CALLOC(result->must, cache_line_way_t***, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
 		result->may = NULL;
-		result->may = (cache_line_way_t***)CALLOC(result->may, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+		CALLOC(result->may, cache_line_way_t***, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
 		result->persist = NULL;
-		result->persist = (cache_line_way_t***)CALLOC(result->persist, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+		CALLOC(result->persist, cache_line_way_t***, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 	
 		for(j = 0; j < cache.ns; j++)
 		{
 			DOUT("\nalloc CS memory for j = %d \n", j );
-			result->must[j]= (cache_line_way_t**)	CALLOC(result->must[j], cache.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+			CALLOC(result->must[j], cache_line_way_t**, cache.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
-			result->may[j]= (cache_line_way_t**)CALLOC(result->may[j], cache.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+			CALLOC(result->may[j], cache_line_way_t**, cache.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
-			result->persist[j]= (cache_line_way_t**)CALLOC(result->persist[j], cache.na + 1, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+			CALLOC(result->persist[j], cache_line_way_t**, cache.na + 1, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
 			for( k = 0; k < cache.na; k++)
 			{
 				DOUT("\nalloc CS memory for k = %d \n", k );
-				result->must[j][k] = (cache_line_way_t*)CALLOC(result->must[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
+				CALLOC(result->must[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t");
 				result->must[j][k]->num_entry = 0;
 				result->must[j][k]->entry = NULL;
 
-				result->may[j][k] = (cache_line_way_t*)CALLOC(result->may[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
+				CALLOC(result->may[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t");
 				result->may[j][k]->num_entry = 0;
 				result->may[j][k]->entry = NULL;
 
-				result->persist[j][k] = (cache_line_way_t*)CALLOC(result->persist[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
+				CALLOC(result->persist[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t");
 				result->persist[j][k]->num_entry = 0;
 				result->persist[j][k]->entry = NULL;
 			}
 			
-			result->persist[j][cache.na] = (cache_line_way_t*)CALLOC(result->persist[j][cache.na], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
+			CALLOC(result->persist[j][cache.na], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t");
 			result->persist[j][cache.na]->num_entry = 0;
 			result->persist[j][cache.na]->entry = NULL;
 
@@ -753,7 +758,7 @@ copyCacheState(cache_state *cs)
 	int j, k, num_entry;
 	cache_state *copy = NULL;
 
-	copy = (cache_state*)CALLOC(copy, 1, sizeof(cache_state), "cache_state");
+	CALLOC(copy, cache_state*, 1, sizeof(cache_state), "cache_state");
 	copy->must = NULL;
 	copy->may = NULL;
 	copy->persist = NULL;
@@ -762,27 +767,27 @@ copyCacheState(cache_state *cs)
 		
 	//lp_level = cs->loop_level;
 	
-	copy->must =(cache_line_way_t***)CALLOC(copy->must, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
-	copy->may =(cache_line_way_t***)CALLOC(copy->may, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
-	copy->persist =(cache_line_way_t***)CALLOC(copy->persist, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+	CALLOC(copy->must, cache_line_way_t***, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+	CALLOC(copy->may, cache_line_way_t***, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+	CALLOC(copy->persist, cache_line_way_t***, cache.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
 	for(j = 0; j < cache.ns; j++)
 	{
-		copy->must[j] = (cache_line_way_t**)	CALLOC(copy->must[j], cache.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
-		copy->may[j] = (cache_line_way_t**) CALLOC(copy->may[j], cache.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
-		copy->persist[j] = (cache_line_way_t**) CALLOC(copy->persist[j], cache.na + 1, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+			CALLOC(copy->must[j], cache_line_way_t**, cache.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+		 CALLOC(copy->may[j], cache_line_way_t**, cache.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+		 CALLOC(copy->persist[j], cache_line_way_t**, cache.na + 1, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
 
 		for( k = 0; k < cache.na; k++)
 		{
-			copy->must[j][k] = (cache_line_way_t*)CALLOC(copy->must[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t must");
-			copy->may[j][k] = (cache_line_way_t*)CALLOC(copy->may[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t may");
-			copy->persist[j][k] = (cache_line_way_t*)CALLOC(copy->persist[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t may");
+			CALLOC(copy->must[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t must");
+			CALLOC(copy->may[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t may");
+			CALLOC(copy->persist[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t may");
 
 			copy->must[j][k]->num_entry = cs->must[j][k]->num_entry;
 			if(copy->must[j][k]->num_entry)
 			{
-				copy->must[j][k]->entry = (int*)CALLOC(copy->must[j][k]->entry, copy->must[j][k]->num_entry, sizeof(int), "entries");
+				CALLOC(copy->must[j][k]->entry, int*, copy->must[j][k]->num_entry, sizeof(int), "entries");
 
 				for(num_entry = 0; num_entry < copy->must[j][k]->num_entry; num_entry++)
 					copy->must[j][k]->entry[num_entry] =  cs->must[j][k]->entry[num_entry];
@@ -791,7 +796,7 @@ copyCacheState(cache_state *cs)
 			copy->may[j][k]->num_entry = cs->may[j][k]->num_entry;
 			if(copy->may[j][k]->num_entry)
 			{
-				copy->may[j][k]->entry = (int*)CALLOC(copy->may[j][k]->entry, copy->may[j][k]->num_entry, sizeof(int), "entries");
+				CALLOC(copy->may[j][k]->entry, int*, copy->may[j][k]->num_entry, sizeof(int), "entries");
 
 				for(num_entry = 0; num_entry < copy->may[j][k]->num_entry; num_entry++)
 					copy->may[j][k]->entry[num_entry] =  cs->may[j][k]->entry[num_entry];
@@ -801,7 +806,7 @@ copyCacheState(cache_state *cs)
 			copy->persist[j][k]->num_entry = cs->persist[j][k]->num_entry;
 			if(copy->persist[j][k]->num_entry)
 			{
-				copy->persist[j][k]->entry = (int*)CALLOC(copy->persist[j][k]->entry, copy->persist[j][k]->num_entry, sizeof(int), "entries");
+				CALLOC(copy->persist[j][k]->entry, int*, copy->persist[j][k]->num_entry, sizeof(int), "entries");
 
 				for(num_entry = 0; num_entry < copy->persist[j][k]->num_entry; num_entry++)
 					copy->persist[j][k]->entry[num_entry] =  cs->persist[j][k]->entry[num_entry];
@@ -810,11 +815,11 @@ copyCacheState(cache_state *cs)
 		}
 
 
-		copy->persist[j][cache.na] = (cache_line_way_t*)CALLOC(copy->persist[j][cache.na], 1, sizeof(cache_line_way_t), "one cache_line_way_t may");
+		CALLOC(copy->persist[j][cache.na], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t may");
 		copy->persist[j][cache.na]->num_entry = cs->persist[j][cache.na]->num_entry;
 		if(copy->persist[j][cache.na]->num_entry)
 		{
-			copy->persist[j][cache.na]->entry = (int*)CALLOC(copy->persist[j][cache.na]->entry, copy->persist[j][cache.na]->num_entry, sizeof(int), "entries");
+			CALLOC(copy->persist[j][cache.na]->entry, int*, copy->persist[j][cache.na]->num_entry, sizeof(int), "entries");
 
 			for(num_entry = 0; num_entry < copy->persist[j][cache.na]->num_entry; num_entry++)
 				copy->persist[j][cache.na]->entry[num_entry] =  cs->persist[j][cache.na]->entry[num_entry];
@@ -1065,7 +1070,7 @@ mapLoop(procedure *proc, loop *lp)
 
 		if(bb->num_cache_state == 0)
 		{
-			//bb->bb_cache_state = (cache_state *)CALLOC(bb->bb_cache_state, 1, sizeof(cache_state), "cache_state");
+			//CALLOC(bb->bb_cache_state, cache_state *, 1, sizeof(cache_state), "cache_state");
 
 			bb->num_cache_state = 1;
 		}
@@ -1077,10 +1082,10 @@ mapLoop(procedure *proc, loop *lp)
 
 			bb->num_chmc = copies;
 
-			bb->chmc = (CHMC**)CALLOC(bb->chmc, copies, sizeof(CHMC*), "CHMC");
+			CALLOC(bb->chmc, CHMC**, copies, sizeof(CHMC*), "CHMC");
 			for(tmp = 0; tmp < copies; tmp++)
 			{
-				bb->chmc[tmp] = (CHMC*)CALLOC(bb->chmc[tmp], 1, sizeof(CHMC), "CHMC");
+				CALLOC(bb->chmc[tmp], CHMC*, 1, sizeof(CHMC), "CHMC");
 			}
 
 		}
@@ -1126,7 +1131,7 @@ mapLoop(procedure *proc, loop *lp)
 
 		current_chmc->hitmiss = bb->num_instr;
 		//if(current_chmc->hitmiss > 0)
-			current_chmc->hitmiss_addr = (char*)CALLOC(current_chmc->hitmiss_addr, current_chmc->hitmiss, sizeof(char),"hitmiss_addr");
+			CALLOC(current_chmc->hitmiss_addr, char*, current_chmc->hitmiss, sizeof(char),"hitmiss_addr");
 
 		DACTION( dumpCacheState(cs_ptr) );
 
@@ -1145,13 +1150,13 @@ mapLoop(procedure *proc, loop *lp)
 				if(current_chmc->hit == 0)
 				{
 					current_chmc->hit++;
-					current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+					CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 				}
 				else
 				{
 					current_chmc->hit++;				
-					current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+					REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 				}
 
@@ -1167,13 +1172,13 @@ mapLoop(procedure *proc, loop *lp)
 					if(current_chmc->hit == 0)
 					{
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 					else
 					{
 						current_chmc->hit++;				
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 
@@ -1193,13 +1198,13 @@ mapLoop(procedure *proc, loop *lp)
 				if(current_chmc->miss == 0)
 				{
 					current_chmc->miss++;
-					current_chmc->miss_addr = (int*)CALLOC(current_chmc->miss_addr, 1, sizeof(int), "miss_addr");
+					CALLOC(current_chmc->miss_addr, int*, 1, sizeof(int), "miss_addr");
 					current_chmc->miss_addr[current_chmc->miss-1] = addr;
 				}
 				else
 				{
 					current_chmc->miss++;				
-					current_chmc->miss_addr = (int*)REALLOC(current_chmc->miss_addr, current_chmc->miss * sizeof(int), "miss_addr");				
+					REALLOC(current_chmc->miss_addr, int*, current_chmc->miss * sizeof(int), "miss_addr");				
 					current_chmc->miss_addr[current_chmc->miss-1] = addr;
 				}
 
@@ -1215,13 +1220,13 @@ mapLoop(procedure *proc, loop *lp)
 					if(current_chmc->hit == 0)
 					{
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 					else
 					{
 						current_chmc->hit++;				
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 
@@ -1244,13 +1249,13 @@ mapLoop(procedure *proc, loop *lp)
 				if(current_chmc->hit == 0)
 				{
 					current_chmc->hit++;
-					current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+					CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 				}
 				else
 				{
 					current_chmc->hit++;				
-					current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+					REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 				}
 
@@ -1266,13 +1271,13 @@ mapLoop(procedure *proc, loop *lp)
 					if(current_chmc->hit == 0)
 					{
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 					else
 					{
 						current_chmc->hit++;				
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 
@@ -1293,13 +1298,13 @@ mapLoop(procedure *proc, loop *lp)
 				if(current_chmc->unknow == 0)
 				{
 					current_chmc->unknow++;
-					current_chmc->unknow_addr = (int*)CALLOC(current_chmc->unknow_addr, 1, sizeof(int), "unknow_addr");
+					CALLOC(current_chmc->unknow_addr, int*, 1, sizeof(int), "unknow_addr");
 					current_chmc->unknow_addr[current_chmc->unknow-1] = addr;
 				}
 				else
 				{
 					current_chmc->unknow++;				
-					current_chmc->unknow_addr = (int*)REALLOC(current_chmc->unknow_addr, current_chmc->unknow * sizeof(int), "unknow_addr");				
+					REALLOC(current_chmc->unknow_addr, int*, current_chmc->unknow * sizeof(int), "unknow_addr");				
 					current_chmc->unknow_addr[current_chmc->unknow-1] = addr;
 				}
 				
@@ -1314,13 +1319,13 @@ mapLoop(procedure *proc, loop *lp)
 					if(current_chmc->hit == 0)
 					{
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 					else
 					{
 						current_chmc->hit++;				
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 
@@ -1613,10 +1618,10 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 
 			bb->num_chmc = copies;
 
-			bb->chmc = (CHMC**)CALLOC(bb->chmc, copies, sizeof(CHMC*), "CHMC");
+			CALLOC(bb->chmc, CHMC**, copies, sizeof(CHMC*), "CHMC");
 			for(tmp = 0; tmp < copies; tmp++)
 			{
-				bb->chmc[tmp] = (CHMC*)CALLOC(bb->chmc[tmp], 1, sizeof(CHMC), "CHMC");
+				CALLOC(bb->chmc[tmp], CHMC*, 1, sizeof(CHMC), "CHMC");
 			}
 
 		}
@@ -1651,7 +1656,7 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 		
 		current_chmc->hitmiss = bb->num_instr;
 		//if(current_chmc->hitmiss > 0) 
-			current_chmc->hitmiss_addr = (char*)CALLOC(current_chmc->hitmiss_addr, current_chmc->hitmiss, sizeof(char),"hitmiss_addr");
+			CALLOC(current_chmc->hitmiss_addr, char*, current_chmc->hitmiss, sizeof(char),"hitmiss_addr");
 
 		//dumpCacheState(cs_ptr);
 		//exit(1);
@@ -1670,13 +1675,13 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 				if(current_chmc->hit == 0)
 				{
 					current_chmc->hit++;
-					current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+					CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 				}
 				else
 				{
 					current_chmc->hit++;				
-					current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+					REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 				}
                                 
@@ -1691,13 +1696,13 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 					if(current_chmc->hit == 0)
 					{
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 					else
 					{
 						current_chmc->hit++;				
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 
@@ -1717,13 +1722,13 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 				if(current_chmc->miss == 0)
 				{
 					current_chmc->miss++;
-					current_chmc->miss_addr = (int*)CALLOC(current_chmc->miss_addr, 1, sizeof(int), "miss_addr");
+					CALLOC(current_chmc->miss_addr, int*, 1, sizeof(int), "miss_addr");
 					current_chmc->miss_addr[current_chmc->miss-1] = addr;
 				}
 				else
 				{
 					current_chmc->miss++;				
-					current_chmc->miss_addr = (int*)REALLOC(current_chmc->miss_addr, current_chmc->miss * sizeof(int), "miss_addr");				
+					REALLOC(current_chmc->miss_addr, int*, current_chmc->miss * sizeof(int), "miss_addr");				
 					current_chmc->miss_addr[current_chmc->miss-1] = addr;
 				}
                                
@@ -1738,13 +1743,13 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 					if(current_chmc->hit == 0)
 					{
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 					else
 					{
 						current_chmc->hit++;				
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 
@@ -1765,13 +1770,13 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 				if(current_chmc->hit == 0)
 				{
 					current_chmc->hit++;
-					current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+					CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 				}
 				else
 				{
 					current_chmc->hit++;				
-					current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+					REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 				}
                                 
@@ -1787,13 +1792,13 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 					if(current_chmc->hit == 0)
 					{
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 					else
 					{
 						current_chmc->hit++;				
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 
@@ -1815,13 +1820,13 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 				if(current_chmc->unknow == 0)
 				{
 					current_chmc->unknow++;
-					current_chmc->unknow_addr = (int*)CALLOC(current_chmc->unknow_addr, 1, sizeof(int), "unknow_addr");
+					CALLOC(current_chmc->unknow_addr, int*, 1, sizeof(int), "unknow_addr");
 					current_chmc->unknow_addr[current_chmc->unknow-1] = addr;
 				}
 				else
 				{
 					current_chmc->unknow++;				
-					current_chmc->unknow_addr = (int*)REALLOC(current_chmc->unknow_addr, current_chmc->unknow * sizeof(int), "unknow_addr");				
+					REALLOC(current_chmc->unknow_addr, int*, current_chmc->unknow * sizeof(int), "unknow_addr");				
 					current_chmc->unknow_addr[current_chmc->unknow-1] = addr;
 				}
                                
@@ -1837,13 +1842,13 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 					if(current_chmc->hit == 0)
 					{
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 					else
 					{
 						current_chmc->hit++;				
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 					}
 
@@ -1961,7 +1966,7 @@ cacheAnalysis()
 
 	//loop_level_arr[] used to indicate what are the context of this bb
 	loop_level_arr = NULL;
-	loop_level_arr = (int*)CALLOC(loop_level_arr, MAX_NEST_LOOP, sizeof(int), "loop_level_arr");
+	CALLOC(loop_level_arr, int*, MAX_NEST_LOOP, sizeof(int), "loop_level_arr");
 
 	//not in loop for main, so all elements are invalid
 	for(i = 0; i < MAX_NEST_LOOP; i++)
@@ -1969,7 +1974,7 @@ cacheAnalysis()
 
 	//set initial cache state for main precedure
 	cache_state *start_CS;
-	//start = (cache_state*) CALLOC(start, 1, sizeof(cache_state), "cache_state");
+	//CALLOC(start, cache_state*, 1, sizeof(cache_state), "cache_state");
 	start_CS = allocCacheState();
 
 	start_CS = mapFunctionCall(main_copy, start_CS);
@@ -1998,11 +2003,12 @@ unionCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
 	int i, j, age, index, entry_a, entry_b;
 	//int flag = 1;
-	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
+  cache_line_way_t **result;
+  CALLOC(result, cache_line_way_t **, cache.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
 	for(i = 0; i < cache.na; i++)
 	{
-		result[i] = (cache_line_way_t *)CALLOC(result[i], 1, sizeof(cache_line_way_t), "cache_line_way_t *");
+		CALLOC(result[i], cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t *");
 		result[i]->num_entry = 0;
 		result[i]->entry = NULL;
 	}
@@ -2027,11 +2033,11 @@ unionCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 			result[index]->num_entry++;
 			if(result[index]->num_entry == 1)
 			{
-				result[index]->entry = (int *)CALLOC(result[index]->entry, result[index]->num_entry, sizeof(int), "cache line way");
+				CALLOC(result[index]->entry, int *, result[index]->num_entry, sizeof(int), "cache line way");
 			}
 			else
 			{
-				result[index]->entry = (int *)REALLOC(result[index]->entry, result[index]->num_entry * sizeof(int), "cache line way");
+				REALLOC(result[index]->entry, int *, result[index]->num_entry * sizeof(int), "cache line way");
 			}
 			result[index]->entry[result[index]->num_entry - 1] = entry_a;
 
@@ -2050,11 +2056,11 @@ unionCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 				result[i]->num_entry ++;
 				if(result[i]->num_entry == 1)
 				{
-					result[i]->entry = (int *)CALLOC(result[i]->entry, result[i]->num_entry, sizeof(int), "cache line way");
+					CALLOC(result[i]->entry, int *, result[i]->num_entry, sizeof(int), "cache line way");
 				}
 				else
 				{
-					result[i]->entry = (int *)REALLOC(result[i]->entry, result[i]->num_entry*sizeof(int), "cache line way");
+					REALLOC(result[i]->entry, int *, result[i]->num_entry*sizeof(int), "cache line way");
 				}
 				result[i]->entry[result[i]->num_entry - 1] = entry_b;
 
@@ -2075,11 +2081,12 @@ unionMaxCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
 	int i, j, age, index, entry_a, entry_b;
 	//int flag = 1;
-	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache.na + 1, sizeof(cache_line_way_t*), "cache_line_way_t **");
+  cache_line_way_t **result;
+	CALLOC(result, cache_line_way_t **, cache.na + 1, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
 	for(i = 0; i < cache.na + 1; i++)
 	{
-		result[i] = (cache_line_way_t *)CALLOC(result[i], 1, sizeof(cache_line_way_t), "cache_line_way_t *");
+		CALLOC(result[i], cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t *");
 		result[i]->num_entry = 0;
 		result[i]->entry = NULL;
 	}
@@ -2111,11 +2118,11 @@ unionMaxCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 			result[index]->num_entry++;
 			if(result[index]->num_entry == 1)
 			{
-				result[index]->entry = (int *)CALLOC(result[index]->entry, result[index]->num_entry, sizeof(int), "cache line way");
+				CALLOC(result[index]->entry, int *, result[index]->num_entry, sizeof(int), "cache line way");
 			}
 			else
 			{
-				result[index]->entry = (int *)REALLOC(result[index]->entry, result[index]->num_entry * sizeof(int), "cache line way");
+				REALLOC(result[index]->entry, int *, result[index]->num_entry * sizeof(int), "cache line way");
 			}
 			result[index]->entry[result[index]->num_entry - 1] = entry_a;
 
@@ -2136,11 +2143,11 @@ unionMaxCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 				result[i]->num_entry ++;
 				if(result[i]->num_entry == 1)
 				{
-					result[i]->entry = (int *)CALLOC(result[i]->entry, result[i]->num_entry, sizeof(int), "cache line way");
+					CALLOC(result[i]->entry, int *, result[i]->num_entry, sizeof(int), "cache line way");
 				}
 				else
 				{
-					result[i]->entry = (int *)REALLOC(result[i]->entry, result[i]->num_entry*sizeof(int), "cache line way");
+					REALLOC(result[i]->entry, int *, result[i]->num_entry*sizeof(int), "cache line way");
 				}
 				result[i]->entry[result[i]->num_entry - 1] = entry_b;
 
@@ -2360,11 +2367,12 @@ intersectCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
 	int i, j, age, index, entry_b;
 	//int flag = 1;
-	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
+  cache_line_way_t **result;
+	CALLOC(result, cache_line_way_t **, cache.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
 	for(i = 0; i < cache.na; i++)
 	{
-		result[i] = (cache_line_way_t *)CALLOC(result[i], 1, sizeof(cache_line_way_t), "cache_line_way_t *");
+		CALLOC(result[i], cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t *");
 		result[i]->num_entry = 0;
 		result[i]->entry = NULL;
 	}
@@ -2389,11 +2397,11 @@ intersectCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 			result[index]->num_entry ++;
 			if(result[index]->num_entry == 1)
 			{
-				result[index]->entry = (int *) CALLOC(result[index]->entry , result[index]->num_entry, sizeof(int), "cache line way");
+				 CALLOC(result[index]->entry , int *, result[index]->num_entry, sizeof(int), "cache line way");
 			}
 			else
 			{
-				result[index]->entry = (int *) REALLOC(result[index]->entry , result[index]->num_entry*sizeof(int), "cache line way");
+				 REALLOC(result[index]->entry , int *, result[index]->num_entry*sizeof(int), "cache line way");
 			}
 			result[index]->entry[result[index]->num_entry - 1] = entry_b;
 

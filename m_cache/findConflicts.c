@@ -32,7 +32,7 @@ char modifiedInLoop( loop *lp, char *deri_tree ) {
     // remember nested loops
     if( i < lp->num_topo-1 && bb->is_loophead ) {
       num_nested++;
-      nested = (loop**) REALLOC( nested, num_nested * sizeof(loop*), "nested" );
+      REALLOC( nested, loop**, num_nested * sizeof(loop*), "nested" );
       nested[num_nested-1] = procs[bb->pid]->loops[bb->loopid];
     }
   }
@@ -107,7 +107,7 @@ char isReachableNoCancel( int pid, int srcid, int destid, char *deri_tree,
   if( srcid == destid )
     return 1;
 
-  visited = (char*) CALLOC( visited, procs[pid]->num_bb, sizeof(char), "visited" );
+  CALLOC( visited, char*, procs[pid]->num_bb, sizeof(char), "visited" );
   res = reachableNoCancel( pid, srcid, destid, deri_tree, assg, bblist, num_bb, visited );
 
   free( visited );
@@ -134,7 +134,7 @@ int addAssign( char deri_tree[], block *bb, int lineno, int rhs, char rhs_var ) 
   }
 
   // else add new
-  assg = (assign*) MALLOC( assg, sizeof(assign), "assign" );
+  MALLOC( assg, assign*, sizeof(assign), "assign" );
   strcpy( assg->deri_tree, deri_tree );
   assg->rhs           = rhs;
   assg->rhs_var       = rhs_var;
@@ -147,8 +147,7 @@ int addAssign( char deri_tree[], block *bb, int lineno, int rhs, char rhs_var ) 
   num_assign[bb->pid][bb->bbid]++;
 
   i = num_assign[bb->pid][bb->bbid];
-  assignlist[bb->pid][bb->bbid] = (assign**)
-    REALLOC( assignlist[bb->pid][bb->bbid], i * sizeof(assign*), "assignlist[p][b]" );
+  REALLOC( assignlist[bb->pid][bb->bbid], assign**, i * sizeof(assign*), "assignlist[p][b]" );
   assignlist[bb->pid][bb->bbid][i-1] = assg;
 
   return 0;
@@ -158,7 +157,7 @@ int addBranch( char deri_tree[], block *bb, int rhs, char rhs_var, char jump_con
 
   branch *br;
 
-  br = (branch*) MALLOC( br, sizeof(branch), "branch" );
+  MALLOC( br, branch*, sizeof(branch), "branch" );
   strcpy( br->deri_tree, deri_tree );
   br->rhs              = rhs;
   br->rhs_var          = rhs_var;
@@ -170,8 +169,7 @@ int addBranch( char deri_tree[], block *bb, int rhs, char rhs_var, char jump_con
   br->conflictdir_fall = NULL;
   br->num_incfs        = 0;
   br->num_active_incfs = 0;
-  br->in_conflict = (char*)
-    CALLOC( br->in_conflict, procs[bb->pid]->num_bb, sizeof(char), "branch in_conflict" );
+  CALLOC( br->in_conflict, char*, procs[bb->pid]->num_bb, sizeof(char), "branch in_conflict" );
 
   branchlist[bb->pid][bb->bbid] = br;
 
@@ -608,12 +606,10 @@ int setBAConflict( assign *assg, branch *br, int id, char dir ) {
   assg->num_conflicts++;
   num = assg->num_conflicts;
 
-  assg->conflicts = (branch**)
-    REALLOC( assg->conflicts, num * sizeof(branch*), "assignlist conflicts" );
+  REALLOC( assg->conflicts, branch**, num * sizeof(branch*), "assignlist conflicts" );
   assg->conflicts[num-1] = br;
 
-  assg->conflictdir = (char*)
-    REALLOC( assg->conflictdir, num * sizeof(char), "assignlist conflictdir" );
+  REALLOC( assg->conflictdir, char*, num * sizeof(char), "assignlist conflictdir" );
   assg->conflictdir[num-1] = dir;
 
   // set incoming conflict
@@ -641,16 +637,13 @@ int setBBConflict( branch *br1, branch *br2, char dir1, char dir2, char new ) {
     // each branch added once (even if both edges have their own conflicts)
     br1->num_conflicts++;
     num = br1->num_conflicts;
-    br1->conflicts = (branch**)
-      REALLOC( br1->conflicts, num * sizeof(branch*), "branchlist conflicts" );
+    REALLOC( br1->conflicts, branch**, num * sizeof(branch*), "branchlist conflicts" );
     br1->conflicts[num-1] = br2;
 
-    br1->conflictdir_jump = (char*)
-      REALLOC( br1->conflictdir_jump, num * sizeof(char), "branchlist conflictdir_jump" );
+    REALLOC( br1->conflictdir_jump, char*, num * sizeof(char), "branchlist conflictdir_jump" );
     br1->conflictdir_jump[num-1] = -1;
 
-    br1->conflictdir_fall = (char*)
-      REALLOC( br1->conflictdir_fall, num * sizeof(char), "branchlist conflictdir_fall" );
+    REALLOC( br1->conflictdir_fall, char*, num * sizeof(char), "branchlist conflictdir_fall" );
     br1->conflictdir_fall[num-1] = -1;
   }
 

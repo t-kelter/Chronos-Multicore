@@ -32,12 +32,12 @@ int DP_knapsack( int capacity, int num_items, int *gain, int *weight, char *allo
 
   for( i = 0; i < num_items; i++ ) {
 
-    curr_gain = (int*) CALLOC( curr_gain, capacity, sizeof(int), "curr_gain in DP" );
+    CALLOC( curr_gain, int*, capacity, sizeof(int), "curr_gain in DP" );
 
     if( alloc != NULL ) {
-      curr_alloc = (char**) MALLOC( curr_alloc, capacity * sizeof(char*), "curr_alloc in DP" );
+      MALLOC( curr_alloc, char**, capacity * sizeof(char*), "curr_alloc in DP" );
       for( w = 0; w < capacity; w++ ) {
-	curr_alloc[w] = (char*) CALLOC( curr_alloc[w], num_items, sizeof(char), "curr_alloc elm in DP" );
+	      CALLOC( curr_alloc[w], char*, num_items, sizeof(char), "curr_alloc elm in DP" );
       }
     }
 

@@ -110,7 +110,7 @@ int main(int argc, char **argv )
   /* Compute with shared bus */
   g_shared_bus = 1;
   /* For independent tasks running on multiple cores */
-  g_independent_task = 0;
+  g_independent_task = 1;
   /* For no bus modelling */
   g_no_bus_modeling = 0;
 
@@ -146,20 +146,16 @@ int main(int argc, char **argv )
 
   /* sudiptac :: Allocate the earliest/latest start time structure for
    * all the cores */
-  earliest_core_time = (ull *)CALLOC( earliest_core_time, num_core,
-                              sizeof(ull), "earliest_core_time" );
-  latest_core_time = (ull *)CALLOC( latest_core_time, num_core,
-                              sizeof(ull), "latest_core_time" );
+  CALLOC( earliest_core_time, ull *, num_core, sizeof(ull), "earliest_core_time" );
+  CALLOC( latest_core_time, ull *, num_core, sizeof(ull), "latest_core_time" );
 
   /* Set the basic parameters of L1 and L2 instruction caches */		  
   set_cache_basic( argv[2] );
   set_cache_basic_L2( argv[3] );
 
   /* Allocate memory for capturing conflicting task information */		  
-  numConflictTask = (char *)CALLOC(numConflictTask, cache_L2.ns, sizeof(char),
-      "numConflictTask");
-  numConflictMSC = (char *)CALLOC(numConflictMSC, cache_L2.ns, sizeof(char), 
-      "numConflictMSC");
+  CALLOC(numConflictTask, char *, cache_L2.ns, sizeof(char), "numConflictTask");
+  CALLOC(numConflictMSC, char *, cache_L2.ns, sizeof(char), "numConflictMSC");
 
   /* Reset/initialize allocated memory */ 		  
   for(n = 0; n < cache_L2.ns; n++) {
@@ -195,9 +191,9 @@ int main(int argc, char **argv )
   /* Read the entire file containing the interference information */		  
   while(fscanf(interferPath, "%s\n", interferFileName)!= EOF) {
     if(num_msc == 0) {
-      msc = (MSC**)CALLOC(msc, 1, sizeof(MSC*), "MSC*");
+      CALLOC(msc, MSC**, 1, sizeof(MSC*), "MSC*");
     } else {
-      msc = (MSC**)REALLOC(msc, (num_msc + 1) * sizeof(MSC*), "MSC*");
+      REALLOC(msc, MSC**, (num_msc + 1) * sizeof(MSC*), "MSC*");
     }
     num_msc++;
 
@@ -221,9 +217,7 @@ int main(int argc, char **argv )
 
       /* Create the procedure pointer in the task --- just allocate
        * the memory */
-      currentMSC->taskList[i].proc_cg_ptr = (proc_copy *)
-        CALLOC(currentMSC->taskList[i].proc_cg_ptr,
-            num_procs, sizeof(proc_copy), "proc_copy");
+      CALLOC(currentMSC->taskList[i].proc_cg_ptr, proc_copy *, num_procs, sizeof(proc_copy), "proc_copy");
 
       /* Initialize pointers for procedures. Each entry means a 
        * different context ? */
@@ -487,6 +481,8 @@ int main(int argc, char **argv )
 static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
                       enum AnalysisMethod method )
 {
+  DSTART( "analysis" );
+
   switch ( method ) {
 
     case ANALYSIS_UNROLL:
@@ -516,6 +512,17 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
     assert( msc->taskList[i].bcet <= msc->taskList[i].wcet &&
         "Invalid BCET/WCET results for task" );
   }
+
+  // Output the results if desired
+  DACTION(
+      for ( i = 0; i < msc->num_task; i++ ) {
+        task_t * const t = &( msc->taskList[i] );
+        DOUT( "Results for task %s : BCET %llu \tWCET %llu\n",
+            t->task_name, t->bcet, t->wcet );
+      }
+  );
+
+  DEND();
 }
 
 

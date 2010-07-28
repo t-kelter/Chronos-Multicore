@@ -43,7 +43,7 @@ int isReachable( int src, int dest, block **bblist, int num_bb ) {
   char *visited;  // bit array to mark visited nodes
   int  res;
 
-  visited = (char*) CALLOC( visited, num_bb, sizeof(char), "visited" );
+  CALLOC( visited, char*, num_bb, sizeof(char), "visited" );
   res = reachable( src, dest, bblist, visited );
 
   free( visited );
@@ -286,7 +286,7 @@ int determineLoopExits( loop **loops, int num_loops, block **bblist, int num_bb 
 	  if( inExits( b->outgoing[k], exits, num_exits ) == -1 ) {
 
 	    num_exits++;
-	    exits = (block**) REALLOC( exits, num_exits * sizeof(block*), "exits" );
+	    REALLOC( exits, block**, num_exits * sizeof(block*), "exits" );
 	    exits[ num_exits - 1 ] = bblist[ b->outgoing[k] ];
 	  }
 
@@ -393,7 +393,7 @@ int removeLoopComponent( loop *lp, int bbid ) {
 	lp->topo[j - 1] = lp->topo[j];
 
       lp->num_topo--;
-      // lp->topo = (block**) REALLOC( lp->topo, lp->num_topo * sizeof(block*), "loop topo" );
+      // REALLOC( lp->topo, block**, lp->num_topo * sizeof(block*), "loop topo" );
       return 0;
     }
   }
@@ -421,7 +421,7 @@ int addToLoop( loop *lp, block *bb, char check ) {
     return -1;
 
   lp->num_topo++;
-  lp->topo = (block**) REALLOC( lp->topo, lp->num_topo * sizeof(block*), "loop topo" );
+  REALLOC( lp->topo, block**, lp->num_topo * sizeof(block*), "loop topo" );
   lp->topo[ lp->num_topo - 1 ] = bb;
   return 0;
 }
@@ -472,12 +472,12 @@ int checkLoop( procedure *p, block *bb, char outid, int level ) {
 	else {
 	  
 	  // construct a new block to act as dummy sink
-	  dummy = (block*) MALLOC( dummy, sizeof(block), "dummy sink" );
+    MALLOC( dummy, block*, sizeof(block), "dummy sink" );
 	  memset(dummy, 0, sizeof(block));
 	  createBlock( dummy, p->pid, p->num_bb, -1, lp->loophead->bbid, -1, -1, bb->loopid );
 
 	  p->num_bb++;
-	  p->bblist = (block**) REALLOC( p->bblist, p->num_bb * sizeof(block*), "bblist" );
+	  REALLOC( p->bblist, block**, p->num_bb * sizeof(block*), "bblist" );
 	  p->bblist[ p->num_bb - 1 ] = dummy;
 
 	  // modify outgoing edge for the original sinks
@@ -512,11 +512,11 @@ int checkLoop( procedure *p, block *bb, char outid, int level ) {
 
       // printf( "new loop with %d as loophead\n", bb->bbid );
 
-      lp = (loop*) MALLOC( lp, sizeof(loop), "loop" );
+      MALLOC( lp, loop*, sizeof(loop), "loop" );
       createLoop( lp, p->pid, p->num_loops, level, bb );
 
       p->num_loops++;
-      p->loops = (loop**) REALLOC( p->loops, p->num_loops * sizeof(loop*), "loop list" );
+      REALLOC( p->loops, loop**, p->num_loops * sizeof(loop*), "loop list" );
       p->loops[ p->num_loops - 1 ] = lp;
 
       if( bb->loopid != -1 ) {  // nested
@@ -607,7 +607,7 @@ int detect_loops() {
       lpcount = 0;
 
       // DFS-traverse basic blocks
-      markfin = (char*) CALLOC( markfin, p->num_bb, sizeof(char), "markfin array" );
+      CALLOC( markfin, char*, p->num_bb, sizeof(char), "markfin array" );
       bt      = NULL;
       btsize  = 0;
 
@@ -650,13 +650,13 @@ int detect_loops() {
 	  if( res == 1 )
 	    lpcount++;
 	  else if( res == 2 ) {
-	    markfin = (char*) REALLOC( markfin, p->num_bb * sizeof(char), "markfin array" );
+	    REALLOC( markfin, char*, p->num_bb * sizeof(char), "markfin array" );
 	    markfin[ p->num_bb - 1 ] = 0;
 	  }
 
 	  // if branch add to backtrack point, else mark finished
 	  if( bb->num_outgoing == 2 ) {
-	    bt = (int*) REALLOC( bt, ++btsize * sizeof(int), "backtrack array" );
+	    REALLOC( bt, int*, ++btsize * sizeof(int), "backtrack array" );
 	    bt[ btsize - 1 ] = id;
 	  }
 	  else

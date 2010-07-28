@@ -58,7 +58,7 @@ int isReachableTopo( block *src, int dest, block **bblist, int start, int end ) 
   if( src->bbid == dest )
     return 1;
 
-  visited = (char*) CALLOC( visited, procs[src->pid]->num_bb, sizeof(char), "visited" );
+  CALLOC( visited, char*, procs[src->pid]->num_bb, sizeof(char), "visited" );
   res = reachableTopo( src, dest, bblist, start, end, visited );
 
   free( visited );
@@ -133,8 +133,8 @@ int ILPconstDAG( char objtype, void *obj ) {
 
 
   // collect incoming
-  num_incoming = (char*) CALLOC( num_incoming, p->num_bb, sizeof(char), "num_incoming" );
-  incoming     = (int**) MALLOC( incoming, p->num_bb * sizeof(int*), "incoming" );
+  CALLOC( num_incoming, char*, p->num_bb, sizeof(char), "num_incoming" );
+  MALLOC( incoming, int**, p->num_bb * sizeof(int*), "incoming" );
   for( i = 0; i < p->num_bb; i++ ) {
     num_incoming[i] = 0;
     incoming[i]     = NULL;
@@ -143,8 +143,7 @@ int ILPconstDAG( char objtype, void *obj ) {
     bb = topo[i];
     for( j = 0; j < bb->num_outgoing; j++ ) {
       num_incoming[ bb->outgoing[j] ]++;
-      incoming[ bb->outgoing[j] ] = (int*)
-        REALLOC( incoming[ bb->outgoing[j] ], num_incoming[bb->outgoing[j]] * sizeof(int), "incoming elm" );
+      REALLOC( incoming[ bb->outgoing[j] ], int*, num_incoming[bb->outgoing[j]] * sizeof(int), "incoming elm" );
       incoming[ bb->outgoing[j] ][ num_incoming[bb->outgoing[j]] - 1 ] = bb->bbid;
     }
   }
@@ -529,7 +528,7 @@ int analysis_ilp()
     system( proc );
 
     free( p->wpath );
-    p->wpath = (char*) MALLOC( p->wpath, sizeof(char), "proc wpath" );
+    MALLOC( p->wpath, char*, sizeof(char), "proc wpath" );
     p->wpath[0] = '\0';
 
     // Format of file .bp:
@@ -548,7 +547,7 @@ int analysis_ilp()
       else
 	sprintf( proc, "-%d", j );
 
-      p->wpath = (char*) REALLOC( p->wpath, (strlen(p->wpath) + strlen(proc) + 1) * sizeof(char), "proc wpath" );
+      REALLOC( p->wpath, char*, (strlen(p->wpath) + strlen(proc) + 1) * sizeof(char), "proc wpath" );
       strcat( p->wpath, proc );
 
       // wpvar

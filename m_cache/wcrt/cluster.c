@@ -29,13 +29,13 @@ char doClustering( sched_t *sc, chart_t *msc ) {
   idx = sc->assignedList[0];
 
   numOverlays = 1;
-  numOwnerTasks = (int*)  REALLOC( numOwnerTasks, sizeof(int),  "numOwnerTasks" );
-  ownerTaskList = (int**) REALLOC( ownerTaskList, sizeof(int*), "ownerTaskList" );
-  tmStartList = (time_t*) REALLOC( tmStartList, sizeof(time_t), "tmStartList" );
-  tmEndList   = (time_t*) REALLOC( tmEndList,   sizeof(time_t), "tmEndList" );
+  REALLOC( numOwnerTasks, int*, sizeof(int),  "numOwnerTasks" );
+  REALLOC( ownerTaskList, int**, sizeof(int*), "ownerTaskList" );
+  REALLOC( tmStartList, time_t*, sizeof(time_t), "tmStartList" );
+  REALLOC( tmEndList, time_t*,   sizeof(time_t), "tmEndList" );
 
   numOwnerTasks[0] = 1;
-  ownerTaskList[0] = (int*) MALLOC( ownerTaskList[0], sizeof(int), "ownerTaskList[0]" );
+  MALLOC( ownerTaskList[0], int*, sizeof(int), "ownerTaskList[0]" );
   ownerTaskList[0][0] = idx;
   tmStartList[0] = latestReq[idx];
   tmEndList[0]   = latestFin[idx];
@@ -59,13 +59,13 @@ char doClustering( sched_t *sc, chart_t *msc ) {
       groupid = numOverlays;
       numOverlays++;
 
-      numOwnerTasks = (int*)  REALLOC( numOwnerTasks, numOverlays * sizeof(int), "numOwnerTasks" );
-      ownerTaskList = (int**) REALLOC( ownerTaskList, numOverlays * sizeof(int*), "ownerTaskList" );
-      tmStartList = (time_t*) REALLOC( tmStartList, numOverlays * sizeof(time_t), "tmStartList" );
-      tmEndList   = (time_t*) REALLOC( tmEndList,   numOverlays * sizeof(time_t), "tmEndList" );
+      REALLOC( numOwnerTasks, int*, numOverlays * sizeof(int), "numOwnerTasks" );
+      REALLOC( ownerTaskList, int**, numOverlays * sizeof(int*), "ownerTaskList" );
+      REALLOC( tmStartList, time_t*, numOverlays * sizeof(time_t), "tmStartList" );
+      REALLOC( tmEndList, time_t*,   numOverlays * sizeof(time_t), "tmEndList" );
 
       numOwnerTasks[groupid] = 1;
-      ownerTaskList[groupid] = (int*) MALLOC( ownerTaskList[groupid], sizeof(int), "ownerTaskList[.]" );
+      MALLOC( ownerTaskList[groupid], int*, sizeof(int), "ownerTaskList[.]" );
       ownerTaskList[groupid][0] = idx;
       tmStartList[groupid] = latestReq[idx];
       tmEndList  [groupid] = latestFin[idx];
@@ -215,24 +215,24 @@ char doClustering( sched_t *sc, chart_t *msc ) {
   // update the grouping
   freeAlloc( sc->spm );
   sc->spm->numOverlays = numOverlays;
-  sc->spm->overlayList = (overlay_t**) MALLOC( sc->spm->overlayList, numOverlays * sizeof(overlay_t*), "overlayList" );
+  MALLOC( sc->spm->overlayList, overlay_t**, numOverlays * sizeof(overlay_t*), "overlayList" );
   for( i = 0; i < numOverlays; i++ ) {
     overlay_t *ox;
-    sc->spm->overlayList[i] = (overlay_t*) MALLOC( sc->spm->overlayList[i], numOverlays * sizeof(overlay_t), "overlayList[i]" );
+    MALLOC( sc->spm->overlayList[i], overlay_t*, numOverlays * sizeof(overlay_t), "overlayList[i]" );
     ox = sc->spm->overlayList[i];
 
     ox->tmStart = tmStartList[i];
     ox->tmEnd   = tmEndList[i];
     ox->numOwnerTasks = numOwnerTasks[i];
-    ox->ownerTaskList = (int*) MALLOC( ox->ownerTaskList, ox->numOwnerTasks * sizeof(int), "ox->ownerTaskList" );
+    MALLOC( ox->ownerTaskList, int*, ox->numOwnerTasks * sizeof(int), "ox->ownerTaskList" );
     for( k = 0; k < ox->numOwnerTasks; k++ )
       ox->ownerTaskList[k] = ownerTaskList[i][k];
 
     /*
     if( !GREEDY && allocmethod == GRAPH_COLORING ) {
-      ox->interfere = (char**) MALLOC( ox->interfere, ox->numOwnerTasks * sizeof(char*), "ox->interfere" );
+      MALLOC( ox->interfere, char**, ox->numOwnerTasks * sizeof(char*), "ox->interfere" );
       for( k = 0; k < ox->numOwnerTasks; k++ ) {
-	ox->interfere[k] = (char*) MALLOC( ox->interfere[k], ox->numOwnerTasks * sizeof(char), "ox->interfere[k]" );
+	      MALLOC( ox->interfere[k], char*, ox->numOwnerTasks * sizeof(char), "ox->interfere[k]" );
       }
     }
     else

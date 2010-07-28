@@ -45,26 +45,26 @@ pathFunction(procedure *proc)
 	{
 		proc->num_cost = copies;
 		
-	      	proc->wcet = (ull*)CALLOC(proc->wcet, copies, sizeof(ull), "ull");     
-	      	proc->bcet = (ull*)CALLOC(proc->bcet, copies, sizeof(ull), "ull");           
+	      	CALLOC(proc->wcet, ull*, copies, sizeof(ull), "ull");     
+	      	CALLOC(proc->bcet, ull*, copies, sizeof(ull), "ull");           
 	  
-	   	proc->hit_wcet = (ull*)CALLOC(proc->hit_wcet, copies, sizeof(ull), "ull");
-	   	proc->miss_wcet = (ull*)CALLOC(proc->miss_wcet, copies, sizeof(ull), "ull");
-		proc->unknow_wcet = (ull*)CALLOC(proc->unknow_wcet, copies, sizeof(ull), "ull");
+	   	CALLOC(proc->hit_wcet, ull*, copies, sizeof(ull), "ull");
+	   	CALLOC(proc->miss_wcet, ull*, copies, sizeof(ull), "ull");
+		CALLOC(proc->unknow_wcet, ull*, copies, sizeof(ull), "ull");
 
-		proc->hit_wcet_L2 = (ull*)CALLOC(proc->hit_wcet_L2, copies, sizeof(ull), "ull");
-		proc->miss_wcet_L2 = (ull*)CALLOC(proc->miss_wcet_L2, copies, sizeof(ull), "ull");
-		proc->unknow_wcet_L2 = (ull*)CALLOC(proc->unknow_wcet_L2, copies, sizeof(ull), "ull");
+		CALLOC(proc->hit_wcet_L2, ull*, copies, sizeof(ull), "ull");
+		CALLOC(proc->miss_wcet_L2, ull*, copies, sizeof(ull), "ull");
+		CALLOC(proc->unknow_wcet_L2, ull*, copies, sizeof(ull), "ull");
 
 
 
-	   	proc->hit_bcet = (ull*)CALLOC(proc->hit_bcet, copies, sizeof(ull), "ull");
-	   	proc->miss_bcet = (ull*)CALLOC(proc->miss_bcet, copies, sizeof(ull), "ull");
-		proc->unknow_bcet = (ull*)CALLOC(proc->unknow_bcet, copies, sizeof(ull), "ull");
+	   	CALLOC(proc->hit_bcet, ull*, copies, sizeof(ull), "ull");
+	   	CALLOC(proc->miss_bcet, ull*, copies, sizeof(ull), "ull");
+		CALLOC(proc->unknow_bcet, ull*, copies, sizeof(ull), "ull");
 
-		proc->hit_bcet_L2 = (ull*)CALLOC(proc->hit_bcet_L2, copies, sizeof(ull), "ull");
-		proc->miss_bcet_L2 = (ull*)CALLOC(proc->miss_bcet_L2, copies, sizeof(ull), "ull");
-		proc->unknow_bcet_L2 = (ull*)CALLOC(proc->unknow_bcet_L2, copies, sizeof(ull), "ull");
+		CALLOC(proc->hit_bcet_L2, ull*, copies, sizeof(ull), "ull");
+		CALLOC(proc->miss_bcet_L2, ull*, copies, sizeof(ull), "ull");
+		CALLOC(proc->unknow_bcet_L2, ull*, copies, sizeof(ull), "ull");
 
 	}
 	proc->wcet[cnt] = 0;
@@ -223,26 +223,26 @@ pathLoop(procedure *proc, loop *lp)
 	{
 		lp_ptr->num_cost = copies;
 		
-	      	lp_ptr->wcet = (ull*)CALLOC(lp_ptr->wcet, copies, sizeof(ull), "ull");           
-	      	lp_ptr->bcet = (ull*)CALLOC(lp_ptr->bcet, copies, sizeof(ull), "ull");           
+	      	CALLOC(lp_ptr->wcet, ull*, copies, sizeof(ull), "ull");           
+	      	CALLOC(lp_ptr->bcet, ull*, copies, sizeof(ull), "ull");           
 	  
-	   	lp_ptr->hit_wcet = (ull*)CALLOC(lp_ptr->hit_wcet, copies, sizeof(ull), "ull");
-	   	lp_ptr->miss_wcet = (ull*)CALLOC(lp_ptr->miss_wcet, copies, sizeof(ull), "ull");
-	   	lp_ptr->unknow_wcet = (ull*)CALLOC(lp_ptr->unknow_wcet, copies, sizeof(ull), "ull");
+	   	CALLOC(lp_ptr->hit_wcet, ull*, copies, sizeof(ull), "ull");
+	   	CALLOC(lp_ptr->miss_wcet, ull*, copies, sizeof(ull), "ull");
+	   	CALLOC(lp_ptr->unknow_wcet, ull*, copies, sizeof(ull), "ull");
 
-		lp_ptr->hit_wcet_L2 = (ull*)CALLOC(lp_ptr->hit_wcet_L2, copies, sizeof(ull), "ull");
-		lp_ptr->miss_wcet_L2 = (ull*)CALLOC(lp_ptr->miss_wcet_L2, copies, sizeof(ull), "ull");
-		lp_ptr->unknow_wcet_L2 = (ull*)CALLOC(lp_ptr->unknow_wcet_L2, copies, sizeof(ull), "ull");
+		CALLOC(lp_ptr->hit_wcet_L2, ull*, copies, sizeof(ull), "ull");
+		CALLOC(lp_ptr->miss_wcet_L2, ull*, copies, sizeof(ull), "ull");
+		CALLOC(lp_ptr->unknow_wcet_L2, ull*, copies, sizeof(ull), "ull");
 
 
 
-	   	lp_ptr->hit_bcet = (ull*)CALLOC(lp_ptr->hit_bcet, copies, sizeof(ull), "ull");
-	   	lp_ptr->miss_bcet = (ull*)CALLOC(lp_ptr->miss_bcet, copies, sizeof(ull), "ull");
-	   	lp_ptr->unknow_bcet = (ull*)CALLOC(lp_ptr->unknow_bcet, copies, sizeof(ull), "ull");
+	   	CALLOC(lp_ptr->hit_bcet, ull*, copies, sizeof(ull), "ull");
+	   	CALLOC(lp_ptr->miss_bcet, ull*, copies, sizeof(ull), "ull");
+	   	CALLOC(lp_ptr->unknow_bcet, ull*, copies, sizeof(ull), "ull");
 
-		lp_ptr->hit_bcet_L2 = (ull*)CALLOC(lp_ptr->hit_bcet_L2, copies, sizeof(ull), "ull");
-		lp_ptr->miss_bcet_L2 = (ull*)CALLOC(lp_ptr->miss_bcet_L2, copies, sizeof(ull), "ull");
-		lp_ptr->unknow_bcet_L2 = (ull*)CALLOC(lp_ptr->unknow_bcet_L2, copies, sizeof(ull), "ull");
+		CALLOC(lp_ptr->hit_bcet_L2, ull*, copies, sizeof(ull), "ull");
+		CALLOC(lp_ptr->miss_bcet_L2, ull*, copies, sizeof(ull), "ull");
+		CALLOC(lp_ptr->unknow_bcet_L2, ull*, copies, sizeof(ull), "ull");
 
 	}
 	

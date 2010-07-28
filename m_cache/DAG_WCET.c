@@ -247,18 +247,17 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost )
     if( !bu->num_outgoing ) {  // bu is a sink
       // cost(bu) = { sum(bu) | sum(bu) is the sum of costs of each instruction in bu };
 
-      pu = (path*) MALLOC( pu, sizeof(path), "path" );
+      MALLOC( pu, path*, sizeof(path), "path" );
       pu->cost       = cost[bu->bbid];
       pu->bb_len     = 1;
-      pu->bb_seq     = (int*) MALLOC( pu->bb_seq, sizeof(int), "path bb_seq" );
+      MALLOC( pu->bb_seq, int*, sizeof(int), "path bb_seq" );
       pu->bb_seq[0]  = bu->bbid;
       pu->branch_len = 0;
       pu->branch_eff = NULL;
       pu->branch_dir = NULL;
 
       num_paths[bu->bbid]++;
-      pathlist[bu->bbid] = (path**)
-	REALLOC( pathlist[bu->bbid], num_paths[bu->bbid] * sizeof(path*), "pathlist elm" );
+      REALLOC( pathlist[bu->bbid], path**, num_paths[bu->bbid] * sizeof(path*), "pathlist elm" );
       pathlist[bu->bbid][ num_paths[bu->bbid]-1 ] = pu;
       continue;
     }
@@ -301,7 +300,7 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost )
 
 	// else, include this path for bu
 
-	pu = (path*) MALLOC( pu, sizeof(path), "path" );
+	MALLOC( pu, path*, sizeof(path), "path" );
 	pu->bb_len = pv->bb_len + 1;
 
 	pu->cost = pv->cost + cost[bu->bbid];
@@ -341,11 +340,9 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost )
 	if( extend )
 	  pu->branch_len++;
 	
-	pu->bb_seq = (int*) MALLOC( pu->bb_seq, pu->bb_len * sizeof(int), "path bb_seq" );
-	pu->branch_eff = (branch**)
-	  MALLOC( pu->branch_eff, pu->branch_len * sizeof(branch*), "path branch_eff" );
-	pu->branch_dir = (char*)
-	  MALLOC( pu->branch_dir, pu->branch_len * sizeof(char), "path branch_dir" );
+	MALLOC( pu->bb_seq, int*, pu->bb_len * sizeof(int), "path bb_seq" );
+	MALLOC( pu->branch_eff, branch**, pu->branch_len * sizeof(branch*), "path branch_eff" );
+	MALLOC( pu->branch_dir, char*, pu->branch_len * sizeof(char), "path branch_dir" );
 
 	copySeq( pu, pv );
 	pu->bb_seq[ pu->bb_len - 1 ] = bu->bbid;
@@ -354,8 +351,7 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost )
 	  sortedInsertBranch( pu, bru, direction );
 
 	num_paths[bu->bbid]++;
-	pathlist[bu->bbid] = (path**)
-	  REALLOC( pathlist[bu->bbid], num_paths[bu->bbid] * sizeof(path*), "pathlist elm" );
+	REALLOC( pathlist[bu->bbid], path**, num_paths[bu->bbid] * sizeof(path*), "pathlist elm" );
 	pathlist[bu->bbid][ num_paths[bu->bbid]-1 ] = pu;
 
       } // end for paths of bv
@@ -475,9 +471,9 @@ path* find_WCETPath( int pid, block **bblist, int num_bb, int *in_degree, uint *
 
   num = procs[pid]->num_bb;
 
-  pathFreed = (char*)   CALLOC( pathFreed, num, sizeof(char), "pathFreed" );
-  num_paths = (int*)    CALLOC( num_paths, num, sizeof(int),  "num_paths" );
-  pathlist  = (path***) MALLOC( pathlist, num * sizeof(path**), "pathlist" );
+  CALLOC( pathFreed, char*, num, sizeof(char), "pathFreed" );
+  CALLOC( num_paths, int*, num, sizeof(int),  "num_paths" );
+  MALLOC( pathlist, path***, num * sizeof(path**), "pathlist" );
   for( i = 0; i < num; i++ )
     pathlist[i] = NULL;
 
@@ -503,11 +499,11 @@ path* find_WCETPath( int pid, block **bblist, int num_bb, int *in_degree, uint *
     prerr( "Error: no wcet path selected.\n" );
 
   // copy the longest path, to be returned
-  p = (path*) MALLOC( p, sizeof(path), "path" );
+  MALLOC( p, path*, sizeof(path), "path" );
   p->cost   = pathlist[start][id]->cost;
   p->bb_len = pathlist[start][id]->bb_len;
 
-  p->bb_seq = (int*) MALLOC( p->bb_seq, p->bb_len * sizeof(int), "path bb_seq" );
+  MALLOC( p->bb_seq, int*, p->bb_len * sizeof(int), "path bb_seq" );
   for( i = 0; i < pathlist[start][id]->bb_len; i++ )
     p->bb_seq[i] = pathlist[start][id]->bb_seq[i];
 

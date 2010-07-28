@@ -51,16 +51,16 @@ int wcrt_analysis( char* filename_cf, char *filename_pd, char *filename_dg )
   topoTask();
   topoGraph();
   /* For debugging */
-  dumpTaskInfo();
+  //dumpTaskInfo();
 
   /* record of critical path */
-  isCritical = (char*) CALLOC( isCritical, numTasks, sizeof(char), "isCritical" );
+  CALLOC( isCritical, char*, numTasks, sizeof(char), "isCritical" );
 
   // interference graph for non-greedy method
   // reset is not done here; should be done before first analysis of each chart
-  interfere = (char**) MALLOC( interfere, numTasks * sizeof(char*), "interfere" );
+  MALLOC( interfere, char**, numTasks * sizeof(char*), "interfere" );
   for( i = 0; i < numTasks; i++ ) {
-    interfere[i] = (char*) CALLOC( interfere[i], numTasks, sizeof(char), "interfere[i]" );
+    CALLOC( interfere[i], char*, numTasks, sizeof(char), "interfere[i]" );
   }
 
   for(i = 0; i < numCharts; i++) {
@@ -77,19 +77,15 @@ int wcrt_analysis( char* filename_cf, char *filename_pd, char *filename_dg )
 
   // for timing analysis
   /* Allocate memory for timing analysis parameters */
-  earliestReq = (time_t*) CALLOC( earliestReq, numTasks, sizeof(time_t), "earliestReq" );
-  latestReq   = (time_t*) CALLOC( latestReq,   numTasks, sizeof(time_t), "latestReq"   );
-  latestReq_copy   = (time_t*) CALLOC( latestReq_copy,   numTasks, sizeof(time_t), 
-		  "latestReq"   );
-
-
-  earliestFin = (time_t*) CALLOC( earliestFin, numTasks, sizeof(time_t), "earliestFin" );
-  latestFin   = (time_t*) CALLOC( latestFin,   numTasks, sizeof(time_t), "latestFin"   );
-
-  peers = (char **)CALLOC(peers, numTasks, sizeof(char *), "peers");
+  CALLOC( earliestReq, time_t*, numTasks, sizeof(time_t), "earliestReq" );
+  CALLOC( latestReq, time_t*,   numTasks, sizeof(time_t), "latestReq"   );
+  CALLOC( latestReq_copy, time_t*,   numTasks, sizeof(time_t), "latestReq"   );
+  CALLOC( earliestFin, time_t*, numTasks, sizeof(time_t), "earliestFin" );
+  CALLOC( latestFin, time_t*,   numTasks, sizeof(time_t), "latestFin"   );
+  CALLOC( peers, char **, numTasks, sizeof(char *), "peers");
 
   for(i = 0; i < numTasks; i++) {
-		peers[i] = (char *)CALLOC(peers[i], numTasks, sizeof(char), "peers[i]");
+		CALLOC(peers[i], char *, numTasks, sizeof(char), "peers[i]");
 		
 		for(j = 0; j < numTasks; j++)
 		  peers[i][j] = 0;

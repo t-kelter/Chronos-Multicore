@@ -36,7 +36,8 @@ int topoSortMSC(chart_t *msc)
   int *worklist;
   int worklistlen;
 
-  int *indegree = (int*) MALLOC( indegree, (msc->topoListLen)* sizeof(int), "indegree" );
+  int *indegree;
+  MALLOC( indegree, int*, (msc->topoListLen)* sizeof(int), "indegree" );
   for( k = 0; k < msc->topoListLen; k++ )
   {
   	id = msc->topoList[k];
@@ -100,7 +101,8 @@ int topoSort( int *taskIDList, int numChartTasks, int **topoArr ) {
   int *worklist;
   int worklistlen;
 
-  int *indegree = (int*) MALLOC( indegree, numTasks * sizeof(int), "indegree" );
+  int *indegree;
+  MALLOC( indegree, int*, numTasks * sizeof(int), "indegree" );
   for( k = 0; k < numTasks; k++ )
     indegree[k] = taskList[k]->numPreds;
 
@@ -180,7 +182,8 @@ int topoGraph() {
   int *worklist;
   int worklistlen;
 
-  int *indegree = (int*) CALLOC( indegree, numCharts, sizeof(int), "indegree" );
+  int *indegree;
+  CALLOC( indegree, int*, numCharts, sizeof(int), "indegree" );
   for( k = 0; k < numCharts; k++ ) {
     for( i = 0; i < msg[k].numSuccs; i++ ) {
       // don't count the back-edges
@@ -206,6 +209,8 @@ int topoGraph() {
 
     // insert curr into topoMSG
     enqueue( idx, &topoMSG, &toposize );
+
+    printf( "Allocated topoMSG to size %d", toposize );
 
     // for each successor of curr
     for( k = 0; k < tx->numSuccs; k++ ) {
@@ -239,7 +244,8 @@ int topoSortSubgraph( int startid, int **topoArr ) {
   int i, idx;
   char fin;
 
-  char *markfin = (char*) CALLOC( markfin, numTasks, sizeof(char), "markfin" );
+  char *markfin;
+  CALLOC( markfin, char*, numTasks, sizeof(char), "markfin" );
   // markfin: 0: unvisited, 1: visited but unfinished, 2: finished
 
   int *comefrom = NULL;

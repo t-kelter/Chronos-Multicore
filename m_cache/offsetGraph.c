@@ -82,7 +82,8 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enu
   DSTART( "generateOffsetGraphILP" );
 
   // Get output file
-  char *tmpfilename = (char*)MALLOC( tmpfilename, 50 * sizeof( char ), "tmpfilename" );
+  char *tmpfilename;
+  MALLOC( tmpfilename, char*, 50 * sizeof( char ), "tmpfilename" );
   strcpy( tmpfilename, "test.ilp" );
   //tmpnam( tmpfilename );
   FILE *f = fopen( tmpfilename, "w" );
@@ -274,15 +275,15 @@ ull solveILP( const char *ilp_file )
  * (excluding the supersink and supersource). */
 offset_graph *createOffsetGraph( uint number_of_nodes )
 {
-  offset_graph *result = (offset_graph*)CALLOC( result, 1,
-                            sizeof( offset_graph ), "result" );
+  offset_graph *result;
+  CALLOC( result, offset_graph*, 1, sizeof( offset_graph ), "result" );
 
   result->supersource.offset = 4000000;
   result->supersink.offset = 3000000;
 
   // Create the nodes
-  result->nodes = (offset_graph_node*)CALLOC( result->nodes,
-      number_of_nodes, sizeof( offset_graph_node ), "result->nodes" );
+  CALLOC( result->nodes, offset_graph_node*, number_of_nodes, 
+      sizeof( offset_graph_node ), "result->nodes" );
   result->num_nodes = number_of_nodes;
   result->num_edges = 0;
   uint i;

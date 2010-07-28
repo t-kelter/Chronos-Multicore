@@ -174,11 +174,11 @@ calculateMust_L2(cache_line_way_t **must, int instr_addr)
 				must[0]->num_entry++;
 				if(must[0]->num_entry == 1)
 				{
-					must[0]->entry = (int*)CALLOC(must[0]->entry, 1, sizeof(int), "entry");
+					CALLOC(must[0]->entry, int*, 1, sizeof(int), "entry");
 				}
 				else
 				{
-					must[0]->entry = (int*)REALLOC(must[0]->entry, (must[0]->num_entry) * sizeof(int), "enties");
+					REALLOC(must[0]->entry, int*, (must[0]->num_entry) * sizeof(int), "enties");
 				}
 				must[0]->entry[(must[0]->num_entry) -1] = instr_addr;
 				
@@ -196,7 +196,7 @@ calculateMust_L2(cache_line_way_t **must, int instr_addr)
 						}
 						else
 						{
-							must[i]->entry = (int*)REALLOC(must[i]->entry, must[i]->num_entry * sizeof(int), "entry");
+							REALLOC(must[i]->entry, int*, must[i]->num_entry * sizeof(int), "entry");
 						}
 					}
 				} // end for(j)
@@ -213,8 +213,8 @@ calculateMust_L2(cache_line_way_t **must, int instr_addr)
 
 	free(tmp);
 	
-	head = (cache_line_way_t *)CALLOC(head, 1, sizeof(cache_line_way_t), "cache_line_way_t");
-	head->entry = (int*)CALLOC(head->entry, 1, sizeof(int), "in head->entry");
+	CALLOC(head, cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t");
+	CALLOC(head->entry, int*, 1, sizeof(int), "in head->entry");
 	head->entry[0] = instr_addr;
 	head->num_entry = 1;
 	must[0] = head;
@@ -236,11 +236,11 @@ calculateMay_L2(cache_line_way_t **may, int instr_addr)
 				may[0]->num_entry++;
 				if(may[0]->num_entry == 1)
 				{
-					may[0]->entry = (int*)CALLOC(may[0]->entry, may[0]->num_entry, sizeof(int), "enties");
+					CALLOC(may[0]->entry, int*, may[0]->num_entry, sizeof(int), "enties");
 				}
 				else
 				{
-					may[0]->entry = (int*)REALLOC(may[0]->entry, (may[0]->num_entry) * sizeof(int), "enties");
+					REALLOC(may[0]->entry, int*, (may[0]->num_entry) * sizeof(int), "enties");
 				}
 				may[0]->entry[(may[0]->num_entry) -1] = instr_addr;
 
@@ -258,7 +258,7 @@ calculateMay_L2(cache_line_way_t **may, int instr_addr)
 						}
 						else
 						{
-							may[i]->entry = (int*)REALLOC(may[i]->entry, may[i]->num_entry * sizeof(int), "entry");
+							REALLOC(may[i]->entry, int*, may[i]->num_entry * sizeof(int), "entry");
 						}
 					}
 				} // end for(j)
@@ -274,8 +274,8 @@ calculateMay_L2(cache_line_way_t **may, int instr_addr)
 		may[i]  = may [i -1];		
 	free(tmp);
 
-	head = (cache_line_way_t *)CALLOC(head, 1, sizeof(cache_line_way_t), "cache_line_way_t");
-	head->entry = (int*)CALLOC(head->entry, 1, sizeof(int), "in head->entry");
+	CALLOC(head, cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t");
+	CALLOC(head->entry, int*, 1, sizeof(int), "in head->entry");
 	head->entry[0] = instr_addr;
 	head->num_entry = 1;
 	may[0] = head;
@@ -301,11 +301,11 @@ calculatePersist_L2(cache_line_way_t **persist, int instr_addr)
 				persist[0]->num_entry++;
 				if(persist[0]->num_entry == 1)
 				{
-					persist[0]->entry = (int*)CALLOC(persist[0]->entry, persist[0]->num_entry, sizeof(int), "enties");
+					CALLOC(persist[0]->entry, int*, persist[0]->num_entry, sizeof(int), "enties");
 				}
 				else
 				{
-					persist[0]->entry = (int*)REALLOC(persist[0]->entry, (persist[0]->num_entry) * sizeof(int), "enties");
+					REALLOC(persist[0]->entry, int*, (persist[0]->num_entry) * sizeof(int), "enties");
 				}
 				persist[0]->entry[(persist[0]->num_entry) -1] = instr_addr;
 
@@ -323,7 +323,7 @@ calculatePersist_L2(cache_line_way_t **persist, int instr_addr)
 						}
 						else
 						{
-							persist[i]->entry = (int*)REALLOC(persist[i]->entry, persist[i]->num_entry * sizeof(int), "entry");
+							REALLOC(persist[i]->entry, int*, persist[i]->num_entry * sizeof(int), "entry");
 						}
 					}
 				} // end for(j)
@@ -341,8 +341,8 @@ calculatePersist_L2(cache_line_way_t **persist, int instr_addr)
 		persist[i]  = persist [i -1];		
 	free(tmp);
 
-	head = (cache_line_way_t *)CALLOC(head, 1, sizeof(cache_line_way_t), "cache_line_way_t");
-	head->entry = (int*)CALLOC(head->entry, 1, sizeof(int), "in head->entry");
+	CALLOC(head, cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t");
+	CALLOC(head->entry, int*, 1, sizeof(int), "in head->entry");
 	head->entry[0] = instr_addr;
 	head->num_entry = 1;
 	persist[0] = head;
@@ -389,11 +389,12 @@ intersectCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
 	int i, j, age, index, entry_b;
 	//int flag = 1;
-	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache_L2.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
+  cache_line_way_t **result;
+	CALLOC(result, cache_line_way_t **, cache_L2.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
 	for(i = 0; i < cache_L2.na; i++)
 	{
-		result[i] = (cache_line_way_t *)CALLOC(result[i], 1, sizeof(cache_line_way_t), "cache_line_way_t *");
+		CALLOC(result[i], cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t *");
 		result[i]->num_entry = 0;
 		result[i]->entry = NULL;
 	}
@@ -418,11 +419,11 @@ intersectCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 			result[index]->num_entry ++;
 			if(result[index]->num_entry == 1)
 			{
-				result[index]->entry = (int *) CALLOC(result[index]->entry , result[index]->num_entry, sizeof(int), "cache line way");
+				 CALLOC(result[index]->entry , int *, result[index]->num_entry, sizeof(int), "cache line way");
 			}
 			else
 			{
-				result[index]->entry = (int *) REALLOC(result[index]->entry , result[index]->num_entry*sizeof(int), "cache line way");
+				 REALLOC(result[index]->entry , int *, result[index]->num_entry*sizeof(int), "cache line way");
 			}
 			result[index]->entry[result[index]->num_entry - 1] = entry_b;
 
@@ -439,11 +440,12 @@ unionCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
 	int i, j, age, index, entry_a, entry_b;
 	//int flag = 1;
-	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache_L2.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
+  cache_line_way_t **result;
+	 CALLOC(result, cache_line_way_t **, cache_L2.na, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
 	for(i = 0; i < cache_L2.na; i++)
 	{
-		result[i] = (cache_line_way_t *)CALLOC(result[i], 1, sizeof(cache_line_way_t), "cache_line_way_t *");
+		CALLOC(result[i], cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t *");
 		result[i]->num_entry = 0;
 		result[i]->entry = NULL;
 	}
@@ -468,11 +470,11 @@ unionCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 			result[index]->num_entry++;
 			if(result[index]->num_entry == 1)
 			{
-				result[index]->entry = (int *)CALLOC(result[index]->entry, result[index]->num_entry, sizeof(int), "cache line way");
+				CALLOC(result[index]->entry, int *, result[index]->num_entry, sizeof(int), "cache line way");
 			}
 			else
 			{
-				result[index]->entry = (int *)REALLOC(result[index]->entry, result[index]->num_entry * sizeof(int), "cache line way");
+				REALLOC(result[index]->entry, int *, result[index]->num_entry * sizeof(int), "cache line way");
 			}
 			result[index]->entry[result[index]->num_entry - 1] = entry_a;
 
@@ -491,11 +493,11 @@ unionCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 				result[i]->num_entry ++;
 				if(result[i]->num_entry == 1)
 				{
-					result[i]->entry = (int *)CALLOC(result[i]->entry, result[i]->num_entry, sizeof(int), "cache line way");
+					CALLOC(result[i]->entry, int *, result[i]->num_entry, sizeof(int), "cache line way");
 				}
 				else
 				{
-					result[i]->entry = (int *)REALLOC(result[i]->entry, result[i]->num_entry*sizeof(int), "cache line way");
+					REALLOC(result[i]->entry, int *, result[i]->num_entry*sizeof(int), "cache line way");
 				}
 				result[i]->entry[result[i]->num_entry - 1] = entry_b;
 
@@ -516,11 +518,12 @@ unionMaxCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 {
 	int i, j, age, index, entry_a, entry_b;
 	//int flag = 1;
-	cache_line_way_t **result = (cache_line_way_t **) CALLOC(result, cache_L2.na + 1, sizeof(cache_line_way_t*), "cache_line_way_t **");
+  cache_line_way_t **result;
+	 CALLOC(result, cache_line_way_t **, cache_L2.na + 1, sizeof(cache_line_way_t*), "cache_line_way_t **");
 	
 	for(i = 0; i < cache_L2.na + 1; i++)
 	{
-		result[i] = (cache_line_way_t *)CALLOC(result[i], 1, sizeof(cache_line_way_t), "cache_line_way_t *");
+		CALLOC(result[i], cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t *");
 		result[i]->num_entry = 0;
 		result[i]->entry = NULL;
 	}
@@ -551,11 +554,11 @@ unionMaxCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 			result[index]->num_entry++;
 			if(result[index]->num_entry == 1)
 			{
-				result[index]->entry = (int *)CALLOC(result[index]->entry, result[index]->num_entry, sizeof(int), "cache line way");
+				CALLOC(result[index]->entry, int *, result[index]->num_entry, sizeof(int), "cache line way");
 			}
 			else
 			{
-				result[index]->entry = (int *)REALLOC(result[index]->entry, result[index]->num_entry * sizeof(int), "cache line way");
+				REALLOC(result[index]->entry, int *, result[index]->num_entry * sizeof(int), "cache line way");
 			}
 			result[index]->entry[result[index]->num_entry - 1] = entry_a;
 
@@ -576,11 +579,11 @@ unionMaxCacheState_L2(cache_line_way_t **clw_a, cache_line_way_t **clw_b)
 				result[i]->num_entry ++;
 				if(result[i]->num_entry == 1)
 				{
-					result[i]->entry = (int *)CALLOC(result[i]->entry, result[i]->num_entry, sizeof(int), "cache line way");
+					CALLOC(result[i]->entry, int *, result[i]->num_entry, sizeof(int), "cache line way");
 				}
 				else
 				{
-					result[i]->entry = (int *)REALLOC(result[i]->entry, result[i]->num_entry*sizeof(int), "cache line way");
+					REALLOC(result[i]->entry, int *, result[i]->num_entry*sizeof(int), "cache line way");
 				}
 				result[i]->entry[result[i]->num_entry - 1] = entry_b;
 
@@ -602,42 +605,42 @@ allocCacheState_L2()
 	int j, k;
 	cache_state *result = NULL;
 
-	result = (cache_state *)CALLOC(result, 1, sizeof(cache_state), "cache_state_t");
+	CALLOC(result, cache_state *, 1, sizeof(cache_state), "cache_state_t");
 	
 		result->must = NULL;
-		result->must = (cache_line_way_t***)CALLOC(result->must, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+		CALLOC(result->must, cache_line_way_t***, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
 		result->may = NULL;
-		result->may = (cache_line_way_t***)CALLOC(result->may, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+		CALLOC(result->may, cache_line_way_t***, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
 		result->persist= NULL;
-		result->persist = (cache_line_way_t***)CALLOC(result->persist, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+		CALLOC(result->persist, cache_line_way_t***, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
 		for(j = 0; j < cache_L2.ns; j++)
 		{
 			DOUT("\nalloc CS memory for j = %d \n", j );
-			result->must[j]= (cache_line_way_t**)	CALLOC(result->must[j], cache_L2.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+				CALLOC(result->must[j], cache_line_way_t**, cache_L2.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
-			result->may[j]= (cache_line_way_t**)CALLOC(result->may[j], cache_L2.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+			CALLOC(result->may[j], cache_line_way_t**, cache_L2.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
-			result->persist[j]= (cache_line_way_t**)CALLOC(result->persist[j], cache_L2.na + 1, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+			CALLOC(result->persist[j], cache_line_way_t**, cache_L2.na + 1, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
 			for( k = 0; k < cache_L2.na; k++)
 			{
 				DOUT("\nalloc CS memory for k = %d \n", k );
-				result->must[j][k] = (cache_line_way_t*)CALLOC(result->must[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
+				CALLOC(result->must[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t");
 				result->must[j][k]->num_entry = 0;
 				result->must[j][k]->entry = NULL;
 
-				result->may[j][k] = (cache_line_way_t*)CALLOC(result->may[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
+				CALLOC(result->may[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t");
 				result->may[j][k]->num_entry = 0;
 				result->may[j][k]->entry = NULL;
 
-				result->persist[j][k] = (cache_line_way_t*)CALLOC(result->persist[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
+				CALLOC(result->persist[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t");
 				result->persist[j][k]->num_entry = 0;
 				result->persist[j][k]->entry = NULL;
 			}
-			result->persist[j][cache_L2.na] = (cache_line_way_t*)CALLOC(result->persist[j][cache_L2.na], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
+			CALLOC(result->persist[j][cache_L2.na], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t");
 			result->persist[j][cache_L2.na]->num_entry = 0;
 			result->persist[j][cache_L2.na]->entry = NULL;
 
@@ -856,15 +859,15 @@ copyCacheSet_persist(cache_line_way_t **cache_set)
 {
 	int i, j;
 	cache_line_way_t **src = cache_set, **copy;
-	copy = (cache_line_way_t**) CALLOC(copy, cache_L2.na + 1, sizeof(cache_line_way_t*), "cache_line_way_t*");
+	 CALLOC(copy, cache_line_way_t**, cache_L2.na + 1, sizeof(cache_line_way_t*), "cache_line_way_t*");
 	for(i = 0; i < cache_L2.na + 1; i++)
 	{
-		copy[i] = (cache_line_way_t*) CALLOC(copy, 1, sizeof(cache_line_way_t), "cache_line_way_t");
+		CALLOC(copy[i], cache_line_way_t*, 1, sizeof(cache_line_way_t), "cache_line_way_t");
 
 		copy[i]->num_entry = src[i]->num_entry;
 		if(copy[i]->num_entry)
 		{
-			copy[i]->entry = (int*) CALLOC(copy[i]->entry, copy[i]->num_entry, sizeof(int), "cache_line_way_t");
+			 CALLOC(copy[i]->entry, int*, copy[i]->num_entry, sizeof(int), "cache_line_way_t");
 			for(j = 0; j < copy[i]->num_entry; j++)
 				copy[i]->entry[j] = src[i]->entry[j];
 		}
@@ -877,15 +880,15 @@ copyCacheSet(cache_line_way_t **cache_set)
 {
 	int i, j;
 	cache_line_way_t **src = cache_set, **copy;
-	copy = (cache_line_way_t**) CALLOC(copy, cache_L2.na, sizeof(cache_line_way_t*), "cache_line_way_t*");
+	 CALLOC(copy, cache_line_way_t**, cache_L2.na, sizeof(cache_line_way_t*), "cache_line_way_t*");
 	for(i = 0; i < cache_L2.na; i++)
 	{
-		copy[i] = (cache_line_way_t*) CALLOC(copy, 1, sizeof(cache_line_way_t), "cache_line_way_t");
+    CALLOC(copy[i], cache_line_way_t*, 1, sizeof(cache_line_way_t), "cache_line_way_t");
 
 		copy[i]->num_entry = src[i]->num_entry;
 		if(copy[i]->num_entry)
 		{
-			copy[i]->entry = (int*) CALLOC(copy[i]->entry, copy[i]->num_entry, sizeof(int), "cache_line_way_t");
+			 CALLOC(copy[i]->entry, int*, copy[i]->num_entry, sizeof(int), "cache_line_way_t");
 			for(j = 0; j < copy[i]->num_entry; j++)
 				copy[i]->entry[j] = src[i]->entry[j];
 		}
@@ -1102,7 +1105,7 @@ mapLoop_L2(procedure *pro, loop *lp)
 
 		if(bb->num_cache_state_L2 == 0)
 		{
-			//bb->bb_cache_state_L2 = (cache_state *)CALLOC(bb->bb_cache_state_L2, 1, sizeof(cache_state), "cache_state");
+			//CALLOC(bb->bb_cache_state_L2, cache_state *, 1, sizeof(cache_state), "cache_state");
 
 			bb->num_cache_state_L2 = 1;
 		}
@@ -1113,11 +1116,11 @@ mapLoop_L2(procedure *pro, loop *lp)
 
 			bb->num_chmc_L2 = copies;
 
-			bb->chmc_L2 = (CHMC**)CALLOC(bb->chmc_L2, copies, sizeof(CHMC*), "CHMC");
+			CALLOC(bb->chmc_L2, CHMC**, copies, sizeof(CHMC*), "CHMC");
 
 			for(tmp = 0; tmp < copies; tmp++)
 			{
-				bb->chmc_L2[tmp] = (CHMC*)CALLOC(bb->chmc_L2[tmp], 1, sizeof(CHMC), "CHMC");
+				CALLOC(bb->chmc_L2[tmp], CHMC*, 1, sizeof(CHMC), "CHMC");
 			}
 
 		}
@@ -1157,7 +1160,7 @@ mapLoop_L2(procedure *pro, loop *lp)
 
 		current_chmc->hitmiss = bb->num_instr;
 		//if(current_chmc->hitmiss > 0) 
-			current_chmc->hitmiss_addr = (char*)CALLOC(current_chmc->hitmiss_addr, current_chmc->hitmiss, sizeof(char),"hitmiss_addr");
+			CALLOC(current_chmc->hitmiss_addr, char*, current_chmc->hitmiss, sizeof(char),"hitmiss_addr");
 
 		addr = bb->startaddr;
 		
@@ -1183,12 +1186,12 @@ mapLoop_L2(procedure *pro, loop *lp)
 			main_copy->hit_addr[set_no].num_entry++;
 			if(main_copy->hit_addr[set_no].num_entry == 1)
 			{
-				main_copy->hit_addr[set_no].entry = (int*)CALLOC(main_copy->hit_addr[set_no].entry, 1, sizeof(int), "entry");
+				CALLOC(main_copy->hit_addr[set_no].entry, int*, 1, sizeof(int), "entry");
 				main_copy->hit_addr[set_no].entry[0] = TAGSET_L2(addr); 
 			}
 			else
 			{
-				main_copy->hit_addr[set_no].entry = (int*)REALLOC(main_copy->hit_addr[set_no].entry, main_copy->hit_addr[set_no].num_entry * sizeof(int), "entry");
+				REALLOC(main_copy->hit_addr[set_no].entry, int*, main_copy->hit_addr[set_no].num_entry * sizeof(int), "entry");
 				main_copy->hit_addr[set_no].entry[main_copy->hit_addr[set_no].num_entry -1] = TAGSET_L2(addr); 
 			}
 
@@ -1203,10 +1206,10 @@ mapLoop_L2(procedure *pro, loop *lp)
 				if(current_chmc->hit == 0)
 				{
 					current_chmc->hit++;
-					current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+					CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-					current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
-					current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+					CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
+					CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 					current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1217,9 +1220,9 @@ mapLoop_L2(procedure *pro, loop *lp)
 				{
 					current_chmc->hit++;	
 
-					current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-					current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-					current_chmc->age = (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "age");				
+					REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+					REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+					REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "age");				
 
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 					current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1239,10 +1242,10 @@ mapLoop_L2(procedure *pro, loop *lp)
 						if(current_chmc->hit == 0)
 					       {
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-						current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
-						current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+						CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
+						CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1253,9 +1256,9 @@ mapLoop_L2(procedure *pro, loop *lp)
 					  	{
 						current_chmc->hit++;		
 						
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-						current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-						current_chmc->age = (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "age");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+						REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "age");				
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1283,14 +1286,14 @@ mapLoop_L2(procedure *pro, loop *lp)
 				{
 					current_chmc->miss++;
 					
-					current_chmc->miss_addr = (int*)CALLOC(current_chmc->miss_addr, 1, sizeof(int), "miss_addr");
+					CALLOC(current_chmc->miss_addr, int*, 1, sizeof(int), "miss_addr");
 					current_chmc->miss_addr[current_chmc->miss-1] = addr;
 				}
 				else
 				{
 					current_chmc->miss++;		
 					
-					current_chmc->miss_addr = (int*)REALLOC(current_chmc->miss_addr, current_chmc->miss * sizeof(int), "miss_addr");				
+					REALLOC(current_chmc->miss_addr, int*, current_chmc->miss * sizeof(int), "miss_addr");				
 					current_chmc->miss_addr[current_chmc->miss-1] = addr;
 				}
 				
@@ -1307,10 +1310,10 @@ mapLoop_L2(procedure *pro, loop *lp)
 						if(current_chmc->hit == 0)
 					       {
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-						current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
-						current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+						CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
+						CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1321,9 +1324,9 @@ mapLoop_L2(procedure *pro, loop *lp)
 					  	{
 						current_chmc->hit++;		
 						
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-						current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-						current_chmc->age = (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "age");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+						REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "age");				
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1351,10 +1354,10 @@ mapLoop_L2(procedure *pro, loop *lp)
 				if(current_chmc->hit == 0)
 				{
 					current_chmc->hit++;
-					current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+					CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-					current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
-					current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+					CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
+					CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 					current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1365,9 +1368,9 @@ mapLoop_L2(procedure *pro, loop *lp)
 				{
 					current_chmc->hit++;	
 
-					current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-					current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-					current_chmc->age = (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "age");				
+					REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+					REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+					REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "age");				
 
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 					current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1389,10 +1392,10 @@ mapLoop_L2(procedure *pro, loop *lp)
 						if(current_chmc->hit == 0)
 					       {
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-						current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
-						current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+						CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
+						CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1403,9 +1406,9 @@ mapLoop_L2(procedure *pro, loop *lp)
 					  	{
 						current_chmc->hit++;		
 						
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-						current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-						current_chmc->age = (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "age");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+						REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "age");				
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1430,13 +1433,13 @@ mapLoop_L2(procedure *pro, loop *lp)
 				if(current_chmc->unknow == 0)
 				{
 					current_chmc->unknow++;
-					current_chmc->unknow_addr = (int*)CALLOC(current_chmc->unknow_addr, 1, sizeof(int), "unknow_addr");
+					CALLOC(current_chmc->unknow_addr, int*, 1, sizeof(int), "unknow_addr");
 					current_chmc->unknow_addr[current_chmc->unknow-1] = addr;
 				}
 				else
 				{
 					current_chmc->unknow++;				
-					current_chmc->unknow_addr = (int*)REALLOC(current_chmc->unknow_addr, current_chmc->unknow * sizeof(int), "unknow_addr");				
+					REALLOC(current_chmc->unknow_addr, int*, current_chmc->unknow * sizeof(int), "unknow_addr");				
 					current_chmc->unknow_addr[current_chmc->unknow-1] = addr;
 				}
 				
@@ -1453,10 +1456,10 @@ mapLoop_L2(procedure *pro, loop *lp)
 						if(current_chmc->hit == 0)
 					       {
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-						current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
-						current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+						CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
+						CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1467,9 +1470,9 @@ mapLoop_L2(procedure *pro, loop *lp)
 					  	{
 						current_chmc->hit++;		
 						
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-						current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-						current_chmc->age= (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "age");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+						REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "age");				
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -1746,36 +1749,36 @@ copyCacheState_L2(cache_state *cs)
 	int j, k, num_entry;
 	cache_state *copy = NULL;
 
-	copy = (cache_state*)CALLOC(copy, 1, sizeof(cache_state), "cache_state");
+	CALLOC(copy, cache_state*, 1, sizeof(cache_state), "cache_state");
 	copy->must = NULL;
 	copy->may = NULL;
 	copy->persist = NULL;
 
 
-	  copy->must = (cache_line_way_t***)CALLOC(copy->must, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+	  CALLOC(copy->must, cache_line_way_t***, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
-		copy->may = (cache_line_way_t***)CALLOC(copy->may, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+		CALLOC(copy->may, cache_line_way_t***, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
-		copy->persist = (cache_line_way_t***)CALLOC(copy->persist, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
+		CALLOC(copy->persist, cache_line_way_t***, cache_L2.ns, sizeof(cache_line_way_t**), "NO set cache_line_way_t");
 
 		for(j = 0; j < cache_L2.ns; j++)
 		{
-			copy->must[j] = (cache_line_way_t**)	CALLOC(copy->must[j], cache_L2.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+				CALLOC(copy->must[j], cache_line_way_t**, cache_L2.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
-			copy->may[j] = (cache_line_way_t**)CALLOC(copy->may[j], cache_L2.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+			CALLOC(copy->may[j], cache_line_way_t**, cache_L2.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
-			copy->persist[j] = (cache_line_way_t**)CALLOC(copy->persist[j], cache_L2.na + 1, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+			CALLOC(copy->persist[j], cache_line_way_t**, cache_L2.na + 1, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
 			for( k = 0; k < cache_L2.na; k++)
 			{
-				copy->must[j][k] = (cache_line_way_t*)CALLOC(copy->must[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
-				copy->may[j][k] = (cache_line_way_t*)CALLOC(copy->may[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
-				copy->persist[j][k] = (cache_line_way_t*)CALLOC(copy->persist[j][k], 1, sizeof(cache_line_way_t), "one cache_line_way_t");
+				CALLOC(copy->must[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t");
+				CALLOC(copy->may[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t");
+				CALLOC(copy->persist[j][k], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t");
 
 				copy->must[j][k]->num_entry = cs->must[j][k]->num_entry;
 				if(copy->must[j][k]->num_entry)
 				{
-					copy->must[j][k]->entry = (int*)CALLOC(copy->must[j][k]->entry, copy->must[j][k]->num_entry, sizeof(int), "entries");
+					CALLOC(copy->must[j][k]->entry, int*, copy->must[j][k]->num_entry, sizeof(int), "entries");
 					
 					for(num_entry = 0; num_entry < copy->must[j][k]->num_entry; num_entry++)
 						copy->must[j][k]->entry[num_entry] =  cs->must[j][k]->entry[num_entry];
@@ -1784,7 +1787,7 @@ copyCacheState_L2(cache_state *cs)
 				copy->may[j][k]->num_entry = cs->may[j][k]->num_entry;
 				if(copy->may[j][k]->num_entry)
 				{
-					copy->may[j][k]->entry = (int*)CALLOC(copy->may[j][k]->entry, copy->may[j][k]->num_entry, sizeof(int), "entries");
+					CALLOC(copy->may[j][k]->entry, int*, copy->may[j][k]->num_entry, sizeof(int), "entries");
 
 					for(num_entry = 0; num_entry < copy->may[j][k]->num_entry; num_entry++)
 						copy->may[j][k]->entry[num_entry] =  cs->may[j][k]->entry[num_entry];
@@ -1793,7 +1796,7 @@ copyCacheState_L2(cache_state *cs)
 				copy->persist[j][k]->num_entry = cs->persist[j][k]->num_entry;
 				if(copy->persist[j][k]->num_entry)
 				{
-					copy->persist[j][k]->entry = (int*)CALLOC(copy->persist[j][k]->entry, copy->persist[j][k]->num_entry, sizeof(int), "entries");
+					CALLOC(copy->persist[j][k]->entry, int*, copy->persist[j][k]->num_entry, sizeof(int), "entries");
 
 					for(num_entry = 0; num_entry < copy->persist[j][k]->num_entry; num_entry++)
 						copy->persist[j][k]->entry[num_entry] =  cs->persist[j][k]->entry[num_entry];
@@ -1802,11 +1805,11 @@ copyCacheState_L2(cache_state *cs)
 			}
 
 
-			copy->persist[j][cache_L2.na] = (cache_line_way_t*)CALLOC(copy->persist[j][cache_L2.na], 1, sizeof(cache_line_way_t), "one cache_line_way_t may");
+			CALLOC(copy->persist[j][cache_L2.na], cache_line_way_t*, 1, sizeof(cache_line_way_t), "one cache_line_way_t may");
 			copy->persist[j][cache_L2.na]->num_entry = cs->persist[j][cache_L2.na]->num_entry;
 			if(copy->persist[j][cache_L2.na]->num_entry)
 			{
-				copy->persist[j][cache_L2.na]->entry = (int*)CALLOC(copy->persist[j][cache_L2.na]->entry, copy->persist[j][cache_L2.na]->num_entry, sizeof(int), "entries");
+				CALLOC(copy->persist[j][cache_L2.na]->entry, int*, copy->persist[j][cache_L2.na]->num_entry, sizeof(int), "entries");
 
 				for(num_entry = 0; num_entry < copy->persist[j][cache_L2.na]->num_entry; num_entry++)
 					copy->persist[j][cache_L2.na]->entry[num_entry] =  cs->persist[j][cache_L2.na]->entry[num_entry];
@@ -1956,7 +1959,7 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 
 		if(bb->num_cache_state_L2== 0)
 		{
-			//bb->bb_cache_state_L2 = (cache_state *)CALLOC(bb->bb_cache_state_L2, 1, sizeof(cache_state), "cache_state");
+			//CALLOC(bb->bb_cache_state_L2, cache_state *, 1, sizeof(cache_state), "cache_state");
 
 			bb->num_cache_state_L2 = 1;
 		}
@@ -1970,11 +1973,11 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 
 			bb->num_chmc_L2 = copies;
 
-			bb->chmc_L2 = (CHMC**)CALLOC(bb->chmc_L2, copies, sizeof(CHMC*), "CHMC");
+			CALLOC(bb->chmc_L2, CHMC**, copies, sizeof(CHMC*), "CHMC");
 	
 			for(tmp = 0; tmp < copies; tmp++)
 			{
-				bb->chmc_L2[tmp] = (CHMC*)CALLOC(bb->chmc_L2[tmp], 1, sizeof(CHMC), "CHMC");
+				CALLOC(bb->chmc_L2[tmp], CHMC*, 1, sizeof(CHMC), "CHMC");
 			}
 
 		}
@@ -2017,7 +2020,7 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 
 		current_chmc->hitmiss = bb->num_instr;
 		//if(current_chmc->hitmiss > 0) 
-			current_chmc->hitmiss_addr = (char*)CALLOC(current_chmc->hitmiss_addr, current_chmc->hitmiss, sizeof(char),"hitmiss_addr");
+			CALLOC(current_chmc->hitmiss_addr, char*, current_chmc->hitmiss, sizeof(char),"hitmiss_addr");
 
 		addr = bb->startaddr;
 
@@ -2050,12 +2053,12 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 			main_copy->hit_addr[set_no].num_entry++;
 			if(main_copy->hit_addr[set_no].num_entry == 1)
 			{
-				main_copy->hit_addr[set_no].entry = (int*)CALLOC(main_copy->hit_addr[set_no].entry, 1, sizeof(int), "entry");
+				CALLOC(main_copy->hit_addr[set_no].entry, int*, 1, sizeof(int), "entry");
 				main_copy->hit_addr[set_no].entry[0] = TAGSET_L2(addr); 
 			}
 			else
 			{
-				main_copy->hit_addr[set_no].entry = (int*)REALLOC(main_copy->hit_addr[set_no].entry, main_copy->hit_addr[set_no].num_entry * sizeof(int), "entry");
+				REALLOC(main_copy->hit_addr[set_no].entry, int*, main_copy->hit_addr[set_no].num_entry * sizeof(int), "entry");
 				main_copy->hit_addr[set_no].entry[main_copy->hit_addr[set_no].num_entry -1] = TAGSET_L2(addr); 
 			}
 
@@ -2068,11 +2071,11 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 				if(current_chmc->hit == 0)
 				{
 					current_chmc->hit++;
-					current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+					CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-					current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
+					CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
 
-					current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+					CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 					current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2082,9 +2085,9 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 				{
 					current_chmc->hit++;		
 					
-					current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-					current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-					current_chmc->age = (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "hit_change_miss");				
+					REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+					REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+					REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
 
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 					current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2107,11 +2110,11 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 						if(current_chmc->hit == 0)
 					       {
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-						current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
+						CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
 
-						current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+						CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2122,9 +2125,9 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 					  	{
 						current_chmc->hit++;		
 						
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-						current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-						current_chmc->age = (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "age");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+						REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "age");				
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2148,14 +2151,14 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 				{
 					current_chmc->miss++;
 					
-					current_chmc->miss_addr = (int*)CALLOC(current_chmc->miss_addr, 1, sizeof(int), "miss_addr");
+					CALLOC(current_chmc->miss_addr, int*, 1, sizeof(int), "miss_addr");
 					current_chmc->miss_addr[current_chmc->miss-1] = addr;
 				}
 				else
 				{
 					current_chmc->miss++;	
 					
-					current_chmc->miss_addr = (int*)REALLOC(current_chmc->miss_addr, current_chmc->miss * sizeof(int), "miss_addr");				
+					REALLOC(current_chmc->miss_addr, int*, current_chmc->miss * sizeof(int), "miss_addr");				
 					current_chmc->miss_addr[current_chmc->miss-1] = addr;
 				}
 				//current_chmc_copy->miss = current_chmc->miss;
@@ -2173,11 +2176,11 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 						if(current_chmc->hit == 0)
 					       {
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-						current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
+						CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
 
-						current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+						CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2188,9 +2191,9 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 					  	{
 						current_chmc->hit++;		
 						
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-						current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-						current_chmc->age = (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "age");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+						REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "age");				
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2215,11 +2218,11 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 				if(current_chmc->hit == 0)
 				{
 					current_chmc->hit++;
-					current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+					CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-					current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
+					CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
 
-					current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+					CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 					current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2229,9 +2232,9 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 				{
 					current_chmc->hit++;		
 					
-					current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-					current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-					current_chmc->age = (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "hit_change_miss");				
+					REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+					REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+					REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
 
 					current_chmc->hit_addr[current_chmc->hit-1] = addr;
 					current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2254,11 +2257,11 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 						if(current_chmc->hit == 0)
 					       {
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-						current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
+						CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
 
-						current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+						CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2269,9 +2272,9 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 					  	{
 						current_chmc->hit++;		
 						
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-						current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-						current_chmc->age = (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "age");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+						REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "age");				
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2294,13 +2297,13 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 				if(current_chmc->unknow == 0)
 				{
 					current_chmc->unknow++;
-					current_chmc->unknow_addr = (int*)CALLOC(current_chmc->unknow_addr, 1, sizeof(int), "unknow_addr");
+					CALLOC(current_chmc->unknow_addr, int*, 1, sizeof(int), "unknow_addr");
 					current_chmc->unknow_addr[current_chmc->unknow-1] = addr;
 				}
 				else
 				{
 					current_chmc->unknow++;				
-					current_chmc->unknow_addr = (int*)REALLOC(current_chmc->unknow_addr, current_chmc->unknow * sizeof(int), "unknow_addr");				
+					REALLOC(current_chmc->unknow_addr, int*, current_chmc->unknow * sizeof(int), "unknow_addr");				
 					current_chmc->unknow_addr[current_chmc->unknow-1] = addr;
 				}
 
@@ -2316,10 +2319,10 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 						if(current_chmc->hit == 0)
 					       {
 						current_chmc->hit++;
-						current_chmc->hit_addr = (int*)CALLOC(current_chmc->hit_addr, 1, sizeof(int), "hit_addr");
+						CALLOC(current_chmc->hit_addr, int*, 1, sizeof(int), "hit_addr");
 
-						current_chmc->hit_change_miss = (char*)CALLOC(current_chmc->hit_change_miss, 1, sizeof(char), "hit_change_miss");
-						current_chmc->age = (char*)CALLOC(current_chmc->age, 1, sizeof(char), "age");
+						CALLOC(current_chmc->hit_change_miss, char*, 1, sizeof(char), "hit_change_miss");
+						CALLOC(current_chmc->age, char*, 1, sizeof(char), "age");
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2330,9 +2333,9 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 					  	{
 						current_chmc->hit++;		
 						
-						current_chmc->hit_addr = (int*)REALLOC(current_chmc->hit_addr, current_chmc->hit * sizeof(int), "hit_addr");				
-						current_chmc->hit_change_miss = (char*)REALLOC(current_chmc->hit_change_miss, current_chmc->hit * sizeof(char), "hit_change_miss");				
-						current_chmc->age = (char*)REALLOC(current_chmc->age, current_chmc->hit * sizeof(char), "age");				
+						REALLOC(current_chmc->hit_addr, int*, current_chmc->hit * sizeof(int), "hit_addr");				
+						REALLOC(current_chmc->hit_change_miss, char*, current_chmc->hit * sizeof(char), "hit_change_miss");				
+						REALLOC(current_chmc->age, char*, current_chmc->hit * sizeof(char), "age");				
 
 						current_chmc->hit_addr[current_chmc->hit-1] = addr_next;
 						current_chmc->hit_change_miss[current_chmc->hit-1] = HIT;
@@ -2773,8 +2776,8 @@ cacheAnalysis_L2()
 
 	start = allocCacheState_L2();
 
-	main_copy->hit_cache_set_L2 = (char*)CALLOC(main_copy->hit_cache_set_L2, cache_L2.ns, sizeof(char), "hit_cache_set_L2");
-	main_copy->hit_addr = (cache_line_way_t*)CALLOC(main_copy->hit_addr, cache_L2.ns, sizeof(cache_line_way_t), "cache_line_way_t");
+	CALLOC(main_copy->hit_cache_set_L2, char*, cache_L2.ns, sizeof(char), "hit_cache_set_L2");
+	CALLOC(main_copy->hit_addr, cache_line_way_t*, cache_L2.ns, sizeof(cache_line_way_t), "cache_line_way_t");
 	for(i = 0; i < cache_L2.ns; i++)
 		main_copy->hit_cache_set_L2[i] = NOT_USED;
 

@@ -222,16 +222,16 @@ int initInfeas()
   initRegSet();
 
   DOUT( "Allocating data structures...\n" ); fflush( stdout );
-  num_assign = (int**) MALLOC( num_assign, num_procs * sizeof(int*), "num_assign" );
-  assignlist = (assign****) MALLOC( assignlist, num_procs * sizeof(assign***), "assignlist" );
-  branchlist = (branch***)  MALLOC( branchlist, num_procs * sizeof(branch**),  "branchlist" );
+  MALLOC( num_assign, int**, num_procs * sizeof(int*), "num_assign" );
+  MALLOC( assignlist, assign****, num_procs * sizeof(assign***), "assignlist" );
+  MALLOC( branchlist, branch***, num_procs * sizeof(branch**),  "branchlist" );
 
   for( i = 0; i < num_procs; i++ ) {
     p = procs[i];
 
-    num_assign[i] = (int*) CALLOC( num_assign[i], p->num_bb, sizeof(int), "num_assign elm" );
-    assignlist[i] = (assign***) MALLOC( assignlist[i], p->num_bb * sizeof(assign**), "assignlist elm" );
-    branchlist[i] = (branch**)  MALLOC( branchlist[i], p->num_bb * sizeof(branch*),  "branchlist elm" );
+    CALLOC( num_assign[i], int*, p->num_bb, sizeof(int), "num_assign elm" );
+    MALLOC( assignlist[i], assign***, p->num_bb * sizeof(assign**), "assignlist elm" );
+    MALLOC( branchlist[i], branch**, p->num_bb * sizeof(branch*),  "branchlist elm" );
 
     for( j = 0; j < p->num_bb; j++ ) {
       assignlist[i][j] = NULL;

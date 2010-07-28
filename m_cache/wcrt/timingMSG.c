@@ -32,21 +32,21 @@ int copyTask( task_t *dst, task_t *src ) {
   dst->ctimeHi  = src->ctimeHi;
 
   dst->numPreds = src->numPreds;
-  dst->predList = (int*) MALLOC( dst->predList, dst->numPreds * sizeof(int), "dst->predList" );
+  MALLOC( dst->predList, int*, dst->numPreds * sizeof(int), "dst->predList" );
   for( i = 0; i < dst->numPreds; i++ )
     dst->predList[i] = src->predList[i];
 
   dst->numSuccs = src->numSuccs;
-  dst->succList = (int*) MALLOC( dst->succList, dst->numSuccs * sizeof(int), "dst->succList" );
+  MALLOC( dst->succList, int*, dst->numSuccs * sizeof(int), "dst->succList" );
   for( i = 0; i < dst->numSuccs; i++ )
     dst->succList[i] = src->succList[i];
 
   dst->numMemBlocks = src->numMemBlocks;
-  dst->memBlockList = (mem_t**) MALLOC( dst->memBlockList, dst->numMemBlocks * sizeof(mem_t*), "dst->memBlockList" );
+  MALLOC( dst->memBlockList, mem_t**, dst->numMemBlocks * sizeof(mem_t*), "dst->memBlockList" );
   for( i = 0; i < dst->numMemBlocks; i++ )
     dst->memBlockList[i] = src->memBlockList[i];
 
-  dst->allocated = (char*) CALLOC( dst->allocated, dst->numMemBlocks, sizeof(char), "dst->allocated" );
+  CALLOC( dst->allocated, char*, dst->numMemBlocks, sizeof(char), "dst->allocated" );
 
   return 0;
 }
@@ -84,14 +84,14 @@ int addChartTasks( int chartid, chart_t *ctx ) {
 
   // assume no empty chart!
   int newlen = ctx->topoListLen + cid->topoListLen;
-  ctx->topoList = (int*) REALLOC( ctx->topoList, newlen * sizeof(int), "ctx->topoList" );
+  REALLOC( ctx->topoList, int*, newlen * sizeof(int), "ctx->topoList" );
 
   if( toDup ) {
 
     // need to duplicate
     int newStart = numTasks;
 
-    map = (int*) MALLOC( map, numTasks * sizeof(int), "map" );
+    MALLOC( map, int*, numTasks * sizeof(int), "map" );
     for( i = 0; i < numTasks; i++ )
       map[i] = i;
 
@@ -99,7 +99,8 @@ int addChartTasks( int chartid, chart_t *ctx ) {
       int idx = cid->topoList[i];
 
       // duplicate task
-      task_t *tc = (task_t*) MALLOC( tc, sizeof(task_t), "tc" );
+      task_t *tc;
+      MALLOC( tc, task_t*, sizeof(task_t), "tc" );
       copyTask( tc, taskList[idx] );
 
       // keep the mapping
@@ -109,7 +110,7 @@ int addChartTasks( int chartid, chart_t *ctx ) {
 
       // add to taskList
       numTasks++;
-      taskList = (task_t**) REALLOC( taskList, numTasks * sizeof(task_t*), "taskList" );
+      REALLOC( taskList, task_t**, numTasks * sizeof(task_t*), "taskList" );
       taskList[numTasks-1] = tc;
     }
 
@@ -135,7 +136,7 @@ int addChartTasks( int chartid, chart_t *ctx ) {
       if( newassg <= 0 )
 	continue;
 
-      sc->assignedList = (int*) REALLOC( sc->assignedList, newassg * sizeof(int), "sc->assignedList" );
+      REALLOC( sc->assignedList, int*, newassg * sizeof(int), "sc->assignedList" );
       for( i = 0; i < sr->numAssigned; i++ ) {
 	sc->assignedList[sc->numAssigned + i] = map[sr->assignedList[i]];
       }
@@ -159,7 +160,7 @@ int addChartTasks( int chartid, chart_t *ctx ) {
     if( newassg <= 0 )
       continue;
 
-    sc->assignedList = (int*) REALLOC( sc->assignedList, newassg * sizeof(int), "sc->assignedList" );
+    REALLOC( sc->assignedList, int*, newassg * sizeof(int), "sc->assignedList" );
     for( i = 0; i < sr->numAssigned; i++ ) {
       sc->assignedList[sc->numAssigned + i] = sr->assignedList[i];
     }
@@ -278,12 +279,12 @@ int initPath( path_t *px ) {
 
   int i, k;
 
-  px->msc = (chart_t*) MALLOC( px->msc, sizeof(chart_t), "chart_t" );
+  MALLOC( px->msc, chart_t*, sizeof(chart_t), "chart_t" );
   initChart( px->msc );
 
-  px->edgeBounds = (char**) MALLOC( px->edgeBounds, numCharts * sizeof(char*), "px->edgeBounds" );
+  MALLOC( px->edgeBounds, char**, numCharts * sizeof(char*), "px->edgeBounds" );
   for( i = 0; i < numCharts; i++ ) {
-    px->edgeBounds[i] = (char*) MALLOC( px->edgeBounds[i], numCharts * sizeof(char), "px->edgeBounds[i]" );
+    MALLOC( px->edgeBounds[i], char*, numCharts * sizeof(char), "px->edgeBounds[i]" );
     for( k = 0; k < numCharts; k++ )
       px->edgeBounds[i][k] = MAX_UNFOLD;
   }
@@ -334,8 +335,10 @@ int timingEstimate_synch_acyclic() {
 
   int i, k;
 
-  time_t *cummu = (time_t*) CALLOC( cummu, numCharts, sizeof(time_t), "cummulated WCRT" );
-  int *wpath = (int*) CALLOC( wpath, numCharts, sizeof(int), "WCRT path" );
+  time_t *cummu;
+  CALLOC( cummu, time_t*, numCharts, sizeof(time_t), "cummulated WCRT" );
+  int *wpath;
+  CALLOC( wpath, int*, numCharts, sizeof(int), "WCRT path" );
 
   if( allocmethod == NONE ) {
     for( i = 0; i < numCharts; i++ ) {
@@ -476,8 +479,8 @@ int timingEstimate_synch() {
   }
 
   // collect incoming edges first, since we do not store this
-  incoming = (int**) MALLOC( incoming, numCharts * sizeof(int*), "incoming" );
-  incomingLen = (int*) CALLOC( incomingLen, numCharts, sizeof(int), "incomingLen" );
+  MALLOC( incoming, int**, numCharts * sizeof(int*), "incoming" );
+  CALLOC( incomingLen, int*, numCharts, sizeof(int), "incomingLen" );
   for( i = 0; i < numCharts; i++ )
     incoming[i] = NULL;
 
@@ -589,7 +592,7 @@ int timingEstimate_asynch_acyclic() {
   int numPaths = 0;
   //chart_t **pathList = NULL;
 
-  cx = (chart_t*) MALLOC( cx, sizeof(chart_t), "chart_t" );
+  MALLOC( cx, chart_t*, sizeof(chart_t), "chart_t" );
   initChart( cx );
 
   // start node
@@ -608,7 +611,7 @@ int timingEstimate_asynch_acyclic() {
 
       // complete path
       numPaths++;
-      //pathList = (chart_t**) REALLOC( pathList, numPaths * sizeof(chart_t*), "pathList" );
+      //REALLOC( pathList, chart_t**, numPaths * sizeof(chart_t*), "pathList" );
       //pathList[numPaths-1] = cx;
 
       // add dependency among tasks of the same process
@@ -643,7 +646,7 @@ int timingEstimate_asynch_acyclic() {
       prevcx = cx;
 
       // next path
-      cx = (chart_t*) MALLOC( cx, sizeof(chart_t), "chart_t" );
+      MALLOC( cx, chart_t*, sizeof(chart_t), "chart_t" );
       initChart( cx );
 
       // pop backtrack point
@@ -737,7 +740,7 @@ int timingEstimate_asynch_() {
   fprintf( pathf, "Path %d\n", numPaths );
   printf( "Path %d\n", numPaths ); fflush( stdout );
 
-  px = (path_t*) MALLOC( px, sizeof(path_t), "path_t" );
+  MALLOC( px, path_t*, sizeof(path_t), "path_t" );
   initPath( px );
 
   // start node
@@ -809,7 +812,7 @@ int timingEstimate_asynch_() {
 
       // next path
       prevpx = px;
-      px = (path_t*) MALLOC( px, sizeof(path_t), "path_t" );
+      MALLOC( px, path_t*, sizeof(path_t), "path_t" );
       initPath( px );
 
       // copy task list from previous path up to this point
@@ -852,7 +855,7 @@ int timingEstimate_asynch_() {
 
       // next path
       prevpx = px;
-      px = (path_t*) MALLOC( px, sizeof(path_t), "path_t" );
+      MALLOC( px, path_t*, sizeof(path_t), "path_t" );
       initPath( px );
 
       // copy task list from previous path up to this point
@@ -918,7 +921,7 @@ int timingEstimate_asynch() {
   while( fscanf( pathf, "%s %d %d", token, &id, &len ) != EOF ) {
 
     // construct concatenated MSC
-    cx = (chart_t*) MALLOC( cx, sizeof(chart_t), "chart_t" );
+    MALLOC( cx, chart_t*, sizeof(chart_t), "chart_t" );
     initChart( cx );
 
     // keep track of task duplication
@@ -939,14 +942,14 @@ int timingEstimate_asynch() {
     // expand data structures
     if( numTasks > orgNumTasks ) {
 
-      earliestReq = (time_t*) REALLOC( earliestReq, numTasks * sizeof(time_t), "earliestReq" );
-      latestReq   = (time_t*) REALLOC( latestReq,   numTasks * sizeof(time_t), "latestReq"   );
-      earliestFin = (time_t*) REALLOC( earliestFin, numTasks * sizeof(time_t), "earliestFin" );
-      latestFin   = (time_t*) REALLOC( latestFin,   numTasks * sizeof(time_t), "latestFin"   );
+      REALLOC( earliestReq, time_t*, numTasks * sizeof(time_t), "earliestReq" );
+      REALLOC( latestReq, time_t*,   numTasks * sizeof(time_t), "latestReq"   );
+      REALLOC( earliestFin, time_t*, numTasks * sizeof(time_t), "earliestFin" );
+      REALLOC( latestFin, time_t*,   numTasks * sizeof(time_t), "latestFin"   );
 
-      interfere = (char**) REALLOC( interfere, numTasks * sizeof(char*), "interfere" );
+      REALLOC( interfere, char**, numTasks * sizeof(char*), "interfere" );
       for( i = 0; i < numTasks; i++ ) {
-        interfere[i] = (char*) CALLOC( interfere[i], numTasks, sizeof(char), "interfere[i]" );
+        CALLOC( interfere[i], char*, numTasks, sizeof(char), "interfere[i]" );
       }
     }
 
