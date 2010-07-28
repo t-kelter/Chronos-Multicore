@@ -89,13 +89,18 @@ offset_graph_edge *getOffsetGraphEdge( const offset_graph *og,
 /* Prints the offset graph to th given file descriptor. */
 void dumpOffsetGraph( const offset_graph *og, FILE *out );
 
-/* Solves a minimum cost flow problem to obtain the final BCET.
+/* Solves a minimum cost flow problem to obtain the final BCET. The result
+ * consists of the BCET of the full loop (all iterations) and of the final
+ * (best-case) offset when exiting the loop.
  *
  * 'loopbound_min' specifies the minimum number of iterations of the loop.
  */
 offset_graph_solve_result computeOffsetGraphLoopBCET(
     const offset_graph *og, uint loopbound_min );
-/* Solves a maximum cost flow problem to obtain the final WCET.
+
+/* Solves a maximum cost flow problem to obtain the final WCET. The result
+ * consists of the WCET of the full loop (all iterations) and of the final
+ * (worst-case) offset when exiting the loop.
  *
  * 'loopbound_max' specifies the maximum number of iterations of the loop.
  */
