@@ -603,26 +603,28 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
     graphChanged = 0;
 
     int j; // 'j' is the starting offset
-    for ( j = iteration_result.offsets.lower_bound;
-          j < iteration_result.offsets.upper_bound; j++ ) {
+    for ( j =  current_offsets.lower_bound;
+          j <= current_offsets.upper_bound; j++ ) {
       int k; // 'k' indexes the target offset
-      for ( k = iteration_result.offsets.lower_bound;
-            k < iteration_result.offsets.upper_bound; k++ ) {
+      for ( k =  iteration_result.offsets.lower_bound;
+            k <= iteration_result.offsets.upper_bound; k++ ) {
         offset_graph_node * const start = getOffsetGraphNode( graph, j );
         offset_graph_node * const end   = getOffsetGraphNode( graph, k );
         offset_graph_edge *edge = getOffsetGraphEdge( graph, start, end );
-        if ( edge ) {
+        if ( edge != NULL ) {
           // Update the BCET / WCET values of the edge if needed
           if ( edge->bcet > iteration_result.bcet ) {
             edge->bcet = iteration_result.bcet;
             graphChanged = 1;
-            DOUT( "Updated BCET on edge %u --> %u to %llu",
+
+            DOUT( "- Updated BCET on edge %u --> %u to %llu\n",
                 edge->start->offset, edge->end->offset, edge->bcet );
           }
           if ( edge->wcet < iteration_result.wcet ) {
             edge->wcet = iteration_result.wcet;
             graphChanged = 1;
-            DOUT( "Updated WCET on edge %u --> %u to %llu",
+
+            DOUT( "- Updated WCET on edge %u --> %u to %llu\n",
                 edge->start->offset, edge->end->offset, edge->wcet );
           }
         } else {
@@ -630,11 +632,25 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
           addOffsetGraphEdge( graph, start, end,
               iteration_result.bcet, iteration_result.wcet );
           graphChanged = 1;
-          DOUT( "Added edge %u --> %u with BCET %llu, WCET %llu",
+
+          edge = getOffsetGraphEdge( graph, start, end );
+          assert( edge && "Internal error!" );
+          DOUT( "- Added edge %u --> %u with BCET %llu, WCET %llu\n",
               edge->start->offset, edge->end->offset, edge->bcet, edge->wcet );
         }
       }
     }
+
+    /* If the current round did not lead to new offsets, then we can exit the
+     * loop because the graph can no longer change in the next iteration. */
+    if ( current_offsets.lower_bound == iteration_result.offsets.lower_bound &&
+         current_offsets.upper_bound == iteration_result.offsets.upper_bound ) {
+      break;
+    /* Else take over the offsets for the next round. */
+    } else {
+      current_offsets = iteration_result.offsets;
+    }
+
   } while( graphChanged );
 
   // Solve flow problems
