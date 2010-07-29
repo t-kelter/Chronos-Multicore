@@ -1,5 +1,6 @@
 // Include standard library headers
 #include <assert.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -270,7 +271,7 @@ offset_graph_solve_result solveILP( const offset_graph *og, const char *ilp_file
   char commandline[500];
   char output_file[100];
   tmpnam( output_file );
-  sprintf( commandline, "%s/lp_solve %s > %s\n", LP_SOLVE_PATH, ilp_file, output_file );
+  sprintf( commandline, "%s/lp_solve -presolve %s > %s\n", LP_SOLVE_PATH, ilp_file, output_file );
   DOUT( "Called lp_solve: %s", commandline );
 
   const int ret = system( commandline );
@@ -324,10 +325,21 @@ offset_graph_solve_result solveILP( const offset_graph *og, const char *ilp_file
                             fgets( result_file_line, line_size, result_file ) &&
                             sscanf( result_file_line, "%*s %*s %*s %*s %s", result_string );
   if ( successfully_read ) {
-    // Parse the number
+    // Parse the number (first try direct format)
     char *end_ptr = NULL;
+    _Bool readObjectiveValue = 0;
     result.time_result = strtoull( result_string, &end_ptr, 10 );
-    successfully_read = ( *end_ptr == '\0' ) &&
+    readObjectiveValue = *end_ptr == '\0';
+    // In case of failure: Try to parse the number in scientific format (2.81864e+06)
+    if ( !readObjectiveValue ) {
+      double time_result_float = strtod( result_string, &end_ptr );
+      readObjectiveValue = *end_ptr == '\0';
+      if ( readObjectiveValue ) {
+        assert( floor( time_result_float ) == time_result_float && "Invalid result!" );
+        result.time_result = (ull)time_result_float;
+      }
+    }
+    successfully_read = readObjectiveValue &&
                         // Skip next two lines
                         fgets( result_file_line, line_size, result_file ) &&
                         fgets( result_file_line, line_size, result_file );

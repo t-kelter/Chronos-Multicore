@@ -575,39 +575,30 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
   for( i = start_offsets.lower_bound; i <= start_offsets.upper_bound; i++ ) {
     addOffsetGraphEdge( graph, &graph->supersource, getOffsetGraphNode( graph, i ), 0, 0 );
   }
-  // Add edges from each node to the supersink
-  for( i = 0; i < tdma_interval; i++ ) {
-    addOffsetGraphEdge( graph, getOffsetGraphNode( graph, i ), &graph->supersink, 0, 0 );
-  }
   DOUT( "Created initial offset graph with %u nodes\n", tdma_interval );
 
-  // Keep adding intermediate edges as long as this yields any changes to the graph
-  _Bool graphChanged = 0;
-  // This will store the offsets
-  tdma_offset_bounds current_offsets = start_offsets;
-  // Result from the last iteration analysis
-  combined_result iteration_result;
-  // This will denote whether we are in the first loop iteration
-  _Bool inFirstIteration = 1;
+  _Bool graphChanged = 0;             // Whether we changed any graph part in the current iteration
+  tdma_offset_bounds current_offsets; // This will store the offsets
+  combined_result iteration_result;   // Result from the last iteration analysis
+  uint iteration_number = 0;          // The number of the currently analyzed iteration
   do {
+    // Get the current offsets
+    if ( iteration_number == 0 ) {
+      current_offsets = start_offsets;
+    } else {
+      current_offsets = iteration_result.offsets;
+    }
+
     // Analyze the iteration
-    const uint inner_context = getInnerLoopContext( lp, loop_context, inFirstIteration );
+    const uint inner_context = getInnerLoopContext( lp, loop_context, iteration_number == 0 );
     iteration_result = analyze_single_loop_iteration( lp, proc, inner_context, current_offsets );
     DOUT( "Analyzed new iteration: BCET %llu, WCET %llu, offsets [%u,%u]\n",
         iteration_result.bcet, iteration_result.wcet,
         iteration_result.offsets.lower_bound,
         iteration_result.offsets.upper_bound );
 
-    // Next iteration will be an iteration after the first one
-    inFirstIteration = 0;
-
     // Apply the needed changes to the graph
     graphChanged = 0;
-
-    DOUT( "Updating/adding all edges [%u,%u] --> [%u,%u] with BCET %llu and WCET %llu\n",
-        current_offsets.lower_bound, current_offsets.upper_bound,
-        iteration_result.offsets.lower_bound, iteration_result.offsets.upper_bound,
-        iteration_result.bcet, iteration_result.wcet );
 
     int j; // 'j' is the starting offset
     for ( j =  current_offsets.lower_bound;
@@ -642,36 +633,47 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
       }
     }
 
-    /* If the current round did not lead to new offsets, then we can exit the
-     * loop because the graph can no longer change in the next iteration. */
-    if ( current_offsets.lower_bound == iteration_result.offsets.lower_bound &&
-         current_offsets.upper_bound == iteration_result.offsets.upper_bound ) {
-      break;
-    /* Else take over the offsets for the next round. */
-    } else {
-      current_offsets = iteration_result.offsets;
-    }
+    // Update iteration number
+    iteration_number++;
 
-  } while( graphChanged );
+  } while(   // Iterate until the graph converges
+           ( ( graphChanged &&
+               // But don't iterate again when the offsets have already converged,
+               // because there can be no more changes to the graph then in the
+               // next iteration.
+               !( current_offsets.lower_bound == iteration_result.offsets.lower_bound &&
+                  current_offsets.upper_bound == iteration_result.offsets.upper_bound )
+             // Enforce at least two iterations to exploit the loop contexts
+             ) || iteration_number == 1 ) &&
+           // In any case, stop when the loopbound is reached
+           ( iteration_number < lp->loopbound ) );
+
+  DOUT( "Analyzed %u iterations\n", iteration_number );
+
+  // Add the edges from the last offset range to the supersink
+  for( i  = iteration_result.offsets.lower_bound;
+       i <= iteration_result.offsets.upper_bound; i++ ) {
+    addOffsetGraphEdge( graph, getOffsetGraphNode( graph, i ), &graph->supersink, 0, 0 );
+  }
 
   /* If the graph creation converged with the interval [0, tdma_interval - 1]
-   * then it's not worth trying to solve the ILP, because the result cannot be
-   * more precise than a simple multiplication.
+   * then it's not worth trying to solve the ILP, because the result can hardly be
+   * more precise than the global convergence.
    */
   combined_result result;
-  /*if ( current_offsets.lower_bound == 0 &&
-       current_offsets.upper_bound == tdma_interval - 1 ) {
-
-  } else*/ {
+  if ( iteration_result.offsets.lower_bound == 0 &&
+       iteration_result.offsets.upper_bound == tdma_interval - 1 ) {
+    result = analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
+  } else {
     // Solve flow problems
     const offset_graph_solve_result bcet_res = computeOffsetGraphLoopBCET( graph, lp->loopbound );
     const offset_graph_solve_result wcet_res = computeOffsetGraphLoopWCET( graph, lp->loopbound );
+    DOUT( "Loop results: BCET %llu, WCET %llu\n", bcet_res.time_result, wcet_res.time_result );
 
     // Generate final result
     result.bcet = bcet_res.time_result;
     result.wcet = wcet_res.time_result;
-    result.offsets.lower_bound = MIN( bcet_res.offset_result, wcet_res.offset_result );
-    result.offsets.upper_bound = MAX( bcet_res.offset_result, wcet_res.offset_result );
+    result.offsets = iteration_result.offsets;
   }
 
   freeOffsetGraph( graph );
