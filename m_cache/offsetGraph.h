@@ -27,14 +27,16 @@ typedef struct og      offset_graph;
 struct og_edge {
   offset_graph_node *start;
   offset_graph_node *end;
-  ull bcet; // Alignment-dependent BCET of the source node
-  ull wcet; // Alignment-dependent WCET of the source node
-  uint edge_id; // A unique identifier for the edge
+  ull bcet;     /* An optional, additive BCET component which only applies when the edge is taken. */
+  ull wcet;     /* An optional, additive WCET component which only applies when the edge is taken. */
+  uint edge_id; /* A unique identifier for the edge. */
 };
 
 /* Represents a node in the offset graph (see below) */
 struct og_node {
   uint offset;             /* The offset that is represented by the node. */
+  ull bcet;                /* A fixed BCET that is needed for each invocation of the loop with offset 'offset'. */
+  ull wcet;                /* A fixed WCET that is needed for each invocation of the loop with offset 'offset'. */
   uint *incoming_edges;    /* The indexes (into the edge array) of the incoming edges. */
   uint num_incoming_edges; /* The current size of 'num_incoming_edges'. */
   uint *outgoing_edges;    /* The indexes (into the edge array) of the outgoing edges. */

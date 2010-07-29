@@ -42,7 +42,7 @@ enum ILPComputationType {
 static void dumpOffsetGraphNode( const offset_graph *og,
     const offset_graph_node *node, FILE *out )
 {
-  fprintf( out, "  %u:\n", node->offset );
+  fprintf( out, "  %u: BCET %llu, WCET %llu\n", node->offset, node->bcet, node->wcet );
 
   uint j;
   fprintf( out, "    In-Edges : " );
@@ -72,6 +72,11 @@ static inline void printILPEdgeName( FILE *f, const offset_graph_edge *edge )
 {
   fprintf( f, "x%u", edge->edge_id );
 }
+/* Prints the ILP-name of 'node' to 'f'. */
+static inline void printILPNodeName( FILE *f, const offset_graph_node *node )
+{
+  fprintf( f, "y%u", node->offset );
+}
 
 
 /* Generate an ILP for lp_solve.
@@ -94,6 +99,8 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enu
 
   // In the ILP we map each edge to a variable 'x<edge_id>'
   // This variable represents the flow through the edge.
+  // Similarly, we map each node to a variable 'y<offset>'
+  // This variable represents the flow through the node.
 
   // Write objective function
   fprintf( f, "/*\n * Objective function\n */\n\n" );
@@ -101,17 +108,35 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enu
   fprintf( f, ( type == ILP_TYPE_WCET ? "MAX: " : "MIN: " ) );
 
   uint i;
+  _Bool firstObjectiveEntry = 1;
   for ( i = 0; i < og->num_edges; i++ ) {
 
-    offset_graph_edge * const edge = &og->edges[i];
+    const offset_graph_edge * const edge = &og->edges[i];
     const ull factor = ( type == ILP_TYPE_BCET ? edge->bcet : edge->wcet );
 
     if ( factor != 0 ) {
+      if ( !firstObjectiveEntry ) {
+        fprintf( f, " + " );
+      } else {
+        firstObjectiveEntry = 0;
+      }
       fprintf( f, "%llu ", factor );
+      printILPEdgeName( f, edge );
     }
-    printILPEdgeName( f, edge );
-    if ( i != og->num_edges - 1 ) {
-      fprintf( f, " + " );
+  }
+  for ( i = 0; i < og->num_nodes; i++ ) {
+
+    const offset_graph_node * const node = &og->nodes[i];
+    const ull factor = ( type == ILP_TYPE_BCET ? node->bcet : node->wcet );
+
+    if ( factor != 0 ) {
+      if ( !firstObjectiveEntry ) {
+        fprintf( f, " + " );
+      } else {
+        firstObjectiveEntry = 0;
+      }
+      fprintf( f, "%llu ", factor );
+      printILPNodeName( f, node );
     }
   }
 
@@ -126,6 +151,7 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enu
   for ( i = 0; i < og->num_nodes; i++ ) {
     offset_graph_node * const node = &og->nodes[i];
 
+    // Incoming flow = Node flow
     if ( node->num_incoming_edges == 0 ) {
       fprintf( f, "0" );
     } else {
@@ -138,6 +164,12 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enu
       }
     }
 
+    fprintf( f, " = " );
+    printILPNodeName( f, node );
+    fprintf( f, ";\n" );
+
+    // Node flow = Outgoing flow
+    printILPNodeName( f, node );
     fprintf( f, " = " );
 
     if ( node->num_outgoing_edges == 0 ) {
@@ -186,6 +218,13 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enu
     printILPEdgeName( f, edge );
     fprintf( f, " <= %u;\n", loopbound );
   }
+  for ( i = 0; i < og->num_nodes; i++ ) {
+    offset_graph_node * const node = &og->nodes[i];
+    printILPNodeName( f, node );
+    fprintf( f, " >= 0;\n" );
+    printILPNodeName( f, node );
+    fprintf( f, " <= %u;\n", loopbound );
+  }
 
 
   // Write out declarations section.
@@ -195,6 +234,12 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enu
     offset_graph_edge * const edge = &og->edges[i];
     fprintf( f, "int " );
     printILPEdgeName( f, edge );
+    fprintf( f, ";\n");
+  }
+  for ( i = 0; i < og->num_nodes; i++ ) {
+    offset_graph_node * const node = &og->nodes[i];
+    fprintf( f, "int " );
+    printILPNodeName( f, node );
     fprintf( f, ";\n");
   }
 
@@ -208,6 +253,18 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enu
 offset_graph_solve_result solveILP( const offset_graph *og, const char *ilp_file )
 {
   DSTART( "solveILP" );
+
+  // Backup input file in debug mode
+  DACTION(
+    char commandline[500];
+    const char * const backup_file = "offset_graph.ilp";
+    sprintf( commandline, "command cp -f %s %s\n", ilp_file, backup_file );
+    if ( system( commandline ) == 0 ) {
+      DOUT( "Copied ILP file to %s\n", backup_file );
+    } else {
+      DOUT( "Could not copy ILP file to %s\n", backup_file );
+    }
+  );
 
   // Invoke external ILP solver.
   char commandline[500];
@@ -242,6 +299,18 @@ offset_graph_solve_result solveILP( const offset_graph *og, const char *ilp_file
 
   DOUT( "Solved ILP, output is in %s\n", output_file );
 
+  // Backup output file in debug mode
+  DACTION(
+    char commandline[500];
+    const char * const backup_file = "offset_graph.result";
+    sprintf( commandline, "command cp -f %s %s\n", output_file, backup_file );
+    if ( system( commandline ) == 0 ) {
+      DOUT( "Copied ILP result to %s\n", backup_file );
+    } else {
+      DOUT( "Could not copy ILP result to %s\n", backup_file );
+    }
+  );
+
   // Parse result file
   FILE *result_file = fopen( output_file, "r" );
   offset_graph_solve_result result;
@@ -265,18 +334,20 @@ offset_graph_solve_result solveILP( const offset_graph *og, const char *ilp_file
 
     // Parse the result entries
     _Bool foundExitOffset = 0;
-    uint edge_id, flow_value;
+    uint var_id, flow_value;
+    char var_type;
     while( fgets( result_file_line, line_size, result_file ) ) {
-      sscanf( result_file_line, "x%u %u", &edge_id, &flow_value );
-      DOUT( "Scanned: Edge %u has flow value %u\n", edge_id, flow_value );
+      sscanf( result_file_line, "%c%u %u", &var_type, &var_id, &flow_value );
 
-      const offset_graph_edge * const edge = &og->edges[edge_id - 1];
-      if ( edge->end == &og->supersink && flow_value > 0 ) {
-        result.offset_result = edge->start->offset;
-        foundExitOffset = 1;
-        DOUT( "Found loop exit edge: Starts from node with offset %u\n",
-            result.offset_result );
-        break;
+      if ( var_type == 'x' ) {
+        const offset_graph_edge * const edge = &og->edges[var_id - 1];
+        if ( edge->end == &og->supersink && flow_value > 0 ) {
+          result.offset_result = edge->start->offset;
+          foundExitOffset = 1;
+          DOUT( "Found loop exit edge: Starts from node with offset %u\n",
+              result.offset_result );
+          break;
+        }
       }
     }
     assert( foundExitOffset && "Internal error: Did not find exit offset!" );
@@ -321,6 +392,9 @@ offset_graph *createOffsetGraph( uint number_of_nodes )
   for ( i = 0; i < result->num_nodes; i++ ) {
     offset_graph_node * const node = &( result->nodes[i] );
     node->offset = i;
+    node->bcet = 0;
+    node->wcet = 0;
+
     // Initialize all incident edge lists with size 0
     node->incoming_edges = 0;
     node->outgoing_edges = 0;
