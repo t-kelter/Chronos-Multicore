@@ -74,8 +74,12 @@ static _Bool firstDebugmacroInit = 1;
 // #########################################
 
 
-static void analysis( MSC *msc, const char *tdma_bus_schedule_file, enum AnalysisMethod method );
-static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool *interference_changed );
+static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
+                      enum AnalysisMethod method,
+                      enum LoopAnalysisType alignmentAnalysisLAType,
+                      _Bool alignmentAnalysisTryStructural );
+static void readMSCfromFile( const char *interferFileName, int msc_index,
+                             _Bool *interference_changed );
 static void writeWCETandCacheInfoFiles( int num_msc );
 static __inline__ ticks getticks(void);;
 
@@ -110,7 +114,7 @@ int main(int argc, char **argv )
   /* Compute with shared bus */
   g_shared_bus = 1;
   /* For independent tasks running on multiple cores */
-  g_independent_task = 1;
+  g_independent_task = 0;
   /* For no bus modelling */
   g_no_bus_modeling = 0;
 
@@ -121,10 +125,21 @@ int main(int argc, char **argv )
   infeas = 0;
 
   /* Set the analysis method to use. */
-  enum AnalysisMethod current_analysis_method;
+  enum AnalysisMethod current_analysis_method = ANALYSIS_ALIGNMENT;
+  enum LoopAnalysisType alignmentLAType = LOOP_ANALYSIS_GLOBAL_CONVERGENCE;
+  _Bool alignmentTryStructural = 0;
   switch( argv[6][0] ) {
     case 'a':
       current_analysis_method = ANALYSIS_ALIGNMENT;
+      for ( i = 1; argv[6][i] != '\0'; i++ ) {
+        char option_char = argv[6][i];
+        switch( option_char ) {
+          case 'c': alignmentLAType = LOOP_ANALYSIS_GLOBAL_CONVERGENCE; break;
+          case 'g': alignmentLAType = LOOP_ANALYSIS_GRAPH_TRACKING; break;
+          case '+': alignmentTryStructural = 1; break;
+          default: assert( 0 && "Unknown option!" );
+        }
+      }
       break;
     case 's':
       current_analysis_method = ANALYSIS_STRUCTURAL;
@@ -297,7 +312,8 @@ int main(int argc, char **argv )
     /* CAUTION: In presence of shared bus these two function changes
      * to account for the bus delay */
     start = getticks();
-    analysis( currentMSC, tdma_bus_schedule_file, current_analysis_method );
+    analysis( currentMSC, tdma_bus_schedule_file, current_analysis_method,
+        alignmentLAType, alignmentTryStructural );
     end = getticks();
 
     /* FIXME: What's this function doing here ? */ 	  
@@ -344,7 +360,7 @@ int main(int argc, char **argv )
   while(flag) {
 
     flag = 0;
-    printf("Call wcrt analysis the %d time\n", times_iteration);
+    printf("\nCall wcrt analysis the %d time\n\n", times_iteration);
 
     if(num_core == 1 || 
        num_core == 2 ||
@@ -384,7 +400,8 @@ int main(int argc, char **argv )
         pathDAG(msc[i]);
 
         /* Compute WCET and BCET of each task. */
-        analysis( msc[i], tdma_bus_schedule_file, current_analysis_method );
+        analysis( msc[i], tdma_bus_schedule_file, current_analysis_method,
+            alignmentLAType, alignmentTryStructural  );
 
         /* FIXME: What's this function doing here ? */
         resetHitMiss_L2(msc[i]);
@@ -486,7 +503,9 @@ int main(int argc, char **argv )
  * Switches between the alternatives of analysis methods.
  */
 static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
-                      enum AnalysisMethod method )
+                      enum AnalysisMethod method,
+                      enum LoopAnalysisType alignmentAnalysisLAType,
+                      _Bool alignmentAnalysisTryStructural )
 {
   DSTART( "analysis" );
 
@@ -505,7 +524,7 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
     case ANALYSIS_ALIGNMENT:
       // Computes BCET and WCET together
       compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file,
-          LOOP_ANALYSIS_GLOBAL_CONVERGENCE, 0);
+          alignmentAnalysisLAType, alignmentAnalysisTryStructural);
       break;
 
     default:
@@ -857,4 +876,5 @@ static __inline__ ticks getticks(void)
 {
   unsigned a, d;
   __asm__ __volatile__("rdtsc" : "=a" (a), "=d" (d));
-  return ((ticks)a) | (((ticks)d) << 32)
+  return ((ticks)a) | (((ticks)d) << 32);
+}

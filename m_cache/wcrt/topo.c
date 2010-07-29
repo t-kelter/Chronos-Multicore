@@ -210,8 +210,6 @@ int topoGraph() {
     // insert curr into topoMSG
     enqueue( idx, &topoMSG, &toposize );
 
-    printf( "Allocated topoMSG to size %d", toposize );
-
     // for each successor of curr
     for( k = 0; k < tx->numSuccs; k++ ) {
       int idk = tx->succList[k];

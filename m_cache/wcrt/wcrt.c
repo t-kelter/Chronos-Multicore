@@ -51,7 +51,7 @@ int wcrt_analysis( char* filename_cf, char *filename_pd, char *filename_dg )
   topoTask();
   topoGraph();
   /* For debugging */
-  //dumpTaskInfo();
+  dumpTaskInfo();
 
   /* record of critical path */
   CALLOC( isCritical, char*, numTasks, sizeof(char), "isCritical" );
