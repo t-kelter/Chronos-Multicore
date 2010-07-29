@@ -63,12 +63,6 @@ struct og {
   offset_graph_node supersink;
 };
 
-/* The result of a solved offset-graph-based minimum / maximum flow problem. */
-typedef struct {
-  ull time_result;    // The resulting BCET / WCET
-  uint offset_result; // The resulting offset when exiting the loop
-} offset_graph_solve_result;
-
 // ######### Function declarations  ###########
 
 
@@ -91,23 +85,17 @@ offset_graph_edge *getOffsetGraphEdge( const offset_graph *og,
 /* Prints the offset graph to th given file descriptor. */
 void dumpOffsetGraph( const offset_graph *og, FILE *out );
 
-/* Solves a minimum cost flow problem to obtain the final BCET. The result
- * consists of the BCET of the full loop (all iterations) and of the final
- * (best-case) offset when exiting the loop.
+/* Solves a minimum cost flow problem to obtain the final BCET.
  *
  * 'loopbound_min' specifies the minimum number of iterations of the loop.
  */
-offset_graph_solve_result computeOffsetGraphLoopBCET(
-    const offset_graph *og, uint loopbound_min );
+ull computeOffsetGraphLoopBCET( const offset_graph *og, uint loopbound_min );
 
-/* Solves a maximum cost flow problem to obtain the final WCET. The result
- * consists of the WCET of the full loop (all iterations) and of the final
- * (worst-case) offset when exiting the loop.
+/* Solves a maximum cost flow problem to obtain the final WCET.
  *
  * 'loopbound_max' specifies the maximum number of iterations of the loop.
  */
-offset_graph_solve_result computeOffsetGraphLoopWCET(
-    const offset_graph *og, uint loopbound_max );
+ull computeOffsetGraphLoopWCET( const offset_graph *og, uint loopbound_max );
 
 /* Deallocates an offset graph. */
 void freeOffsetGraph( offset_graph *og );

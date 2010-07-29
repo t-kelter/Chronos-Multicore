@@ -666,13 +666,13 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
     result = analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
   } else {
     // Solve flow problems
-    const offset_graph_solve_result bcet_res = computeOffsetGraphLoopBCET( graph, lp->loopbound );
-    const offset_graph_solve_result wcet_res = computeOffsetGraphLoopWCET( graph, lp->loopbound );
-    DOUT( "Loop results: BCET %llu, WCET %llu\n", bcet_res.time_result, wcet_res.time_result );
+    const ull bcet_res = computeOffsetGraphLoopBCET( graph, lp->loopbound );
+    const ull wcet_res = computeOffsetGraphLoopWCET( graph, lp->loopbound );
+    DOUT( "Loop results: BCET %llu, WCET %llu\n", bcet_res, wcet_res );
 
     // Generate final result
-    result.bcet = bcet_res.time_result;
-    result.wcet = wcet_res.time_result;
+    result.bcet = bcet_res;
+    result.wcet = wcet_res;
     result.offsets = iteration_result.offsets;
   }
 
