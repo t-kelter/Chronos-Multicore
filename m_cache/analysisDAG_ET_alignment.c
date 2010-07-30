@@ -78,24 +78,35 @@ static combined_result analyze_proc( procedure* proc,
 // #########################################
 
 
+/* A convenience macro to iterate over the offsets in an offset bound. */
+#define ITERATE_OFFSET_BOUND( bound, iteration_variable ) \
+  for ( iteration_variable  = bound.lower_bound; \
+        iteration_variable <= bound.upper_bound; \
+        iteration_variable++ )
+
+
 /* Verifies that the bound information is valid. */
-static _Bool checkBound( const tdma_offset_bounds *b )
+static _Bool checkOffsetBound( const tdma_offset_bounds *b )
 {
-  return b->lower_bound <= b->upper_bound;
+  // TODO: This won't work correctly for segmented schedules
+  const uint interval = getCoreSchedule( ncore, 0 )->interval;
+  return b->lower_bound <= b->upper_bound &&
+         b->lower_bound >= 0 && b->lower_bound < interval &&
+         b->upper_bound >= 0 && b->upper_bound < interval;
 }
 
 
 /* Returns the union of the given offset bounds. */
 static tdma_offset_bounds mergeOffsetBounds( const tdma_offset_bounds *b1, const tdma_offset_bounds *b2 )
 {
-  assert( b1 && checkBound( b1 ) && b2 && checkBound( b2 ) && 
+  assert( b1 && checkOffsetBound( b1 ) && b2 && checkOffsetBound( b2 ) && 
           "Invalid arguments!" );
 
   tdma_offset_bounds result;
   result.lower_bound = MIN( b1->lower_bound, b2->lower_bound );
   result.upper_bound = MAX( b1->upper_bound, b2->upper_bound );
   
-  assert( checkBound( &result ) && "Invalid result!" );
+  assert( checkOffsetBound( &result ) && "Invalid result!" );
   return result;
 }
 
@@ -104,9 +115,9 @@ static tdma_offset_bounds mergeOffsetBounds( const tdma_offset_bounds *b1, const
  * - a negative number : if 'lhs' is no subset of 'rhs', nor are they equal
  * - 0                 : if 'lhs' == 'rhs'
  * - a positive number : if 'lhs' is a subset of 'rhs' */
-static int isSubsetOrEqual( const tdma_offset_bounds *lhs, const tdma_offset_bounds *rhs )
+static int isOffsetBoundSubsetOrEqual( const tdma_offset_bounds *lhs, const tdma_offset_bounds *rhs )
 {
-  assert( lhs && checkBound( lhs ) && rhs && checkBound( rhs ) && 
+  assert( lhs && checkOffsetBound( lhs ) && rhs && checkOffsetBound( rhs ) && 
           "Invalid arguments!" );
 
   // Check equality
@@ -123,6 +134,20 @@ static int isSubsetOrEqual( const tdma_offset_bounds *lhs, const tdma_offset_bou
     }
   }
 }
+
+
+/* Returns
+ * - 1 : if 'lhs' == 'rhs'
+ * - 0 : if 'lhs' != 'rhs' */
+static _Bool isOffsetBoundEqual( const tdma_offset_bounds *lhs, const tdma_offset_bounds *rhs )
+{
+  assert( lhs && checkOffsetBound( lhs ) && rhs && checkOffsetBound( rhs ) &&
+          "Invalid arguments!" );
+
+  return lhs->lower_bound == rhs->lower_bound &&
+         lhs->upper_bound == rhs->upper_bound;
+}
+
 
 /* Returns the offset bounds for basic block 'bb' from procedure 'proc' where the
  * offset bound results for its predecessors have already been computed and are
@@ -164,7 +189,7 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
     }
   }
 
-  assert( checkBound( &result ) && "Invalid result!" );
+  assert( checkOffsetBound( &result ) && "Invalid result!" );
   return result;
 }
 
@@ -175,8 +200,7 @@ static tdma_offset_bounds getOffsetBounds( ull minTime, ull maxTime )
   assert( minTime <= maxTime && "Invalid arguments" );
 
   // Get schedule data
-  const core_sched_p core_schedule = getCoreSchedule( ncore, minTime );
-  const uint interval = core_schedule->interval;
+  const uint interval = getCoreSchedule( ncore, minTime )->interval;
 
   // Split up the time values into multiplier and remainder
   const uint minTime_factor    = minTime / interval;
@@ -211,10 +235,7 @@ static tdma_offset_bounds getOffsetBounds( ull minTime, ull maxTime )
     result.upper_bound = maxTime_remainder;
   }
 
-  assert( result.lower_bound >= 0 && result.lower_bound < interval &&
-          result.upper_bound >= 0 && result.upper_bound < interval &&
-          checkBound( &result ) &&
-          "Invalid offset result!" );
+  assert( checkOffsetBound( &result ) && "Invalid offset result!" );
   return result;
 }
 
@@ -318,7 +339,7 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
   free( block_bcet_propagation_values );
   free( block_wcet_propagation_values );
 
-  assert( checkBound( &result.offsets ) && "Invalid result!" );
+  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
   return result;
 }
 
@@ -328,7 +349,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
     loop* cur_lp, uint loop_context, const tdma_offset_bounds start_offsets )
 {
   DSTART( "analyze_block" );
-  assert( bb && proc && checkBound( &start_offsets ) &&
+  assert( bb && proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
 
   /* Check whether the block is some header of a loop structure.
@@ -400,7 +421,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
       }
     }
 
-    assert( checkBound( &result.offsets ) && "Invalid result!" );
+    assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
     DRETURN( result );
   }
 }
@@ -411,7 +432,7 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
     tdma_offset_bounds start_offsets )
 {
   DSTART( "analyze_single_loop_iteration" );
-  assert( lp && proc && checkBound( &start_offsets ) &&
+  assert( lp && proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
 
   DOUT( "Loop iteration analysis starts with offsets [%u,%u]\n",
@@ -449,7 +470,7 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
       " with offsets [%u,%u]\n", result.bcet, result.wcet,
       result.offsets.lower_bound, result.offsets.upper_bound );
 
-  assert( checkBound( &result.offsets ) && "Invalid result!" );
+  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -466,7 +487,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
     uint loop_context, const tdma_offset_bounds start_offsets )
 {
   DSTART( "analyze_loop_global_convergence" );
-  assert( lp && proc && checkBound( &start_offsets ) &&
+  assert( lp && proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
 
   DOUT( "Loop %d.%d [lb %d] starts analysis with offsets [%u,%u]\n",
@@ -495,7 +516,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
                        inner_context, current_offsets );
 
     // Compute new offsets if they changed
-    if ( isSubsetOrEqual( &last_std_result->offsets, &current_offsets ) < 0 ) {
+    if ( isOffsetBoundSubsetOrEqual( &last_std_result->offsets, &current_offsets ) < 0 ) {
       current_offsets = mergeOffsetBounds( &current_offsets, &last_std_result->offsets );
     // If they did not change, terminate the analysis
     } else {
@@ -541,7 +562,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
       " with offsets [%u,%u]\n", lp->pid, lp->lpid, result.bcet, result.wcet,
       result.offsets.lower_bound, result.offsets.upper_bound );
 
-  assert( checkBound( &result.offsets ) && "Invalid result!" );
+  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -558,7 +579,7 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
     uint loop_context, const tdma_offset_bounds start_offsets )
 {
   DSTART( "analyze_loop_graph_tracking" );
-  assert( lp && proc && checkBound( &start_offsets ) &&
+  assert( lp && proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
 
   DOUT( "Starting graph-tracking analysis for loop %u.%u (loopbound %u) with "
@@ -572,7 +593,7 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
   // Create the offset graph with edges from the supersource to all initial offsets
   offset_graph *graph = createOffsetGraph( tdma_interval );
   uint i;
-  for( i = start_offsets.lower_bound; i <= start_offsets.upper_bound; i++ ) {
+  ITERATE_OFFSET_BOUND( start_offsets, i ) {
     addOffsetGraphEdge( graph, &graph->supersource, getOffsetGraphNode( graph, i ), 0, 0 );
   }
   DOUT( "Created initial offset graph with %u nodes\n", tdma_interval );
@@ -601,14 +622,12 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
     graphChanged = 0;
 
     int j; // 'j' is the starting offset
-    for ( j =  current_offsets.lower_bound;
-          j <= current_offsets.upper_bound; j++ ) {
+    ITERATE_OFFSET_BOUND( current_offsets, j ) {
       offset_graph_node * const start = getOffsetGraphNode( graph, j );
 
       // Add the missing edges
       int k; // 'k' indexes the target offset
-      for ( k =  iteration_result.offsets.lower_bound;
-            k <= iteration_result.offsets.upper_bound; k++ ) {
+      ITERATE_OFFSET_BOUND( iteration_result.offsets, k ) {
         offset_graph_node * const end   = getOffsetGraphNode( graph, k );
 
         if ( getOffsetGraphEdge( graph, start, end ) == NULL ) {
@@ -641,8 +660,7 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
                // But don't iterate again when the offsets have already converged,
                // because there can be no more changes to the graph then in the
                // next iteration.
-               !( current_offsets.lower_bound == iteration_result.offsets.lower_bound &&
-                  current_offsets.upper_bound == iteration_result.offsets.upper_bound )
+               !isOffsetBoundEqual( &current_offsets, &iteration_result.offsets )
              // Enforce at least two iterations to exploit the loop contexts
              ) || iteration_number == 1 ) &&
            // In any case, stop when the loopbound is reached
@@ -651,8 +669,7 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
   DOUT( "Analyzed %u iterations\n", iteration_number );
 
   // Add the edges from the last offset range to the supersink
-  for( i  = iteration_result.offsets.lower_bound;
-       i <= iteration_result.offsets.upper_bound; i++ ) {
+  ITERATE_OFFSET_BOUND( iteration_result.offsets, i ) {
     addOffsetGraphEdge( graph, getOffsetGraphNode( graph, i ), &graph->supersink, 0, 0 );
   }
 
@@ -678,7 +695,7 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
 
   freeOffsetGraph( graph );
 
-  assert( checkBound( &result.offsets ) && "Invalid result!" );
+  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -691,7 +708,7 @@ static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_contex
     const tdma_offset_bounds start_offsets )
 {
   DSTART( "analyze_loop" );
-  assert( lp && proc && checkBound( &start_offsets ) &&
+  assert( lp && proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
 
   DOUT( "Performing alignment-sensitive analysis\n" );
@@ -755,7 +772,7 @@ static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_contex
 static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma_offset_bounds start_offsets )
 {
   DSTART( "analyze_proc_alignment_aware" );
-  assert( proc && checkBound( &start_offsets ) &&
+  assert( proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
 
   DOUT( "Analyzing procedure %d with offsets [%u,%u]\n",
@@ -793,7 +810,7 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
       " with offsets [%u,%u]\n", proc->pid, result.bcet, result.wcet,
       result.offsets.lower_bound, result.offsets.upper_bound );
 
-  assert( checkBound( &result.offsets ) && "Invalid result!" );
+  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
   DRETURN( result );
 }
 
