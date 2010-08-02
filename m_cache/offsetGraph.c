@@ -34,6 +34,10 @@ enum ILPComputationType {
 // #########################################
 
 
+// Whether to keep the temporary files generated during the analysis
+static _Bool keepTemporaryFiles = 0;
+
+
 // #########################################
 // #### Definitions of static functions ####
 // #########################################
@@ -91,7 +95,11 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enu
   // Get output file
   char *tmpfilename;
   MALLOC( tmpfilename, char*, 50 * sizeof( char ), "tmpfilename" );
-  tmpnam( tmpfilename );
+  if ( keepTemporaryFiles ) {
+    strcpy( tmpfilename, "offsetGraph.ilp" );
+  } else {
+    tmpnam( tmpfilename );
+  }
   FILE *f = fopen( tmpfilename, "w" );
   if ( !f ) {
     prerr( "Unable to write to ILP file '%s'\n", tmpfilename );
@@ -255,22 +263,14 @@ ull solveILP( const offset_graph *og, const char *ilp_file )
 {
   DSTART( "solveILP" );
 
-  // Backup input file in debug mode
-  DACTION(
-    char commandline[500];
-    const char * const backup_file = "offset_graph.ilp";
-    sprintf( commandline, "command cp -f %s %s\n", ilp_file, backup_file );
-    if ( system( commandline ) == 0 ) {
-      DOUT( "Copied ILP file to %s\n", backup_file );
-    } else {
-      DOUT( "Could not copy ILP file to %s\n", backup_file );
-    }
-  );
-
   // Invoke external ILP solver.
   char commandline[500];
   char output_file[100];
-  tmpnam( output_file );
+  if ( keepTemporaryFiles ) {
+    strcpy( output_file, "offsetGraph.result" );
+  } else {
+    tmpnam( output_file );
+  }
   sprintf( commandline, "%s/lp_solve -presolve %s > %s\n", LP_SOLVE_PATH, ilp_file, output_file );
   DOUT( "Called lp_solve: %s", commandline );
 
@@ -299,18 +299,6 @@ ull solveILP( const offset_graph *og, const char *ilp_file )
   }
 
   DOUT( "Solved ILP, output is in %s\n", output_file );
-
-  // Backup output file in debug mode
-  DACTION(
-    char commandline[500];
-    const char * const backup_file = "offset_graph.result";
-    sprintf( commandline, "command cp -f %s %s\n", output_file, backup_file );
-    if ( system( commandline ) == 0 ) {
-      DOUT( "Copied ILP result to %s\n", backup_file );
-    } else {
-      DOUT( "Could not copy ILP result to %s\n", backup_file );
-    }
-  );
 
   // Parse result file
   FILE *result_file = fopen( output_file, "r" );
@@ -342,7 +330,9 @@ ull solveILP( const offset_graph *og, const char *ilp_file )
   fclose( result_file );
 
   // Delete output file
-  remove( output_file );
+  if ( !keepTemporaryFiles ) {
+    remove( output_file );
+  }
 
   if ( successfully_read ) {
     DOUT( "Result was: %llu\n", result );
@@ -510,7 +500,9 @@ ull computeOffsetGraphLoopBCET( const offset_graph *og, uint loopbound_min )
   char * const tmpfile = generateOffsetGraphILP( og, loopbound_min, ILP_TYPE_BCET );
   const ull result = solveILP( og, tmpfile );
 
-  remove( tmpfile );
+  if ( !keepTemporaryFiles ) {
+    remove( tmpfile );
+  }
   free( tmpfile );
 
   return result;
@@ -526,7 +518,9 @@ ull computeOffsetGraphLoopWCET( const offset_graph *og, uint loopbound_max )
   char * const tmpfile = generateOffsetGraphILP( og, loopbound_max, ILP_TYPE_WCET );
   const ull result = solveILP( og, tmpfile );
 
-  remove( tmpfile );
+  if ( !keepTemporaryFiles ) {
+    remove( tmpfile );
+  }
   free( tmpfile );
 
   return result;
