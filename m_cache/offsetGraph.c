@@ -23,11 +23,11 @@
 // ############################################################
 
 
+/* Indicates which type of timing analysis to perform. */
 enum ILPComputationType {
   ILP_TYPE_BCET,
   ILP_TYPE_WCET
 };
-
 
 // #########################################
 // #### Declaration of static variables ####
@@ -72,15 +72,23 @@ static void dumpOffsetGraphNode( const offset_graph *og,
 }
 
 
-/* Prints the ILP-name of 'edge' to 'f'. */
-static inline void printILPEdgeName( FILE *f, const offset_graph_edge *edge )
+/* Prints the ILP-name of 'edge' for time 'time' to 'f'.
+ * (Each edge has (loopbound) flow variables associated to it to represent
+ *  the flow into that edge at the given time instant. This flow will then
+ *  arrive at the target of the edge at the next time instant.)
+ */
+static inline void printILPEdgeName( FILE *f, const offset_graph_edge *edge,
+    uint time )
 {
-  fprintf( f, "x%u", edge->edge_id );
+  fprintf( f, "x%u_%u", edge->edge_id, time );
 }
-/* Prints the ILP-name of 'node' to 'f'. */
-static inline void printILPNodeName( FILE *f, const offset_graph_node *node )
+
+
+/* Returns the runtime of an edge for the dynamic flow in the offset graph. */
+static inline uint getOffsetGraphEdgeRuntime( const offset_graph *og,
+    const offset_graph_edge *edge )
 {
-  fprintf( f, "y%u", node->offset );
+  return 1;
 }
 
 
@@ -106,150 +114,234 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound, enu
   }
   DOUT( "Writing ILP to %s\n", tmpfilename );
 
-  // In the ILP we map each edge to a variable 'x<edge_id>'
-  // This variable represents the flow through the edge.
-  // Similarly, we map each node to a variable 'y<offset>'
-  // This variable represents the flow through the node.
-
-  // Write objective function
+  /* Write objective function. The objective is:
+   *
+   * sum_{e \in Edges} sum_{t = 0}^{loopbound-1} c(e)x(e,t)
+   *
+   * which is to minimize or maximize, depending on whether we
+   * search BCET or WCET values. c(e) is then defined accordingly:
+   *
+   * c(e) = bcet(e) + bcet(e->start) if we search BCETs, or
+   * c(e) = wcet(e) + wcet(e->start) if we search WCETs.
+   */
   fprintf( f, "/*\n * Objective function\n */\n\n" );
 
   fprintf( f, ( type == ILP_TYPE_WCET ? "MAX: " : "MIN: " ) );
 
-  uint i;
-  _Bool firstObjectiveEntry = 1;
+  // We have two extra time steps for the transition from the
+  // supersource and to the supersink
+  const uint num_time_steps = loopbound + 2;
+
+  uint i, j;
+  _Bool firstTerm = 1;
   for ( i = 0; i < og->num_edges; i++ ) {
-
     const offset_graph_edge * const edge = &og->edges[i];
-    const ull factor = ( type == ILP_TYPE_BCET ? edge->bcet : edge->wcet );
+    // Add the cost of the start node to account for that cost too
+    const ull factor = ( type == ILP_TYPE_BCET
+      ? edge->bcet + edge->start->bcet
+      : edge->wcet + edge->start->wcet );
 
     if ( factor != 0 ) {
-      if ( !firstObjectiveEntry ) {
-        fprintf( f, " + " );
-      } else {
-        firstObjectiveEntry = 0;
+      for ( j = 0; j < num_time_steps; j++ ) {
+        if ( !firstTerm ) {
+          fprintf( f, " + " );
+        } else {
+          firstTerm = 0;
+        }
+        fprintf( f, "%llu ", factor );
+        printILPEdgeName( f, edge, j );
       }
-      fprintf( f, "%llu ", factor );
-      printILPEdgeName( f, edge );
-    }
-  }
-  for ( i = 0; i < og->num_nodes; i++ ) {
-
-    const offset_graph_node * const node = &og->nodes[i];
-    const ull factor = ( type == ILP_TYPE_BCET ? node->bcet : node->wcet );
-
-    if ( factor != 0 ) {
-      if ( !firstObjectiveEntry ) {
-        fprintf( f, " + " );
-      } else {
-        firstObjectiveEntry = 0;
-      }
-      fprintf( f, "%llu ", factor );
-      printILPNodeName( f, node );
     }
   }
 
   fprintf( f, ";\n" );
 
 
-  // Write out constraints section.
+  /* Write out constraints section. */
   fprintf( f, "\n/*\n * Constraints\n */\n\n" );
 
-  // Write out flow conservation constraints
+  /* Write out flow conservation constraints.
+   *
+   * We are workin gon a dynamic flow here, which may not buffer any flow
+   * inside the nodes, so the flow conservation constraint for node 'n' is:
+   *
+   * sum_{e \in n->incoming} x(e, t - \tau(e)) =
+   *                                        sum_{e \in n->outgoing} x(e, t)
+   *
+   * where \tau(e) is the runtime of the edges (the time it takes for the
+   * flow to pass the edge). This is 1 for all edges.
+   */
   fprintf( f, "/* Flow conservation constraints */\n" );
   for ( i = 0; i < og->num_nodes; i++ ) {
     offset_graph_node * const node = &og->nodes[i];
 
-    // Incoming flow = Node flow
+    // Skip empty restrictions
+    if ( node->num_incoming_edges == 0 &&
+         node->num_outgoing_edges == 0 ) {
+      continue;
+    }
+
+    // Write comment
+    fprintf( f, "/* Node %u: incoming edges from ", node->offset );
+    uint k;
     if ( node->num_incoming_edges == 0 ) {
-      fprintf( f, "0" );
+      fprintf( f, "nowhere" );
     } else {
-      uint j;
-      for ( j = 0; j < node->num_incoming_edges; j++ ) {
-        printILPEdgeName( f, &og->edges[node->incoming_edges[j]] );
-        if ( j != node->num_incoming_edges - 1 ) {
-          fprintf( f, " + " );
+      for ( k = 0; k < node->num_incoming_edges; k++ ) {
+        fprintf( f, "%u", og->edges[node->incoming_edges[k]].start->offset );
+        if ( k != node->num_incoming_edges - 1 ) {
+          fprintf( f, ", " );
         }
       }
     }
-
-    fprintf( f, " = " );
-    printILPNodeName( f, node );
-    fprintf( f, ";\n" );
-
-    // Node flow = Outgoing flow
-    printILPNodeName( f, node );
-    fprintf( f, " = " );
-
+    fprintf( f, " - outgoing edges to " );
     if ( node->num_outgoing_edges == 0 ) {
-      fprintf( f, "0" );
+      fprintf( f, "nowhere" );
     } else {
-      uint j;
-      for ( j = 0; j < node->num_outgoing_edges; j++ ) {
-        printILPEdgeName( f, &og->edges[node->outgoing_edges[j]] );
-        if ( j != node->num_outgoing_edges - 1 ) {
-          fprintf( f, " + " );
+      for ( k = 0; k < node->num_outgoing_edges; k++ ) {
+        fprintf( f, "%u", og->edges[node->outgoing_edges[k]].end->offset );
+        if ( k != node->num_outgoing_edges - 1 ) {
+          fprintf( f, ", " );
         }
       }
     }
+    fprintf( f, " */\n" );
 
-    fprintf( f, ";\n" );
+    // Write conservation constraints (1 per time instant)
+    for ( j = 0; j < num_time_steps; j++ ) {
+      /* The flow that enters the edges at 'j - runtime(edge)'
+       * arrives at our current node at time 'j' ... */
+      firstTerm = 1;
+      for ( k = 0; k < node->num_incoming_edges; k++ ) {
+        const offset_graph_edge * const edge = &og->edges[node->incoming_edges[k]];
+        const uint runtime = getOffsetGraphEdgeRuntime( og, edge );
+
+        if ( j >= runtime ) {
+          if ( !firstTerm ) {
+            fprintf( f, " + " );
+          } else {
+            firstTerm = 0;
+          }
+          printILPEdgeName( f, edge, j - runtime );
+        }
+      }
+
+      /* If there are no  matching edges: Set to zero. */
+      if ( firstTerm ) {
+        fprintf( f, "0" );
+      }
+
+      fprintf( f, " = " );
+
+      /* ... and must directly leave the node (no buffering). */
+      firstTerm = 1;
+      for ( k = 0; k < node->num_outgoing_edges; k++ ) {
+        const offset_graph_edge * const edge = &og->edges[node->outgoing_edges[k]];
+
+        if ( !firstTerm ) {
+          fprintf( f, " + " );
+        } else {
+          firstTerm = 0;
+        }
+        printILPEdgeName( f, edge, j );
+      }
+
+      /* If there are no  matching edges: Set to zero. */
+      if ( firstTerm ) {
+        fprintf( f, "0" );
+      }
+
+      fprintf( f, ";\n" );
+    }
   }
 
-  // Write out demand / supply values
+
+  /* Write out demand / supply values
+   *
+   * Only the supersource emits a single flow unit at time 0 and
+   * only the supersink consumes a single flow unit at time 'num_time_steps'.
+   */
   fprintf( f, "\n/* Demand / supply constraints */\n" );
   const offset_graph_node * const suso = &( og->supersource );
-  for ( i = 0; i < suso->num_outgoing_edges; i++ ) {
-    printILPEdgeName( f, &og->edges[suso->outgoing_edges[i]] );
-    if ( i != suso->num_outgoing_edges - 1 ) {
-      fprintf( f, " + " );
+  for ( j = 0; j < num_time_steps; j++ ) {
+    firstTerm = 1;
+    uint k;
+    for ( k = 0; k < suso->num_outgoing_edges; k++ ) {
+      const offset_graph_edge * const edge = &og->edges[suso->outgoing_edges[k]];
+
+      if ( !firstTerm ) {
+        fprintf( f, " + " );
+      } else {
+        firstTerm = 0;
+      }
+      printILPEdgeName( f, edge, j );
     }
+
+    // Only at time '0', one flow unit may leave the source.
+    fprintf( f, " = %u;\n", ( j == 0 ? 1 : 0 ) );
   }
-  fprintf( f, " = %u;\n", loopbound );
 
   const offset_graph_node * const susi = &( og->supersink );
-  for ( i = 0; i < susi->num_incoming_edges; i++ ) {
-    printILPEdgeName( f, &og->edges[susi->incoming_edges[i]] );
-    if ( i != susi->num_incoming_edges - 1 ) {
-      fprintf( f, " + " );
+  for ( j = 0; j <= num_time_steps; j++ ) {
+    firstTerm = 1;
+    uint k;
+    for ( k = 0; k < susi->num_incoming_edges; k++ ) {
+      const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
+      const uint runtime = getOffsetGraphEdgeRuntime( og, edge );
+
+      if ( j >= runtime ) {
+        if ( !firstTerm ) {
+          fprintf( f, " + " );
+        } else {
+          firstTerm = 0;
+        }
+        printILPEdgeName( f, edge, j - runtime );
+      }
+    }
+
+    // Only at time 'num_time_steps', one flow unit may enter the sink.
+    // Only print this if any flow may arrive at this time instant
+    if ( !firstTerm ) {
+      fprintf( f, " = %u;\n", ( j == num_time_steps ? 1 : 0 ) );
     }
   }
-  fprintf( f, " = %u;\n", loopbound );
 
 
-  // Write out bounds section.
+  /* Write out bounds section.
+   *
+   * At each time instant only one flow unit may flow through each of
+   * the edges, which represents the loop execution.
+   */
   fprintf( f, "\n/*\n * Variable bounds\n */\n\n" );
 
   for ( i = 0; i < og->num_edges; i++ ) {
     offset_graph_edge * const edge = &og->edges[i];
-    printILPEdgeName( f, edge );
-    fprintf( f, " >= 0;\n" );
-    printILPEdgeName( f, edge );
-    fprintf( f, " <= %u;\n", loopbound );
-  }
-  for ( i = 0; i < og->num_nodes; i++ ) {
-    offset_graph_node * const node = &og->nodes[i];
-    printILPNodeName( f, node );
-    fprintf( f, " >= 0;\n" );
-    printILPNodeName( f, node );
-    fprintf( f, " <= %u;\n", loopbound );
+
+    for ( j = 0; j < num_time_steps; j++ ) {
+      printILPEdgeName( f, edge, j );
+      fprintf( f, " >= 0;\n" );
+      printILPEdgeName( f, edge, j );
+      fprintf( f, " <= %u;\n", 1 );
+    }
   }
 
 
-  // Write out declarations section.
+  /* Write out declarations section.
+   *
+   * See 'printILPEdgeName' for documentation about the flow variables.
+   */
   fprintf( f, "\n/*\n * Variable declarations\n */\n\n" );
 
   for ( i = 0; i < og->num_edges; i++ ) {
     offset_graph_edge * const edge = &og->edges[i];
-    fprintf( f, "int " );
-    printILPEdgeName( f, edge );
-    fprintf( f, ";\n");
-  }
-  for ( i = 0; i < og->num_nodes; i++ ) {
-    offset_graph_node * const node = &og->nodes[i];
-    fprintf( f, "int " );
-    printILPNodeName( f, node );
-    fprintf( f, ";\n");
+
+    for ( j = 0; j < num_time_steps; j++ ) {
+      fprintf( f, "/* Edge from %u to %u (time %u) */\n",
+          edge->start->offset, edge->end->offset, j );
+      fprintf( f, "int " );
+      printILPEdgeName( f, edge, j );
+      fprintf( f, ";\n");
+    }
   }
 
   fclose( f );

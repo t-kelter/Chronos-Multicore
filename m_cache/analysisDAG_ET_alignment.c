@@ -668,8 +668,8 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
 
   DOUT( "Analyzed %u iterations\n", iteration_number );
 
-  // Add the edges from the last offset range to the supersink
-  ITERATE_OFFSET_BOUND( iteration_result.offsets, i ) {
+  // Add the edges from all offsets to the supersink
+  for ( i = 0; i < tdma_interval - 1; i++ ) {
     addOffsetGraphEdge( graph, getOffsetGraphNode( graph, i ), &graph->supersink, 0, 0 );
   }
 
@@ -678,10 +678,10 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
    * more precise than the global convergence.
    */
   combined_result result;
-  if ( iteration_result.offsets.lower_bound == 0 &&
+  /*if ( iteration_result.offsets.lower_bound == 0 &&
        iteration_result.offsets.upper_bound == tdma_interval - 1 ) {
     result = analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
-  } else {
+  } else {*/
     // Solve flow problems
     const ull bcet_res = computeOffsetGraphLoopBCET( graph, lp->loopbound );
     const ull wcet_res = computeOffsetGraphLoopWCET( graph, lp->loopbound );
@@ -690,8 +690,9 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
     // Generate final result
     result.bcet = bcet_res;
     result.wcet = wcet_res;
+    // TODO: This is still wrong, must be corrected. The ILP must return the offset range
     result.offsets = iteration_result.offsets;
-  }
+  //}
 
   freeOffsetGraph( graph );
 
