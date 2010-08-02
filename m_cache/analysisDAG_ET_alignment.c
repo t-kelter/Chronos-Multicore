@@ -590,10 +590,32 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
   // TODO: This won't work correctly for segmented schedules
   const uint tdma_interval = getCoreSchedule( ncore, 0 )->interval;
 
+  // The first iteration must be unrolled, because its overly big execution times
+  // would disturb the ILP (it does not know that these execution times can only
+  // occur at the first iteration and would try to apply them again).
+  combined_result result;
+  if ( lp->loopbound <= 0 ) {
+    result.bcet = 0;
+    result.wcet = 0;
+    result.offsets = start_offsets;
+    return result;
+  } else {
+    const uint first_context = getInnerLoopContext( lp, loop_context, 1 );
+    result = analyze_single_loop_iteration( lp, proc, first_context, start_offsets );
+    DOUT( "Analyzed first iteration: BCET %llu, WCET %llu, offsets [%u,%u]\n",
+        result.bcet, result.wcet,
+        result.offsets.lower_bound,
+        result.offsets.upper_bound );
+
+    if ( lp->loopbound == 1 ) {
+      return result;
+    }
+  }
+
   // Create the offset graph with edges from the supersource to all initial offsets
   offset_graph *graph = createOffsetGraph( tdma_interval );
   uint i;
-  ITERATE_OFFSET_BOUND( start_offsets, i ) {
+  ITERATE_OFFSET_BOUND( result.offsets, i ) {
     addOffsetGraphEdge( graph, &graph->supersource, getOffsetGraphNode( graph, i ), 0, 0 );
   }
   DOUT( "Created initial offset graph with %u nodes\n", tdma_interval );
@@ -601,17 +623,18 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
   _Bool graphChanged = 0;             // Whether we changed any graph part in the current iteration
   tdma_offset_bounds current_offsets; // This will store the offsets
   combined_result iteration_result;   // Result from the last iteration analysis
-  uint iteration_number = 0;          // The number of the currently analyzed iteration
+  uint iteration_number = 1;          // The number of the currently analyzed iteration
+                                      // (iteration 0 was peeled off above)
   do {
     // Get the current offsets
-    if ( iteration_number == 0 ) {
-      current_offsets = start_offsets;
+    if ( iteration_number == 1 ) {
+      current_offsets = result.offsets;
     } else {
       current_offsets = iteration_result.offsets;
     }
 
     // Analyze the iteration
-    const uint inner_context = getInnerLoopContext( lp, loop_context, iteration_number == 0 );
+    const uint inner_context = getInnerLoopContext( lp, loop_context, 0 );
     iteration_result = analyze_single_loop_iteration( lp, proc, inner_context, current_offsets );
     DOUT( "Analyzed new iteration: BCET %llu, WCET %llu, offsets [%u,%u]\n",
         iteration_result.bcet, iteration_result.wcet,
@@ -655,21 +678,19 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
     // Update iteration number
     iteration_number++;
 
-  } while(   // Iterate until the graph converges
-           ( ( graphChanged &&
-               // But don't iterate again when the offsets have already converged,
-               // because there can be no more changes to the graph then in the
-               // next iteration.
-               !isOffsetBoundEqual( &current_offsets, &iteration_result.offsets )
-             // Enforce at least two iterations to exploit the loop contexts
-             ) || iteration_number == 1 ) &&
+  } while( // Iterate until the graph converges
+           ( graphChanged &&
+             // But don't iterate again when the offsets have already converged,
+             // because there can be no more changes to the graph then in the
+             // next iteration.
+             !isOffsetBoundEqual( &current_offsets, &iteration_result.offsets ) ) &&
            // In any case, stop when the loopbound is reached
            ( iteration_number < lp->loopbound ) );
 
   DOUT( "Analyzed %u iterations\n", iteration_number );
 
   // Add the edges from all offsets to the supersink
-  for ( i = 0; i < tdma_interval - 1; i++ ) {
+  for ( i = 0; i < tdma_interval; i++ ) {
     addOffsetGraphEdge( graph, getOffsetGraphNode( graph, i ), &graph->supersink, 0, 0 );
   }
 
@@ -677,22 +698,23 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
    * then it's not worth trying to solve the ILP, because the result can hardly be
    * more precise than the global convergence.
    */
-  combined_result result;
-  /*if ( iteration_result.offsets.lower_bound == 0 &&
+  if ( iteration_result.offsets.lower_bound == 0 &&
        iteration_result.offsets.upper_bound == tdma_interval - 1 ) {
     result = analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
-  } else {*/
+    DOUT( "Took over convergence result BCET %llu, WCET %llu\n", result.bcet, result.wcet );
+  } else {
     // Solve flow problems
-    const ull bcet_res = computeOffsetGraphLoopBCET( graph, lp->loopbound );
-    const ull wcet_res = computeOffsetGraphLoopWCET( graph, lp->loopbound );
+    // (Mind the peeled-off iteration of the loop, see beginning o this function)
+    const ull bcet_res = computeOffsetGraphLoopBCET( graph, lp->loopbound - 1 );
+    const ull wcet_res = computeOffsetGraphLoopWCET( graph, lp->loopbound - 1 );
     DOUT( "Loop results: BCET %llu, WCET %llu\n", bcet_res, wcet_res );
 
     // Generate final result
-    result.bcet = bcet_res;
-    result.wcet = wcet_res;
+    result.bcet += bcet_res;
+    result.wcet += wcet_res;
     // TODO: This is still wrong, must be corrected. The ILP must return the offset range
     result.offsets = iteration_result.offsets;
-  //}
+  }
 
   freeOffsetGraph( graph );
 
