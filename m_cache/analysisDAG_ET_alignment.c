@@ -27,13 +27,6 @@
 // ############################################################
 
 
-/* A data type to represent an offset range. The offsets are measured from the
- * beginning of the TDMA slot of the first core. */
-typedef struct {
-  uint lower_bound;
-  uint upper_bound;
-} tdma_offset_bounds;
-
 /* Represents the result of the combined BCET/WCET/offset analysis */
 typedef struct {
   tdma_offset_bounds offsets;
@@ -575,8 +568,8 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
  * cost flow problem on that graph.
  *
  * This function should not be called directly, only through its wrapper 'analyze_loop'. */
-static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc, 
-    uint loop_context, const tdma_offset_bounds start_offsets )
+static combined_result analyze_loop_graph_tracking( loop * const lp, procedure * const proc,
+    const uint loop_context, const tdma_offset_bounds start_offsets )
 {
   DSTART( "analyze_loop_graph_tracking" );
   assert( lp && proc && checkOffsetBound( &start_offsets ) &&
@@ -695,25 +688,21 @@ static combined_result analyze_loop_graph_tracking( loop* lp, procedure* proc,
   }
 
   /* If the graph creation converged with the interval [0, tdma_interval - 1]
-   * then it's not worth trying to solve the ILP, because the result can hardly be
-   * more precise than the global convergence.
-   */
+   * then it's not worth trying to solve the ILP, because the result can hardly
+   * be more precise than the global convergence. */
   if ( iteration_result.offsets.lower_bound == 0 &&
        iteration_result.offsets.upper_bound == tdma_interval - 1 ) {
     result = analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
-    DOUT( "Took over convergence result BCET %llu, WCET %llu\n", result.bcet, result.wcet );
+    DOUT( "Took over convergence result: BCET %llu, WCET %llu, offsets [%u, %u]\n", result.bcet,
+        result.wcet, result.offsets.lower_bound, result.offsets.upper_bound );
   } else {
     // Solve flow problems
     // (Mind the peeled-off iteration of the loop, see beginning o this function)
-    const ull bcet_res = computeOffsetGraphLoopBCET( graph, lp->loopbound - 1 );
-    const ull wcet_res = computeOffsetGraphLoopWCET( graph, lp->loopbound - 1 );
-    DOUT( "Loop results: BCET %llu, WCET %llu\n", bcet_res, wcet_res );
-
-    // Generate final result
-    result.bcet += bcet_res;
-    result.wcet += wcet_res;
-    // TODO: This is still wrong, must be corrected. The ILP must return the offset range
-    result.offsets = iteration_result.offsets;
+    result.bcet += computeOffsetGraphLoopBCET( graph, lp->loopbound - 1 );
+    result.wcet += computeOffsetGraphLoopWCET( graph, lp->loopbound - 1 );
+    result.offsets = computeOffsetGraphLoopOffsets( graph, lp->loopbound - 1 );
+    DOUT( "Loop results: BCET %llu, WCET %llu, offsets [%u, %u]\n", result.bcet,
+            result.wcet, result.offsets.lower_bound, result.offsets.upper_bound );
   }
 
   freeOffsetGraph( graph );
@@ -855,7 +844,7 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
   if ( tryPenalizedAlignment ) {
     // TODO: The alignments may be computed for a wrong segment in case of multi-segment
     //       schedules (see definitions of startAlign/endAlign)
-    DOUT( "Attempting penaltized alignment analysis\n" );
+    DOUT( "Attempting penalized alignment analysis\n" );
     const tdma_offset_bounds zero_offsets = { 0, 0 };
     combined_result pal_result = analyze_proc_alignment_aware( proc, zero_offsets );
     pal_result.wcet += endAlign( pal_result.wcet );

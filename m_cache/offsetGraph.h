@@ -9,6 +9,7 @@
 #define __CHRONOS_ANALYSIS_OFFSET_GRAPH_H
 
 #include "header.h"
+#include "analysisDAG_ET_alignment.h"
 
 // ######### Macros #########
 
@@ -96,6 +97,12 @@ ull computeOffsetGraphLoopBCET( const offset_graph *og, uint loopbound_min );
  * 'loopbound_max' specifies the maximum number of iterations of the loop.
  */
 ull computeOffsetGraphLoopWCET( const offset_graph *og, uint loopbound_max );
+
+/* Solves a flow problem to obtain the final offsets.
+ *
+ * 'loopbound_max' specifies the maximum number of iterations of the loop.
+ */
+tdma_offset_bounds computeOffsetGraphLoopOffsets( const offset_graph *og, uint loopbound_max );
 
 /* Deallocates an offset graph. */
 void freeOffsetGraph( offset_graph *og );
