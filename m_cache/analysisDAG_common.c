@@ -237,18 +237,41 @@ ull getInstructionWCET( const instr *instruction )
 }
 
 
+/* Simply returns the time that is takes for the memory hierarchy to
+ * perform an access with the given access classification. This does
+ * not include bus delays, it only sums up the cache miss penalties
+ * of the individual cache levels.
+ */
+static uint getAccessLatency( acc_type type )
+{
+  uint result = 0;
+  if ( type == L1_HIT ) {
+    result += cache.hit_latency;
+  } else {
+    result += cache.miss_latency;
+    if ( type == L2_HIT ) {
+      result += cache_L2.hit_latency;
+    } else {
+      assert( type == L2_MISS && "Unknown access type!" );
+      result += cache_L2.miss_latency;
+    }
+  }
+  return result;
+}
+
+
 /* Determine latency of a memory access in the presence of a shared bus
  *
  * 'bb' is the block after which the access takes place
  * 'access_time' is the precise time when the access takes place
- * 'type' specifies whether the bus access is a L2 cache hit or miss
- *        ( L2_HIT / L2_MISS )
+ * 'type' specifies whether the memory access is a L1/L2 cache hit or miss
  */
 uint determine_latency( block* bb, ull access_time, acc_type type )
 {
   // If the access is a L1 hit, then the access time is constant
   if ( type == L1_HIT ) {
-    return L1_HIT_LATENCY;
+
+    return getAccessLatency( type );
 
   // All other cases may suffer a variable delay
   } else {
@@ -274,13 +297,11 @@ uint determine_latency( block* bb, ull access_time, acc_type type )
      * - request_duration for issuing the request a second time in the next bus slot
      * */
     if ( g_no_bus_modeling ) {
-      return ( num_core - 1 ) * slot_len +
-        2 * ( type == L2_HIT ? L2_HIT_LATENCY : MISS_PENALTY );
+      return ( num_core - 1 ) * slot_len + 2 * getAccessLatency( type );
     }
 
     /* Get the time needed to perform the access itself. */
-    const ull simple_access_duration = ( type == L2_HIT ? L2_HIT_LATENCY :
-                                                          MISS_PENALTY );
+    const ull simple_access_duration = getAccessLatency( type );
 
     /* First compute the waiting time that is needed before the successful
      * bus access can begin. */
@@ -303,7 +324,7 @@ uint determine_latency( block* bb, ull access_time, acc_type type )
     const ull delay = waiting_time + simple_access_duration;
 
     /* Assert that the delay does not exceed the maximum possible delay */
-    assert( delay <= ( num_core - 1 ) * slot_len + 2 * MISS_PENALTY &&
+    assert( delay <= ( num_core - 1 ) * slot_len + 2 * getAccessLatency( L2_MISS ) &&
         "Bus delay exceeded maximum limit" );
 
     return delay;
@@ -475,7 +496,7 @@ acc_type check_hit_miss( const block *bb, const instr *inst,
           context < bb->num_chmc_L2 &&
           "Invalid arguments!" );
 
-  /* If the flow is under testing mode....dont 
+  /* If the flow is under testing mode....dont
    * bother about CHMC. Just return all miss */
   acc_type result = -1;
   if(g_testing_mode) {

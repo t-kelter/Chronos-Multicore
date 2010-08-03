@@ -76,13 +76,7 @@ typedef unsigned long long ull;
 #define LOOP 2
 
 
-/* sudiptac :: Data structures and definitions used for 
-               WCET analysis with shared data bus */
-
-#define L1_HIT_LATENCY 1
-#define L2_HIT_LATENCY 6
-#define MISS_PENALTY 36
-#define MAX_BUS_DELAY 120
+// Helper declarations
 #define IS_CALL(x) ((strcmp((x), "jal") == 0) ? 1 : 0)
 #define GET_CALLEE(x) (x->r1)
 
@@ -116,18 +110,19 @@ typedef struct {
 } instr;
 
 
-// cache configuration
+/* Cache configuration for a specific cache level. */
 typedef struct {
     // decided by cache config parameters
     int     ns;     // #sets
     int     ls;     // cache line size
-    int     nsb;        // nsb = log2(ns)
-    int     lsb;        // lsb = log2(ls)
-    int     cmp;    // Level one cache miss penalty
+    int     nsb;    // nsb = log2(ns)
+    int     lsb;    // lsb = log2(ls)
+    int     hit_latency; // duration of a cache hit
+    int     miss_latency; // cache miss penalty
     int     na;     // #associativity
 
     // decided by cache config + program size
-    int     nt; // #tags
+    int     nt;     // #tags
     int     ntb;    // tag bits = log2(nt)
 
     // combined bits

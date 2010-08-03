@@ -102,7 +102,7 @@ set_cache_basic_L2(char * configFile)
 {
 
   FILE *fptr;
-  int ns, na, ls, cmp, i;
+  int ns, na, ls, hit_latency, miss_latency, i;
 
   fptr = fopen(configFile, "r" );
   if (fptr == NULL) {
@@ -110,12 +110,13 @@ set_cache_basic_L2(char * configFile)
     exit (1);
   }
   
-  fscanf( fptr, "%d %d %d %d", &ns, &na, &ls, &cmp);
+  fscanf( fptr, "%d %d %d %d %d", &ns, &na, &ls, &hit_latency, &miss_latency);
   
     cache_L2.ns = ns;
     cache_L2.na = na;
     cache_L2.ls = ls;
-    cache_L2.cmp = cmp;
+    cache_L2.hit_latency  = hit_latency;
+    cache_L2.miss_latency = miss_latency;
 
    //set other configuration through the basic: ns, na, ls, cmp
     cache_L2.nsb = logBase2(cache_L2.ns);
@@ -150,7 +151,8 @@ dumpCacheConfig_L2()
     printf("nubmer of set:  %d\n", cache_L2.ns);	
     printf("nubmer of associativity:    %d\n", cache_L2.na);	
     printf("cache line size:    %d\n", cache_L2.ls);	
-    printf("cache miss penalty: %d\n", cache_L2.cmp);	
+    printf("cache hit penalty: %d\n", cache_L2.hit_latency);
+    printf("cache miss penalty: %d\n", cache_L2.miss_latency);
     printf("nubmer of set bit:  %d\n", cache_L2.nsb);	
     printf("nubmer of linesize bit: %d\n", cache_L2.lsb);	
     printf("set mask:   %u\n", cache_L2.s_msk);
