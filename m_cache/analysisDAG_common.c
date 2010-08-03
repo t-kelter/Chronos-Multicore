@@ -468,6 +468,7 @@ void reset_timestamps(procedure* proc, ull start_time)
 acc_type check_hit_miss( const block *bb, const instr *inst, 
                          uint context, enum AccessScenario scenario )
 {
+  DSTART( "check_hit_miss" );
   assert( bb && inst && 
           context < bb->num_chmc &&
           context < bb->num_chmc_L2 &&
@@ -475,53 +476,77 @@ acc_type check_hit_miss( const block *bb, const instr *inst,
 
   /* If the flow is under testing mode....dont 
    * bother about CHMC. Just return all miss */
-  if(g_testing_mode)
-    return L2_MISS;
+  acc_type result = -1;
+  if(g_testing_mode) {
+    result = L2_MISS;
+  } else {
 
-  // Get the cache analysis results (CHMCs) from the block
-  CHMC ** const chmc_l1 = bb->chmc;
-  CHMC ** const chmc_l2 = bb->chmc_L2;
-  const char *l1_result = chmc_l1[context]->hitmiss_addr;
-  const char *l2_result = chmc_l2[context]->hitmiss_addr;
-  // Get the index of the instruction inside the block
-  const int instr_index = getinstruction( inst, 
-      (const instr**)bb->instrlist, 0, bb->num_instr - 1 );
+    // Get the cache analysis results (CHMCs) from the block
+    CHMC ** const chmc_l1 = bb->chmc;
+    CHMC ** const chmc_l2 = bb->chmc_L2;
+    const char *l1_result = chmc_l1[context]->hitmiss_addr;
+    const char *l2_result = chmc_l2[context]->hitmiss_addr;
+    // Get the index of the instruction inside the block
+    const int instr_index = getinstruction( inst,
+        (const instr**)bb->instrlist, 0, bb->num_instr - 1 );
 
-  // Compute the result
-  switch( scenario ) {
-    
-    case ACCESS_SCENARIO_BCET:
-    
-      // Check level 1 analysis result
-      if ( !l1_result || l1_result[instr_index] != ALWAYS_MISS ) {
-        return L1_HIT;
-      } else 
-      // Check level 2 analysis result
-      if ( !l2_result || l2_result[instr_index] != ALWAYS_MISS ) {
-        return L2_HIT;
-      }
+    // Compute the result
+    switch( scenario ) {
 
-      break;
+      case ACCESS_SCENARIO_BCET:
 
-    case ACCESS_SCENARIO_WCET:
-   
-      // Check level 1 analysis result
-      if ( !l1_result || l1_result[instr_index] == ALWAYS_HIT ) {
-        return L1_HIT;
-      } else 
-      // Check level 2 analysis result
-      if ( !l2_result || l2_result[instr_index] == ALWAYS_HIT ) {
-        return L2_HIT;
-      }
+        // Check level 1 analysis result
+        if ( !l1_result || l1_result[instr_index] != ALWAYS_MISS ) {
+          result = L1_HIT;
+        } else
+        // Check level 2 analysis result
+        if ( !l2_result || l2_result[instr_index] != ALWAYS_MISS ) {
+          result = L2_HIT;
+        }
 
-      break;
+        break;
 
-    default:
-      assert( 0 && "Unknown access scenario!" );
+      case ACCESS_SCENARIO_WCET:
+
+        // Check level 1 analysis result
+        if ( !l1_result || l1_result[instr_index] == ALWAYS_HIT ) {
+          result = L1_HIT;
+        } else
+        // Check level 2 analysis result
+        if ( !l2_result || l2_result[instr_index] == ALWAYS_HIT ) {
+          result = L2_HIT;
+        }
+
+        break;
+
+      default:
+        assert( 0 && "Unknown access scenario!" );
+    }
+
+    // If no better assumption can be made, assume a L2 miss
+    if ( result == -1 ) {
+      result = L2_MISS;
+    }
   }
 
-  // If no better assumption can be made, assume a L2 miss
-  return L2_MISS;
+  DACTION(
+    char classification[10];
+    switch( result ) {
+      case L1_HIT:  sprintf( classification, "L1 HIT" );  break;
+      case L2_HIT:  sprintf( classification, "L2 HIT" );  break;
+      case L2_MISS: sprintf( classification, "L2 MISS" ); break;
+      default:      assert( 0 && "Invalid result!" );
+    }
+    char scenario_name[5];
+    switch( scenario ) {
+      case ACCESS_SCENARIO_BCET: sprintf( scenario_name, "BCET" );  break;
+      case ACCESS_SCENARIO_WCET: sprintf( scenario_name, "WCET" );  break;
+      default:                   assert( 0 && "Invalid result!" );
+    }
+    DOUT( "Predicting %s for access to 0x%s (ctxt %u, %s scenario)\n",
+        classification, inst->addr, context, scenario_name );
+  );
+  DRETURN( result );
 }
 
 

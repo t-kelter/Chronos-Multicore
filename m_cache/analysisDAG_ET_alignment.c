@@ -40,8 +40,6 @@ typedef struct {
 // #########################################
 
 
-/* Stores whether the debugmacros have already been initialized for this file. */
-static _Bool firstDebugmacroInit = 1;
 /* The type of analysis that we use for the alignment tracking. */
 static enum LoopAnalysisType currentLoopAnalysisType;
 /* In this mode the alignment analysis "emulates" the purely structural
@@ -879,7 +877,6 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
 void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
    enum LoopAnalysisType analysis_type_to_use, _Bool try_penalized_alignment )
 {
-  DINITDEBUGMACROS( firstDebugmacroInit, "analysisDAG_ET_alignment.conf" );
   DSTART( "compute_bus_ET_MSC_alignment" );
   assert( msc && tdma_bus_schedule_file && "Invalid arguments!" );
 
