@@ -24,64 +24,10 @@ typedef unsigned long long ull;
 #define INSN_SIZE 8
 #define UNROLL 2
 
-/* For cache analysis */
-#define FIRST_ITERATION 1
-#define NEXT_ITERATION 2
-#define INVALID                  0
-
-#define MAX_CACHE_SETS      1024
-#define MAX_NEST_LOOP   32
+/* Maximum string length. */
 #define MAX_LEN 512
-
-// 14-bit tag is selected for the following reason:
-// - it is enough: can analyze program up to 16MB for a 1-KB cache
-// - in cache.c, a valid bit is needed with tag in some cases, thus the valid
-//   bit and the tag can be accommodated in a short int
-#define MAX_TAG_BITS        14
-
-#define CACHE_LINE(addr)    ((addr) & cache.l_msk)
-#define SET(addr)       (((addr) & cache.s_msk) >> cache.lsb)
-#define TAG(addr)       (((addr) & cache.t_msk) >> cache.s_lb)
-#define TAGSET(addr)        (((addr) & cache.t_s_msk) >> cache.lsb)
-#define TAGSET2(tag, set)   (((tag) << cache.nsb) | (set))
-#define LSB_OFF(addr)       ((addr) >> cache.lsb)
-#define LSB_ON(addr)        ((addr) << cache.lsb)
-
-#define CACHE_LINE_L2(addr)    ((addr) & cache_L2.l_msk)
-#define SET_L2(addr)       (((addr) & cache_L2.s_msk) >> cache_L2.lsb)
-#define TAG_L2(addr)       (((addr) & cache_L2.t_msk) >> cache_L2.s_lb)
-#define TAGSET_L2(addr)        (((addr) & cache_L2.t_s_msk) >> cache_L2.lsb)
-#define TAGSET2_L2(tag, set)   (((tag) << cache_L2.nsb) | (set))
-#define LSB_OFF_L2(addr)       ((addr) >> cache_L2.lsb)
-#define LSB_ON_L2(addr)        ((addr) << cache_L2.lsb)
-
-// clear the LSB bits (all LSB bits are set to 0 whatever they are)
-#define CLEAR_LSB(addr)     (((addr) >> cache.lsb) << cache.lsb)
-#define CLEAR_LSB_L2(addr)     (((addr) >> cache_L2.lsb) << cache_L2.lsb)
-
-#define MBLK_ID(sa, addr)   (TAGSET(addr) - TAGSET(sa))
-
-#define IC_HIT          1
-#define IC_MISS         10
-//#define IC_UNCLEAR      2
-
-#define IC_HIT_L2          10
-#define IC_MISS_L2        100
-
-#define MC_INC_SIZE     8
-
-
-#define ALWAYS_HIT 1
-#define ALWAYS_MISS 2
-#define FIRST_MISS 3
-#define UNKNOW 4
-#define HIT_UPPER 5
-
-#define NOT_USED 0
-#define USED   1
-
-#define MISS 0
-#define HIT 1
+/* Maximal supported loop nesting level. */
+#define MAX_NEST_LOOP   32
 
 /* Memory allocation with error check. */
 
@@ -142,6 +88,14 @@ typedef unsigned long long ull;
 
 
 // ######### Datatype declarations  ###########
+
+
+/* Helper enum to form loop contexts with the 'loop_level_arr' */
+enum LoopLevelStates {
+  INVALID = 0,
+  FIRST_ITERATION,
+  NEXT_ITERATION
+};
 
 
 enum AnalysisType {

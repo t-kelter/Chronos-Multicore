@@ -10,6 +10,12 @@
 // ######### Macros #########
 
 
+#define MISS 0
+#define HIT 1
+
+#define NOT_USED 0
+#define USED   1
+
 
 // ######### Datatype declarations  ###########
 

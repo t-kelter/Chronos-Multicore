@@ -11,6 +11,7 @@
 // Include local headers
 #include "updateCacheL2.h"
 #include "analysisCache.h"
+#include "analysisCacheL2.h"
 
 
 // Forward declarations of static functions
