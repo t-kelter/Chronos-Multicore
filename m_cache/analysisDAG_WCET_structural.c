@@ -276,6 +276,8 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
       instr* inst = bb->instrlist[i];
       assert(inst);
 
+      const uint old_cost = bb_cost;
+
       /* First handle instruction cache access. */
       const acc_type acc_t = check_hit_miss( bb, inst, proc_body_context,
                                              ACCESS_SCENARIO_WCET );
@@ -297,6 +299,9 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
           bb_cost += callee->running_cost;
         }
       }
+
+      DOUT( "  Instruction 0x%s: WCET %u\n", inst->addr,
+          bb_cost - old_cost );
     }
     /* The accumulated cost is computed. Now set the latest finish
      * time of this block */

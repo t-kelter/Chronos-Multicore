@@ -100,7 +100,7 @@ int main(int argc, char **argv )
   DSTART( "main" );
 
   char hitmiss[MAX_LEN];
-  int n, i, j;
+  int n, i;
   _Bool flag;
   int num_msc = 0;
   float sum;
@@ -114,7 +114,7 @@ int main(int argc, char **argv )
   /* Compute with shared bus */
   g_shared_bus = 1;
   /* For independent tasks running on multiple cores */
-  g_independent_task = 0;
+  g_independent_task = 1;
   /* For no bus modelling */
   g_no_bus_modeling = 0;
 
@@ -220,26 +220,22 @@ int main(int argc, char **argv )
      * on */	  
     for(i = 0; i < currentMSC->num_task; i ++) {
 
-      filename = currentMSC->taskList[i].task_name;
+      task_t * const currentTask = &currentMSC->taskList[i];
+      currentTask->task_id = i;
+
+      filename = currentTask->task_name;
       procs     = NULL;
       num_procs = 0;
       proc_cg   = NULL;
       infeas = 0;
 
-      /* Read the cfg of the task */
+      /* Read the cfg of the task into the global array 'procs' */
       read_cfg();
       DACTION( print_cfg(); );
 
-      /* Create the procedure pointer in the task --- just allocate
-       * the memory */
-      CALLOC(currentMSC->taskList[i].proc_cg_ptr, proc_copy *, num_procs, sizeof(proc_copy), "proc_copy");
-
-      /* Initialize pointers for procedures. Each entry means a 
-       * different context ? */
-      for(j = 0; j < num_procs; j ++) {
-        currentMSC->taskList[i].proc_cg_ptr[j].num_proc = 0;
-        currentMSC->taskList[i].proc_cg_ptr[j].proc = NULL;
-      }
+      /* Allocate memory for the procedure copies. */
+      CALLOC(currentTask->proc_cg_ptr, proc_copy *, num_procs,
+          sizeof(proc_copy), "currentTask->proc_cg_ptr");
 
       readInstr();
       DACTION( print_instrlist(); );
@@ -263,18 +259,11 @@ int main(int argc, char **argv )
 
       /* This function allocates memory for all analysis and subsequent WCET
        * computation of the task */
-      constructAll(&(currentMSC->taskList[i]));
+      constructAll( currentTask );
 
-      /* Set the main procedure (entry procedure) and total number of 
-       * procedures appearing in this task */
-      currentMSC->taskList[i].main_copy = main_copy;
-      currentMSC->taskList[i].num_proc= num_procs;
-
-      /* FIXME: Anything IMPORTANT ? */ 
-      /* taskList[0]->task_id = i;
-       * taskList[0]->task_name = filename;
-       * taskList[0]->main_copy = main_copy;*/
-
+      /* Set the main procedure (entry procedure) in this task */
+      currentTask->main_copy = main_copy;
+      currentTask->num_proc= num_procs;
 
       /* Now do L1 cache analysis of the current task and compute 
        * hit-miss-unknown classification of every instruction....
@@ -652,10 +641,10 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
  */
 static void writeWCETandCacheInfoFiles( int num_msc )
 {
-  int i, j;
-
   /* Go through all the MSC-s */
+  uint i;
   for(i = 1; i <= num_msc; i ++) {
+    const MSC * const current_msc = msc[i-1];
 
     /* Create the WCET and BCET filename */
     char wbcostPath[MAX_LEN];
@@ -667,13 +656,12 @@ static void writeWCETandCacheInfoFiles( int num_msc )
     }
 
     /* Write WCET of each task in the file */
-    for(j = 0; j < msc[i-1]->num_task; j++) {
-
-      fprintf(file, "%Lu %Lu \n", msc[i-1]->taskList[j].wcet,
-          msc[i-1]->taskList[j].bcet);
+    /* This is read in again, by the WCRT module. */
+    uint j;
+    for(j = 0; j < current_msc->num_task; j++) {
+      const task_t * const task = &current_msc->taskList[j];
+      fprintf(file, "%Lu %Lu \n", task->wcet, task->bcet);
     }
-
-    /* We are done writing all values so close the file */
     fclose(file);
   }
 }

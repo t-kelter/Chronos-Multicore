@@ -431,6 +431,9 @@ static combined_result analyze_block( block* bb, procedure* proc,
           result.offsets  = call_cost.offsets;
         }
       }
+
+      DOUT( "  Instruction 0x%s: BCET %llu, WCET %llu\n", inst->addr,
+          result.bcet - old_bcet, result.wcet - old_wcet );
     }
   }
 

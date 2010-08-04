@@ -268,10 +268,14 @@ static uint getAccessLatency( acc_type type )
  */
 uint determine_latency( block* bb, ull access_time, acc_type type )
 {
+  DSTART( "determine_latency" );
+
+  uint result = 0;
+
   // If the access is a L1 hit, then the access time is constant
   if ( type == L1_HIT ) {
 
-    return getAccessLatency( type );
+    result = getAccessLatency( type );
 
   // All other cases may suffer a variable delay
   } else {
@@ -297,38 +301,53 @@ uint determine_latency( block* bb, ull access_time, acc_type type )
      * - request_duration for issuing the request a second time in the next bus slot
      * */
     if ( g_no_bus_modeling ) {
-      return ( num_core - 1 ) * slot_len + 2 * getAccessLatency( type );
-    }
 
-    /* Get the time needed to perform the access itself. */
-    const ull simple_access_duration = getAccessLatency( type );
+      result = ( num_core - 1 ) * slot_len + 2 * getAccessLatency( type );
 
-    /* First compute the waiting time that is needed before the successful
-     * bus access can begin. */
-    ull waiting_time = 0;
-
-    /* If the access if before the core's slot begins, then wait until the
-     * slot begins and do the access then. */
-    if ( offset < slot_start ) {
-      waiting_time = slot_start - offset;
-    /* If the access fits into the current core's slot, then register this. */
-    } else if ( offset <= slot_start + slot_len - simple_access_duration ) {
-      waiting_time = 0;
-    /* Else compute the time until the beginning of the next slot of the core
-     * and add the access time itself to get the total delay. */
     } else {
-      waiting_time = ( interval - offset + slot_start );
+
+      /* Get the time needed to perform the access itself. */
+      const ull simple_access_duration = getAccessLatency( type );
+
+      /* First compute the waiting time that is needed before the successful
+       * bus access can begin. */
+      ull waiting_time = 0;
+
+      /* If the access if before the core's slot begins, then wait until the
+       * slot begins and do the access then. */
+      if ( offset < slot_start ) {
+        waiting_time = slot_start - offset;
+      /* If the access fits into the current core's slot, then register this. */
+      } else if ( offset <= slot_start + slot_len - simple_access_duration ) {
+        waiting_time = 0;
+      /* Else compute the time until the beginning of the next slot of the core
+       * and add the access time itself to get the total delay. */
+      } else {
+        waiting_time = ( interval - offset + slot_start );
+      }
+
+      /* Then sum up the waiting and the access time to form the final delay. */
+      result = waiting_time + simple_access_duration;
+
+      /* Assert that the delay does not exceed the maximum possible delay */
+      assert( result <= ( num_core - 1 ) * slot_len + 2 * getAccessLatency( L2_MISS ) &&
+          "Bus delay exceeded maximum limit" );
     }
-
-    /* Then sum up the waiting and the access time to form the final delay. */
-    const ull delay = waiting_time + simple_access_duration;
-
-    /* Assert that the delay does not exceed the maximum possible delay */
-    assert( delay <= ( num_core - 1 ) * slot_len + 2 * getAccessLatency( L2_MISS ) &&
-        "Bus delay exceeded maximum limit" );
-
-    return delay;
   }
+
+  DACTION(
+    char classification[10];
+    switch( type ) {
+      case L1_HIT:  sprintf( classification, "L1 hit" );  break;
+      case L2_HIT:  sprintf( classification, "L2 hit" );  break;
+      case L2_MISS: sprintf( classification, "L2 miss" ); break;
+      default:      assert( 0 && "Invalid result!" );
+    }
+    DOUT( "Accounting latency %u for %s at time %llu\n",
+        result, classification, access_time );
+  );
+
+  DRETURN( result );
 }
 
 
