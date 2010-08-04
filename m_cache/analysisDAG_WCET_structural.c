@@ -253,7 +253,6 @@ static void preprocess_all_loops( procedure* proc )
 static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
 {
   DSTART( "computeWCET_block" );
-  DOUT( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t) bb );
 
   const uint proc_body_context = 0;
 
@@ -264,6 +263,7 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
   loop* inlp = check_loop( bb, proc );
   if ( inlp && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
 
+    DOUT( "Block represents inner loop!\n" );
     bb->finish_time = bb->start_time + getLoopWCET( inlp, proc_body_context );
 
   /* It's not a loop. Go through all the instructions and
@@ -290,6 +290,7 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
 
         /* For ignoring library calls */
         if ( callee ) {
+          DOUT( "Block calls internal function %u\n", callee->pid );
           /* Compute the WCET of the callee procedure here.
            * We dont handle recursive procedure call chain */
           computeWCET_proc( callee, bb->start_time + bb_cost );
@@ -302,7 +303,9 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
     bb->finish_time = bb->start_time + bb_cost;
   }
 
-  DOUT( "Setting block %d finish time = %Lu\n", bb->bbid, bb->finish_time );
+  DOUT( "Accounting WCET %llu for block 0x%s - 0x%s\n",
+      bb->finish_time - bb->start_time, bb->instrlist[0]->addr,
+      bb->instrlist[bb->num_instr - 1]->addr );
   DEND();
 }
 

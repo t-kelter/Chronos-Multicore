@@ -251,14 +251,17 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
     block ** topologically_sorted_blocks, const combined_result * block_results,
     const procedure *dag_proc )
 {
+  DSTART( "summarizeDAGResults" );
   assert( topologically_sorted_blocks && block_results && dag_proc &&
           "Invalid arguments!" );
 
   // Allocate space for the propagation values
   ull *block_bcet_propagation_values;
-  CALLOC( block_bcet_propagation_values, ull*, number_of_blocks, sizeof( ull ), "block_bcet_propagation_values" );
+  CALLOC( block_bcet_propagation_values, ull*, number_of_blocks,
+      sizeof( ull ), "block_bcet_propagation_values" );
   ull *block_wcet_propagation_values;
-  CALLOC( block_wcet_propagation_values, ull*, number_of_blocks, sizeof( ull ), "block_wcet_propagation_values" );
+  CALLOC( block_wcet_propagation_values, ull*, number_of_blocks,
+      sizeof( ull ), "block_wcet_propagation_values" );
 
   // Propagate the BCETs/WCETs through the DAG
   int i;
@@ -271,6 +274,10 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
       // Head block: Take over block BCET/WCET
       block_bcet_propagation_values[i] = block_results[i].bcet;
       block_wcet_propagation_values[i] = block_results[i].wcet;
+
+      DOUT( "Processing head block: BCET %llu, WCET %llu (block 0x%s, index %d)\n",
+          block_bcet_propagation_values[i],
+          block_wcet_propagation_values[i], bb->instrlist[0]->addr, i );
     } else {
       // Merge over predecessors
       int j;
@@ -289,16 +296,28 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
                                             0, number_of_blocks - 1 );
 
         const ull bcet_via_pred = block_bcet_propagation_values[conv_pred_idx] +
-                                  block_results[conv_pred_idx].bcet;
+                                  block_results[i].bcet;
         const ull wcet_via_pred = block_wcet_propagation_values[conv_pred_idx] +
-                                  block_results[conv_pred_idx].wcet;
+                                  block_results[i].wcet;
 
         if ( j == 0 ) {
           block_bcet_propagation_values[i] = bcet_via_pred;
           block_wcet_propagation_values[i] = wcet_via_pred;
+
+          DOUT( "Propagating from predecessor (0x%s, index %d): BCET %llu, "
+            "WCET %llu (block 0x%s, index %d)\n", pred->instrlist[0]->addr,
+            conv_pred_idx, block_bcet_propagation_values[i],
+            block_wcet_propagation_values[i], bb->instrlist[0]->addr, i );
         } else {
-          block_bcet_propagation_values[i] = MIN( block_bcet_propagation_values[i], bcet_via_pred );
-          block_wcet_propagation_values[i] = MAX( block_wcet_propagation_values[i], wcet_via_pred );
+          block_bcet_propagation_values[i] =
+              MIN( block_bcet_propagation_values[i], bcet_via_pred );
+          block_wcet_propagation_values[i] =
+              MAX( block_wcet_propagation_values[i], wcet_via_pred );
+
+          DOUT( "MIN/MAXed with predecessor (0x%s, index %d): BCET %llu, "
+            "WCET %llu (block 0x%s, index %d)\n", pred->instrlist[0]->addr,
+            conv_pred_idx, block_bcet_propagation_values[i],
+            block_wcet_propagation_values[i], bb->instrlist[0]->addr, i );
         }
       }
     }
@@ -331,7 +350,7 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
   free( block_wcet_propagation_values );
 
   assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
-  return result;
+  DRETURN( result );
 }
 
 
@@ -343,6 +362,11 @@ static combined_result analyze_block( block* bb, procedure* proc,
   assert( bb && proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
 
+  combined_result result;
+  result.bcet = 0;
+  result.wcet = 0;
+  result.offsets = start_offsets;
+
   /* Check whether the block is some header of a loop structure.
    * In that case do separate analysis of the loop */
   /* Exception is when we are currently in the process of analyzing
@@ -350,16 +374,12 @@ static combined_result analyze_block( block* bb, procedure* proc,
   loop * const inlp = check_loop( bb, proc );
   if ( inlp && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
 
-    DRETURN( analyze_loop( inlp, proc, loop_context, start_offsets ) );
+    DOUT( "Block represents inner loop!\n" );
+    result = analyze_loop( inlp, proc, loop_context, start_offsets );
 
   /* It's not a loop. Go through all the instructions and
    * compute the WCET of the block */
   } else {
-
-    combined_result result;
-    result.bcet = 0;
-    result.wcet = 0;
-    result.offsets = start_offsets;
 
     int i;
     for ( i = 0; i < bb->num_instr; i++ ) {
@@ -402,6 +422,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
 
         /* For ignoring library calls */
         if ( callee ) {
+          DOUT( "Block calls internal function %u\n", callee->pid );
           /* Compute the WCET of the callee procedure here.
            * We dont handle recursive procedure call chain */
           combined_result call_cost = analyze_proc( callee, result.offsets );
@@ -411,10 +432,13 @@ static combined_result analyze_block( block* bb, procedure* proc,
         }
       }
     }
-
-    assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
-    DRETURN( result );
   }
+
+  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
+  DOUT( "Accounting BCET %llu, WCET %llu for block 0x%s - 0x%s\n",
+      result.bcet, result.wcet, bb->instrlist[0]->addr,
+      bb->instrlist[bb->num_instr - 1]->addr );
+  DRETURN( result );
 }
 
 /* Computes the BCET, WCET and offset bounds for a single iteration of the given loop
