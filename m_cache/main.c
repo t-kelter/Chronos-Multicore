@@ -645,9 +645,8 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
   fclose(interferFile);
 }
 
-/* This is a helper function that prints the results of the WCET, BCET
- * and cache analyses to files, so that the WCRT analysis submodule can
- * read those results.
+/* This is a helper function that prints the results of the WCET and BCET
+ * results to files, so that the WCRT analysis submodule can read them.
  *
  * 'num_msc' should be the current total number of mscs
  */
@@ -667,54 +666,15 @@ static void writeWCETandCacheInfoFiles( int num_msc )
       exit(1);
     }
 
-    char hitmiss[MAX_LEN];
-    sprintf(hitmiss, "msc%d_hitmiss_statistic_%d", i, times_iteration);
-    FILE *hitmiss_statistic = fopen(hitmiss, "w");
-    if( !hitmiss_statistic ) {
-      fprintf(stderr, "Failed to open file: %s (main.c:486)\n", hitmiss);
-      exit(1);
-    }
-
     /* Write WCET of each task in the file */
     for(j = 0; j < msc[i-1]->num_task; j++) {
 
       fprintf(file, "%Lu %Lu \n", msc[i-1]->taskList[j].wcet,
           msc[i-1]->taskList[j].bcet);
-
-      /* Now print hit miss statistics for debugging */
-      fprintf(hitmiss_statistic,"%s\n", msc[i-1]->taskList[j].task_name);
-      fprintf(hitmiss_statistic,"Only L1\n\nWCET:\nHIT    MISS    NC\n");
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n", msc[i-1]->
-          taskList[j].hit_wcet, msc[i-1]->taskList[j].miss_wcet,
-          msc[i-1]->taskList[j].unknow_wcet);
-      fprintf(hitmiss_statistic,"\n%Lu\n",
-          (msc[i-1]->taskList[j].hit_wcet*IC_HIT) +
-          (msc[i-1]->taskList[j].miss_wcet +
-           msc[i-1]->taskList[j].unknow_wcet)* IC_MISS_L2);
-      fprintf(hitmiss_statistic,"\nWith L2\n\nWCET:\nHIT  MISS   \
-          NC  HIT_L2  MISS_L2     NC_L2\n");
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu     ",
-          msc[i-1]->taskList[j].hit_wcet, msc[i-1]->taskList[j].miss_wcet,
-          msc[i-1]->taskList[j].unknow_wcet);
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n",
-          msc[i-1]->taskList[j].hit_wcet_L2, msc[i-1]->taskList[j].miss_wcet_L2,
-          msc[i-1]->taskList[j].unknow_wcet_L2);
-      fprintf(hitmiss_statistic,"\n%Lu\n", msc[i-1]->taskList[j].wcet);
-      fprintf(hitmiss_statistic,"\nBCET:\nHIT MISS    NC  HIT_L2  \
-          MISS_L2     NC_L2\n");
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu     ",
-          msc[i-1]->taskList[j].hit_bcet, msc[i-1]->taskList[j].miss_bcet,
-          msc[i-1]->taskList[j].unknow_bcet);
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n",
-          msc[i-1]->taskList[j].hit_bcet_L2, msc[i-1]->taskList[j].miss_bcet_L2,
-          msc[i-1]->taskList[j].unknow_bcet_L2);
-      fprintf(hitmiss_statistic,"\n%Lu\n", msc[i-1]->taskList[j].bcet);
-      fflush(stdout);
     }
-    /* We are done writing all intereference and hit-miss statistics----
-     * so close all the files */
+
+    /* We are done writing all values so close the file */
     fclose(file);
-    fclose(hitmiss_statistic);
   }
 }
 

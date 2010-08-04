@@ -368,7 +368,7 @@ copyFunction(procedure* proc)
 			copy->topo[i] = copy->bblist[src->topo[i]->bbid];
 	}
 	copy->wcet = src->wcet;
-	
+
 //	copy->wpath = src->wpath;  	//???
 
 	DRETURN( copy );
