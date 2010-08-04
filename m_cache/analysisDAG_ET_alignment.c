@@ -397,15 +397,21 @@ static combined_result analyze_block( block* bb, procedure* proc,
       const acc_type worst_acc = check_hit_miss( bb, inst, loop_context, 
                                                  ACCESS_SCENARIO_WCET );
 
-      /* In our current offset bound representation we can assume that
-       * the upper (lower) bound was induced by the worst-case (best-case)
-       * time that is needed to reach the current instruction. To obtain
-       * the local BCET / WCET we therefore only need to consider the
-       * lower and upper bound of the offset range. */
-      const uint best_latency  = determine_latency( bb, result.offsets.lower_bound, best_acc );
-      const uint worst_latency = determine_latency( bb, result.offsets.upper_bound, worst_acc );
-      result.bcet += best_latency;
-      result.wcet += worst_latency;
+      uint j, min_latency, max_latency;
+      for ( j  = result.offsets.lower_bound;
+            j <= result.offsets.upper_bound; j++ ) {
+        const uint bc_latency = determine_latency( bb, j, best_acc );
+        const uint wc_latency = determine_latency( bb, j, worst_acc );
+        if ( j == result.offsets.lower_bound ) {
+          min_latency = bc_latency;
+          max_latency = wc_latency;
+        } else {
+          min_latency = MIN( min_latency, bc_latency );
+          max_latency = MAX( max_latency, wc_latency );
+        }
+      }
+      result.bcet += min_latency;
+      result.wcet += max_latency;
 
       /* Then add cost for executing the instruction. */
       result.bcet += getInstructionBCET( inst );
@@ -484,7 +490,7 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
 
   free( block_results );
 
-  DOUT( "Loop iteration analysis WCET / BCET result is %llu / %llu"
+  DOUT( "Loop iteration analysis BCET / WCET result is %llu / %llu"
       " with offsets [%u,%u]\n", result.bcet, result.wcet,
       result.offsets.lower_bound, result.offsets.upper_bound );
 
@@ -576,7 +582,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
   }
   free( results );
 
-  DOUT( "Loop %d.%d WCET / BCET result is %llu / %llu"
+  DOUT( "Loop %d.%d BCET / WCET result is %llu / %llu"
       " with offsets [%u,%u]\n", lp->pid, lp->lpid, result.bcet, result.wcet,
       result.offsets.lower_bound, result.offsets.upper_bound );
 
@@ -740,15 +746,14 @@ static combined_result analyze_loop_graph_tracking( loop * const lp, procedure *
 /* Computes the BCET, WCET and offset bounds for the given loop when starting from 
  * the given offset range.
  * 
- * This method is just an intelligent wrapper for the respective sub-methods. */
-static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_context,
-    const tdma_offset_bounds start_offsets )
+ * This function should not be called directly, only through its wrapper 'analyze_loop'. */
+static combined_result analyze_loop_alignment_aware( loop* lp, procedure* proc,
+    uint loop_context, const tdma_offset_bounds start_offsets )
 {
-  DSTART( "analyze_loop" );
+  DSTART( "analyze_loop_alignment_aware" );
   assert( lp && proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
 
-  DOUT( "Performing alignment-sensitive analysis\n" );
   combined_result result;
   switch( currentLoopAnalysisType ) {
     case LOOP_ANALYSIS_GLOBAL_CONVERGENCE:
@@ -761,36 +766,36 @@ static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_contex
       assert( 0 && "Unsupported analysis method!" );
   }
 
+  DRETURN( result );
+}
+
+/* Computes the BCET, WCET and offset bounds for the given loop when starting from
+ * the given offset range.
+ *
+ * This method is just an intelligent wrapper for the respective sub-methods. */
+static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_context,
+    const tdma_offset_bounds start_offsets )
+{
+  DSTART( "analyze_loop" );
+  assert( lp && proc && checkOffsetBound( &start_offsets ) &&
+          "Invalid arguments!" );
+
+  // Get the result using our alignment-aware loop analysis
+  DOUT( "Performing alignment-sensitive analysis\n" );
+  combined_result result = analyze_loop_alignment_aware( lp, proc,
+                             loop_context, start_offsets );
+
   /* If we are supposed to try the penalized alignment too, then we also compute the result
    * using the zero-alignment and add the appropriate alignment penalties. If this yields a
    * superior solution, then we pick that one instead of the previously computed result. */
   if ( tryPenalizedAlignment ) {
     // TODO: The alignments may be computed for a wrong segment in case of multi-segment
     //       schedules (see definitions of startAlign/endAlign)
-    combined_result pal_result;
-    pal_result.bcet = 0;
-    pal_result.wcet = startAlign( 0 );
-
-    // Analyze the first two iterations to exploit the cache information
-    DOUT( "Attempting penaltized alignment analysis\n" );
+    DOUT( "Attempting penalized alignment analysis\n" );
     const tdma_offset_bounds zero_offsets = { 0, 0 };
-    const uint first_context = getInnerLoopContext( lp, loop_context, 1 );
-    const combined_result first_iteration_result = analyze_single_loop_iteration( lp, proc,
-                                                     first_context, zero_offsets );
-    pal_result.bcet += first_iteration_result.bcet;
-    pal_result.wcet += first_iteration_result.wcet +
-                       endAlign( first_iteration_result.wcet );
-
-    const uint second_context = getInnerLoopContext( lp, loop_context, 0 );
-    const combined_result second_iteration_result = analyze_single_loop_iteration( lp, proc,
-                                                     second_context, zero_offsets );
-    pal_result.bcet += ( second_iteration_result.bcet ) *
-                       ( lp->loopbound - 1 );
-    pal_result.wcet += ( second_iteration_result.wcet +
-                         endAlign( second_iteration_result.wcet ) ) *
-                       ( lp->loopbound - 1 );
-
-    pal_result.offsets = zero_offsets;
+    combined_result pal_result = analyze_loop_alignment_aware( lp, proc,
+                                   loop_context, zero_offsets );
+    pal_result.wcet += startAlign( 0 );
 
     // If the result is better, then take this one
     if ( pal_result.wcet < result.wcet ) {
@@ -803,7 +808,8 @@ static combined_result analyze_loop( loop* lp, procedure* proc, uint loop_contex
 }
 
 
-/* Computes the BCET, WCET and offset bounds for the given procedure when starting from the given offset range.
+/* Computes the BCET, WCET and offset bounds for the given procedure when starting from
+ * the given offset range.
  *
  * This function should not be called directly, only through its wrapper 'analyze_proc'. */
 static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma_offset_bounds start_offsets )
@@ -852,7 +858,8 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
 }
 
 
-/* Computes the BCET, WCET and offset bounds for the given procedure when starting from the given offset range.
+/* Computes the BCET, WCET and offset bounds for the given procedure when starting from
+ * the given offset range.
  *
  * This method is just an intelligent wrapper for the respective sub-methods. */
 static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds start_offsets )
@@ -872,9 +879,7 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
     DOUT( "Attempting penalized alignment analysis\n" );
     const tdma_offset_bounds zero_offsets = { 0, 0 };
     combined_result pal_result = analyze_proc_alignment_aware( proc, zero_offsets );
-    pal_result.wcet += endAlign( pal_result.wcet );
     pal_result.wcet += startAlign( 0 );
-    pal_result.offsets = zero_offsets;
 
     // If the result is better, then take this one
     if ( pal_result.wcet < result.wcet ) {
