@@ -353,8 +353,14 @@ int read_loop_annotation() {
 
   }
 
+  int scan_result;
   fptr = openfile( "lb", "r" );
-  while( fscanf( fptr, "%d %d %d %d", &pid, &lpid, &lb, &dw ) != EOF ) {
+  while( scan_result = fscanf( fptr, "%d %d %d %d", &pid, &lpid, &lb, &dw ),
+         scan_result != EOF ) {
+
+    if ( scan_result != 4 ) {
+      prerr( "Loopbound file had wrong format!" );
+    }
 
     p = procs[pid];
     if( !p )

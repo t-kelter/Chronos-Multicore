@@ -318,8 +318,14 @@ int read_cfg() {
   int mainaddr;
 
   fptr = openfile( "cfg", "r" );
+  int scan_result;
 
-  while( fscanf( fptr, "%d %d %x %d %d %d", &pid, &bbid, &bbsa, &tb, &nb, &cpid ) != EOF ) {
+  while( scan_result = fscanf( fptr, "%d %d %x %d %d %d", &pid, &bbid, &bbsa, &tb, &nb, &cpid ),
+         scan_result != EOF ) {
+
+    if ( scan_result != 6 ) {
+      prerr( "CFG file had invalid format!" );
+    }
 
     //pid start at 0; if a new proc
     if( pid >= num_procs ) {
