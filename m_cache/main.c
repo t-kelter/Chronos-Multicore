@@ -178,13 +178,6 @@ int main(int argc, char **argv )
     numConflictMSC[n] = 0;
   }
 
-  /* find out: (1) size of each cache line, (2) number of cache sets,
-   * (3) associativity */
-  DACTION(
-    dumpCacheConfig();
-    dumpCacheConfig_L2();
-  );
-
   /* Monitor time from this point */
   STARTTIME;
 
@@ -215,6 +208,8 @@ int main(int argc, char **argv )
     readMSCfromFile( interferFileName, num_msc - 1, NULL );
     MSC * const currentMSC = msc[num_msc - 1];
 
+    DOUT( "Reading MSC from '%s'", interferFileName );
+
     /* Now go through all the tasks to read their CFG and build 
      * relevant data structures like loops, basic blocks and so 
      * on */	  
@@ -222,6 +217,8 @@ int main(int argc, char **argv )
 
       task_t * const currentTask = &currentMSC->taskList[i];
       currentTask->task_id = i;
+
+      DOUT( "Reading task %s\n", currentTask->task_name );
 
       filename = currentTask->task_name;
       procs     = NULL;
@@ -231,28 +228,17 @@ int main(int argc, char **argv )
 
       /* Read the cfg of the task into the global array 'procs' */
       read_cfg();
-      DACTION( print_cfg(); );
 
       /* Allocate memory for the procedure copies. */
       CALLOC(currentTask->proc_cg_ptr, proc_copy *, num_procs,
           sizeof(proc_copy), "currentTask->proc_cg_ptr");
 
       readInstr();
-      DACTION( print_instrlist(); );
 
       /* Detect loops in all procedures of the task */ 
       detect_loops();
 
-      DACTION(
-          print_loops();
-
-          /* for dynamic locking in memarchi */
-          dump_callgraph();
-          dump_loops();
-      );
-
       topo_sort();
-      DACTION( print_topo(); );
 
       /* compute incoming info for each basic block */
       calculate_incoming();
