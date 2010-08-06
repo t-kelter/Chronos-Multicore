@@ -179,7 +179,6 @@ block *promptLoopExit( loop *lp, block **exits, int num_exits ) {
 
   int  i, res;
 
-  printLoop( lp );
   printf( "%d exits detected for loop %d-%d:\n", num_exits, lp->pid, lp->lpid );
 
   for( i = 0; i < num_exits; i++ ) {
@@ -190,7 +189,8 @@ block *promptLoopExit( loop *lp, block **exits, int num_exits ) {
     // of the last assembly instruction of the exit block.
     // getsrc traces the source code line corresponding to this line and prints it out.
 
-    printf( "Exit[%d]: %3d\n ", i, exits[i]->bbid ); fflush( stdout );
+    printf( "Exit[%d]: %3d\n", i, exits[i]->bbid );
+    fflush( stdout );
 
     //intr *insn = exits[i]->instrlist[ exits[i]->num_instr - 1];
     //printf( "%3d: %s: ", exits[i]->bbid, insn->addr ); fflush( stdout );

@@ -519,8 +519,9 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
   DACTION(
       for ( i = 0; i < msc->num_task; i++ ) {
         task_t * const t = &( msc->taskList[i] );
-        DOUT( "Results for task %s : BCET %llu \tWCET %llu\n",
-            t->task_name, t->bcet, t->wcet );
+        DOUT( "Results for task %s : BCET %llu \tWCET %llu (jitter %u%%)\n",
+            t->task_name, t->bcet, t->wcet,
+            ( ( t->wcet - t->bcet ) * 100 ) / t->wcet );
       }
   );
 
