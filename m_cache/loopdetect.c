@@ -325,16 +325,7 @@ int determineLoopExits( loop **loops, int num_loops, block **bblist, int num_bb 
  */
 int read_loop_annotation() {
 
-  char c;
-
-  FILE *fptr;
   char proc[100];
-
-  int pid, lpid, lb, dw;
-  procedure *p;
-  loop *lp;
-
- // printf("filename: %s\n", filename);
   sprintf( proc, "ls %s.lb 2> /dev/null", filename );
   if( system( proc )) {
     // file does not exist yet
@@ -344,17 +335,19 @@ int read_loop_annotation() {
 
     printf( "Please provide loop annotations in file %s.lb in the following format:\n", filename );
     printf( "<proc_id> <loop_id> <loopbound> <is_dowhile>\n" );
-    //printf( "Press 'y' when ready: " );
+    printf( "Press 'y' when ready: " );
 
-
+    char c;
     do {
       scanf( "%c", &c );
     } while( c != 'y' );
 
   }
 
+  int pid, lpid, lb, dw;
   int scan_result;
-  fptr = openfile( "lb", "r" );
+
+  FILE * const fptr = openfile( "lb", "r" );
   while( scan_result = fscanf( fptr, "%d %d %d %d", &pid, &lpid, &lb, &dw ),
          scan_result != EOF ) {
 
@@ -362,12 +355,12 @@ int read_loop_annotation() {
       prerr( "Loopbound file had wrong format!" );
     }
 
-    p = procs[pid];
-    if( !p )
+    procedure * const p = procs[pid];
+    if( !p || pid >= num_procs )
       printf( "Invalid procedure id %d\n", pid ), exit(1);
 
-    lp = p->loops[lpid];
-    if( !lp )
+    loop * const lp = p->loops[lpid];
+    if( !lp || lpid >= p->num_loops )
       printf( "Invalid loop id [%d] %d\n", pid, lpid ), exit(1);
 
     if( lb < 0 )
