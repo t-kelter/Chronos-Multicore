@@ -13,19 +13,15 @@
 #include <debugmacros/debugmacros.h>
 
 // Include local headers
-#include "analysisDAG_WCET_structural.h"
+#include "analysisDAG_BCET_structural.h"
 #include "analysisDAG_common.h"
 #include "busSchedule.h"
 #include "dump.h"
 
 
 // Forward declarations of static functions
-static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp );
-static void computeWCET_proc( procedure* proc, ull start_time );
-
-
-// The total cycles used for aligning the loops to TDMA slots during the WCET analysis
-static ull totalAlignCost = 0;
+static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp );
+static void computeBCET_proc( procedure* proc, ull start_time );
 
 
 /***********************************************************************/
@@ -36,7 +32,7 @@ static ull totalAlignCost = 0;
  */
 /***********************************************************************/
 
-/* sudiptac:: Determines WCET of a procedure in presence of shared data
+/* sudiptac:: Determines BCET of a procedure in presence of shared data
  * bus. We assume the shared cache analysis at this point and CHMC 
  * classification for every instruction has already been computed. We 
  * also assume a statically generated TDMA bus schedule and the 
@@ -45,13 +41,13 @@ static ull totalAlignCost = 0;
  * depends on its starting time */
 
 
-/* This sets the latest starting time of a block during WCET calculation.
+/* This sets the latest starting time of a block during BCET calculation.
  * (Context-aware)
  */
-static void set_start_time_WCET_opt( block* bb, procedure* proc, uint context )
+static void set_start_time_BCET_opt( block* bb, procedure* proc, uint context )
 {
-  DSTART( "set_start_time_WCET_opt" );
-  ull max_start = bb->start_opt[context];
+  DSTART( "set_start_time_BCET_opt" );
+  ull min_start;
 
   assert(bb);
 
@@ -62,37 +58,45 @@ static void set_start_time_WCET_opt( block* bb, procedure* proc, uint context )
     assert( pred_bb && "Missing basic block!" );
 
     /* Determine the predecessors' latest finish time */
-    max_start = MAX( max_start, pred_bb->fin_opt[context] );
+    if ( i == 0 ) {
+      min_start = pred_bb->fin_opt[context];
+    } else {
+      min_start = MIN( min_start, pred_bb->fin_opt[context] );
+    }
+  }
+
+  if ( bb->num_incoming == 0 ) {
+    min_start = 0;
   }
 
   /* Now set the starting time of this block to be the latest
    * finish time of predecessors block */
-  bb->start_opt[context] = max_start;
+  bb->start_opt[context] = min_start;
 
-  DOUT( "Setting max start of bb %d (context %u) = %Lu\n",
-      bb->bbid, context, max_start );
+  DOUT( "Setting min start of bb %d (context %u) = %Lu\n",
+      bb->bbid, context, min_start );
   DEND();
 }
 
 
-/* Returns the WCET of a loop, after loop WCETs have been computed for
- * all CHMC contexts. This method summarises the contexts' WCETs, adds the
- * bus alignment offsets and returns the final loop WCET.
+/* Returns the BCET of a loop, after loop BCETs have been computed for
+ * all CHMC contexts. This method summarises the contexts' BCETs, adds the
+ * bus alignment offsets and returns the final loop BCET.
  *
  * 'enclosing_loop_context' should be the context of the surrounding loop,
- * for which the WCET should be obtained.
+ * for which the BCET should be obtained.
  * */
-static ull getLoopWCET( const loop *lp, int enclosing_loop_context )
+static ull getLoopBCET( const loop *lp, int enclosing_loop_context )
 {
   /* Each CHMC index is of the form
    *
    * i = x_{head->num_chmc} x_{head->num_chmc - 1} ... x_1
    *
    * where each x is a binary digit. We are interested in an upper bound
-   * on the WCET of the function in its first and in the succeeding
+   * on the BCET of the function in its first and in the succeeding
    * iterations. We take the least 'lp->level - 1' bits from the
-   * enclosing loop context and add a '0' to get the WCET for the
-   * first iteration and a '1' to get the WCET for the successive
+   * enclosing loop context and add a '0' to get the BCET for the
+   * first iteration and a '1' to get the BCET for the successive
    * iterations.
    *
    * For further information about CHMC contexts see header.h:num_chmc
@@ -101,27 +105,21 @@ static ull getLoopWCET( const loop *lp, int enclosing_loop_context )
   const int index_first_iteration = getInnerLoopContext( lp, enclosing_loop_context, 1 );
   const int index_next_iterations = getInnerLoopContext( lp, enclosing_loop_context, 0 );
 
-  const ull firstIterationWCET = lp->wcet_opt[index_first_iteration];
-  const ull nextIterationsWCET = lp->wcet_opt[index_next_iterations];
+  const ull firstIterationBCET = lp->bcet_opt[index_first_iteration];
+  const ull nextIterationsBCET = lp->bcet_opt[index_next_iterations];
 
   if ( lp->loopbound >= 1 ) {
-    const ull execution_cost = firstIterationWCET
-          + ( nextIterationsWCET * ( lp->loopbound - 1 ) );
-    // TODO: The alignments may be computed for a wrong segment in case of multi-segment
-    //       schedules (see definitions of startAlign/endAlign)
-    const ull alignment_cost = startAlign( 0 ) + endAlign( firstIterationWCET )
-        + ( endAlign( nextIterationsWCET ) * ( lp->loopbound - 1 ) );
-
-    totalAlignCost += alignment_cost;
-
-    return execution_cost + alignment_cost;
+    // For the BCET analysis we must not consider any alignment penalty
+    const ull execution_cost = firstIterationBCET
+          + ( nextIterationsBCET * ( lp->loopbound - 1 ) );
+    return execution_cost;
   } else {
     return 0;
   }
 
 }
 
-/* Preprocess one loop for optimized bus aware WCET calculation */
+/* Preprocess one loop for optimized bus aware BCET calculation */
 /* This takes care of the alignments of loop at the beginning and at the
  * end */
 static void preprocess_one_loop( loop* lp, procedure* proc )
@@ -130,10 +128,10 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
 
   /* We can assume the start time to be always zero */
   const ull start_time = 0;
-  uint max_fin[64] = { 0 };
+  uint min_fin[64] = { 0 };
 
   /* Compute only once */
-  if ( lp->wcet_opt[0] )
+  if ( lp->bcet_opt[0] )
     DRETURN();
 
   DOUT( "Visiting loop = %d.%d.0x%x\n", lp->pid, lp->lpid, (uintptr_t)lp );
@@ -147,7 +145,7 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
     /* bb cannot be empty */
     assert(bb);
 
-    memset( max_fin, 0, 64 );
+    memset( min_fin, 0, 64 );
 
     /* Traverse over all the CHMC-s of this basic block */
     int j;
@@ -160,7 +158,7 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
       if ( i == lp->num_topo - 1 ) {
         bb->start_opt[j] = start_time;
       } else {
-        set_start_time_WCET_opt( bb, proc, j );
+        set_start_time_BCET_opt( bb, proc, j );
       }
 
       /* Check whether this basic block is the header of some other 
@@ -179,7 +177,7 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
          * belong to the inner loop. */
         if ( j < bb->num_chmc / 2 ) {
           preprocess_one_loop( inlp, proc );
-          bb->fin_opt[j] = original_start_time + getLoopWCET( inlp, j );
+          bb->fin_opt[j] = original_start_time + getLoopBCET( inlp, j );
         }
 
       } else {
@@ -194,11 +192,11 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
 
           /* First handle instruction cache access time */
           const acc_type acc_t = check_hit_miss( bb, inst, j,
-                                                 ACCESS_SCENARIO_WCET );
+                                                 ACCESS_SCENARIO_BCET );
           bb_cost += determine_latency( bb, bb->start_opt[j] + bb_cost, acc_t );
 
           /* Then add cost for executing the instruction. */
-          bb_cost += getInstructionWCET( inst );
+          bb_cost += getInstructionBCET( inst );
 
           /* Handle procedure call instruction */
           if ( IS_CALL(inst->op) ) {
@@ -206,9 +204,9 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
 
             /* For ignoring library calls */
             if ( callee ) {
-              /* Compute the WCET of the callee procedure here.
+              /* Compute the BCET of the callee procedure here.
                * We dont handle recursive procedure call chain */
-              computeWCET_proc( callee, bb->start_opt[j] + bb_cost );
+              computeBCET_proc( callee, bb->start_opt[j] + bb_cost );
               bb_cost += callee->running_cost;
             }
           }
@@ -219,21 +217,21 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
       }
 
       /* Set max finish time */
-      max_fin[j] = MAX( max_fin[j], bb->fin_opt[j] );
+      min_fin[j] = MAX( min_fin[j], bb->fin_opt[j] );
     }
   }
 
   int j;
   for ( j = 0; j < lp->loophead->num_chmc; j++ ) {
-    lp->wcet_opt[j] = ( max_fin[j] - 1 );
-    DOUT( "WCET of loop (%d.%d.0x%x)[%d] = %Lu\n", lp->pid, lp->lpid,
-        (unsigned int)(uintptr_t) lp, j, lp->wcet_opt[j] );
+    lp->bcet_opt[j] = ( min_fin[j] - 1 );
+    DOUT( "BCET of loop (%d.%d.0x%x)[%d] = %Lu\n", lp->pid, lp->lpid,
+        (unsigned int)(uintptr_t) lp, j, lp->bcet_opt[j] );
   }
 
   DEND();
 }
 
-/* Preprocess each loop for optimized bus aware WCET calculation */
+/* Preprocess each loop for optimized bus aware BCET calculation */
 static void preprocess_all_loops( procedure* proc )
 {
   /* Preprocess loops....in reverse topological order i.e. in reverse 
@@ -248,9 +246,9 @@ static void preprocess_all_loops( procedure* proc )
 }
 
 /* Compute worst case finish time and cost of a block */
-static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
+static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp )
 {
-  DSTART( "computeWCET_block" );
+  DSTART( "computeBCET_block" );
 
   const uint proc_body_context = 0;
 
@@ -262,10 +260,10 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
   if ( inlp && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
 
     DOUT( "Block represents inner loop!\n" );
-    bb->finish_time = bb->start_time + getLoopWCET( inlp, proc_body_context );
+    bb->finish_time = bb->start_time + getLoopBCET( inlp, proc_body_context );
 
   /* It's not a loop. Go through all the instructions and
-   * compute the WCET of the block */
+   * compute the BCET of the block */
   } else {
     uint bb_cost = 0;
 
@@ -278,11 +276,11 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
 
       /* First handle instruction cache access. */
       const acc_type acc_t = check_hit_miss( bb, inst, proc_body_context,
-                                             ACCESS_SCENARIO_WCET );
+                                             ACCESS_SCENARIO_BCET );
       bb_cost += determine_latency( bb, bb->start_time + bb_cost, acc_t );
 
       /* Then add cost for executing the instruction. */
-      bb_cost += getInstructionWCET( inst );
+      bb_cost += getInstructionBCET( inst );
 
       /* Handle procedure call instruction */
       if ( IS_CALL(inst->op) ) {
@@ -291,14 +289,14 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
         /* For ignoring library calls */
         if ( callee ) {
           DOUT( "Block calls internal function %u\n", callee->pid );
-          /* Compute the WCET of the callee procedure here.
+          /* Compute the BCET of the callee procedure here.
            * We dont handle recursive procedure call chain */
-          computeWCET_proc( callee, bb->start_time + bb_cost );
+          computeBCET_proc( callee, bb->start_time + bb_cost );
           bb_cost += callee->running_cost;
         }
       }
 
-      DOUT( "  Instruction 0x%s: WCET %u\n", inst->addr,
+      DOUT( "  Instruction 0x%s: BCET %u\n", inst->addr,
           bb_cost - old_cost );
     }
     /* The accumulated cost is computed. Now set the latest finish
@@ -306,17 +304,17 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
     bb->finish_time = bb->start_time + bb_cost;
   }
 
-  DOUT( "Accounting WCET %llu for block 0x%s - 0x%s\n",
+  DOUT( "Accounting BCET %llu for block 0x%s - 0x%s\n",
       bb->finish_time - bb->start_time, bb->instrlist[0]->addr,
       bb->instrlist[bb->num_instr - 1]->addr );
   DEND();
 }
 
-static void computeWCET_proc( procedure* proc, ull start_time )
+static void computeBCET_proc( procedure* proc, ull start_time )
 {
-  DSTART( "computeWCET_proc" );
+  DSTART( "computeBCET_proc" );
 
-  /* Preprocess all the loops for optimized WCET calculation */
+  /* Preprocess all the loops for optimized BCET calculation */
   /********CAUTION*******/
   preprocess_all_loops( proc );
 
@@ -328,7 +326,7 @@ static void computeWCET_proc( procedure* proc, ull start_time )
       dump_pre_proc_chmc(proc, ACCESS_SCENARIO_WCET);
   );
 
-  /* Recursively compute the finish time and WCET of each 
+  /* Recursively compute the finish time and BCET of each
    * predecessors first */
   int i;
   for ( i = proc->num_topo - 1; i >= 0; i-- ) {
@@ -340,37 +338,41 @@ static void computeWCET_proc( procedure* proc, ull start_time )
     if ( i == proc->num_topo - 1 )
       bb->start_time = start_time;
     else
-      set_start_time_WCET( bb, proc );
-    computeWCET_block( bb, proc, NULL );
+      set_start_time_BCET( bb, proc );
+    computeBCET_block( bb, proc, NULL );
   }
 
   DACTION(
       dump_prog_info(proc);
   );
 
-  /* Now calculate the final WCET */
-  ull max_f_time = 0;
+  /* Now calculate the final BCET */
+  ull min_f_time = 0;
   for ( i = 0; i < proc->num_topo; i++ ) {
     assert(proc->topo[i]);
 
     if ( proc->topo[i]->num_outgoing > 0 )
       break;
 
-    max_f_time = MAX( max_f_time, proc->topo[i]->finish_time );
+    if ( i == 0 ) {
+      min_f_time = proc->topo[i]->finish_time;
+    } else {
+      min_f_time = MIN( min_f_time, proc->topo[i]->finish_time );
+    }
   }
 
-  proc->running_finish_time = max_f_time;
-  proc->running_cost = max_f_time - start_time;
+  proc->running_finish_time = min_f_time;
+  proc->running_cost = min_f_time - start_time;
 
-  DOUT( "Set worst case cost of the procedure %d = %Lu\n", proc->pid, proc->running_cost );
+  DOUT( "Set best case cost of the procedure %d = %Lu\n", proc->pid, proc->running_cost );
   DEND();
 }
 
-/* Analyze worst case execution time of all the tasks inside 
+/* Analyze best case execution time of all the tasks inside
  * a MSC. The MSC is given by the argument */
-void compute_bus_WCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_file )
+void compute_bus_BCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_file )
 {
-  DSTART( "compute_bus_WCET_MSC_structural" );
+  DSTART( "compute_bus_BCET_MSC_structural" );
 
   /* Set the global TDMA bus schedule */
   setSchedule( tdma_bus_schedule_file );
@@ -383,39 +385,35 @@ void compute_bus_WCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_fi
   int k;
   for ( k = 0; k < msc->num_task; k++ ) {
 
-    DOUT( "Analyzing Task WCET %s......\n", msc->taskList[k].task_name );
-
-    totalAlignCost = 0;
+    DOUT( "Analyzing Task BCET %s......\n", msc->taskList[k].task_name );
 
     /* Get needed inputs. */
     cur_task = &( msc->taskList[k] );
     ncore = get_core( cur_task );
     procedure * const task_main = cur_task->main_copy;
 
-    /* First get the latest start time of the current task. */
-    ull start_time = get_latest_task_start_time( cur_task, ncore );
+    /* First get the earliest start time of the current task. */
+    ull start_time = get_earliest_task_start_time( cur_task, ncore );
 
-    /* Then compute and set the worst case cost of this task */
-    computeWCET_proc( task_main, start_time );
-    cur_task->wcet = task_main->running_cost;
+    /* Then compute and set the best case cost of this task */
+    computeBCET_proc( task_main, start_time );
+    cur_task->bcet = task_main->running_cost;
 
-    /* Now update the latest starting time in this core */
-    latest_core_time[ncore] = start_time + cur_task->wcet;
+    /* Now update the earliest starting time in this core */
+    earliest_core_time[ncore] = start_time + cur_task->bcet;
 
     /* Since the interference file for a MSC was dumped in topological 
      * order and read back in the same order we are assured of the fact
      * that we analyze the tasks inside a MSC only after all of its
      * predecessors have been analyzed. Thus After analyzing one task
      * update all its successor tasks' latest time */
-    update_succ_task_latest_start_time( msc, cur_task );
+    update_succ_task_earliest_start_time( msc, cur_task );
 
     DOUT( "**************************************************************\n" );
-    DOUT( "Latest start time of the program = %Lu cycles\n", start_time );
-    DOUT( "Latest finish time of the task = %Lu cycles\n", task_main->running_finish_time );
-    DOUT( "WCET of the task %s shared bus = %Lu cycles\n",
+    DOUT( "Earliest start time of the program = %Lu cycles\n", start_time );
+    DOUT( "Earliest finish time of the task = %Lu cycles\n", task_main->running_finish_time );
+    DOUT( "BCET of the task %s shared bus = %Lu cycles\n",
         g_shared_bus ? "with" : "without", task_main->running_cost );
-    DOUT( "Final alignment cost in analysis = %llu (%llu%%)\n", totalAlignCost,
-        totalAlignCost * 100 / task_main->running_cost );
     DOUT( "**************************************************************\n\n" );
   }
 

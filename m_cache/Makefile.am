@@ -8,6 +8,7 @@ AM_CPPFLAGS=-I@chronos_path@
 # First program to build: The analyzer/optimizer for the user
 opt_SOURCES=analysisCache.c analysisCache.h \
 						analysisCacheL2.c analysisCacheL2.h \
+						analysisDAG_BCET_structural.c analysisDAG_BCET_structural.h \
 						analysisDAG_BCET_unroll.c analysisDAG_BCET_unroll.h \
 						analysisDAG_ET_alignment.c analysisDAG_ET_alignment.h \
 						analysisDAG_WCET_structural.c analysisDAG_WCET_structural.h \

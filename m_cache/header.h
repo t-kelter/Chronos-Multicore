@@ -290,8 +290,9 @@ typedef struct
   char num_fm_L2;
 
   char *wpath; // wcet path, a binary sequence (as string) reflecting branch choices
-  ull start_opt[64]; // The latest starting time of the loop depending on its loop context (see block:chmc above)
-  ull fin_opt[64]; // The latest finishing time of the loop depending on its loop context (see block:chmc above)
+  ull start_opt[64]; // The starting time of the loop depending on its loop context (see block:chmc above)
+  ull fin_opt[64]; // The finishing time of the loop depending on its loop context (see block:chmc above)
+  ull bcet_opt[64]; // The BCET of the loop depending on its loop context (see block:chmc above)
   ull wcet_opt[64]; // The WCET of the loop depending on its loop context (see block:chmc above)
 
   /* The total BCET that this loop causes in the course of a full BCET analysis.

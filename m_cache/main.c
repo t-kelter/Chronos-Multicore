@@ -31,10 +31,11 @@
 //#include "DAG_WCET.h"
 #include "topo.h"
 //#include "analysisILP.h"
+#include "analysisDAG_BCET_structural.h"
 #include "analysisDAG_BCET_unroll.h"
 #include "analysisDAG_ET_alignment.h"
-#include "analysisDAG_WCET_unroll.h"
 #include "analysisDAG_WCET_structural.h"
+#include "analysisDAG_WCET_unroll.h"
 //#include "analysisEnum.h"
 #include "analysisCache.h"
 #include "analysisCacheL2.h"
@@ -493,7 +494,7 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
 
     case ANALYSIS_STRUCTURAL:
       compute_bus_WCET_MSC_structural(msc, tdma_bus_schedule_file);
-      compute_bus_BCET_MSC_unroll(msc, tdma_bus_schedule_file);
+      compute_bus_BCET_MSC_structural(msc, tdma_bus_schedule_file);
       break;
 
     case ANALYSIS_ALIGNMENT:
