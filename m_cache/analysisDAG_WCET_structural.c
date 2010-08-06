@@ -323,17 +323,13 @@ static void computeWCET_proc( procedure* proc, ull start_time )
   /* Reset all timing information */
   reset_timestamps( proc, start_time );
 
-  DACTION(
-      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_BCET);
-      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_WCET);
-  );
-
   /* Recursively compute the finish time and WCET of each 
    * predecessors first */
   int i;
   for ( i = proc->num_topo - 1; i >= 0; i-- ) {
     block* bb = proc->topo[i];
     assert(bb);
+
     /* If this is the first block of the procedure then
      * set the start time of this block to be the same 
      * with the start time of the procedure itself */
@@ -341,12 +337,10 @@ static void computeWCET_proc( procedure* proc, ull start_time )
       bb->start_time = start_time;
     else
       set_start_time_WCET( bb, proc );
+
+    DOUT( "Block %u starts at time %llu\n", bb->bbid, bb->start_time );
     computeWCET_block( bb, proc, NULL );
   }
-
-  DACTION(
-      dump_prog_info(proc);
-  );
 
   /* Now calculate the final WCET */
   ull max_f_time = 0;
@@ -416,6 +410,7 @@ void compute_bus_WCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_fi
         g_shared_bus ? "with" : "without", task_main->running_cost );
     DOUT( "Final alignment cost in analysis = %llu (%llu%%)\n", totalAlignCost,
         totalAlignCost * 100 / task_main->running_cost );
+    DASSERT( totalAlignCost < task_main->running_cost && "Invalid alignment cost!" );
     DOUT( "**************************************************************\n\n" );
   }
 
