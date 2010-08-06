@@ -111,16 +111,21 @@ static ull getLoopWCET( const loop *lp, int enclosing_loop_context )
         lp->pid, lp->lpid, enclosing_context_bits, nextIterationsWCET );
   */
 
-  const ull execution_cost = firstIterationWCET +
-        + ( nextIterationsWCET * ( lp->loopbound - 1 ) );
-  // TODO: The alignments may be computed for a wrong segment in case of multi-segment
-  //       schedules (see definitions of startAlign/endAlign)
-  const ull alignment_cost = startAlign( 0 ) + endAlign( firstIterationWCET )
-      + ( endAlign( nextIterationsWCET ) * ( lp->loopbound - 1 ) );
+  if ( lp->loopbound >= 1 ) {
+    const ull execution_cost = firstIterationWCET
+          + ( nextIterationsWCET * ( lp->loopbound - 1 ) );
+    // TODO: The alignments may be computed for a wrong segment in case of multi-segment
+    //       schedules (see definitions of startAlign/endAlign)
+    const ull alignment_cost = startAlign( 0 ) + endAlign( firstIterationWCET )
+        + ( endAlign( nextIterationsWCET ) * ( lp->loopbound - 1 ) );
 
-  totalAlignCost += alignment_cost;
+    totalAlignCost += alignment_cost;
 
-  return execution_cost + alignment_cost;
+    return execution_cost + alignment_cost;
+  } else {
+    return 0;
+  }
+
 }
 
 /* Preprocess one loop for optimized bus aware WCET calculation */
@@ -381,12 +386,12 @@ void compute_bus_WCET_MSC_structural( MSC *msc, const char *tdma_bus_schedule_fi
   /* reset latest time of all tasks */
   reset_all_task( msc );
 
-  totalAlignCost = 0;
-
   int k;
   for ( k = 0; k < msc->num_task; k++ ) {
 
     DOUT( "Analyzing Task WCET %s......\n", msc->taskList[k].task_name );
+
+    totalAlignCost = 0;
 
     /* Get needed inputs. */
     cur_task = &( msc->taskList[k] );

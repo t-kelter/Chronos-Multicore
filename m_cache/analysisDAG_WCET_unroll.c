@@ -50,38 +50,52 @@ static void computeWCET_loop( loop* lp, procedure* proc, uint context )
   DSTART( "computeWCET_loop" );
   DOUT( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t) lp );
 
-  /* FIXME: correcting loop bound */
-  const int lpbound = lp->loopexit ? lp->loopbound : ( lp->loopbound + 1 );
-
   /* For computing wcet of the loop it must be visited 
    * multiple times equal to the loop bound */
-  int i;
-  for ( i = 0; i < lpbound; i++ ) {
+  int i, j;
+  for ( i = 0; i < lp->loopbound; i++ ) {
     /* See header.h:num_chmc for further details about CHMC contexts. */
     const uint inner_context = getInnerLoopContext( lp, context, i == 0 );
 
     /* Go through the blocks in topological order */
-    int j;
     for ( j = lp->num_topo - 1; j >= 0; j-- ) {
       block * const bb = lp->topo[j];
       assert(bb);
 
-      /* Set the start time of this block in the loop */
-      /* If this is the first iteration and loop header
-       * set the start time to be the latest finish time
-       * of predecessor otherwise latest finish time of
-       * loop sink */
+      /* Set start time for loop header at first iteration. */
       if ( bb->bbid == lp->loophead->bbid && i == 0 ) {
         set_start_time_WCET( bb, proc );
+      /* Set start time for loop header at successive iterations. */
       } else if ( bb->bbid == lp->loophead->bbid ) {
         assert(lp->loopsink);
         bb->start_time = MAX( lp->loopsink->finish_time, bb->start_time );
         DOUT( "Setting loop %d finish time = %Lu\n", lp->lpid, lp->loopsink->finish_time );
+      /* Set start time for a block inside the loop. */
       } else {
         set_start_time_WCET( bb, proc );
       }
 
       computeWCET_block( bb, proc, lp, inner_context );
+    }
+  }
+
+  /* If the loop is not executed at all, then set all finish times
+   * to the finish time of the loop header. */
+  if ( lp->loopbound <= 0 ) {
+    /* See header.h:num_chmc for further details about CHMC contexts. */
+    const uint inner_context = getInnerLoopContext( lp, context, 1 );
+
+    /* Compute time for header evaluation. */
+    computeWCET_block( lp->loophead, proc, lp, inner_context );
+
+    /* Set finish time for all other loop blocks. */
+    for ( j = lp->num_topo - 1; j >= 0; j-- ) {
+      block * const bb = lp->topo[j];
+      assert(bb);
+
+      if ( bb->bbid != lp->loophead->bbid ) {
+        bb->finish_time = lp->loophead->finish_time;
+      }
     }
   }
 

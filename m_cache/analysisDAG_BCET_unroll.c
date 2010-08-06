@@ -48,17 +48,14 @@ static void computeBCET_loop( loop* lp, procedure* proc, uint context )
 
   DOUT( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t)lp);
 
-  const int lpbound = lp->loopbound;
-
   /* For computing BCET of the loop it must be visited 
    * multiple times equal to the loop bound */
-  int i;
-  for ( i = 0; i < lpbound; i++ ) {
+  int i, j;
+  for ( i = 0; i < lp->loopbound; i++ ) {
     /* See header.h:num_chmc for further details about CHMC contexts. */
     const uint inner_context = getInnerLoopContext( lp, context, i == 0 );
 
     /* Go through the blocks in topological order */
-    int j;
     for ( j = lp->num_topo - 1; j >= 0; j-- ) {
       block * const bb = lp->topo[j];
       assert(bb);
@@ -79,6 +76,26 @@ static void computeBCET_loop( loop* lp, procedure* proc, uint context )
       }
 
       computeBCET_block( bb, proc, lp, inner_context );
+    }
+  }
+
+  /* If the loop is not executed at all, then set all finish times
+   * to the finish time of the loop header. */
+  if ( lp->loopbound <= 0 ) {
+    /* See header.h:num_chmc for further details about CHMC contexts. */
+    const uint inner_context = getInnerLoopContext( lp, context, 1 );
+
+    /* Compute time for header evaluation. */
+    computeBCET_block( lp->loophead, proc, lp, inner_context );
+
+    /* Set finish time for all other loop blocks. */
+    for ( j = lp->num_topo - 1; j >= 0; j-- ) {
+      block * const bb = lp->topo[j];
+      assert(bb);
+
+      if ( bb->bbid != lp->loophead->bbid ) {
+        bb->finish_time = lp->loophead->finish_time;
+      }
     }
   }
 

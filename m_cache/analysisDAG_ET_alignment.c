@@ -526,6 +526,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
   CALLOC( results, combined_result**, lp->loopbound, sizeof( combined_result* ), "results" );
 
   // Perform single-iteration-analyses until the offset bound converges
+  _Bool brokeOut = 0;
   for( current_iteration = 0; current_iteration < lp->loopbound; current_iteration++ ) {
 
     // Allocate new result slot
@@ -546,13 +547,14 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
     } else {
       // We always need at least two iterations to fully exploit the cache analysis
       if ( current_iteration != 0 ) {
+        brokeOut = 1;
         break;
       }
     }
   }
 
   // The number of iterations which were analyzed explicitly
-  unsigned int analyzed_iterations = current_iteration + 1;
+  unsigned int analyzed_iterations = current_iteration + ( brokeOut ? 1 : 0 );
 
   // Compute the final result. The BCET and WCET values can be extracted from the
   // individual iterations, the result from the last analyzed iteration stays 
