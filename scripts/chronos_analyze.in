@@ -21,6 +21,6 @@ declare -r CALL_STRING="@chronos_path@/m_cache/opt $INTERFERENCE_FILE $L1_CACHE_
 eval $CALL_STRING
 if (( $? != 0 )); then
   echo "";
-  echo "Analyzer failed! Call to reproduce was: ";
-  echo $CALL_STRING;
+  echo "Analyzer failed! Starting GDB ...";
+  eval "gdb -arg $CALL_STRING";
 fi;
