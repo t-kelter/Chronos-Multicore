@@ -1,7 +1,15 @@
+// Include standard library headers
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "block.h"
 #include "handler.h"
 
@@ -27,11 +35,21 @@ int getinstruction( const instr *i, const instr **ilist, int start, int end )
  */
 int getblock( int bbid, block **bblist, int start, int end )
 {
+  DSTART( "getblock" );
+
+  DOUT( "Searching for block with id %u\n", bbid );
+
   int i;
-  for( i = end; i >= start; i-- )
-    if( bblist[i]->bbid == bbid )
-      return i;
-  return -1;
+  for( i = end; i >= start; i-- ) {
+    DOUT( "Scanned block %u (0x%s)\n", bblist[i]->bbid,
+        bblist[i]->instrlist[0]->addr );
+
+    if( bblist[i]->bbid == bbid ) {
+      DRETURN( i );
+    }
+  }
+
+  DRETURN( -1 );
 }
 
 

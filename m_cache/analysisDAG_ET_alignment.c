@@ -154,8 +154,12 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
                                            uint dag_block_number,
                                            const combined_result *dag_block_results )
 {
+  DSTART( "getStartOffsets" );
   assert( bb && proc && dag_block_results && dag_block_list && "Invalid arguments!" );
   tdma_offset_bounds result;
+
+  DOUT( "Getting start offset for block %u.%u (0x%s)\n",
+      bb->pid, bb->bbid, bb->instrlist[0]->addr );
 
   int i;
   for ( i = 0; i < bb->num_incoming; i++ ) {
@@ -163,6 +167,9 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
     const int pred_index = bb->incoming[i];
     const block * const pred = proc->bblist[pred_index];
     assert( pred && "Missing basic block!" );
+
+    DOUT( "Accounting for predecessor information from bb %u.%u (0x%s)\n",
+        pred->pid, pred->bbid, pred->instrlist[0]->addr );
 
     /* The pred_index is an index into the bblist of the procedure.
      * What we need is an index into the topologically_sorted_blocks.
@@ -183,7 +190,7 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
   }
 
   assert( checkOffsetBound( &result ) && "Invalid result!" );
-  return result;
+  DRETURN( result );
 }
 
 
@@ -835,6 +842,7 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
 
   DOUT( "Analyzing procedure %d with offsets [%u,%u]\n",
         proc->pid, start_offsets.lower_bound, start_offsets.upper_bound );
+  DACTION( printProc( proc ); );
 
   /* Get an array for the result values per basic block. */
   combined_result *block_results;
