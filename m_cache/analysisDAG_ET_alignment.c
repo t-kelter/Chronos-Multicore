@@ -171,9 +171,11 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
      * id which identifies the block inside the function. */
     const int conv_pred_idx = getblock( pred->bbid, dag_block_list,
                                         0, dag_block_number - 1 );
+    assert( conv_pred_idx >= 0 && "Could not find predecessor block!" );
 
     const tdma_offset_bounds * const pred_offsets = &dag_block_results[conv_pred_idx].offsets;
     if ( i == 0 ) {
+      assert( checkOffsetBound( pred_offsets ) && "Invalid argument!" );
       result = *pred_offsets;
     } else {
       result = mergeOffsetBounds( &result, pred_offsets );
@@ -397,6 +399,9 @@ static combined_result analyze_block( block* bb, procedure* proc,
       const acc_type worst_acc = check_hit_miss( bb, inst, loop_context, 
                                                  ACCESS_SCENARIO_WCET );
 
+      // TODO: At this point we could use the information, that we already
+      //       had a bus delay in the current block, therefore the resulting
+      //       offsets after the first access is fixed inside the block...
       uint j, min_latency, max_latency;
       for ( j  = result.offsets.lower_bound;
             j <= result.offsets.upper_bound; j++ ) {
@@ -438,15 +443,23 @@ static combined_result analyze_block( block* bb, procedure* proc,
         }
       }
 
-      DOUT( "  Instruction 0x%s: BCET %llu, WCET %llu\n", inst->addr,
-          result.bcet - old_bcet, result.wcet - old_wcet );
+      /*DOUT( "  Instruction 0x%s: BCET %llu, WCET %llu\n", inst->addr,
+          result.bcet - old_bcet, result.wcet - old_wcet );*/
     }
   }
 
   assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
-  DOUT( "Accounting BCET %llu, WCET %llu for block 0x%s - 0x%s\n",
-      result.bcet, result.wcet, bb->instrlist[0]->addr,
+  DACTION(
+    char block_name[10];
+    if ( bb->loopid >= 0 ) {
+      sprintf( block_name, "%u.%u.%u", bb->pid, bb->loopid, bb->bbid );
+    } else {
+      sprintf( block_name, "%u.%u", bb->pid, bb->bbid );
+    }
+    DOUT( "Accounting BCET %llu, WCET %llu for block %s 0x%s - 0x%s\n",
+      result.bcet, result.wcet, block_name, bb->instrlist[0]->addr,
       bb->instrlist[bb->num_instr - 1]->addr );
+  );
   DRETURN( result );
 }
 
