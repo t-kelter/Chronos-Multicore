@@ -160,6 +160,7 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
 
   DOUT( "Getting start offset for block %u.%u (0x%s)\n",
       bb->pid, bb->bbid, bb->instrlist[0]->addr );
+  DACTION( printProc( proc ); );
 
   int i;
   for ( i = 0; i < bb->num_incoming; i++ ) {
@@ -176,9 +177,50 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
      * Therefore we must convert that index into an index into the
      * topologically sorted list. For that purpose we use the block
      * id which identifies the block inside the function. */
-    const int conv_pred_idx = getblock( pred->bbid, dag_block_list,
-                                        0, dag_block_number - 1 );
-    assert( conv_pred_idx >= 0 && "Could not find predecessor block!" );
+    int conv_pred_idx = getblock( pred->bbid, dag_block_list,
+                                  0, dag_block_number - 1 );
+    
+    /* The predecessor is not in this DAG. */
+    if ( conv_pred_idx < 0 ) {
+      /* Then we have two possibilities: Either the predecessor
+       * is in a surrounding loop, in which case we have a loop
+       * with multiple entries which is not supported. Or the
+       * predecessor is in a nested loop, but its not the loop
+       * header (he would be part of the current DAG). Then we
+       * set the predecessor id to be the id of the loop header
+       * manually. */
+      const loop * const pred_loop = ( pred->loopid >= 0 ? 
+                                       proc->loops[pred->loopid] : NULL );
+      const loop * const bb_loop   = ( bb->loopid >= 0 ? 
+                                       proc->loops[bb->loopid] : NULL );
+
+      // This will store the block which will be the effective predecessor
+      block *placeholder = NULL;
+
+      if ( bb_loop != NULL && pred_loop != NULL ) {
+        assert( bb_loop->lpid != pred_loop->lpid &&
+          "Invalid DAG: Predecessor in same loop, but not in DAG!" );
+        assert( bb_loop->level <= pred_loop->level &&
+          "Found loop with multiple entrypoints!" );
+        placeholder = pred_loop->loophead;
+      } else if ( bb_loop != NULL ) {
+        assert( 0 && "Found loop with multiple entrypoints!" );
+      } else if ( pred_loop != NULL ) {
+        placeholder = pred_loop->loophead;
+      } else {
+        /* Both blocks are not in a loop, but the predecessor is not
+         * in the DAG. This may happen for loops with multiple exits,
+         * (the exit blocks themselves are sometimes not part of the
+         * loop itself, cause they might unconditionally jump to the 
+         * loop's successor block). Check whether such a case is 
+         * present here. */
+        assert( 0 && "Check this!" );
+      }
+
+      conv_pred_idx = getblock( placeholder->bbid, dag_block_list,
+                                0, dag_block_number - 1 );
+      assert( conv_pred_idx >= 0 && "Missing block!" );
+    }
 
     const tdma_offset_bounds * const pred_offsets = &dag_block_results[conv_pred_idx].offsets;
     if ( i == 0 ) {
@@ -842,7 +884,6 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
 
   DOUT( "Analyzing procedure %d with offsets [%u,%u]\n",
         proc->pid, start_offsets.lower_bound, start_offsets.upper_bound );
-  DACTION( printProc( proc ); );
 
   /* Get an array for the result values per basic block. */
   combined_result *block_results;
