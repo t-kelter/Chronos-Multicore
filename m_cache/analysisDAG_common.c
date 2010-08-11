@@ -62,15 +62,21 @@ uint getMaximumLoopContext( const procedure * const proc )
 
   DOUT( "Determined maximum loop level %d\n", maxLevel );
 
-  /* Returns a number consisting of leading zeros followed by
-   * exactly 'maxLevel' ones. */
-  const uint shift_count = maxLevel + 1;
-  const uint result = ( shift_count < sizeof( uint ) )
-                        ? ( 1 << shift_count ) - 1
-                        : UINT_MAX;
+  if ( maxLevel >= 0 ) {
+    /* Returns a number consisting of leading zeros followed by
+     * exactly 'maxLevel' ones. */
+    const int shift_count = maxLevel + 1;
+    const uint result = ( shift_count < ( sizeof( uint ) * 8 ) )
+                          ? ( 1U << shift_count ) - 1U
+                          : UINT_MAX;
 
-  DOUT( "Determined maximum loop context as %x", result );
-  DRETURN( result );
+    DOUT( "Determined maximum loop context as %x\n", result );
+    DRETURN( result );
+  } else {
+    /* No loops -> Only one procedure-wide context. */
+    DOUT( "Determined maximum loop context as %x\n", 0 );
+    DRETURN( 0 );
+  }
 }
 
 
