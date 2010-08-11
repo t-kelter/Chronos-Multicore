@@ -8,7 +8,7 @@
 #include "handler.h"
 
 
-int printBlock( block *bb ) {
+int printBlock( const block * const bb ) {
 
   int i;
 
@@ -40,16 +40,15 @@ int printBlock( block *bb ) {
 }
 
 
-int printProc( procedure *p ) {
+int printProc( const procedure * const p ) {
 
   int i;
-  block *bb;
 
   printf( "Proc: %d\n", p->pid );
   for( i = 0; i < p->num_bb; i++ ) {
-    bb = p->bblist[i];
+    const block * const bb = p->bblist[i];
     if( !bb )
-      printf( "Null basic block at %d\n", i ), exit(1);
+      prerr( "Null basic block at %d\n", i );
     printBlock( bb );
   }
   if( p->num_calls ) {
@@ -71,10 +70,9 @@ int printProc( procedure *p ) {
 }
 
 
-int print_cfg() {
-
+int print_cfg()
+{
   int i;
-  procedure *p;
 
   int max_num_bb, max_proc;
 
@@ -82,7 +80,7 @@ int print_cfg() {
   max_proc = -1;
 
   for( i = 0; i < num_procs; i++ ) {
-    p = procs[i];
+    const procedure * const p = procs[i];
     if( !p )
       printf( "Null procedure at %d\n", i ), exit(1);
     printProc( p );
@@ -97,7 +95,7 @@ int print_cfg() {
   if( proc_cg != NULL ) {
     printf( "Reverse-topo ordered call graph:" );
     for( i = 0; i < num_procs; i++ ) {
-      p = procs[ proc_cg[i] ];
+      const procedure * const p = procs[ proc_cg[i] ];
       if( !p )
 	printf( "Null procedure at topo order %d\n", i ), exit(1);
       printf( " %d", p->pid );
@@ -110,7 +108,7 @@ int print_cfg() {
 }
 
 
-int printLoop( loop *lp ) {
+int printLoop( const loop * const lp ) {
 
   int i;
 
@@ -134,20 +132,18 @@ int printLoop( loop *lp ) {
 }
 
 
-int print_loops() {
-
+int print_loops()
+{
   int i, j;
-  procedure *p;
-  loop *lp;
 
   for( i = 0; i < num_procs; i++ ) {
     printf( "\nproc %d:\n\n", i );
-    p = procs[i];
+    const procedure * const p = procs[i];
     if( !p )
       printf( "Null procedure at %d\n", i ), exit(1);
 
     for( j = 0; j < p->num_loops; j++ ) {
-      lp = p->loops[j];
+      const loop * const lp = p->loops[j];
       if( !lp )
 	printf( "Null loop at %d proc %d\n", j, i ), exit(1);
       printLoop( lp );
@@ -159,14 +155,11 @@ int print_loops() {
 }
 
 
-int print_topo() {
-
+int print_topo()
+{
   int i, j, k;
-  loop *lp;
-  procedure *p;
-
   for( i = 0; i < num_procs; i++ ) {
-    p = procs[i];
+    const procedure * const p = procs[i];
 
     // procedure blocks
     printf( "Proc %d:", p->pid );
@@ -176,7 +169,7 @@ int print_topo() {
 
     // loops
     for( j = 0; j < p->num_loops; j++ ) {
-      lp = p->loops[j];
+      const loop * const lp = p->loops[j];
       printf( "- Loop %d-%d:", lp->pid, lp->lpid );
       for( k = 0; k < lp->num_topo; k++ )
 	printf( " %d", lp->topo[k]->bbid );
@@ -189,27 +182,27 @@ int print_topo() {
 }
 
 
-int printWCETLoop( loop *lp ) {
+int printWCETLoop( const loop * const lp ) {
 
   printf( "- Loop %d-%d: %Lu (%s)\n", lp->pid, lp->lpid, lp->wcet[0], lp->wpath );
   return 0;
 }
 
 
-int printWCETProc( procedure *p ) {
+int printWCETProc( const procedure * const p ) {
 
   printf( "Proc %d: %Lu (%s)\n", p->pid, p->wcet[0], p->wpath );
   return 0;
 }
 
 
-int printInstr( FILE *fptr, instr *insn ) {
+int printInstr( FILE *fptr, const instr * const insn ) {
 
   fprintf( fptr, "%s %s %s %s %s\n", insn->addr, insn->op, insn->r1, insn->r2, insn->r3 );
   return 0;
 }
 
-int printBlockInstr( FILE *fptr, block *bb ) {
+int printBlockInstr( FILE *fptr, const block * const bb ) {
 
   int i;
   instr *insn;
@@ -226,15 +219,12 @@ int printBlockInstr( FILE *fptr, block *bb ) {
 int print_instrlist() {
 
   int i, j;
-  procedure *p;
-  FILE *fptr;
-
-  fptr = openfile( "blks", "w" );
+  FILE *fptr = openfile( "blks", "w" );
 
   // printf( "Instruction list:\n\n" );
 
   for( i = 0; i < num_procs; i++ ) {
-    p = procs[i];
+    const procedure * const p = procs[i];
     for( j = 0; j < p->num_bb; j++ ) {
       // printBlockInstr( stdout, p->bblist[j] );
       printBlockInstr( fptr, p->bblist[j] );      
@@ -248,7 +238,7 @@ int print_instrlist() {
 }
 
 
-int printPath( path *pt ) {
+int printPath( const path * const pt ) {
 
   int i;
 
@@ -264,7 +254,7 @@ int printPath( path *pt ) {
 }
 
 
-int printBranch( branch *br, char printcf ) {
+int printBranch( const branch * const br, const char printcf ) {
 
   int i;
 
@@ -310,7 +300,7 @@ int printBranch( branch *br, char printcf ) {
   return 0;
 }
 
-int printAssign( assign *assg, int id, char printcf ) {
+int printAssign( const assign * const assg, const int id, const char printcf ) {
 
   int i;
 
@@ -358,18 +348,14 @@ int print_effects() {
 }
 
 
-int dump_loops() {
-
-  FILE *f;
-
+int dump_loops()
+{
   int i, j, k;
-  loop *lp;
-
-  f = openfile( "loops", "w" );
+  FILE *f = openfile( "loops", "w" );
 
   for( i = 0; i < num_procs; i++ ) {
     for( j = 0; j < procs[i]->num_loops; j++ ) {
-      lp = procs[i]->loops[j];
+      const loop * const lp = procs[i]->loops[j];
       fprintf( f, "Loop %d %d  %d %d %d %d  %d\n", lp->pid, lp->lpid,
 	       lp->level, lp->nest, lp->loophead->bbid, lp->loopbound, lp->num_topo );
 
@@ -384,15 +370,14 @@ int dump_loops() {
 }
 
 
-int dump_callgraph() {
-
-  FILE *f;
+int dump_callgraph()
+{
   int i;
 
   if( proc_cg == NULL )
     return 1;
 
-  f = openfile( "cg", "w" );
+  FILE *f = openfile( "cg", "w" );
 
   for( i = 0; i < num_procs; i++ )
     fprintf( f, "%d ", procs[proc_cg[i]]->pid );
@@ -403,8 +388,7 @@ int dump_callgraph() {
   return 0;
 }
 
-void
-dumpCacheState(cache_state *cs)
+void dumpCacheState( const cache_state * const cs )
 {
 	int i, j, k, n;
 	//cache_state *copy = NULL;
@@ -489,8 +473,7 @@ dumpCacheState(cache_state *cs)
 }
 
 
-void
-dumpCacheState_L2(cache_state *cs)
+void dumpCacheState_L2( const cache_state * const cs )
 {
 	int i, j, k, n;
 	//cache_state *copy = NULL;
@@ -575,45 +558,37 @@ dumpCacheState_L2(cache_state *cs)
 }
 
 
-void dump_prog_info(procedure* proc)
+void dump_prog_info( const procedure * const proc)
 {
-  loop* lp;
-  block* bb;
-  instr* inst;
   int i,j,k;
   FILE* fp = stdout;
 
   fprintf(fp, "Printing incoming block information\n");
-  for(i = 0; i < proc->num_bb; i++)
-  {
+  for(i = 0; i < proc->num_bb; i++) {
     assert(proc->bblist[i]);
-    bb = proc->bblist[i];
+    const block * const bb = proc->bblist[i];
     fprintf(fp, "Basic block id = (%d.%d.0x%x.start=%Lu.finish=%Lu)\n", proc->pid,
         bb->bbid, (unsigned int)(uintptr_t)bb, bb->start_time, bb->finish_time);
     fprintf(fp, "Incoming blocks (Total = %d)======> \n", bb->num_incoming);
-    for(j = 0; j < bb->num_incoming; j++)
-    {
+    for(j = 0; j < bb->num_incoming; j++) {
       fprintf(fp, "(bb=%d.%x)\n", bb->incoming[j],
           (unsigned int)(uintptr_t)proc->bblist[bb->incoming[j]]);
     }
   }
   fprintf(fp, "Printing Topological information ====>\n");
-  for(i = proc->num_topo - 1; i >= 0; i--)
-  {
-    bb = proc->topo[i];
+  for(i = proc->num_topo - 1; i >= 0; i--) {
+    const block * const bb = proc->topo[i];
     fprintf(fp, "(proc=%d.bb=%d)\n", bb->pid, bb->bbid);
   }
   fprintf(fp, "Printing Loop information ====>\n");
-  for(i = 0; i < proc->num_loops; i++)
-  {
-    lp = proc->loops[i];
+  for(i = 0; i < proc->num_loops; i++) {
+    const loop * const lp = proc->loops[i];
     assert(lp->loophead);
     fprintf(fp, "(proc=%d.loop=%d.loophead=%d.loopsink=%d.loopexit=%d)\n",
         proc->pid, lp->lpid, lp->loophead->bbid, lp->loopsink->bbid,
         lp->loopexit ? lp->loopexit->bbid : -1);
     fprintf(fp, "Loop Nodes ====>\n");
-    for(j = lp->num_topo - 1; j >= 0; j--)
-    {
+    for(j = lp->num_topo - 1; j >= 0; j--) {
       assert(lp->topo[j]);
       fprintf(fp, "(bb=%d)", lp->topo[j]->bbid);
     }
@@ -621,23 +596,19 @@ void dump_prog_info(procedure* proc)
   }
 
   fprintf(fp, "Printing instruction call relationship\n");
-  for(i = 0; i < proc->num_bb; i++)
-  {
-    bb = proc->bblist[i];
+  for(i = 0; i < proc->num_bb; i++) {
+    const block * const bb = proc->bblist[i];
 
-    for(j = 0; j < bb->num_instr; j++)
-    {
-      inst = bb->instrlist[j];
-      if(IS_CALL(inst->op))
-      {
+    for(j = 0; j < bb->num_instr; j++) {
+      const instr * const inst = bb->instrlist[j];
+      if(IS_CALL(inst->op)) {
         fprintf(fp, "PROCEDURE CALL ENCOUNTERED at %s\n", GET_CALLEE(inst));
         /* Ignore library calls */
         if(!proc->calls)
-        continue;
-        for(k = 0; k < proc->num_calls; k++)
-        {
+          continue;
+        for(k = 0; k < proc->num_calls; k++) {
           uint callee_id = proc->calls[k];
-          procedure* callee = procs[callee_id];
+          const procedure * const callee = procs[callee_id];
           assert(callee);
           fprintf(fp, "Got start address = %x\n",
               callee->topo[callee->num_topo - 1]->startaddr);
@@ -648,7 +619,7 @@ void dump_prog_info(procedure* proc)
 }
 
 /* This is for debugging. Dumped chmc info after preprocessing */
-void dump_pre_proc_chmc(procedure* proc, enum AccessScenario scenario )
+void dump_pre_proc_chmc( const procedure * const proc, const enum AccessScenario scenario )
 {
   fprintf( stdout, "%s-case CHMC info: \n\n", 
       scenario == ACCESS_SCENARIO_BCET ? "Best" : "Worst" );
@@ -659,7 +630,7 @@ void dump_pre_proc_chmc(procedure* proc, enum AccessScenario scenario )
 
     int j;
     for(j = 0; j < bb->num_instr; j++) {
-      instr * const inst = bb->instrlist[j];
+      const instr * const inst = bb->instrlist[j];
       fprintf( stdout, "Instruction address = %s ==>\n", inst->addr );
 
       int k;
