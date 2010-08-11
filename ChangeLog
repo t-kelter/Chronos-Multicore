@@ -1,3 +1,12 @@
+2010-08-11:
+* Implemented buffering of result values which speeds up the recursive computations by a factor of 3 or more in some cases.
+
+2010-08-06:
+* Added a BCET analysis, that is based on the structural WCET analysis for better comparison (Full unrolling BCET analysis is more precise)
+
+2010-08-02:
+* Implemented graph-tracking analysis with a dynamic flow problem solved through an ILP (lp_solve)
+
 2010-07-26:
 * Integrated debugmacros into Chronos. The C++ debugmacros library which enables a selective, run-time decided, fully removable (per define) debug output support.
 * All debug output in the main analyzer was switched to debugmacros (The 'wcrt' and 'cfg' modules still use their old debug output)
