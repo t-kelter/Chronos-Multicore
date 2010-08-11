@@ -19,6 +19,7 @@
 #include "block.h"
 #include "busSchedule.h"
 #include "dump.h"
+#include "loopdetect.h"
 #include "offsetGraph.h"
 
 
@@ -160,7 +161,6 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
 
   DOUT( "Getting start offset for block %u.%u (0x%s)\n",
       bb->pid, bb->bbid, bb->instrlist[0]->addr );
-  DACTION( printProc( proc ); );
 
   int i;
   for ( i = 0; i < bb->num_incoming; i++ ) {
@@ -214,7 +214,9 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
          * loop itself, cause they might unconditionally jump to the 
          * loop's successor block). Check whether such a case is 
          * present here. */
-        assert( 0 && "Check this!" );
+        loop * const exitedLoop = isLoopExit( pred, proc );
+        assert( exitedLoop && "Expected loop exit here!" );
+        placeholder = exitedLoop->loophead;
       }
 
       conv_pred_idx = getblock( placeholder->bbid, dag_block_list,

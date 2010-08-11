@@ -272,10 +272,14 @@ typedef struct
 {
   int lpid;
   int pid; // id of the procedure it belongs to
-  int loopbound; // max. number of loop iterations
+
   block *loophead; // pointer to the block that heads the loop
   block *loopsink; // pointer to the block that is the sink of the loop
   block *loopexit; // pointer to the (normal) exit block of the loop
+  block **loopexits; // list of loop exits (always contains 'loopexit')
+  int num_loopexits; // size of 'loopexits'
+
+  int loopbound; // max. number of loop iterations
   int level; // nesting level of the loop, outmost being 0
   int nest; // id of the loop that this loop is immediately nested in (-1 if not nested)
   char is_dowhile; // indicates if the loop is a do-while loop (0/1)

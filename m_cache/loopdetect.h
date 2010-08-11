@@ -21,6 +21,15 @@
 
 
 /*
+ * Determines whether the given block is a loop exit block. The block is a
+ * loop exit block when all predecessors are inside a single loop. If such
+ * a loop could be found, it is returned, else NULL is returned.
+ *
+ * This only works if loop exit edges have not been removed.
+ */
+loop *isLoopExit( const block * const bb, const procedure * const proc );
+
+/*
  * Returns 1 if there is a path from src to dest in the CFG, 0 otherwise.
  */
 int isReachable( int src, int dest, block **bblist, int num_bb );

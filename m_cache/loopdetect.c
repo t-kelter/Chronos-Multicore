@@ -18,6 +18,46 @@
 
 
 /*
+ * Determines whether the given block is a loop exit block. The block is a
+ * loop exit block when all predecessors are inside a single loop. If such
+ * a loop could be found, it is returned, else NULL is returned.
+ *
+ * This only works if loop exit edges have not been removed.
+ */
+loop *isLoopExit( const block * const bb, const procedure * const proc )
+{
+  loop *loopToExit = NULL;
+
+  // Scan all predecessors
+  int i;
+  for ( i = 0; i < bb->num_incoming; i++ ) {
+    const block * const pred = proc->bblist[bb->incoming[i]];
+
+    // Is predecessor in another loop?
+    if ( pred->loopid >= 0 &&
+         pred->loopid != bb->loopid ) {
+      loop * const pred_loop = proc->loops[pred->loopid];
+
+      // Are all predecessors in the same loop?
+      if ( loopToExit == NULL ) {
+        loopToExit = pred_loop;
+      } else {
+        if ( loopToExit == pred_loop ) {
+          continue;
+        } else {
+          return NULL;
+        }
+      }
+    } else {
+      return NULL;
+    }
+  }
+
+  return loopToExit;
+}
+
+
+/*
  * Recursive function.
  * Returns 1 if there is a path from src to dest in the CFG, 0 otherwise.
  */
@@ -80,6 +120,7 @@ int isNested( int inloopid, int outloopid, loop **loops )
 /*
  * Removes edge outid from bb.
  */
+/*
 static int removeEdge( block *bb, char outid )
 {
   bb->num_outgoing--;
@@ -90,11 +131,13 @@ static int removeEdge( block *bb, char outid )
 
   return 0;
 }
+*/
 
 /*
  * Removes loop exit edges.
  */
-/*static int removeExitEdges( procedure *p )
+/*
+static int removeExitEdges( procedure *p )
 {
   int i;
   for ( i = 0; i < p->num_loops; i++ ) {
@@ -116,7 +159,8 @@ static int removeEdge( block *bb, char outid )
   }
 
   return 0;
-}*/
+}
+*/
 
 /*
  * Removes loop back-edges.
@@ -274,12 +318,16 @@ static int determineLoopExits( loop **loops, int num_loops, block **bblist, int 
       }
     }
     if ( !num_exits )
-      printf( "Loopexit not detected for %d\n", lp->lpid ), exit( 1 );
+      prerr( "Loopexit not detected for %d\n", lp->lpid );
 
-    if ( num_exits == 1 )
+    // Carry over the loop exit results to the loop struct
+    lp->loopexits = exits;
+    lp->num_loopexits = num_exits;
+
+    // Set standard exit
+    if ( num_exits == 1 ) {
       lp->loopexit = exits[0];
-
-    else {
+    } else {
       // try to read from file
       int success = 0;
       char proc[100];
@@ -293,7 +341,6 @@ static int determineLoopExits( loop **loops, int num_loops, block **bblist, int 
         // file does not exist or no valid annotation for this loop: prompt user to choose
         lp->loopexit = promptLoopExit( lp, exits, num_exits );
     }
-    free( exits );
   }
 
   return 0;
