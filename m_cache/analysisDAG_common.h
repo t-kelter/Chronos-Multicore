@@ -41,6 +41,9 @@ enum AccessScenario {
 uint getInnerLoopContext( const loop *lp, uint surroundingLoopContext,
     _Bool firstInnerIteration );
 
+/* Returns the maximum loop context that can be used in this procedure. */
+uint getMaximumLoopContext( const procedure * const proc );
+
 /* Attach best-case chmc classification to the instruction data structure */
 void preprocess_chmc_BCET( procedure* proc );
 /* Attach best-case chmc classification for L2 cache to the instruction

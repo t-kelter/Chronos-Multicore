@@ -51,6 +51,38 @@ static enum LoopAnalysisType currentLoopAnalysisType;
  * analysis. */
 static _Bool tryPenalizedAlignment = 1;
 
+/* This is a multi-level array for buffering the computed results
+ * per block. In an access like
+ *
+ * block_results[p][b][lc][ol][ou]
+ *
+ * p = procedure id
+ * b = block id
+ * lc = loop context
+ * ol = lower offset bound
+ * ou = upper offset bound */
+static combined_result ******block_results = NULL;
+/* This is a multi-level array for buffering the computed results
+ * per loop. In an access like
+ *
+ * loop_results[p][l][lc][ol][ou]
+ *
+ * p = procedure id
+ * l = loop id
+ * lc = loop context
+ * ol = lower offset bound
+ * ou = upper offset bound */
+static combined_result ******loop_results = NULL;
+/* This is a multi-level array for buffering the computed results
+ * per procedure. In an access like
+ *
+ * proc_results[p][ol][ou]
+ *
+ * p = procedure id
+ * ol = lower offset bound
+ * ou = upper offset bound */
+static combined_result ****proc_results = NULL;
+
 
 // ##################################################
 // #### Forward declarations of static functions ####
@@ -145,6 +177,97 @@ static _Bool isOffsetBoundEqual( const tdma_offset_bounds *lhs, const tdma_offse
 
   return lhs->lower_bound == rhs->lower_bound &&
          lhs->upper_bound == rhs->upper_bound;
+}
+
+
+/* Initializes the buffers to store intermediate results for the given task. */
+static void initResultBuffers( const task_t * const task )
+{
+  int i, j, k, offset;
+  const uint tdma_interval = getCoreSchedule( ncore, 0 )->interval;
+
+  #define INIT_TDMA_GRID( ptr ) \
+    CALLOC( ptr, combined_result***, tdma_interval, \
+      sizeof( combined_result** ), #ptr ); \
+    for ( offset = 0; offset < tdma_interval; offset++ ) { \
+      CALLOC( ptr[offset], combined_result**, tdma_interval, \
+        sizeof( combined_result* ), #ptr "[offset]" ); \
+    }
+
+  CALLOC( block_results, combined_result******, task->num_proc,
+      sizeof( combined_result***** ), "block_results" );
+  CALLOC( loop_results, combined_result******, task->num_proc,
+        sizeof( combined_result***** ), "loop_results" );
+  CALLOC( proc_results, combined_result****, task->num_proc,
+        sizeof( combined_result*** ), "proc_results" );
+
+  for ( i = 0; i < task->num_proc; i++ ) {
+    const procedure * const proc = task->procs[i];
+
+    INIT_TDMA_GRID( proc_results[i] );
+
+    const int maxLoopContext = getMaximumLoopContext( proc );
+
+    CALLOC( block_results[i], combined_result*****, proc->num_bb,
+          sizeof( combined_result**** ), "block_results[i]" );
+    for ( j = 0; j < proc->num_bb; j++ ) {
+      CALLOC( block_results[i][j], combined_result****, maxLoopContext,
+            sizeof( combined_result*** ), "block_results[i][j]" );
+      for ( k = 0; k < maxLoopContext; k++ ) {
+        INIT_TDMA_GRID( block_results[i][j][k] );
+      }
+    }
+
+    CALLOC( loop_results[i], combined_result*****, proc->num_loops,
+          sizeof( combined_result**** ), "loop_results[i]" );
+    for ( j = 0; j < proc->num_loops; j++ ) {
+      CALLOC( loop_results[i][j], combined_result****, maxLoopContext,
+            sizeof( combined_result*** ), "loop_results[i][j]" );
+      for ( k = 0; k < maxLoopContext; k++ ) {
+        INIT_TDMA_GRID( loop_results[i][j][k] );
+      }
+    }
+  }
+}
+/* Frees the buffers to store intermediate results for the given task. */
+static void freeResultBuffers( const task_t * const task )
+{
+  int i, j, k, offset;
+  const uint tdma_interval = getCoreSchedule( ncore, 0 )->interval;
+
+  #define FREE_TDMA_GRID( ptr ) \
+    for ( offset = 0; offset < tdma_interval; offset++ ) { \
+      free( ptr[offset] ); \
+    } \
+    free( ptr );
+
+  for ( i = 0; i < task->num_proc; i++ ) {
+    const procedure * const proc = task->procs[i];
+
+    FREE_TDMA_GRID( proc_results[i] );
+
+    const int maxLoopContext = getMaximumLoopContext( proc );
+
+    for ( j = 0; j < proc->num_bb; j++ ) {
+      for ( k = 0; k < maxLoopContext; k++ ) {
+        FREE_TDMA_GRID( block_results[i][j][k] );
+      }
+      free( block_results[i][j] );
+    }
+    free( block_results[i] );
+
+    for ( j = 0; j < proc->num_loops; j++ ) {
+      for ( k = 0; k < maxLoopContext; k++ ) {
+        FREE_TDMA_GRID( loop_results[i][j][k] );
+      }
+      free( loop_results[i][j] );
+    }
+    free( loop_results[i] );
+  }
+
+  free( block_results );
+  free( loop_results );
+  free( proc_results );
 }
 
 
@@ -1041,6 +1164,9 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
     ncore = get_core( cur_task );
     procedure * const task_main = cur_task->main_copy;
 
+    /* Initialize the result buffers. */
+    initResultBuffers( cur_task );
+
     /* First get the earliest and latest start time of the current task. */
     const ull earliest_start = get_earliest_task_start_time( cur_task, ncore );
     const ull latest_start   = get_latest_task_start_time( cur_task, ncore );
@@ -1066,6 +1192,9 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
      * update all its successor tasks' latest time */
     update_succ_task_earliest_start_time( msc, cur_task );
     update_succ_task_latest_start_time( msc, cur_task );
+
+    /* Free the result buffers. */
+    freeResultBuffers( cur_task );
 
     DOUT( "**************************************************************\n" );
     DOUT( "Earliest / Latest start time of the program = %Lu / %Lu cycles\n",

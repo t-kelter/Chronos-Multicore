@@ -1,9 +1,10 @@
 // Include standard library headers
+#include <assert.h>
+#include <limits.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 #include <string.h>
-#include <math.h>
 
 // Include local library headers
 #ifdef HAVE_CONFIG_H
@@ -45,6 +46,25 @@ uint getInnerLoopContext( const loop *lp, uint surroundingLoopContext, _Bool fir
   const int enclosing_context_bits = surroundingLoopContext &
                                      enclosing_index_bitmask;
   return ( firstInnerIteration ? 0 : 1 ) * index_bitmask + enclosing_context_bits;
+}
+
+
+/* Returns the maximum loop context that can be used in this procedure. */
+uint getMaximumLoopContext( const procedure * const proc )
+{
+  int maxLevel = -1;
+  int i;
+  for ( i = 0; i < proc->num_loops; i++ ) {
+    maxLevel = MAX( maxLevel, proc->loops[i]->level );
+  }
+
+  /* Returns a number consisting of leading zeros followed by
+   * exactly 'maxLevel' ones. */
+  if ( maxLevel + 1 < sizeof( uint ) ) {
+    return ( 1 << ( maxLevel + 1 ) ) - 1;
+  } else {
+    return UINT_MAX;
+  }
 }
 
 
