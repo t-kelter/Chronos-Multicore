@@ -320,10 +320,6 @@ static int determineLoopExits( loop **loops, int num_loops, block **bblist, int 
     if ( !num_exits )
       prerr( "Loopexit not detected for %d\n", lp->lpid );
 
-    // Carry over the loop exit results to the loop struct
-    lp->loopexits = exits;
-    lp->num_loopexits = num_exits;
-
     // Set standard exit
     if ( num_exits == 1 ) {
       lp->loopexit = exits[0];
@@ -341,6 +337,8 @@ static int determineLoopExits( loop **loops, int num_loops, block **bblist, int 
         // file does not exist or no valid annotation for this loop: prompt user to choose
         lp->loopexit = promptLoopExit( lp, exits, num_exits );
     }
+
+    free( exits );
   }
 
   return 0;
