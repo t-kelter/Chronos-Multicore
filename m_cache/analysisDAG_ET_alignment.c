@@ -88,6 +88,13 @@ static _Bool checkOffsetBound( const tdma_offset_bounds *b )
 }
 
 
+/* Verifies that the result information is valid. */
+static _Bool checkResult( const combined_result *r )
+{
+  return r->bcet <= r->wcet && checkOffsetBound( &r->offsets );
+}
+
+
 /* Returns the union of the given offset bounds. */
 static tdma_offset_bounds mergeOffsetBounds( const tdma_offset_bounds *b1, const tdma_offset_bounds *b2 )
 {
@@ -141,6 +148,78 @@ static _Bool isOffsetBoundEqual( const tdma_offset_bounds *lhs, const tdma_offse
 }
 
 
+/* Given a block 'bb' and one of its predecessors 'pred', this function computes
+ * the effective predecessor of 'bb' which represents 'pred' in the DAG (DAG nodes
+ * are given by the 'dag_block_list' of size 'dag_block_numer'). In case of nested
+ * loops, the effective predecessor is the loop head of the preceding loop for example.
+ * Additionally this function requires the procedure 'proc' in which the DAG is
+ * situated.
+ *
+ * If an effective predecessor and its index in the dag_block_list was found,
+ * then the index is returned, else -1 is returned.
+ */
+static int getEffectiveDAGPredecessorIndex( const block * const bb,
+                                            const block * const pred,
+                                            const procedure * const proc,
+                                            block ** const dag_block_list,
+                                            const uint dag_block_number )
+{
+  /* The pred_index is an index into the bblist of the procedure.
+   * What we need is an index into the dag_block_list.
+   * Therefore we must convert that index into an index into the
+   * DAG block list. For that purpose we use the block
+   * id which identifies the block inside the function. */
+  int conv_pred_idx = getblock( pred->bbid, dag_block_list,
+                                    0, dag_block_number - 1 );
+
+  /* The predecessor is not in this DAG. */
+  if ( conv_pred_idx < 0 ) {
+    /* Then we have two possibilities: Either the predecessor
+     * is in a surrounding loop, in which case we have a loop
+     * with multiple entries which is not supported. Or the
+     * predecessor is in a nested loop, but its not the loop
+     * header (he would be part of the current DAG). Then we
+     * set the predecessor id to be the id of the loop header
+     * manually. */
+    const loop * const pred_loop = ( pred->loopid >= 0 ?
+                                     proc->loops[pred->loopid] : NULL );
+    const loop * const bb_loop   = ( bb->loopid >= 0 ?
+                                     proc->loops[bb->loopid] : NULL );
+
+    // This will store the block which will be the effective predecessor
+    const block *placeholder = NULL;
+
+    if ( bb_loop != NULL && pred_loop != NULL ) {
+      assert( bb_loop->lpid != pred_loop->lpid &&
+        "Invalid DAG: Predecessor in same loop, but not in DAG!" );
+      assert( bb_loop->level <= pred_loop->level &&
+        "Found loop with multiple entrypoints!" );
+      placeholder = pred_loop->loophead;
+    } else if ( bb_loop != NULL ) {
+      assert( 0 && "Found loop with multiple entrypoints!" );
+    } else if ( pred_loop != NULL ) {
+      placeholder = pred_loop->loophead;
+    } else {
+      /* Both blocks are not in a loop, but the predecessor is not
+       * in the DAG. This may happen for loops with multiple exits,
+       * (the exit blocks themselves are sometimes not part of the
+       * loop itself, cause they might unconditionally jump to the
+       * loop's successor block). Check whether such a case is
+       * present here. */
+      loop * const exitedLoop = isLoopExit( pred, proc );
+      assert( exitedLoop && "Expected loop exit here!" );
+      placeholder = exitedLoop->loophead;
+    }
+
+    conv_pred_idx = getblock( placeholder->bbid, dag_block_list,
+                              0, dag_block_number - 1 );
+    assert( conv_pred_idx >= 0 && "Missing block!" );
+  }
+
+  return conv_pred_idx;
+}
+
+
 /* Returns the offset bounds for basic block 'bb' from procedure 'proc' where the
  * offset bound results for its predecessors have already been computed and are
  * stored in 'dag_block_results'.
@@ -150,10 +229,11 @@ static _Bool isOffsetBoundEqual( const tdma_offset_bounds *lhs, const tdma_offse
  * This list is used to identify the index in the result array that belongs to
  * a certain block. 
  * 'dag_block_number' should be the number of blocks in 'dag_block_list'. */
-static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * proc,
-                                           block ** dag_block_list,
-                                           uint dag_block_number,
-                                           const combined_result *dag_block_results )
+static tdma_offset_bounds getStartOffsets( const block * const bb,
+                                           const procedure * const proc,
+                                           block ** const dag_block_list,
+                                           const uint dag_block_number,
+                                           const combined_result * const dag_block_results )
 {
   DSTART( "getStartOffsets" );
   assert( bb && proc && dag_block_results && dag_block_list && "Invalid arguments!" );
@@ -172,57 +252,13 @@ static tdma_offset_bounds getStartOffsets( const block * bb, const procedure * p
     DOUT( "Accounting for predecessor information from bb %u.%u (0x%s)\n",
         pred->pid, pred->bbid, pred->instrlist[0]->addr );
 
-    /* The pred_index is an index into the bblist of the procedure.
-     * What we need is an index into the topologically_sorted_blocks.
-     * Therefore we must convert that index into an index into the
-     * topologically sorted list. For that purpose we use the block
-     * id which identifies the block inside the function. */
-    int conv_pred_idx = getblock( pred->bbid, dag_block_list,
-                                  0, dag_block_number - 1 );
-    
-    /* The predecessor is not in this DAG. */
-    if ( conv_pred_idx < 0 ) {
-      /* Then we have two possibilities: Either the predecessor
-       * is in a surrounding loop, in which case we have a loop
-       * with multiple entries which is not supported. Or the
-       * predecessor is in a nested loop, but its not the loop
-       * header (he would be part of the current DAG). Then we
-       * set the predecessor id to be the id of the loop header
-       * manually. */
-      const loop * const pred_loop = ( pred->loopid >= 0 ? 
-                                       proc->loops[pred->loopid] : NULL );
-      const loop * const bb_loop   = ( bb->loopid >= 0 ? 
-                                       proc->loops[bb->loopid] : NULL );
-
-      // This will store the block which will be the effective predecessor
-      block *placeholder = NULL;
-
-      if ( bb_loop != NULL && pred_loop != NULL ) {
-        assert( bb_loop->lpid != pred_loop->lpid &&
-          "Invalid DAG: Predecessor in same loop, but not in DAG!" );
-        assert( bb_loop->level <= pred_loop->level &&
-          "Found loop with multiple entrypoints!" );
-        placeholder = pred_loop->loophead;
-      } else if ( bb_loop != NULL ) {
-        assert( 0 && "Found loop with multiple entrypoints!" );
-      } else if ( pred_loop != NULL ) {
-        placeholder = pred_loop->loophead;
-      } else {
-        /* Both blocks are not in a loop, but the predecessor is not
-         * in the DAG. This may happen for loops with multiple exits,
-         * (the exit blocks themselves are sometimes not part of the
-         * loop itself, cause they might unconditionally jump to the 
-         * loop's successor block). Check whether such a case is 
-         * present here. */
-        loop * const exitedLoop = isLoopExit( pred, proc );
-        assert( exitedLoop && "Expected loop exit here!" );
-        placeholder = exitedLoop->loophead;
-      }
-
-      conv_pred_idx = getblock( placeholder->bbid, dag_block_list,
-                                0, dag_block_number - 1 );
-      assert( conv_pred_idx >= 0 && "Missing block!" );
-    }
+    /* The predecessor may be a loop exit, which must be mapped to its
+     * loop head to obtain the attached lop information. This and the
+     * mapping of the predecessor block to the respective index in the
+     * dag_block_list is done by the following call. */
+    const int conv_pred_idx = getEffectiveDAGPredecessorIndex( bb, pred,
+                                proc, dag_block_list, dag_block_number );
+    assert( conv_pred_idx >= 0 && "Invalid DAG predecessor!" );
 
     const tdma_offset_bounds * const pred_offsets = &dag_block_results[conv_pred_idx].offsets;
     if ( i == 0 ) {
@@ -340,13 +376,13 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
         const block * const pred = dag_proc->bblist[pred_index];
         assert( pred && "Missing basic block!" );
 
-        /* The pred_index is an index into the bblist of the procedure.
-         * What we need is an index into the topologically_sorted_blocks.
-         * Therefore we must convert that index into an index into the
-         * topologically sorted list. For that purpose we use the block
-         * id which identifies the block inside the function. */
-        const int conv_pred_idx = getblock( pred->bbid, topologically_sorted_blocks,
-                                            0, number_of_blocks - 1 );
+        /* The predecessor may be a loop exit, which must be mapped to its
+             * loop head to obtain the attached lop information. This and the
+             * mapping of the predecessor block to the respective index in the
+             * dag_block_list is done by the following call. */
+        const int conv_pred_idx = getEffectiveDAGPredecessorIndex( bb, pred,
+            dag_proc, topologically_sorted_blocks, number_of_blocks );
+        assert( conv_pred_idx >= 0 && "Invalid DAG predecessor!" );
 
         const ull bcet_via_pred = block_bcet_propagation_values[conv_pred_idx] +
                                   block_results[i].bcet;
@@ -402,7 +438,7 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
   free( block_bcet_propagation_values );
   free( block_wcet_propagation_values );
 
-  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
+  assert( checkResult( &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -499,7 +535,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
     }
   }
 
-  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
+  assert( checkResult( &result ) && "Invalid result!" );
   DACTION(
     char block_name[10];
     if ( bb->loopid >= 0 ) {
@@ -558,7 +594,7 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
       " with offsets [%u,%u]\n", result.bcet, result.wcet,
       result.offsets.lower_bound, result.offsets.upper_bound );
 
-  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
+  assert( checkResult( &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -652,7 +688,7 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
       " with offsets [%u,%u]\n", lp->pid, lp->lpid, result.bcet, result.wcet,
       result.offsets.lower_bound, result.offsets.upper_bound );
 
-  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
+  assert( checkResult( &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -804,7 +840,7 @@ static combined_result analyze_loop_graph_tracking( loop * const lp, procedure *
 
   freeOffsetGraph( graph );
 
-  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
+  assert( checkResult( &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -919,7 +955,7 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
       " with offsets [%u,%u]\n", proc->pid, result.bcet, result.wcet,
       result.offsets.lower_bound, result.offsets.upper_bound );
 
-  assert( checkOffsetBound( &result.offsets ) && "Invalid result!" );
+  assert( checkResult( &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -933,7 +969,7 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
   DSTART( "analyze_proc" );
 
   // Get the result using our alignment-aware procedure analysis
-  DOUT( "Performing alignment-sensitive analysis\n" );
+  DOUT( "Performing alignment-sensitive procedure analysis\n" );
   combined_result result = analyze_proc_alignment_aware( proc, start_offsets );
 
   /* If we are supposed to try the penalized alignment too, then we also compute the result
@@ -942,7 +978,6 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
   if ( tryPenalizedAlignment ) {
     // TODO: The alignments may be computed for a wrong segment in case of multi-segment
     //       schedules (see definitions of startAlign/endAlign)
-    DOUT( "Attempting penalized alignment analysis\n" );
     const tdma_offset_bounds zero_offsets = { 0, 0 };
     combined_result pal_result = analyze_proc_alignment_aware( proc, zero_offsets );
     pal_result.wcet += startAlign( 0 );
@@ -953,6 +988,10 @@ static combined_result analyze_proc( procedure* proc, const tdma_offset_bounds s
       result = pal_result;
     }
   }
+
+  DOUT( "Procedure %d WCET / BCET result is %llu / %llu"
+      " with offsets [%u,%u]\n", proc->pid, result.bcet, result.wcet,
+      result.offsets.lower_bound, result.offsets.upper_bound );
 
   DRETURN( result );
 }
