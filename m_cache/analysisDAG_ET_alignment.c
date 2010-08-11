@@ -206,14 +206,15 @@ static void initResultBuffers( const task_t * const task )
 
     INIT_TDMA_GRID( proc_results[i] );
 
-    const int maxLoopContext = getMaximumLoopContext( proc );
+    // One slot for each context + 1 for context zero
+    const int contextSlots = getMaximumLoopContext( proc ) + 1;
 
     CALLOC( block_results[i], combined_result*****, proc->num_bb,
           sizeof( combined_result**** ), "block_results[i]" );
     for ( j = 0; j < proc->num_bb; j++ ) {
-      CALLOC( block_results[i][j], combined_result****, maxLoopContext,
+      CALLOC( block_results[i][j], combined_result****, contextSlots,
             sizeof( combined_result*** ), "block_results[i][j]" );
-      for ( k = 0; k < maxLoopContext; k++ ) {
+      for ( k = 0; k < contextSlots; k++ ) {
         INIT_TDMA_GRID( block_results[i][j][k] );
       }
     }
@@ -221,9 +222,9 @@ static void initResultBuffers( const task_t * const task )
     CALLOC( loop_results[i], combined_result*****, proc->num_loops,
           sizeof( combined_result**** ), "loop_results[i]" );
     for ( j = 0; j < proc->num_loops; j++ ) {
-      CALLOC( loop_results[i][j], combined_result****, maxLoopContext,
+      CALLOC( loop_results[i][j], combined_result****, contextSlots,
             sizeof( combined_result*** ), "loop_results[i][j]" );
-      for ( k = 0; k < maxLoopContext; k++ ) {
+      for ( k = 0; k < contextSlots; k++ ) {
         INIT_TDMA_GRID( loop_results[i][j][k] );
       }
     }
@@ -232,12 +233,17 @@ static void initResultBuffers( const task_t * const task )
 /* Frees the buffers to store intermediate results for the given task. */
 static void freeResultBuffers( const task_t * const task )
 {
-  int i, j, k, offset;
+  int i, j, k, offset_1, offset_2;
   const uint tdma_interval = getCoreSchedule( ncore, 0 )->interval;
 
   #define FREE_TDMA_GRID( ptr ) \
-    for ( offset = 0; offset < tdma_interval; offset++ ) { \
-      free( ptr[offset] ); \
+    for ( offset_1 = 0; offset_1 < tdma_interval; offset_1++ ) { \
+      for ( offset_2 = 0; offset_2 < tdma_interval; offset_2++ ) { \
+        if ( ptr[offset_1][offset_2] != NULL ) { \
+          free( ptr[offset_1][offset_2] ); \
+        } \
+      } \
+      free( ptr[offset_1] ); \
     } \
     free( ptr );
 
@@ -574,6 +580,13 @@ static combined_result analyze_block( block* bb, procedure* proc,
   assert( bb && proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
 
+  /* Check whether we have already computed the requested result. */
+  combined_result ** const bufferLocation = &block_results[proc->pid][bb->bbid]
+    [loop_context][start_offsets.lower_bound][start_offsets.upper_bound];
+  if ( *bufferLocation != NULL ) {
+    DRETURN( **bufferLocation );
+  }
+
   combined_result result;
   result.bcet = 0;
   result.wcet = 0;
@@ -658,7 +671,11 @@ static combined_result analyze_block( block* bb, procedure* proc,
     }
   }
 
-  assert( checkResult( &result ) && "Invalid result!" );
+  /* Insert result into result buffer. */
+  MALLOC( *bufferLocation, combined_result*,
+      sizeof( combined_result ), "*bufferLocation" );
+  **bufferLocation = result;
+
   DACTION(
     char block_name[10];
     if ( bb->loopid >= 0 ) {
@@ -670,6 +687,8 @@ static combined_result analyze_block( block* bb, procedure* proc,
       result.bcet, result.wcet, block_name, bb->instrlist[0]->addr,
       bb->instrlist[bb->num_instr - 1]->addr );
   );
+
+  assert( checkResult( &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -681,6 +700,13 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
   DSTART( "analyze_single_loop_iteration" );
   assert( lp && proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
+
+  /* Check whether we have already computed the requested result. */
+  combined_result ** const bufferLocation = &loop_results[proc->pid][lp->lpid]
+    [loop_context][start_offsets.lower_bound][start_offsets.upper_bound];
+  if ( *bufferLocation != NULL ) {
+    DRETURN( **bufferLocation );
+  }
 
   DOUT( "Loop iteration analysis starts with offsets [%u,%u]\n",
       start_offsets.lower_bound, start_offsets.upper_bound );
@@ -712,6 +738,11 @@ static combined_result analyze_single_loop_iteration( loop* lp, procedure* proc,
                                                 block_results, proc );
 
   free( block_results );
+
+  /* Insert result into result buffer. */
+  MALLOC( *bufferLocation, combined_result*,
+      sizeof( combined_result ), "*bufferLocation" );
+  **bufferLocation = result;
 
   DOUT( "Loop iteration analysis BCET / WCET result is %llu / %llu"
       " with offsets [%u,%u]\n", result.bcet, result.wcet,
@@ -1043,6 +1074,13 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
   assert( proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
 
+  /* Check whether we have already computed the requested result. */
+  combined_result ** const bufferLocation = &proc_results[proc->pid]
+    [start_offsets.lower_bound][start_offsets.upper_bound];
+  if ( *bufferLocation != NULL ) {
+    DRETURN( **bufferLocation );
+  }
+
   DOUT( "Analyzing procedure %d with offsets [%u,%u]\n",
         proc->pid, start_offsets.lower_bound, start_offsets.upper_bound );
 
@@ -1073,6 +1111,11 @@ static combined_result analyze_proc_alignment_aware( procedure* proc, const tdma
                                                 block_results, proc );
 
   free( block_results );
+
+  /* Insert result into result buffer. */
+  MALLOC( *bufferLocation, combined_result*,
+      sizeof( combined_result ), "*bufferLocation" );
+  **bufferLocation = result;
 
   DOUT( "Procedure %d WCET / BCET result is %llu / %llu"
       " with offsets [%u,%u]\n", proc->pid, result.bcet, result.wcet,

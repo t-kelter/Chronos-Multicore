@@ -52,19 +52,25 @@ uint getInnerLoopContext( const loop *lp, uint surroundingLoopContext, _Bool fir
 /* Returns the maximum loop context that can be used in this procedure. */
 uint getMaximumLoopContext( const procedure * const proc )
 {
+  DSTART( "getMaximumLoopContext" );
+
   int maxLevel = -1;
   int i;
   for ( i = 0; i < proc->num_loops; i++ ) {
     maxLevel = MAX( maxLevel, proc->loops[i]->level );
   }
 
+  DOUT( "Determined maximum loop level %d\n", maxLevel );
+
   /* Returns a number consisting of leading zeros followed by
    * exactly 'maxLevel' ones. */
-  if ( maxLevel + 1 < sizeof( uint ) ) {
-    return ( 1 << ( maxLevel + 1 ) ) - 1;
-  } else {
-    return UINT_MAX;
-  }
+  const uint shift_count = maxLevel + 1;
+  const uint result = ( shift_count < sizeof( uint ) )
+                        ? ( 1 << shift_count ) - 1
+                        : UINT_MAX;
+
+  DOUT( "Determined maximum loop context as %x", result );
+  DRETURN( result );
 }
 
 
