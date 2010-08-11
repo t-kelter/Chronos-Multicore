@@ -297,7 +297,6 @@ static int getEffectiveDAGPredecessorIndex( const block * const bb,
 
   DOUT( "Getting effective DAG predecessor for pred %u of "
       "block %u in function %u\n", pred->bbid, bb->bbid, proc->pid );
-  DACTION( printProc( proc ); );
 
   /* The pred_index is an index into the bblist of the procedure.
    * What we need is an index into the dag_block_list.
@@ -894,7 +893,7 @@ static combined_result analyze_loop_graph_tracking( loop * const lp, procedure *
     result.bcet = 0;
     result.wcet = 0;
     result.offsets = start_offsets;
-    return result;
+    DRETURN( result );
   } else {
     const uint first_context = getInnerLoopContext( lp, loop_context, 1 );
     result = analyze_single_loop_iteration( lp, proc, first_context, start_offsets );
@@ -904,7 +903,7 @@ static combined_result analyze_loop_graph_tracking( loop * const lp, procedure *
         result.offsets.upper_bound );
 
     if ( lp->loopbound == 1 ) {
-      return result;
+      DRETURN( result );
     }
   }
 
