@@ -250,6 +250,7 @@ int main(int argc, char **argv )
 
       /* Set the main procedure (entry procedure) in this task */
       currentTask->main_copy = main_copy;
+      currentTask->procs = procs;
       currentTask->num_proc= num_procs;
 
       /* Now do L1 cache analysis of the current task and compute 

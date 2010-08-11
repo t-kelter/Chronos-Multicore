@@ -351,8 +351,10 @@ typedef struct
 {
   int task_id;
   char task_name[MAX_LEN];
+
   procedure *main_copy;
-  int num_proc;
+  procedure **procs; // The list of procedures in the task
+  int num_proc;      // The number of procedures in the task
   proc_copy *proc_cg_ptr;
   procedure* entry_proc;
 
