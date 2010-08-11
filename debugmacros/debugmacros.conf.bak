@@ -1,7 +1,7 @@
 //addOffsetGraphEdge
 //allocCacheState
 //allocCacheState_L2
-//analysis
+analysis
 //analysis_enum
 //analysis_ilp
 //analyze_block
@@ -18,10 +18,9 @@
 //computeBCET_loop
 //computeBCET_proc
 //computeWCET_block
-//computeWCET_block
 //computeWCET_loop
 //computeWCET_proc
-//computeWCET_proc
+//compute_bus_BCET_MSC_structural
 //compute_bus_BCET_MSC_unroll
 //compute_bus_ET_MSC_alignment
 //compute_bus_WCET_MSC_structural
@@ -30,12 +29,15 @@
 //copyBlock
 //copyFunction
 //copyLoop
+//determine_latency
 //endAlign
 //generateOffsetGraphILP
+//getblock
 //getCallee
 //get_earliest_task_start_time
 //get_hex
 //get_latest_task_start_time
+//getStartOffsets
 //initInfeas
 //invokeILPSolver
 //logBase2
@@ -52,6 +54,7 @@
 //solveET_ILP
 //solveOffset_ILP
 //startAlign
+//summarizeDAGResults
 //traverse
 //updateFunctionCall
 //updateLoop
