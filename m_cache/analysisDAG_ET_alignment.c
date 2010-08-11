@@ -293,6 +293,12 @@ static int getEffectiveDAGPredecessorIndex( const block * const bb,
                                             block ** const dag_block_list,
                                             const uint dag_block_number )
 {
+  DSTART( "getEffectiveDAGPredecessorIndex" );
+
+  DOUT( "Getting effective DAG predecessor for pred %u of "
+      "block %u in function %u\n", pred->bbid, bb->bbid, proc->pid );
+  DACTION( printProc( proc ); );
+
   /* The pred_index is an index into the bblist of the procedure.
    * What we need is an index into the dag_block_list.
    * Therefore we must convert that index into an index into the
@@ -319,11 +325,21 @@ static int getEffectiveDAGPredecessorIndex( const block * const bb,
     const block *placeholder = NULL;
 
     if ( bb_loop != NULL && pred_loop != NULL ) {
-      assert( bb_loop->lpid != pred_loop->lpid &&
-        "Invalid DAG: Predecessor in same loop, but not in DAG!" );
-      assert( bb_loop->level <= pred_loop->level &&
-        "Found loop with multiple entrypoints!" );
-      placeholder = pred_loop->loophead;
+      /* For loops with multiple exits, the loop exits are sometimes
+       * not part of the loop itself, cause they unconditionally jump
+       * to the loop's successor block). In such a case we must take
+       * the exited loop's head as the placeholder, else we must take
+       * the loop header of the loop in which pred resides. */
+      loop * const exitedLoop = isLoopExit( pred, proc );
+      if ( exitedLoop != NULL ) {
+        placeholder = exitedLoop->loophead;
+      } else {
+        assert( bb_loop->lpid != pred_loop->lpid &&
+          "Invalid DAG: Predecessor in same loop, but not in DAG!" );
+        assert( bb_loop->level <= pred_loop->level &&
+          "Found loop with multiple entrypoints!" );
+        placeholder = pred_loop->loophead;
+      }
     } else if ( bb_loop != NULL ) {
       assert( 0 && "Found loop with multiple entrypoints!" );
     } else if ( pred_loop != NULL ) {
@@ -345,7 +361,7 @@ static int getEffectiveDAGPredecessorIndex( const block * const bb,
     assert( conv_pred_idx >= 0 && "Missing block!" );
   }
 
-  return conv_pred_idx;
+  DRETURN( conv_pred_idx );
 }
 
 
