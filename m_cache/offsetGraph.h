@@ -68,7 +68,13 @@ struct og {
 
 
 /* Creates a new offset graph with 'number_of_nodes' nodes
- * (excluding the supersink and supersource). */
+ * (excluding the supersink and supersource).
+ *
+ * 'number_of_nodes' must be the TDMA cycle length (sometimes also called
+ * interval, i.e. the number of time steps after which the schedule repeats
+ * itself). Otherwise the BCET/WCET/offset computations that are done with
+ * the graph will give invalid results.
+ * */
 offset_graph *createOffsetGraph( uint number_of_nodes );
 
 /* Returns the edge that was added or NULL if nothing was added. */

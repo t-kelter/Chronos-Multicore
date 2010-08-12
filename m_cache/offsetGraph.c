@@ -25,10 +25,17 @@
 
 /* Indicates which type of timing analysis to perform. */
 enum ILPComputationType {
-  ILP_TYPE_BCET,    /* An ILP for determining the final BCET of the loop. */
-  ILP_TYPE_WCET,    /* An ILP for determining the final WCET of the loop. */
-  ILP_TYPE_OFFSETS  /* An ILP for determining the final offsets after the execution of the loop. */
+  ILP_COMP_TYPE_BCET,    /* An ILP for determining the final BCET of the loop. */
+  ILP_COMP_TYPE_WCET,    /* An ILP for determining the final WCET of the loop. */
+  ILP_COMP_TYPE_OFFSETS  /* An ILP for determining the final offsets after the execution of the loop. */
 };
+
+/* Indicates which type of ILP solver is used. */
+enum ILPSolver {
+  ILP_CPLEX,   /* The CPLEX solver. */
+  ILP_LPSOLVE  /* The lp_solve solver. */
+};
+
 
 // #########################################
 // #### Declaration of static variables ####
@@ -38,6 +45,8 @@ enum ILPComputationType {
 // Whether to keep the temporary files generated during the analysis
 static _Bool keepTemporaryFiles = 0;
 
+/* The ILP solver to use. */
+static enum ILPSolver ilpSolver = ILP_CPLEX;
 
 /* Two variable names for the offset ILP. */
 static const char * const min_offset_var = "x_min";
@@ -90,7 +99,7 @@ static inline void fprintILPEdgeName( FILE *f, const offset_graph_edge *edge,
 }
 
 
-/* Prints the ILP-name of 'x_{active}(e)' variable which indicates whether
+/* Prints the ILP-name of 'x_active(e)' variable which indicates whether
  * x(e,num_time_steps - runtime(e)) is bigger than zero. 'e' must be an edge
  * which ends at the supersink.
  * */
@@ -100,12 +109,30 @@ static inline void fprintILPXActive( FILE *f, const offset_graph_edge *edge )
 }
 
 
-/* Prints the ILP-name of 'x_{active_helper}(e)' variable which is used during
- * the x_{active}(e) determination.
+/* Prints the ILP-name of 'x_active_helper(e)' variable which is used during
+ * the x_active(e) determination.
  * */
 static inline void fprintILPXActiveHelper( FILE *f, const offset_graph_edge *edge )
 {
   fprintf( f, "x_active_helper_%u", edge->edge_id );
+}
+
+
+/* Prints the ILP-name of the 'min_selector(e)' variable which is used during
+ * the computation of 'min_offset' in the offset ILP.
+ * */
+static inline void fprintILPMinSelector( FILE *f, const offset_graph_edge *edge )
+{
+  fprintf( f, "x_min_selector_%u", edge->edge_id );
+}
+
+
+/* Prints the ILP-name of the 'max_selector(e)' variable which is used during
+ * the computation of 'max_offset' in the offset ILP.
+ * */
+static inline void fprintILPMaxSelector( FILE *f, const offset_graph_edge *edge )
+{
+  fprintf( f, "x_max_selector_%u", edge->edge_id );
 }
 
 
@@ -117,47 +144,35 @@ static inline uint getOffsetGraphEdgeRuntime( const offset_graph *og,
 }
 
 
-/* Generate an ILP for lp_solve. The function can generate various ILPs which differ
- * only marginally. The type of ILP which is generated is determined by the parameter
- * 'type'.
- *
- * Returns the name of the file to which the ILP was written. The caller must free
- * the returned string and delete the file if he does not want to keep it.
- * */
-static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
-    enum ILPComputationType type )
+/* Writes the ILP in CPLEX format. */
+static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
+    enum ILPComputationType computation_type )
 {
-  DSTART( "generateOffsetGraphILP" );
+  /* ASSUMPTION: Some constraints in the ILP build upon the assumption,
+   *             that the number of nodes in the graph is equal to the
+   *             TDMA cycle length.
+   */
 
-  // Get output file
-  char *tmpfilename;
-  MALLOC( tmpfilename, char*, 50 * sizeof( char ), "tmpfilename" );
-  if ( keepTemporaryFiles ) {
-    strcpy( tmpfilename, "offsetGraph.ilp" );
-  } else {
-    tmpnam( tmpfilename );
-  }
-  FILE *f = fopen( tmpfilename, "w" );
-  if ( !f ) {
-    prerr( "Unable to write to ILP file '%s'\n", tmpfilename );
-  }
-  DOUT( "Writing ILP to %s\n", tmpfilename );
+  /* ILP hints:
+   * - CPLEX demands constraints where all variables are on the left, and all
+   *   constants on the right side of the constraint
+   * - lp_solve treats '<' and '>' like '<=' and '>=' !!! Thus only use the
+   *   latter in the ILP for clarification.
+   */
 
   /* We have two extra time steps in the dynamic flow, one for the
    * transition from the supersource and one for the transition to
    * the supersink. */
   const uint num_time_steps = loopbound + 2;
 
-  /* Write objective function. */
-  fprintf( f, "/*\n * Objective function\n */\n\n" );
-
   uint i, j, k;
   _Bool firstTerm = 1;
 
-  switch ( type ) {
+  /* Write objective function. */
+  switch ( computation_type ) {
 
-    case ILP_TYPE_BCET:
-    case ILP_TYPE_WCET:
+    case ILP_COMP_TYPE_BCET:
+    case ILP_COMP_TYPE_WCET:
        /* The objective is:
         *
         * sum_{e \in Edges} sum_{t = 0}^{num_time_steps-1} c(e)x(e,t)
@@ -168,12 +183,13 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
         * c(e) = bcet(e) + bcet(e->start) if we search BCETs, or
         * c(e) = wcet(e) + wcet(e->start) if we search WCETs.
         */
-      fprintf( f, ( type == ILP_TYPE_WCET ? "MAX: " : "MIN: " ) );
+      fprintf( f, ( computation_type == ILP_COMP_TYPE_WCET
+          ? "MAXIMIZE\n\n\n  " : "MINIMIZE\n\n\n  " ) );
 
       for ( i = 0; i < og->num_edges; i++ ) {
         const offset_graph_edge * const edge = &og->edges[i];
         // Add the cost of the start node to account for that cost too
-        const ull factor = ( type == ILP_TYPE_BCET
+        const ull factor = ( computation_type == ILP_COMP_TYPE_BCET
           ? edge->bcet + edge->start->bcet
           : edge->wcet + edge->start->wcet );
 
@@ -192,11 +208,11 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
 
       break;
 
-    case ILP_TYPE_OFFSETS:
+    case ILP_COMP_TYPE_OFFSETS:
       /* This ILP has a different objective function. It emits two flow units
        * from the supersource and tries to maximize the difference between the
        * offsets from which the flow units arrive at the supersink. */
-      fprintf( f, "MAX: %s - %s", max_offset_var, min_offset_var );
+      fprintf( f, "MAXIMIZE\n\n\n  %s - %s", max_offset_var, min_offset_var );
       break;
 
     default:
@@ -204,11 +220,10 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
       break;
   }
 
-  fprintf( f, ";\n" );
-
+  fprintf( f, "\n" );
 
   /* Write out constraints section. */
-  fprintf( f, "\n/*\n * Constraints\n */\n\n" );
+  fprintf( f, "\n\nSUBJECT TO\n\n\n" );
 
   /* Write out flow conservation constraints.
    *
@@ -221,7 +236,7 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
    * where \tau(e) is the runtime of the edges (the time it takes for the
    * flow to pass the edge). This is 1 for all edges.
    */
-  fprintf( f, "/* Flow conservation constraints */\n" );
+  fprintf( f, "  \\ Flow conservation constraints\n" );
   for ( i = 0; i < og->num_nodes; i++ ) {
     offset_graph_node * const node = &og->nodes[i];
 
@@ -232,7 +247,7 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
     }
 
     // Write comment
-    fprintf( f, "/* Node %u: incoming edges from ", node->offset );
+    fprintf( f, "  \\ Node %u: incoming edges from ", node->offset );
     if ( node->num_incoming_edges == 0 ) {
       fprintf( f, "nowhere" );
     } else {
@@ -254,10 +269,11 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
         }
       }
     }
-    fprintf( f, " */\n" );
+    fprintf( f, "\n" );
 
     // Write conservation constraints (1 per time instant)
     for ( j = 0; j < num_time_steps; j++ ) {
+      fprintf( f, "  " );
       /* The flow that enters the edges at 'j - runtime(edge)'
        * arrives at our current node at time 'j' ... */
       firstTerm = 1;
@@ -275,45 +291,29 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
         }
       }
 
-      /* If there are no  matching edges: Set to zero. */
-      if ( firstTerm ) {
-        fprintf( f, "0" );
-      }
-
-      fprintf( f, " = " );
-
-      /* ... and must directly leave the node (no buffering). */
-      firstTerm = 1;
+      /* ... minus the flow which leaves the node .... */
       for ( k = 0; k < node->num_outgoing_edges; k++ ) {
         const offset_graph_edge * const edge = &og->edges[node->outgoing_edges[k]];
 
-        if ( !firstTerm ) {
-          fprintf( f, " + " );
-        } else {
-          firstTerm = 0;
-        }
+        fprintf( f, " - " );
         fprintILPEdgeName( f, edge, j );
       }
 
-      /* If there are no  matching edges: Set to zero. */
-      if ( firstTerm ) {
-        fprintf( f, "0" );
-      }
-
-      fprintf( f, ";\n" );
+      /* ... must be zero to conserve the flow (no buffering). */
+      fprintf( f, " = 0\n" );
     }
   }
 
 
   /* The number of flow units in transit. */
-  const uint flow_units = ( type == ILP_TYPE_OFFSETS ? 2 : 1 );
+  const uint flow_units = ( computation_type == ILP_COMP_TYPE_OFFSETS ? 2 : 1 );
 
   /* Write out demand / supply values
    *
    * Only the supersource emits 'flow_units' flow units at time 0 and
    * only the supersink consumes 'flow_units' units at time 'num_time_steps'.
    */
-  fprintf( f, "\n/* Demand / supply constraints */\n" );
+  fprintf( f, "\n  \\ Demand / supply constraints\n" );
   const offset_graph_node * const suso = &( og->supersource );
   for ( j = 0; j < num_time_steps; j++ ) {
     firstTerm = 1;
@@ -323,13 +323,14 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
       if ( !firstTerm ) {
         fprintf( f, " + " );
       } else {
+        fprintf( f, "  " );
         firstTerm = 0;
       }
       fprintILPEdgeName( f, edge, j );
     }
 
     // Only at time '0', flow units may leave the source.
-    fprintf( f, " = %u;\n", ( j == 0 ? flow_units : 0 ) );
+    fprintf( f, " = %u\n", ( j == 0 ? flow_units : 0 ) );
   }
 
   const offset_graph_node * const susi = &( og->supersink );
@@ -343,6 +344,7 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
         if ( !firstTerm ) {
           fprintf( f, " + " );
         } else {
+          fprintf( f, "  " );
           firstTerm = 0;
         }
         fprintILPEdgeName( f, edge, j - runtime );
@@ -352,14 +354,14 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
     // Only at time 'num_time_steps', flow units may enter the sink.
     // Only print this if any flow may arrive at this time instant
     if ( !firstTerm ) {
-      fprintf( f, " = %u;\n", ( j == num_time_steps ? flow_units : 0 ) );
+      fprintf( f, " = %u\n", ( j == num_time_steps ? flow_units : 0 ) );
     }
   }
 
 
   /* For the offset ILP write out the definitions of the min_offset
    * and max_offset variables. */
-  if ( type == ILP_TYPE_OFFSETS ) {
+  if ( computation_type == ILP_COMP_TYPE_OFFSETS ) {
     /* \forall_{e=(o,supersink) \in Edges}:
      *   x_active(e) = 1 <=> x(e,num_time_steps - runtime(e)) > 0  */
     for ( k = 0; k < susi->num_incoming_edges; k++ ) {
@@ -368,12 +370,15 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
 
       /* The constraints are:
        *
+       * for the "=>" direction
+       *
        *     x_active(e) = 1 => x(e,num_time_steps - runtime(e)) > 0
        * <=> x(e,num_time_steps - runtime(e)) + (1 - x_active(e)) > 0
        * <=> x(e,num_time_steps - runtime(e)) + 1 > x_active(e)
        * <=> x(e,num_time_steps - runtime(e)) \geq x_active(e)
+       * <=> x(e,num_time_steps - runtime(e)) x_active(e) \geq 0
        *
-       * for the "=>" direction and
+       * and for the "<=" direction
        *
        *     x(e,num_time_steps - runtime(e)) > 0 => x_active(e) = 1
        * <=> x(e,num_time_steps - runtime(e)) > 0 => x_active(e) > 0
@@ -385,50 +390,159 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
        *     x_active(e) + 1 > y
        * <=> x(e,num_time_steps - runtime(e)) \leq flow_units*y
        *     x_active(e) \geq y
+       * <=> x(e,num_time_steps - runtime(e)) - flow_units*y \leq 0
+       *     x_active(e) - y \geq 0
        *
-       * for the "<=" direction
+       * where 'y' is the helper variable.
        * */
+      fprintf( f, "  " );
       fprintILPEdgeName( f, edge, num_time_steps - runtime );
-      fprintf( f, " >= " );
+      fprintf( f, " - " );
       fprintILPXActive( f, edge );
-      fprintf( f, ";\n" );
+      fprintf( f, " >= 0\n" );
 
+      fprintf( f, "  " );
       fprintILPEdgeName( f, edge, num_time_steps - runtime );
-      fprintf( f, " <= %u ", flow_units );
+      fprintf( f, " - %u ", flow_units );
       fprintILPXActiveHelper( f, edge );
-      fprintf( f, ";\n" );
+      fprintf( f, " <= 0\n" );
 
+      fprintf( f, "  " );
       fprintILPXActive( f, edge );
-      fprintf( f, " >= " );
+      fprintf( f, " - " );
       fprintILPXActiveHelper( f, edge );
-      fprintf( f, ";\n" );
+      fprintf( f, " >= 0\n" );
     }
 
-    /* \forall_{e=(o,supersink) \in Edges}:
-     *     x_active(e) = 1 --> min_offset >= offset(o)
-     * <=> min_offset >= offset(o) * x_active(e)
+    /* The normal minimum condition would be:
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     x_active(e) = 1 --> min_offset <= offset(o)
+     * \land
+     * \exists_{e=(o,supersink) \in Edges}:
+     *     x_active(e) = 1 \land min_offset = offset(o)
+     *
+     * but the objective will try to make min_offset as
+     * small as possible, therefore we can simplify this to:
+     *
+     * \exists_exactly_one_{e=(o,supersink) \in Edges}:
+     *     x_active(e) = 1 \land min_offset \geq offset(o)
+     * <=>
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     min_offset + og->num_nodes * ( 1 - min_selector(e) ) \geq offset(o)
+     *     x_active(e) = 0 --> min_selector(e) = 0
+     * \sum_{e=(o,supersink) \in Edges} min_selector(e) = 1
+     * <=>
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     min_offset + og->num_nodes * ( 1 - min_selector(e) ) \geq offset(o)
+     *     x_active(e) > 0 \lor min_selector(e) = 0
+     * \sum_{e=(o,supersink) \in Edges} min_selector(e) = 1
+     * <=>
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     min_offset + og->num_nodes * ( 1 - min_selector(e) ) \geq offset(o)
+     *     x_active(e) + ( 1 - min_selector(e) ) > 0
+     * \sum_{e=(o,supersink) \in Edges} min_selector(e) = 1
+     * <=>
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     min_offset - og->num_nodes * min_selector(e) \geq offset(o) - og->num_nodes
+     *     x_active(e) - min_selector(e) > - 1
+     * \sum_{e=(o,supersink) \in Edges} min_selector(e) = 1
+     * <=>
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     og->num_nodes * min_selector(e) - min_offset \leq og->num_nodes - offset(o)
+     *     min_selector(e) - x_active(e) \leq 0
+     * \sum_{e=(o,supersink) \in Edges} min_selector(e) = 1
+     *
+     * The min_selectors are one for exactly one condition which must have
+     * its x_active bit set to 1, and at the same time they deactivate the
+     * other conditions by rendering them always true.
      */
     for ( k = 0; k < susi->num_incoming_edges; k++ ) {
       const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
-      fprintf( f, "%s >= %u ", min_offset_var, edge->start->offset );
+
+      fprintf( f, "  %u ", og->num_nodes );
+      fprintILPMinSelector( f, edge );
+      fprintf( f, " - %s <= %u\n", min_offset_var, og->num_nodes - edge->start->offset );
+
+      fprintf( f, "  " );
+      fprintILPMinSelector( f, edge );
+      fprintf( f, " - " );
       fprintILPXActive( f, edge );
-      fprintf( f, ";\n" );
+      fprintf( f, " <= 0\n" );
     }
 
-    /* \forall_{e=(o,supersink) \in Edges}:
-     *     x_active(e) = 1 --> max_offset <= offset(o)
-     * <=> max_offset <= offset(o) * x_active(e) + og->num_nodes * (1-x_active(e))
-     * <=> max_offset + og->num_nodes * x_active(e)
-     *       <= offset(o) * x_active(e) + og->num_nodes
+    fprintf( f, "  " );
+    for ( k = 0; k < susi->num_incoming_edges; k++ ) {
+      const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
+
+      if ( k != 0 ) {
+        fprintf( f, " + " );
+      }
+      fprintILPMinSelector( f, edge );
+    }
+    fprintf( f, " = 1\n" );
+
+    /* The normal maximum condition would be:
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     x_active(e) = 1 --> max_offset >= offset(o)
+     * \land
+     * \exists_{e=(o,supersink) \in Edges}:
+     *     x_active(e) = 1 \land max_offset = offset(o)
+     *
+     * but the objective will try to make max_offset as
+     * big as possible, therefore we can simplify this to:
+     *
+     *\exists_exactly_one_{e=(o,supersink) \in Edges}:
+     *     x_active(e) = 1 \land max_offset \leq offset(o)
+     * <=>
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     max_offset - og->num_nodes * ( 1 - max_selector(e) ) \leq offset(o)
+     *     x_active(e) = 0 --> min_selector(e) = 0
+     * \sum_{e=(o,supersink) \in Edges} max_selector(e) = 1
+     * <=>
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     max_offset - og->num_nodes * ( 1 - max_selector(e) ) \leq offset(o)
+     *     x_active(e) > 0 \lor max_selector(e) = 0
+     * \sum_{e=(o,supersink) \in Edges} max_selector(e) = 1
+     * <=>
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     max_offset - og->num_nodes * ( 1 - max_selector(e) ) \leq offset(o)
+     *     x_active(e) + ( 1 - max_selector(e) ) > 0
+     * \sum_{e=(o,supersink) \in Edges} max_selector(e) = 1
+     * <=>
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     max_offset + og->num_nodes * max_selector(e) \leq og->num_nodes + offset(o)
+     *     x_active(e) - max_selector(e) > - 1
+     * \sum_{e=(o,supersink) \in Edges} max_selector(e) = 1
+     * <=>
+     * \forall_{e=(o,supersink) \in Edges}:
+     *     og->num_nodes * max_selector(e) + max_offset \leq og->num_nodes + offset(o)
+     *     max_selector(e) - x_active(e) \leq 0
+     * \sum_{e=(o,supersink) \in Edges} max_selector(e) = 1
      */
     for ( k = 0; k < susi->num_incoming_edges; k++ ) {
       const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
-      fprintf( f, "%s + %u ", max_offset_var, og->num_nodes );
+
+      fprintf( f, "  %u ", og->num_nodes );
+      fprintILPMaxSelector( f, edge );
+      fprintf( f, " + %s <= %u\n", max_offset_var, og->num_nodes + edge->start->offset );
+
+      fprintf( f, "  " );
+      fprintILPMaxSelector( f, edge );
+      fprintf( f, " - " );
       fprintILPXActive( f, edge );
-      fprintf( f, " <= %u ", edge->start->offset );
-      fprintILPXActive( f, edge );
-      fprintf( f, " + %u;\n", og->num_nodes );
+      fprintf( f, " <= 0\n" );
     }
+
+    fprintf( f, "  " );
+    for ( k = 0; k < susi->num_incoming_edges; k++ ) {
+      const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
+
+      if ( k != 0 ) {
+        fprintf( f, " + " );
+      }
+      fprintILPMaxSelector( f, edge );
+    }
+    fprintf( f, " = 1\n" );
   }
 
 
@@ -437,37 +551,15 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
    * At each time instant only 'flow_units' units may flow through
    * each of the edges, which represents the loop execution.
    */
-  fprintf( f, "\n/*\n * Variable bounds\n */\n\n" );
+  fprintf( f, "\n\nBOUNDS\n\n\n" );
 
   for ( i = 0; i < og->num_edges; i++ ) {
     offset_graph_edge * const edge = &og->edges[i];
 
     for ( j = 0; j < num_time_steps; j++ ) {
+      fprintf( f, "  %u <= ", 0 );
       fprintILPEdgeName( f, edge, j );
-      fprintf( f, " >= %u;\n", 0 );
-      fprintILPEdgeName( f, edge, j );
-      fprintf( f, " <= %u;\n", flow_units );
-    }
-  }
-  // Offset-mode specific bounds
-  if ( type == ILP_TYPE_OFFSETS ) {
-    fprintf( f, "%s >= %u;\n", min_offset_var, 0 );
-    fprintf( f, "%s <= %u;\n", min_offset_var, og->num_nodes - 1 );
-    fprintf( f, "%s >= %u;\n", max_offset_var, 0 );
-    fprintf( f, "%s <= %u;\n", max_offset_var, og->num_nodes - 1 );
-
-    for ( k = 0; k < susi->num_incoming_edges; k++ ) {
-      const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
-
-      fprintILPXActive( f, edge );
-      fprintf( f, " >= %u;\n", 0 );
-      fprintILPXActive( f, edge );
-      fprintf( f, " <= %u;\n", 1 );
-
-      fprintILPXActiveHelper( f, edge );
-      fprintf( f, " >= %u;\n", 0 );
-      fprintILPXActiveHelper( f, edge );
-      fprintf( f, " <= %u;\n", 1 );
+      fprintf( f, " <= %u\n", flow_units );
     }
   }
 
@@ -476,44 +568,100 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
    *
    * See 'printILPEdgeName' for documentation about the flow variables.
    */
-  fprintf( f, "\n/*\n * Variable declarations\n */\n\n" );
+  fprintf( f, "\n\nGENERAL\n\n\n" );
 
   for ( i = 0; i < og->num_edges; i++ ) {
     offset_graph_edge * const edge = &og->edges[i];
 
     for ( j = 0; j < num_time_steps; j++ ) {
-      fprintf( f, "/* Edge from %u to %u (time %u) */\n",
+      fprintf( f, "  \\ Edge from %u to %u (time %u)\n",
           edge->start->offset, edge->end->offset, j );
-      fprintf( f, "int " );
+      fprintf( f, "  " );
       fprintILPEdgeName( f, edge, j );
-      fprintf( f, ";\n");
+      fprintf( f, "\n");
     }
   }
+
   // Offset-mode specific declarations
-  if ( type == ILP_TYPE_OFFSETS ) {
-    fprintf( f, "/* Minimum final offset. */\n" );
-    fprintf( f, "int %s;\n", min_offset_var );
-    fprintf( f, "/* Maximum final offset. */\n" );
-    fprintf( f, "int %s;\n", max_offset_var );
+  if ( computation_type == ILP_COMP_TYPE_OFFSETS ) {
+
+    fprintf( f, "  \\ Minimum final offset.\n" );
+    fprintf( f, "  %s\n", min_offset_var );
+    fprintf( f, "  \\ Maximum final offset.\n" );
+    fprintf( f, "  %s\n", max_offset_var );
+
+
+    fprintf( f, "\n\nBINARY\n\n\n" );
+
 
     for ( k = 0; k < susi->num_incoming_edges; k++ ) {
       const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
       const uint runtime = getOffsetGraphEdgeRuntime( og, edge );
 
-      fprintf( f, "/* Indicator whether " );
+      fprintf( f, "  \\ Indicator whether " );
       fprintILPEdgeName( f, edge, num_time_steps - runtime );
-      fprintf( f, " > 0 */\n" );
-      fprintf( f, "int " );
+      fprintf( f, " > 0\n" );
+      fprintf( f, "  " );
       fprintILPXActive( f, edge );
-      fprintf( f, ";\n");
+      fprintf( f, "\n");
 
-      fprintf( f, "/* Helper variable for determining " );
+      fprintf( f, "  \\ Helper variable for determining " );
       fprintILPXActive( f, edge );
-      fprintf( f, " */\n" );
-      fprintf( f, "int " );
+      fprintf( f, "\n" );
+      fprintf( f, "  " );
       fprintILPXActiveHelper( f, edge );
-      fprintf( f, ";\n");
+      fprintf( f, "\n");
+
+      fprintf( f, "  \\ Helper variable for determining %s\n", min_offset_var );
+      fprintf( f, "  " );
+      fprintILPMinSelector( f, edge );
+      fprintf( f, "\n");
+
+      fprintf( f, "  \\ Helper variable for determining %s\n", max_offset_var );
+      fprintf( f, "  " );
+      fprintILPMaxSelector( f, edge );
+      fprintf( f, "\n");
     }
+  }
+
+  fprintf( f, "\n\nEND\n" );
+}
+
+
+/* Generate an ILP. The function can generate various ILPs which differ
+ * only marginally. The type of ILP which is generated is determined by the parameter
+ * 'computation_type'.
+ *
+ * Returns the name of the file to which the ILP was written. The caller must free
+ * the returned string and delete the file if he does not want to keep it.
+ * */
+static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
+    enum ILPComputationType computation_type, enum ILPSolver format )
+{
+  DSTART( "generateOffsetGraphILP" );
+
+  // Get output file
+  char *tmpfilename;
+  MALLOC( tmpfilename, char*, 50 * sizeof( char ), "tmpfilename" );
+  if ( keepTemporaryFiles ) {
+    strcpy( tmpfilename, "offsetGraph.ilp" );
+  } else {
+    tmpnam( tmpfilename );
+  }
+  FILE *f = fopen( tmpfilename, "w" );
+  if ( !f ) {
+    prerr( "Unable to write to ILP file '%s'\n", tmpfilename );
+  }
+  DOUT( "Writing ILP to %s\n", tmpfilename );
+
+  if ( format == ILP_LPSOLVE ) {
+    /* We also write CPLEX ILPS for lp_solve, because lp_solve
+     * can read them via the external language interface. */
+    writeCPLEXILP( f, og, loopbound, computation_type );
+  } else if ( format == ILP_CPLEX ) {
+    writeCPLEXILP( f, og, loopbound, computation_type );
+  } else {
+    assert( 0 && "Unknown ILP solver!" );
   }
 
   fclose( f );
@@ -524,45 +672,74 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
 
 /* Invokes the solver for a given ILP file and returns the output
  * file's path. The caller must free this string then. */
-static char* invokeILPSolver( const char *ilp_file )
+static char* invokeILPSolver( const char *ilp_file,
+    enum ILPSolver solver )
 {
   DSTART( "invokeILPSolver" );
 
   // Invoke external ILP solver.
-  char commandline[500];
+  char commandline[1024];
   char *output_file;
   MALLOC( output_file, char*, 100 * sizeof( char ), "output_file" );
   if ( keepTemporaryFiles ) {
     strcpy( output_file, "offsetGraph.result" );
+    remove( output_file );
   } else {
     tmpnam( output_file );
   }
-  sprintf( commandline, "%s/lp_solve -presolve %s > %s\n", LP_SOLVE_PATH,
-      ilp_file, output_file );
-  DOUT( "Called lp_solve: %s", commandline );
 
-  const int ret = system( commandline );
+  if ( solver == ILP_LPSOLVE ) {
+    sprintf( commandline, "LD_LIBRARY_PATH=%s:$LD_LIBRARY_PATH %s/lp_solve"
+        " -presolve -rxli xli_CPLEX %s > %s\n", LP_SOLVE_PATH, LP_SOLVE_PATH,
+        ilp_file, output_file );
+    DOUT( "Called lp_solve: %s\n", commandline );
 
-  if ( ret == -1 ) {
-    prerr( "Failed to invoke lp_solve with: %s", commandline );
-  } else
-  if ( ret == 1 ) {
-    prerr( "Timeout occurred, though no timeout option was given!" );
-  } else
-  if ( ret == 2 ) {
-    prerr( "Problem was infeasible!" );
-  } else
-  if ( ret == 3 ) {
-    prerr( "Problem was unbounded!" );
-  } else
-  if ( ret == 7 ) {
-    prerr( "lp_solve found no solution!" );
-  } else
-  if ( ret == 255 ) {
-    prerr( "ILP was erroneous!" );
-  } else
-  if ( ret != 0 ) {
-    prerr( "Failed to solve ILP. Maybe solver not available." );
+    const int ret = system( commandline );
+
+    if ( ret == -1 ) {
+      prerr( "Failed to invoke lp_solve with: %s", commandline );
+    } else
+    if ( ret == 1 ) {
+      prerr( "Timeout occurred, though no timeout option was given!" );
+    } else
+    if ( ret == 2 ) {
+      prerr( "Problem was infeasible!" );
+    } else
+    if ( ret == 3 ) {
+      prerr( "Problem was unbounded!" );
+    } else
+    if ( ret == 7 ) {
+      prerr( "lp_solve found no solution!" );
+    } else
+    if ( ret == 255 ) {
+      prerr( "ILP was erroneous!" );
+    } else
+    if ( ret != 0 ) {
+      prerr( "Failed to solve ILP. Maybe solver not available." );
+    }
+
+  } else if ( solver == ILP_CPLEX ) {
+    sprintf( commandline, "printf \""
+        "read %s lp\\n"
+        "mipopt\\n"
+        "set output results n %s\\n"
+        "display solution objective\\n"
+        "display solution variable -\\n"
+        "quit\\n"
+        "\" | cplex > /dev/null 2>&1", ilp_file, output_file );
+    DOUT( "Called CPLEX: %s\n", commandline );
+
+    const int ret = system( commandline );
+
+    if ( ret == -1 ) {
+      prerr( "Failed to invoke CPLEX with: %s", commandline );
+    } else
+    if ( ret != 0 ) {
+      prerr( "Failed to solve ILP. Maybe solver not available." );
+    }
+
+  } else {
+    assert( 0 && "Unknown ILP solver!" );
   }
 
   DOUT( "Solved ILP, output is in %s\n", output_file );
@@ -570,12 +747,38 @@ static char* invokeILPSolver( const char *ilp_file )
 }
 
 
+/* Parses a result value given in scientific of standard number
+ * notation in the "number_string". */
+static ull parseResultValue( const char * const number_string )
+{
+  // Parse the number (first try direct format)
+  char *end_ptr = NULL;
+  ull result = strtoull( number_string, &end_ptr, 10 );
+  _Bool successfully_read = *end_ptr == '\0';
+  /* In case of failure:
+   * Try to parse the number in scientific format (2.81864e+06) */
+  if ( !successfully_read ) {
+    double time_result_float = strtod( number_string, &end_ptr );
+    successfully_read = *end_ptr == '\0';
+    if ( successfully_read ) {
+      assert( floor( time_result_float ) == time_result_float &&
+          "Invalid result!" );
+      result = (ull)time_result_float;
+    } else {
+      prerr( "Invalid result value format!" );
+    }
+  }
+  return result;
+}
+
+
 /* Solves a given ilp with lp_solve. */
-static ull solveET_ILP( const offset_graph *og, const char *ilp_file )
+static ull solveET_ILP( const offset_graph *og, const char *ilp_file,
+    enum ILPSolver solver )
 {
   DSTART( "solveET_ILP" );
 
-  const char * const output_file = invokeILPSolver( ilp_file );
+  const char * const output_file = invokeILPSolver( ilp_file, solver );
 
   // Parse result file
   FILE *result_file = fopen( output_file, "r" );
@@ -583,30 +786,38 @@ static ull solveET_ILP( const offset_graph *og, const char *ilp_file )
   const uint line_size = 500;
   char result_file_line[line_size];
   char result_string[50];
+  _Bool successfully_read = 0;
 
-  _Bool successfully_read =
-    // Skip first line
-    fgets( result_file_line, line_size, result_file ) &&
-    // Read the result in the second line
-    fgets( result_file_line, line_size, result_file ) &&
-    sscanf( result_file_line, "%*s %*s %*s %*s %s", result_string );
+  if ( solver == ILP_LPSOLVE ) {
+    successfully_read =
+      // Skip first two lines
+      fgets( result_file_line, line_size, result_file ) &&
+      fgets( result_file_line, line_size, result_file ) &&
+      // Read the result in the third line
+      fgets( result_file_line, line_size, result_file ) &&
+      sscanf( result_file_line, "%*s %*s %*s %*s %s", result_string );
 
-  if ( successfully_read ) {
-    // Parse the number (first try direct format)
-    char *end_ptr = NULL;
-    result = strtoull( result_string, &end_ptr, 10 );
-    successfully_read = *end_ptr == '\0';
-    /* In case of failure:
-     * Try to parse the number in scientific format (2.81864e+06) */
-    if ( !successfully_read ) {
-      double time_result_float = strtod( result_string, &end_ptr );
-      successfully_read = *end_ptr == '\0';
-      if ( successfully_read ) {
-        assert( floor( time_result_float ) == time_result_float &&
-            "Invalid result!" );
-        result = (ull)time_result_float;
-      }
+    if ( successfully_read ) {
+      result = parseResultValue( result_string );
     }
+
+  } else if ( solver == ILP_CPLEX ) {
+    successfully_read =
+      // Skip first four lines
+      fgets( result_file_line, line_size, result_file ) &&
+      fgets( result_file_line, line_size, result_file ) &&
+      fgets( result_file_line, line_size, result_file ) &&
+      fgets( result_file_line, line_size, result_file ) &&
+      // Read the result in the fifth line
+      fgets( result_file_line, line_size, result_file ) &&
+      sscanf( result_file_line, "%*s %*s %*s %*s %*s %*s %*s %s", result_string );
+
+    if ( successfully_read ) {
+      result = parseResultValue( result_string );
+    }
+
+  } else {
+    assert( 0 && "Unknown ILP solver!" );
   }
 
   fclose( result_file );
@@ -629,11 +840,11 @@ static ull solveET_ILP( const offset_graph *og, const char *ilp_file )
 
 /* Solves a given ilp with lp_solve. */
 static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
-    const char *ilp_file )
+    const char *ilp_file, enum ILPSolver solver )
 {
   DSTART( "solveOffset_ILP" );
 
-  const char * const output_file = invokeILPSolver( ilp_file );
+  const char * const output_file = invokeILPSolver( ilp_file, solver );
 
   // Parse result file
   FILE *result_file = fopen( output_file, "r" );
@@ -642,27 +853,47 @@ static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
   char result_file_line[line_size];
   char var_name[50];
   uint var_value;
-
-  // Skip first 4 lines
-  _Bool skipped =
-      fgets( result_file_line, line_size, result_file ) &&
-      fgets( result_file_line, line_size, result_file ) &&
-      fgets( result_file_line, line_size, result_file ) &&
-      fgets( result_file_line, line_size, result_file );
-  // Read until the bound variables were found
+  _Bool skipped = 0;
   _Bool foundMin = 0;
   _Bool foundMax = 0;
-  while( fgets( result_file_line, line_size, result_file ) &&
-         ( !foundMax || !foundMin ) ) {
 
-    sscanf( result_file_line, "%s %u", var_name, &var_value );
-    if ( strcmp( var_name, min_offset_var ) ) {
-      result.lower_bound = var_value;
-      foundMin = 1;
-    } else
-    if ( strcmp( var_name, max_offset_var ) ) {
-      result.upper_bound = var_value;
-      foundMax = 1;
+  if ( solver == ILP_LPSOLVE ) {
+    // Skip first 4 lines
+    skipped =
+        fgets( result_file_line, line_size, result_file ) &&
+        fgets( result_file_line, line_size, result_file ) &&
+        fgets( result_file_line, line_size, result_file ) &&
+        fgets( result_file_line, line_size, result_file );
+
+  } else if ( solver == ILP_CPLEX ) {
+    // Skip first 7 lines
+    skipped =
+        fgets( result_file_line, line_size, result_file ) &&
+        fgets( result_file_line, line_size, result_file ) &&
+        fgets( result_file_line, line_size, result_file ) &&
+        fgets( result_file_line, line_size, result_file ) &&
+        fgets( result_file_line, line_size, result_file ) &&
+        fgets( result_file_line, line_size, result_file ) &&
+        fgets( result_file_line, line_size, result_file );
+
+  } else {
+    assert( 0 && "Unknown ILP solver!" );
+  }
+
+  if ( skipped ) {
+    // Read until the bound variables were found
+    while( fgets( result_file_line, line_size, result_file ) &&
+           ( !foundMax || !foundMin ) ) {
+
+      sscanf( result_file_line, "%s %u", var_name, &var_value );
+      if ( strcmp( var_name, min_offset_var ) == 0 ) {
+        result.lower_bound = var_value;
+        foundMin = 1;
+      } else
+      if ( strcmp( var_name, max_offset_var ) == 0 ) {
+        result.upper_bound = var_value;
+        foundMax = 1;
+      }
     }
   }
 
@@ -674,7 +905,7 @@ static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
   }
   free( (void*)output_file );
 
-  if ( skipped && foundMax && foundMin ) {
+  if ( foundMax && foundMin ) {
     DOUT( "Result was: [%u, %u]\n", result.lower_bound, result.upper_bound );
     DRETURN( result );
   } else {
@@ -837,8 +1068,9 @@ ull computeOffsetGraphLoopBCET( const offset_graph *og, uint loopbound_min )
 {
   assert( og && "Invalid arguments!" );
 
-  char * const tmpfile = generateOffsetGraphILP( og, loopbound_min, ILP_TYPE_BCET );
-  const ull result = solveET_ILP( og, tmpfile );
+  char * const tmpfile = generateOffsetGraphILP( og,
+      loopbound_min, ILP_COMP_TYPE_BCET, ilpSolver );
+  const ull result = solveET_ILP( og, tmpfile, ilpSolver );
 
   if ( !keepTemporaryFiles ) {
     remove( tmpfile );
@@ -856,8 +1088,8 @@ ull computeOffsetGraphLoopWCET( const offset_graph *og, uint loopbound_max )
   assert( og && "Invalid arguments!" );
 
   char * const tmpfile = generateOffsetGraphILP( og,
-      loopbound_max, ILP_TYPE_WCET );
-  const ull result = solveET_ILP( og, tmpfile );
+      loopbound_max, ILP_COMP_TYPE_WCET, ilpSolver );
+  const ull result = solveET_ILP( og, tmpfile, ilpSolver );
 
   if ( !keepTemporaryFiles ) {
     remove( tmpfile );
@@ -876,8 +1108,8 @@ tdma_offset_bounds computeOffsetGraphLoopOffsets( const offset_graph *og,
   assert( og && "Invalid arguments!" );
 
   char * const tmpfile = generateOffsetGraphILP( og,
-      loopbound_max, ILP_TYPE_OFFSETS );
-  const tdma_offset_bounds result = solveOffset_ILP( og, tmpfile );
+      loopbound_max, ILP_COMP_TYPE_OFFSETS, ilpSolver );
+  const tdma_offset_bounds result = solveOffset_ILP( og, tmpfile, ilpSolver );
 
   if ( !keepTemporaryFiles ) {
     remove( tmpfile );
