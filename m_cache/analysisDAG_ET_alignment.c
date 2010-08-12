@@ -595,6 +595,10 @@ static combined_result analyze_block( block* bb, procedure* proc,
   assert( bb && proc && checkOffsetBound( &start_offsets ) &&
           "Invalid arguments!" );
 
+  DOUT( "Starting block analysis for block %u.%u [context %u] with "
+      "offsets [%u,%u]\n", proc->pid, bb->bbid, loop_context,
+      start_offsets.lower_bound, start_offsets.upper_bound );
+
   /* Check whether we have already computed the requested result. */
   combined_result ** const bufferLocation = &block_results[proc->pid][bb->bbid]
     [loop_context][start_offsets.lower_bound][start_offsets.upper_bound];
@@ -621,59 +625,135 @@ static combined_result analyze_block( block* bb, procedure* proc,
    * compute the WCET of the block */
   } else {
 
+    /* During the block analysis we may encounter bus accesses which
+     * force us to wait for the next TDMA slot. Normally we only update
+     * the current offset range after each instruction, but here we
+     * can use more information: After the first wait for a new TDMA
+     * slot we know, that in our worst-case scenario we are now aligned
+     * (access duration) cycles after the begin of our TDMA slot.
+     * Therefore we can use fixed offsets for the next accesses for
+     * the next instructions until a call occurs or the block ends.
+     *
+     * The "useFixed..Offset" variables denote whether we currently are
+     * in such an instruction sequence in which the offset is known due
+     * to a preceding wait. The "fixed..Offset" then denotes the offset
+     * to use.
+     */
+    _Bool useFixedBCOffset = 0;
+    uint fixedBCOffset = 0;
+    _Bool useFixedWCOffset = 0;
+    uint fixedWCOffset = 0;
+
+    // TODO: This won't work correctly for segmented schedules
+    const uint tdma_interval = getCoreSchedule( ncore, 0 )->interval;
+
     int i;
     for ( i = 0; i < bb->num_instr; i++ ) {
 
       instr * const inst = bb->instrlist[i];
       assert(inst);
 
-      // Backup BCET/ WCET results at the beginning of each new instruction
+      /* Backup BCET/ WCET results at the beginning of each new instruction. */
       const ull old_bcet = result.bcet;
       const ull old_wcet = result.wcet;
 
-      /* First handle instruction cache access. */
-      const acc_type best_acc  = check_hit_miss( bb, inst, loop_context, 
-                                                 ACCESS_SCENARIO_BCET );
-      const acc_type worst_acc = check_hit_miss( bb, inst, loop_context, 
-                                                 ACCESS_SCENARIO_WCET );
+      /* Some temporaries. */
+      _Bool waitedForNextTDMASlot;
+      uint j, newAlignment;
 
-      // TODO: At this point we could use the information, that we already
-      //       had a bus delay in the current block, therefore the resulting
-      //       offsets after the first access is fixed inside the block...
-      uint j, min_latency, max_latency;
-      for ( j  = result.offsets.lower_bound;
-            j <= result.offsets.upper_bound; j++ ) {
-        const uint bc_latency = determine_latency( bb, j, best_acc );
-        const uint wc_latency = determine_latency( bb, j, worst_acc );
-        if ( j == result.offsets.lower_bound ) {
-          min_latency = bc_latency;
-          max_latency = wc_latency;
-        } else {
-          min_latency = MIN( min_latency, bc_latency );
-          max_latency = MAX( max_latency, wc_latency );
+      /* Compute instruction cache access duration for best case. */
+      const acc_type best_acc  = check_hit_miss( bb, inst, loop_context,
+                                                 ACCESS_SCENARIO_BCET );
+      if ( useFixedBCOffset ) {
+        result.bcet += determine_latency( bb, fixedBCOffset, best_acc,
+                                          NULL, NULL );
+      } else {
+        /* Iterate over the current offset range and determine minimum latency. */
+        uint min_latency = UINT_MAX;
+        for ( j  = result.offsets.lower_bound;
+              j <= result.offsets.upper_bound; j++ ) {
+
+          const uint latency = determine_latency( bb, j, best_acc,
+              &waitedForNextTDMASlot, &newAlignment );
+          if ( latency < min_latency ) {
+            min_latency = latency;
+
+            /* Check whether we have reached a block-internal fixed alignment. */
+            if ( waitedForNextTDMASlot ) {
+              useFixedBCOffset = 1;
+              fixedBCOffset    = newAlignment;
+            }
+          }
         }
+        assert( min_latency != UINT_MAX );
+        result.bcet += min_latency;
       }
-      result.bcet += min_latency;
-      result.wcet += max_latency;
+
+      /* Compute instruction cache access duration for worst case. */
+      const acc_type worst_acc = check_hit_miss( bb, inst, loop_context,
+                                                 ACCESS_SCENARIO_WCET );
+      if ( useFixedWCOffset ) {
+        result.wcet += determine_latency( bb, fixedWCOffset, worst_acc,
+                                          NULL, NULL );
+      } else {
+        /* Iterate over the current offset range and determine maximum latency. */
+        uint max_latency = 0;
+        for ( j  = result.offsets.lower_bound;
+              j <= result.offsets.upper_bound; j++ ) {
+
+          const uint latency = determine_latency( bb, j, worst_acc,
+              &waitedForNextTDMASlot, &newAlignment );
+          if ( latency > max_latency ) {
+            max_latency = latency;
+
+            /* Check whether we have reached a block-internal fixed alignment. */
+            if ( waitedForNextTDMASlot ) {
+              useFixedWCOffset = 1;
+              fixedWCOffset    = newAlignment;
+            }
+          }
+        }
+        result.wcet += max_latency;
+      }
 
       /* Then add cost for executing the instruction. */
       result.bcet += getInstructionBCET( inst );
       result.wcet += getInstructionWCET( inst );
 
       /* Update the offset information. */
-      result.offsets = getOffsetBounds(
-          result.offsets.lower_bound + result.bcet - old_bcet,
-          result.offsets.upper_bound + result.wcet - old_wcet );
+      const uint bcTimePassed = result.bcet - old_bcet;
+      const uint wcTimePassed = result.wcet - old_wcet;
+      const uint bcOffset = result.offsets.lower_bound + bcTimePassed;
+      const uint wcOffset = result.offsets.upper_bound + wcTimePassed;
+      if ( bcOffset > wcOffset ) {
+        assert( ( useFixedBCOffset || useFixedWCOffset ) &&
+            "In normal offset mode the local bcet may never exceed the local wcet" );
+        result.offsets.lower_bound = 0;
+        result.offsets.upper_bound = tdma_interval - 1;
+      } else {
+        result.offsets = getOffsetBounds( bcOffset, wcOffset );
+      }
+      if ( useFixedBCOffset ) {
+        fixedBCOffset = ( fixedBCOffset + bcTimePassed ) % tdma_interval;
+      }
+      if ( useFixedWCOffset ) {
+        fixedWCOffset = ( fixedWCOffset + wcTimePassed ) % tdma_interval;
+      }
 
       /* Handle procedure call instruction */
       if ( IS_CALL(inst->op) ) {
         procedure * const callee = getCallee( inst, proc );
 
+        /* Deactivate block-internal fixed offset mode, because the call will
+         * return its own offset information which overrides ours. */
+        useFixedBCOffset = 0;
+        useFixedWCOffset = 0;
+
         /* For ignoring library calls */
         if ( callee ) {
           DOUT( "Block calls internal function %u\n", callee->pid );
           /* Compute the WCET of the callee procedure here.
-           * We dont handle recursive procedure call chain */
+           * We don't handle recursive procedure call chain */
           combined_result call_cost = analyze_proc( callee, result.offsets );
           result.bcet    += call_cost.bcet;
           result.wcet    += call_cost.wcet;
@@ -681,8 +761,24 @@ static combined_result analyze_block( block* bb, procedure* proc,
         }
       }
 
-      /*DOUT( "  Instruction 0x%s: BCET %llu, WCET %llu\n", inst->addr,
-          result.bcet - old_bcet, result.wcet - old_wcet );*/
+      /*DACTION(
+          char offsetString[100];
+          char *stringPtr = offsetString;
+          if ( useFixedBCOffset || useFixedWCOffset ) {
+            stringPtr += sprintf( stringPtr, " (fixed offsets: " );
+            if ( useFixedBCOffset )
+              stringPtr += sprintf( stringPtr, "bc %u ", fixedBCOffset );
+            if ( useFixedWCOffset )
+              stringPtr += sprintf( stringPtr, "wc %u ", fixedWCOffset );
+            stringPtr += sprintf( stringPtr, ") " );
+          }
+          stringPtr += sprintf( stringPtr, " [%u, %u]",
+              result.offsets.lower_bound,
+              result.offsets.upper_bound );
+
+          DOUT( "  Instruction 0x%s: BCET %llu, WCET %llu %s\n", inst->addr,
+            result.bcet - old_bcet, result.wcet - old_wcet, offsetString );
+      );*/
     }
   }
 
@@ -699,8 +795,9 @@ static combined_result analyze_block( block* bb, procedure* proc,
       sprintf( block_name, "%u.%u", bb->pid, bb->bbid );
     }
     DOUT( "Accounting BCET %llu, WCET %llu for block %s 0x%s - 0x%s\n",
-      result.bcet, result.wcet, block_name, bb->instrlist[0]->addr,
-      bb->instrlist[bb->num_instr - 1]->addr );
+      result.bcet, result.wcet, block_name,
+        bb->num_instr > 0 ? bb->instrlist[0]->addr                 : "0x0",
+        bb->num_instr > 0 ? bb->instrlist[bb->num_instr - 1]->addr : "0x0" );
   );
 
   assert( checkResult( &result ) && "Invalid result!" );

@@ -99,10 +99,18 @@ void reset_all_task(MSC* msc);
  *
  * 'bb' is the block after which the access takes place
  * 'access_time' is the precise time when the access takes place
- * 'type' specifies whether the bus access is a L2 cache hit or miss
- *        ( L2_HIT / L2_MISS )
+ * 'type' specifies whether the memory access is a L1/L2 cache hit or miss
+ * 'has_waited_for_next_tdma_slot' is an output variable which (if not NULL)
+ *                                 will contain the information whether the
+ *                                 current access had to wait for the next
+ *                                 TDMA slot
+ * 'resulting_tdma_alignment' is the alignment, relative to the TDMA interval
+ *                            begin, which results after this access has been
+ *                            performed.
  */
-uint determine_latency( block* bb, ull access_time, acc_type type );
+uint determine_latency( const block * const bb, const ull access_time,
+    const acc_type type, _Bool * const has_waited_for_next_tdma_slot,
+    uint * const resulting_tdma_alignment );
 
 
 /* Computes the end alignment cost of a loop iteration which ends at 'fin_time'.

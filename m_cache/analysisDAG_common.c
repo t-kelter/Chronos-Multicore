@@ -297,12 +297,33 @@ static uint getAccessLatency( acc_type type )
  * 'bb' is the block after which the access takes place
  * 'access_time' is the precise time when the access takes place
  * 'type' specifies whether the memory access is a L1/L2 cache hit or miss
+ * 'has_waited_for_next_tdma_slot' is an output variable which (if not NULL)
+ *                                 will contain the information whether the
+ *                                 current access had to wait for the next
+ *                                 TDMA slot
+ * 'resulting_tdma_alignment' is the alignment, relative to the TDMA interval
+ *                            begin, which results after this access has been
+ *                            performed.
  */
-uint determine_latency( block* bb, ull access_time, acc_type type )
+uint determine_latency( const block * const bb, const ull access_time,
+    const acc_type type, _Bool * const has_waited_for_next_tdma_slot,
+    uint * const resulting_tdma_alignment )
 {
   DSTART( "determine_latency" );
 
   uint result = 0;
+
+  /* Get schedule data */
+  const core_sched_p core_schedule = getCoreSchedule( ncore, access_time );
+  const uint slot_start = core_schedule->start_time;
+  const uint slot_len = core_schedule->slot_len;
+  const ull interval = core_schedule->interval;
+  assert( num_core * slot_len == interval && "Inconsistent model!" );
+
+  /* Init output parameter. */
+  if ( has_waited_for_next_tdma_slot != NULL ) {
+    *has_waited_for_next_tdma_slot = 0;
+  }
 
   // If the access is a L1 hit, then the access time is constant
   if ( type == L1_HIT ) {
@@ -311,13 +332,6 @@ uint determine_latency( block* bb, ull access_time, acc_type type )
 
   // All other cases may suffer a variable delay
   } else {
-
-    /* Get schedule data */
-    const core_sched_p core_schedule = getCoreSchedule( ncore, access_time );
-    const uint slot_start = core_schedule->start_time;
-    const uint slot_len = core_schedule->slot_len;
-    const ull interval = core_schedule->interval;
-    assert( num_core * slot_len == interval && "Inconsistent model!" );
 
     // Determine the offset of the access in the TDMA schedule
     const ull offset = access_time % interval;
@@ -356,6 +370,9 @@ uint determine_latency( block* bb, ull access_time, acc_type type )
        * and add the access time itself to get the total delay. */
       } else {
         waiting_time = ( interval - offset + slot_start );
+        if ( has_waited_for_next_tdma_slot != NULL ) {
+          *has_waited_for_next_tdma_slot = 1;
+        }
       }
 
       /* Then sum up the waiting and the access time to form the final delay. */
@@ -365,6 +382,11 @@ uint determine_latency( block* bb, ull access_time, acc_type type )
       assert( result <= ( num_core - 1 ) * slot_len + 2 * getAccessLatency( L2_MISS ) &&
           "Bus delay exceeded maximum limit" );
     }
+  }
+
+  /* Write output parameter. */
+  if ( resulting_tdma_alignment != NULL ) {
+    *resulting_tdma_alignment = ( access_time + result ) % interval;
   }
 
   DACTION(

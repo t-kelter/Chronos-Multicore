@@ -195,7 +195,8 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
           /* First handle instruction cache access time */
           const acc_type acc_t = check_hit_miss( bb, inst, j,
                                                  ACCESS_SCENARIO_WCET );
-          bb_cost += determine_latency( bb, bb->start_opt[j] + bb_cost, acc_t );
+          bb_cost += determine_latency( bb, bb->start_opt[j] + bb_cost,
+                                        acc_t, NULL, NULL );
 
           /* Then add cost for executing the instruction. */
           bb_cost += getInstructionWCET( inst );
@@ -279,7 +280,8 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
       /* First handle instruction cache access. */
       const acc_type acc_t = check_hit_miss( bb, inst, proc_body_context,
                                              ACCESS_SCENARIO_WCET );
-      bb_cost += determine_latency( bb, bb->start_time + bb_cost, acc_t );
+      bb_cost += determine_latency( bb, bb->start_time + bb_cost,
+                                    acc_t, NULL, NULL );
 
       /* Then add cost for executing the instruction. */
       bb_cost += getInstructionWCET( inst );
