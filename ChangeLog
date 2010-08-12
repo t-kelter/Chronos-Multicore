@@ -1,3 +1,6 @@
+2010-08-12:
+* Improved precision of alignment-sensitive single-block analysis.
+
 2010-08-11:
 * Implemented buffering of result values which speeds up the recursive computations by a factor of 3 or more in some cases.
 
