@@ -227,7 +227,7 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
 
   /* Write out flow conservation constraints.
    *
-   * We are workin gon a dynamic flow here, which may not buffer any flow
+   * We are working on a dynamic flow here, which may not buffer any flow
    * inside the nodes, so the flow conservation constraint for node 'n' is:
    *
    * sum_{e \in n->incoming} x(e, t - \tau(e)) =

@@ -1043,27 +1043,26 @@ static combined_result analyze_loop_graph_tracking( loop * const lp, procedure *
       // Add the missing edges
       int k; // 'k' indexes the target offset
       ITERATE_OFFSET_BOUND( iteration_result.offsets, k ) {
-        offset_graph_node * const end   = getOffsetGraphNode( graph, k );
+        offset_graph_node * const end = getOffsetGraphNode( graph, k );
+        offset_graph_edge * const edge = getOffsetGraphEdge( graph, start, end );
 
-        if ( getOffsetGraphEdge( graph, start, end ) == NULL ) {
-          addOffsetGraphEdge( graph, start, end, 0, 0 );
+        if ( edge == NULL ) {
+          addOffsetGraphEdge( graph, start, end,
+              iteration_result.bcet, iteration_result.wcet );
           graphChanged = 1;
 
           assert( getOffsetGraphEdge( graph, start, end ) &&
                   "Internal error!" );
+        } else {
+          if ( edge->bcet > iteration_result.bcet ) {
+            edge->bcet = iteration_result.bcet;
+            graphChanged = 1;
+          }
+          if ( edge->wcet < iteration_result.wcet ) {
+            edge->wcet = iteration_result.wcet;
+            graphChanged = 1;
+          }
         }
-      }
-
-      // Update the BCET / WCET values of the nodes
-      if ( start->bcet == 0 ||
-           start->bcet > iteration_result.bcet ) {
-        start->bcet = iteration_result.bcet;
-        graphChanged = 1;
-      }
-      if ( start->wcet == 0 ||
-           start->wcet < iteration_result.wcet ) {
-        start->wcet = iteration_result.wcet;
-        graphChanged = 1;
       }
     }
 
