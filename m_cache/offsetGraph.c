@@ -43,7 +43,7 @@ enum ILPSolver {
 
 
 // Whether to keep the temporary files generated during the analysis
-static _Bool keepTemporaryFiles = 0;
+static _Bool keepTemporaryFiles = 1;
 
 /* The ILP solver to use. */
 static enum ILPSolver ilpSolver = ILP_CPLEX;
@@ -832,7 +832,7 @@ static ull solveET_ILP( const offset_graph *og, const char *ilp_file,
     DOUT( "Result was: %llu\n", result );
     DRETURN( result );
   } else {
-    prerr( "Could not read output file!" );
+    prerr( "Could not read ET ILP output file!" );
     DRETURN( result );
   }
 }
@@ -880,11 +880,13 @@ static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
     assert( 0 && "Unknown ILP solver!" );
   }
 
+  char *lastLine = NULL;
   if ( skipped ) {
     // Read until the bound variables were found
     while( fgets( result_file_line, line_size, result_file ) &&
            ( !foundMax || !foundMin ) ) {
 
+      lastLine = result_file_line;
       sscanf( result_file_line, "%s %u", var_name, &var_value );
       if ( strcmp( var_name, min_offset_var ) == 0 ) {
         result.lower_bound = var_value;
@@ -894,6 +896,22 @@ static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
         result.upper_bound = var_value;
         foundMax = 1;
       }
+    }
+  }
+
+  /* CPLEX speciality: All variables which had a value of zero
+   * are not explicitly listed. Check if the last line indicates
+   * that all other variables are zero and set result offsets
+   * then. */
+  if ( solver == ILP_CPLEX ) {
+    uint rest_result;
+    if ( lastLine &&
+         sscanf( lastLine, "All other variables in the range %*s are %u.",
+             &rest_result ) ) {
+      result.lower_bound = rest_result;
+      foundMin = 1;
+      result.upper_bound = rest_result;
+      foundMax = 1;
     }
   }
 
@@ -909,7 +927,7 @@ static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
     DOUT( "Result was: [%u, %u]\n", result.lower_bound, result.upper_bound );
     DRETURN( result );
   } else {
-    prerr( "Could not read output file!" );
+    prerr( "Could not read offset ILP output file!" );
     DRETURN( result );
   }
 }
