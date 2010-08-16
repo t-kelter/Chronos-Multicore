@@ -301,13 +301,9 @@ static uint getAccessLatency( acc_type type )
  *                                 will contain the information whether the
  *                                 current access had to wait for the next
  *                                 TDMA slot
- * 'resulting_tdma_alignment' is the alignment, relative to the TDMA interval
- *                            begin, which results after this access has been
- *                            performed.
  */
 uint determine_latency( const block * const bb, const ull access_time,
-    const acc_type type, _Bool * const has_waited_for_next_tdma_slot,
-    uint * const resulting_tdma_alignment )
+    const acc_type type, _Bool * const has_waited_for_next_tdma_slot )
 {
   DSTART( "determine_latency" );
 
@@ -382,11 +378,6 @@ uint determine_latency( const block * const bb, const ull access_time,
       assert( result <= ( num_core - 1 ) * slot_len + 2 * getAccessLatency( L2_MISS ) &&
           "Bus delay exceeded maximum limit" );
     }
-  }
-
-  /* Write output parameter. */
-  if ( resulting_tdma_alignment != NULL ) {
-    *resulting_tdma_alignment = ( access_time + result ) % interval;
   }
 
   DACTION(

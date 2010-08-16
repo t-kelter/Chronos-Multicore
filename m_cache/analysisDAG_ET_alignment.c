@@ -672,14 +672,13 @@ static combined_result analyze_block( block* bb, procedure* proc,
 
       /* Some temporaries. */
       _Bool waitedForNextTDMASlot;
-      uint j, newAlignment;
+      uint j;
 
       /* Compute instruction cache access duration for best case. */
       const acc_type best_acc  = check_hit_miss( bb, inst, loop_context,
                                                  ACCESS_SCENARIO_BCET );
       if ( useFixedBCOffset ) {
-        result.bcet += determine_latency( bb, fixedBCOffset, best_acc,
-                                          NULL, NULL );
+        result.bcet += determine_latency( bb, fixedBCOffset, best_acc, NULL );
       } else {
         /* Iterate over the current offset range and determine minimum latency. */
         uint min_latency = UINT_MAX;
@@ -687,14 +686,14 @@ static combined_result analyze_block( block* bb, procedure* proc,
               j <= result.offsets.upper_bound; j++ ) {
 
           const uint latency = determine_latency( bb, j, best_acc,
-              &waitedForNextTDMASlot, &newAlignment );
+                                                  &waitedForNextTDMASlot );
           if ( latency < min_latency ) {
             min_latency = latency;
 
             /* Check whether we have reached a block-internal fixed alignment. */
             if ( waitedForNextTDMASlot ) {
               useFixedBCOffset = 1;
-              fixedBCOffset    = newAlignment;
+              fixedBCOffset    = j;
             }
           }
         }
@@ -706,8 +705,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
       const acc_type worst_acc = check_hit_miss( bb, inst, loop_context,
                                                  ACCESS_SCENARIO_WCET );
       if ( useFixedWCOffset ) {
-        result.wcet += determine_latency( bb, fixedWCOffset, worst_acc,
-                                          NULL, NULL );
+        result.wcet += determine_latency( bb, fixedWCOffset, worst_acc, NULL );
       } else {
         /* Iterate over the current offset range and determine maximum latency. */
         uint max_latency = 0;
@@ -715,14 +713,14 @@ static combined_result analyze_block( block* bb, procedure* proc,
               j <= result.offsets.upper_bound; j++ ) {
 
           const uint latency = determine_latency( bb, j, worst_acc,
-              &waitedForNextTDMASlot, &newAlignment );
+                                                  &waitedForNextTDMASlot );
           if ( latency > max_latency ) {
             max_latency = latency;
 
             /* Check whether we have reached a block-internal fixed alignment. */
             if ( waitedForNextTDMASlot ) {
               useFixedWCOffset = 1;
-              fixedWCOffset    = newAlignment;
+              fixedWCOffset    = j;
             }
           }
         }

@@ -112,7 +112,7 @@ static void computeBCET_loop( loop* lp, procedure* proc, uint context )
 static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp, uint context )
 {
   DSTART( "computeBCET_block" );
-  DOUT( "Visiting block = (%d.%lx)\n", bb->bbid, (uintptr_t)bb );
+  DOUT( "Visiting block %u.%u at time %llu\n", bb->pid, bb->bbid, bb->start_time );
 
   /* Check whether the block is some header of a loop structure.
    * In that case do separate analysis of the loop */
@@ -137,7 +137,7 @@ static void computeBCET_block( block* bb, procedure* proc, loop* cur_lp, uint co
       const acc_type acc_t = check_hit_miss( bb, inst, context, 
                                              ACCESS_SCENARIO_BCET );
       bb_cost += determine_latency( bb, bb->start_time + bb_cost,
-                                    acc_t, NULL, NULL );
+                                    acc_t, NULL );
 
       /* Then add cost for executing the instruction. */
       bb_cost += getInstructionBCET( inst );

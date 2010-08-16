@@ -104,13 +104,9 @@ void reset_all_task(MSC* msc);
  *                                 will contain the information whether the
  *                                 current access had to wait for the next
  *                                 TDMA slot
- * 'resulting_tdma_alignment' is the alignment, relative to the TDMA interval
- *                            begin, which results after this access has been
- *                            performed.
  */
 uint determine_latency( const block * const bb, const ull access_time,
-    const acc_type type, _Bool * const has_waited_for_next_tdma_slot,
-    uint * const resulting_tdma_alignment );
+    const acc_type type, _Bool * const has_waited_for_next_tdma_slot );
 
 
 /* Computes the end alignment cost of a loop iteration which ends at 'fin_time'.
