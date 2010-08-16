@@ -48,6 +48,8 @@ static void computeWCET_proc( procedure* proc, ull start_time );
 static void computeWCET_loop( loop* lp, procedure* proc, uint context )
 {
   DSTART( "computeWCET_loop" );
+  DOUT( "Analyzing loop %u.%u in context %u with start time %llu\n",
+      lp->pid, lp->lpid, context, lp->loophead->start_time );
   assert( lp && proc && lp->loopsink );
 
   /* For computing wcet of the loop it must be visited 
@@ -68,12 +70,7 @@ static void computeWCET_loop( loop* lp, procedure* proc, uint context )
 
       /* Set start time for loop header at successive iterations. */
       } else if ( bb->bbid == lp->loophead->bbid ) {
-        const ull oldStartTime = bb->start_time;
-        const ull newStartTime = MAX( lp->loopsink->finish_time, oldStartTime );
-        bb->start_time = newStartTime;
-        DOUT( "Setting loop %u.%u iteration %d finish time = %llu "
-            "(iteration wcet %llu)\n", lp->pid, lp->lpid, i,
-            newStartTime, newStartTime - oldStartTime );
+        bb->start_time = MAX( lp->loopsink->finish_time, bb->start_time );
 
       /* Set start time for a block inside the loop. */
       } else {
@@ -82,6 +79,11 @@ static void computeWCET_loop( loop* lp, procedure* proc, uint context )
 
       computeWCET_block( bb, proc, lp, inner_context );
     }
+
+    DOUT( "Setting loop %u.%u iteration %d finish time = %llu "
+        "(iteration wcet %llu, context %u)\n", lp->pid, lp->lpid, i,
+        lp->loopsink->finish_time,
+        lp->loopsink->finish_time - lp->loophead->start_time, inner_context );
   }
 
   /* TODO: The execution time of the loop header, after the 'loopbound' iterations,
@@ -156,6 +158,8 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp, uint co
           bb_cost += callee->running_cost;
         }
       }
+
+      DOUT( "  Instruction 0x%s: BCET %u\n", inst->addr, bb_cost );
     }
     /* The accumulated cost is computed. Now set the latest finish
      * time of this block */
@@ -172,11 +176,6 @@ static void computeWCET_proc( procedure* proc, ull start_time )
 
   /* Reset all timing information */
   reset_timestamps( proc, start_time );
-
-  DACTION(
-      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_BCET);
-      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_WCET);
-  );
 
   /* Recursively compute the finish time and WCET of each 
    * predecessors first */

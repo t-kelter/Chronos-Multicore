@@ -47,6 +47,7 @@ static void computeBCET_loop( loop* lp, procedure* proc, uint context )
   DSTART( "computeBCET_loop" );
   DOUT( "Analyzing loop %u.%u in context %u with start time %llu\n",
       lp->pid, lp->lpid, context, lp->loophead->start_time );
+  assert( lp && proc && lp->loopsink );
 
   /* For computing BCET of the loop it must be visited 
    * multiple times equal to the loop bound */
@@ -172,11 +173,6 @@ static void computeBCET_proc( procedure* proc, ull start_time )
 
   /* Reset all timing information */
   reset_timestamps( proc, start_time );
-
-  DACTION(
-      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_BCET);
-      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_WCET);
-  );
 
   /* Recursively compute the finish time and BCET of each
    * predecessors first */
