@@ -641,14 +641,16 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
   DSTART( "generateOffsetGraphILP" );
 
   // Get output file
+  FILE *f = NULL;
   char *tmpfilename;
   MALLOC( tmpfilename, char*, 50 * sizeof( char ), "tmpfilename" );
   if ( keepTemporaryFiles ) {
     strcpy( tmpfilename, "offsetGraph.ilp" );
+    f = fopen( tmpfilename, "w" );
   } else {
-    tmpnam( tmpfilename );
+    strcpy( tmpfilename, "/tmp/chronos_ilp_XXXXXX" );
+    f = (FILE*)mkstemp( tmpfilename );
   }
-  FILE *f = fopen( tmpfilename, "w" );
   if ( !f ) {
     prerr( "Unable to write to ILP file '%s'\n", tmpfilename );
   }
@@ -685,7 +687,9 @@ static char* invokeILPSolver( const char *ilp_file,
     strcpy( output_file, "offsetGraph.result" );
     remove( output_file );
   } else {
-    tmpnam( output_file );
+    strcpy( output_file, "/tmp/chronos_ilp_result_XXXXXX" );
+    FILE *f = (FILE*)mkstemp( output_file );
+    fclose( f );
   }
 
   if ( solver == ILP_LPSOLVE ) {

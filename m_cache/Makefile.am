@@ -3,7 +3,7 @@ SUBDIRS=wcrt
 noinst_PROGRAMS=opt
 
 # Settings for both programs
-AM_CPPFLAGS=-I@chronos_path@
+AM_CPPFLAGS=-D_GNU_SOURCE -I@chronos_path@
 
 # First program to build: The analyzer/optimizer for the user
 opt_SOURCES=analysisCache.c analysisCache.h \
