@@ -1,3 +1,6 @@
+2010-08-16:
+* Added more possibilities for the alignment analysis, to make use of the penalized alignment, i.e. to analyze single loop iterations using a fixed zero-alignment like in the structural analysis. In contrast to the structural analysis this is then done selectively, and one when needed.
+
 2010-08-12:
 * Improved precision of alignment-sensitive single-block analysis.
 
