@@ -51,9 +51,9 @@ static ull totalAlignCost = 0;
 static void set_start_time_WCET_opt( block* bb, procedure* proc, uint context )
 {
   DSTART( "set_start_time_WCET_opt" );
-  ull max_start = bb->start_opt[context];
+  assert( proc && bb && bb->num_incoming > 0 );
 
-  assert(bb);
+  ull max_start = 0;
 
   int i;
   for ( i = 0; i < bb->num_incoming; i++ ) {
@@ -81,9 +81,14 @@ static void set_start_time_WCET_opt( block* bb, procedure* proc, uint context )
  *
  * 'enclosing_loop_context' should be the context of the surrounding loop,
  * for which the WCET should be obtained.
+ * 'first_call' should indicate whether this is the first call to this
+ * method for loop 'lp' during the current WCET analysis.
  * */
-static ull getLoopWCET( const loop *lp, int enclosing_loop_context )
+static ull getLoopWCET( const loop *lp, const int enclosing_loop_context,
+                        const _Bool first_call )
 {
+  DSTART( "getLoopWCET" );
+
   /* Each CHMC index is of the form
    *
    * i = x_{head->num_chmc} x_{head->num_chmc - 1} ... x_1
@@ -111,12 +116,17 @@ static ull getLoopWCET( const loop *lp, int enclosing_loop_context )
     //       schedules (see definitions of startAlign/endAlign)
     const ull alignment_cost = startAlign( 0 ) + endAlign( firstIterationWCET )
         + ( endAlign( nextIterationsWCET ) * ( lp->loopbound - 1 ) );
+    DOUT( "Accounting WCET %llu, alignment cost %llu to loop %u.%u",
+        execution_cost, alignment_cost, lp->pid, lp->lpid );
 
-    totalAlignCost += alignment_cost;
+    /* Add alignment cost to summarized alignment cost only on first call. */
+    if ( first_call ) {
+      totalAlignCost += alignment_cost;
+    }
 
-    return execution_cost + alignment_cost;
+    DRETURN( execution_cost + alignment_cost );
   } else {
-    return 0;
+    DRETURN( 0 );
   }
 
 }
@@ -179,7 +189,7 @@ static void preprocess_one_loop( loop* lp, procedure* proc )
          * belong to the inner loop. */
         if ( j < bb->num_chmc / 2 ) {
           preprocess_one_loop( inlp, proc );
-          bb->fin_opt[j] = original_start_time + getLoopWCET( inlp, j );
+          bb->fin_opt[j] = original_start_time + getLoopWCET( inlp, j, 1 );
         }
 
       } else {
@@ -263,7 +273,7 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp )
   if ( inlp && ( !cur_lp || ( inlp->lpid != cur_lp->lpid ) ) ) {
 
     DOUT( "Block represents inner loop!\n" );
-    bb->finish_time = bb->start_time + getLoopWCET( inlp, proc_body_context );
+    bb->finish_time = bb->start_time + getLoopWCET( inlp, proc_body_context, 0 );
 
   /* It's not a loop. Go through all the instructions and
    * compute the WCET of the block */
