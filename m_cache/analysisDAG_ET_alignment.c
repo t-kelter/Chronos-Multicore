@@ -179,6 +179,19 @@ static _Bool isOffsetBoundEqual( const tdma_offset_bounds *lhs, const tdma_offse
          lhs->upper_bound == rhs->upper_bound;
 }
 
+/* Returns '1' if the given offset bounds represent the maximal offset range,
+ * else return '0'. */
+static _Bool isMaximalOffsetRange( const tdma_offset_bounds *b )
+{
+  assert( b && checkOffsetBound( b ) && "Invalid arguments!" );
+
+  // TODO: This won't work correctly for segmented schedules
+  const uint interval = getCoreSchedule( ncore, 0 )->interval;
+
+  return b->lower_bound == 0 &&
+         b->upper_bound == interval - 1;
+}
+
 
 /* Initializes the buffers to store intermediate results for the given task. */
 static void initResultBuffers( const task_t * const task )
@@ -890,6 +903,8 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
   // Holds the result from the iterations (if they were done)
   combined_result **results;
   CALLOC( results, combined_result**, lp->loopbound, sizeof( combined_result* ), "results" );
+  // Whether the last iteration used a zero-alignment
+  _Bool lastIterationWasAligned = 0;
 
   // Perform single-iteration-analyses until the offset bound converges
   _Bool brokeOut = 0;
@@ -898,17 +913,41 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
     // Allocate new result slot
     MALLOC( results[current_iteration], combined_result*, sizeof( combined_result ), 
         "results[current_iteration]" );
-    combined_result * const last_std_result = results[current_iteration];
+    combined_result * const current_result = results[current_iteration];
+    combined_result * const last_result = results[current_iteration - 1];
 
     // Analyze the iteration
     const uint inner_context = getInnerLoopContext( lp, loop_context, 
                                    current_iteration == 0 );
-    *last_std_result = analyze_single_loop_iteration( lp, proc, 
+    *current_result = analyze_single_loop_iteration( lp, proc, 
                        inner_context, current_offsets );
 
+    /* If the user selected this, then try to analyze the same iteration using
+     * a fixed alignment and use the better one of the two results. */
+    if ( tryPenalizedAlignment ) {
+      tdma_offset_bounds zero_offsets = { 0, 0 };
+      combined_result aligned_result = analyze_single_loop_iteration( lp, proc,
+                                         inner_context, zero_offsets );
+
+      if ( lastIterationWasAligned ) {
+        aligned_result.wcet += endAlign( last_result->wcet );
+      } else {
+        aligned_result.wcet += startAlign( 0 );
+      }
+
+      if ( aligned_result.wcet < current_result->wcet ) {
+        *current_result = aligned_result;
+        lastIterationWasAligned = 1;
+      } else {
+        lastIterationWasAligned = 0;
+      }
+    } else {
+      lastIterationWasAligned = 0;
+    }
+
     // Compute new offsets if they changed
-    if ( isOffsetBoundSubsetOrEqual( &last_std_result->offsets, &current_offsets ) < 0 ) {
-      current_offsets = mergeOffsetBounds( &current_offsets, &last_std_result->offsets );
+    if ( isOffsetBoundSubsetOrEqual( &current_result->offsets, &current_offsets ) < 0 ) {
+      current_offsets = mergeOffsetBounds( &current_offsets, &current_result->offsets );
     // If they did not change, terminate the analysis
     } else {
       // We always need at least two iterations to fully exploit the cache analysis
@@ -1033,6 +1072,28 @@ static combined_result analyze_loop_graph_tracking( loop * const lp, procedure *
         iteration_result.offsets.lower_bound,
         iteration_result.offsets.upper_bound );
 
+    /* If the user selected this, then try to analyze the same iteration using
+     * a fixed alignment and use the better one of the two results. */
+    /* For graph-tracking we also try this to limit the complexity of the
+     * resulting ILP, if the offset results are very bad currently. */
+    const _Bool stdOffsetsUnbounded = isMaximalOffsetRange( &iteration_result.offsets );
+    if ( tryPenalizedAlignment || stdOffsetsUnbounded ) {
+      tdma_offset_bounds zero_offsets = { 0, 0 };
+      combined_result aligned_result = analyze_single_loop_iteration( lp, proc,
+                                         inner_context, zero_offsets );
+      aligned_result.wcet += startAlign( 0 );
+      if ( aligned_result.wcet < iteration_result.wcet || stdOffsetsUnbounded ) {
+        iteration_result = aligned_result;
+
+        /* Update the offset results with endAlign penalty if needed. */
+        if ( isMaximalOffsetRange( &aligned_result.offsets ) ) {
+          iteration_result.wcet += endAlign( iteration_result.wcet );
+          iteration_result.offsets.lower_bound = 0;
+          iteration_result.offsets.upper_bound = 0;
+        }
+      }
+    }
+
     // Apply the needed changes to the graph
     graphChanged = 0;
 
@@ -1088,12 +1149,12 @@ static combined_result analyze_loop_graph_tracking( loop * const lp, procedure *
   /* If the graph creation converged with the interval [0, tdma_interval - 1]
    * then it's not worth trying to solve the ILP, because the result can hardly
    * be more precise than the global convergence. */
-  if ( iteration_result.offsets.lower_bound == 0 &&
+  /*if ( iteration_result.offsets.lower_bound == 0 &&
        iteration_result.offsets.upper_bound == tdma_interval - 1 ) {
     result = analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
     DOUT( "Took over convergence result: BCET %llu, WCET %llu, offsets [%u, %u]\n", result.bcet,
         result.wcet, result.offsets.lower_bound, result.offsets.upper_bound );
-  } else {
+  } else */ {
     // Solve flow problems
     // (Mind the peeled-off iteration of the loop, see beginning o this function)
     result.bcet += computeOffsetGraphLoopBCET( graph, lp->loopbound - 1 );
