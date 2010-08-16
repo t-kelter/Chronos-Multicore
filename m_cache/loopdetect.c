@@ -371,6 +371,11 @@ static int read_loop_annotation()
   int pid, lpid, lb, dw;
   int scan_result;
 
+  /* For verification. Gives the number of read in loopbounds per procedure. */
+  int *loopbounds_read;
+  CALLOC( loopbounds_read, int*, num_procs, sizeof( int ), "loopbounds_read" );
+
+  /* Read the loopbounds. */
   FILE * const fptr = openfile( "lb", "r" );
   while ( scan_result = fscanf( fptr, "%d %d %d %d", &pid, &lpid, &lb, &dw ), scan_result != EOF ) {
 
@@ -393,8 +398,19 @@ static int read_loop_annotation()
     if ( dw != 0 && dw != 1 )
       printf( "Invalid is_dowhile [%d][%d] %d (must be 0/1)\n", pid, lpid, dw ), exit( 1 );
     lp->is_dowhile = dw;
+
+    loopbounds_read[p->pid]++;
   }
   fclose( fptr );
+
+  /* Verify that all loopbounds were given. */
+  int i;
+  for ( i = 0; i < num_procs; i++ ) {
+    if ( loopbounds_read[i] != procs[i]->num_loops ) {
+      prerr( "Missing loopbounds in procedure %d: Only %d of %d given.",
+          i, loopbounds_read[i], procs[i]->num_loops );
+    }
+  }
 
   return 0;
 }
