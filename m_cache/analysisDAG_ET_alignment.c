@@ -774,7 +774,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
         }
       }
 
-      /*DACTION(
+      DACTION(
           char offsetString[100];
           char *stringPtr = offsetString;
           if ( useFixedBCOffset || useFixedWCOffset ) {
@@ -791,7 +791,7 @@ static combined_result analyze_block( block* bb, procedure* proc,
 
           DOUT( "  Instruction 0x%s: BCET %llu, WCET %llu %s\n", inst->addr,
             result.bcet - old_bcet, result.wcet - old_wcet, offsetString );
-      );*/
+      );
     }
   }
 
@@ -921,6 +921,10 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
                                    current_iteration == 0 );
     *current_result = analyze_single_loop_iteration( lp, proc, 
                        inner_context, current_offsets );
+    DOUT( "Analyzed new iteration: BCET %llu, WCET %llu, offsets [%u,%u] (context %u)\n",
+        current_result->bcet, current_result->wcet,
+        current_result->offsets.lower_bound,
+        current_result->offsets.upper_bound, inner_context );
 
     /* If the user selected this, then try to analyze the same iteration using
      * a fixed alignment and use the better one of the two results. */
@@ -938,6 +942,10 @@ static combined_result analyze_loop_global_convergence( loop* lp, procedure* pro
       if ( aligned_result.wcet < current_result->wcet ) {
         *current_result = aligned_result;
         lastIterationWasAligned = 1;
+        DOUT( "  Took over zero-aligned result: BCET %llu, WCET %llu, offsets [%u,%u] (context %u)\n",
+            current_result->bcet, current_result->wcet,
+            current_result->offsets.lower_bound,
+            current_result->offsets.upper_bound, inner_context );
       } else {
         lastIterationWasAligned = 0;
       }
@@ -1033,10 +1041,9 @@ static combined_result analyze_loop_graph_tracking( loop * const lp, procedure *
   } else {
     const uint first_context = getInnerLoopContext( lp, loop_context, 1 );
     result = analyze_single_loop_iteration( lp, proc, first_context, start_offsets );
-    DOUT( "Analyzed first iteration: BCET %llu, WCET %llu, offsets [%u,%u]\n",
-        result.bcet, result.wcet,
-        result.offsets.lower_bound,
-        result.offsets.upper_bound );
+    DOUT( "Analyzed first iteration: BCET %llu, WCET %llu, offsets [%u,%u] "
+        "(context %u)\n", result.bcet, result.wcet, result.offsets.lower_bound,
+        result.offsets.upper_bound, first_context );
 
     if ( lp->loopbound == 1 ) {
       DRETURN( result );
@@ -1066,11 +1073,12 @@ static combined_result analyze_loop_graph_tracking( loop * const lp, procedure *
 
     // Analyze the iteration
     const uint inner_context = getInnerLoopContext( lp, loop_context, 0 );
-    iteration_result = analyze_single_loop_iteration( lp, proc, inner_context, current_offsets );
-    DOUT( "Analyzed new iteration: BCET %llu, WCET %llu, offsets [%u,%u]\n",
-        iteration_result.bcet, iteration_result.wcet,
+    iteration_result = analyze_single_loop_iteration( lp, proc, inner_context,
+                                                      current_offsets );
+    DOUT( "Analyzed new iteration: BCET %llu, WCET %llu, offsets [%u,%u] "
+        "(context %u)\n", iteration_result.bcet, iteration_result.wcet,
         iteration_result.offsets.lower_bound,
-        iteration_result.offsets.upper_bound );
+        iteration_result.offsets.upper_bound, inner_context );
 
     /* If the user selected this, then try to analyze the same iteration using
      * a fixed alignment and use the better one of the two results. */
@@ -1091,6 +1099,11 @@ static combined_result analyze_loop_graph_tracking( loop * const lp, procedure *
           iteration_result.offsets.lower_bound = 0;
           iteration_result.offsets.upper_bound = 0;
         }
+
+        DOUT( "  Took over zero-aligned result: BCET %llu, WCET %llu, offsets [%u,%u]\n",
+            iteration_result.bcet, iteration_result.wcet,
+            iteration_result.offsets.lower_bound,
+            iteration_result.offsets.upper_bound );
       }
     }
 
@@ -1146,9 +1159,8 @@ static combined_result analyze_loop_graph_tracking( loop * const lp, procedure *
     addOffsetGraphEdge( graph, getOffsetGraphNode( graph, i ), &graph->supersink, 0, 0 );
   }
 
-  /* If the graph creation converged with the interval [0, tdma_interval - 1]
-   * then it's not worth trying to solve the ILP, because the result can hardly
-   * be more precise than the global convergence. */
+  // TODO: Use some new heuristic to determine when not to use the
+  //       graph-tracking because of its high complexity
   /*if ( iteration_result.offsets.lower_bound == 0 &&
        iteration_result.offsets.upper_bound == tdma_interval - 1 ) {
     result = analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
