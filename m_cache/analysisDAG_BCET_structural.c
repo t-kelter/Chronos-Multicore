@@ -323,11 +323,6 @@ static void computeBCET_proc( procedure* proc, ull start_time )
   /* Reset all timing information */
   reset_timestamps( proc, start_time );
 
-  DACTION(
-      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_BCET);
-      dump_pre_proc_chmc(proc, ACCESS_SCENARIO_WCET);
-  );
-
   /* Recursively compute the finish time and BCET of each
    * predecessors first */
   int i;
@@ -343,10 +338,6 @@ static void computeBCET_proc( procedure* proc, ull start_time )
       set_start_time_BCET( bb, proc );
     computeBCET_block( bb, proc, NULL );
   }
-
-  DACTION(
-      dump_prog_info(proc);
-  );
 
   /* Now calculate the final BCET */
   ull min_f_time = 0;

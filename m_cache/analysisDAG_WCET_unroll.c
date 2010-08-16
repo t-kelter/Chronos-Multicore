@@ -91,7 +91,8 @@ static void computeWCET_loop( loop* lp, procedure* proc, uint context )
    *       then fix it in all analyses. */
 
   /* Carry over the loop WCET to the loop header. */
-  lp->loophead->finish_time = lp->loopsink->finish_time;
+  lp->loophead->finish_time = ( lp->loopbound <= 0 ? lp->loophead->start_time
+                                                   : lp->loopsink->finish_time );
 
   /* If the loop was not executed at all, set all loop blocks to have the same
    * finish time as the loop header. */
@@ -192,10 +193,6 @@ static void computeWCET_proc( procedure* proc, ull start_time )
       set_start_time_WCET( bb, proc );
     computeWCET_block( bb, proc, NULL, 0 );
   }
-
-  DACTION(
-      dump_prog_info(proc);
-  );
 
   /* Now calculate the final WCET */
   ull max_f_time = 0;

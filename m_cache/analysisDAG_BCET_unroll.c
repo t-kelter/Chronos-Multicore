@@ -88,7 +88,8 @@ static void computeBCET_loop( loop* lp, procedure* proc, uint context )
    *       then fix it in all analyses. */
 
   /* Carry over the loop BCET to the loop header. */
-  lp->loophead->finish_time = lp->loopsink->finish_time;
+  lp->loophead->finish_time = ( lp->loopbound <= 0 ? lp->loophead->start_time
+                                                   : lp->loopsink->finish_time );
 
   /* If the loop was not executed at all, set all loop blocks to have the same
    * finish time as the loop header. */
@@ -190,10 +191,6 @@ static void computeBCET_proc( procedure* proc, ull start_time )
 
     computeBCET_block( bb, proc, NULL, 0 );
   }
-
-#ifdef _DEBUG
-  dump_prog_info(proc);
-#endif
 
   /* Now calculate the final BCET */
   ull min_f_time;
