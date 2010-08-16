@@ -48,7 +48,7 @@ static void computeWCET_proc( procedure* proc, ull start_time );
 static void computeWCET_loop( loop* lp, procedure* proc, uint context )
 {
   DSTART( "computeWCET_loop" );
-  DOUT( "Visiting loop = (%d.%lx)\n", lp->lpid, (uintptr_t) lp );
+  assert( lp && proc && lp->loopsink );
 
   /* For computing wcet of the loop it must be visited 
    * multiple times equal to the loop bound */
@@ -65,11 +65,16 @@ static void computeWCET_loop( loop* lp, procedure* proc, uint context )
       /* Set start time for loop header at first iteration. */
       if ( bb->bbid == lp->loophead->bbid && i == 0 ) {
         set_start_time_WCET( bb, proc );
+
       /* Set start time for loop header at successive iterations. */
       } else if ( bb->bbid == lp->loophead->bbid ) {
-        assert(lp->loopsink);
-        bb->start_time = MAX( lp->loopsink->finish_time, bb->start_time );
-        DOUT( "Setting loop %d finish time = %Lu\n", lp->lpid, lp->loopsink->finish_time );
+        const ull oldStartTime = bb->start_time;
+        const ull newStartTime = MAX( lp->loopsink->finish_time, oldStartTime );
+        bb->start_time = newStartTime;
+        DOUT( "Setting loop %u.%u iteration %d finish time = %llu "
+            "(iteration wcet %llu)\n", lp->pid, lp->lpid, i,
+            newStartTime, newStartTime - oldStartTime );
+
       /* Set start time for a block inside the loop. */
       } else {
         set_start_time_WCET( bb, proc );
@@ -79,15 +84,16 @@ static void computeWCET_loop( loop* lp, procedure* proc, uint context )
     }
   }
 
-  /* If the loop is not executed at all, then set all finish times
-   * to the finish time of the loop header. */
+  /* TODO: The execution time of the loop header, after the 'loopbound' iterations,
+   *       is not accounted for in any of the DAG-based analyses. If this is fixed,
+   *       then fix it in all analyses. */
+
+  /* Carry over the loop WCET to the loop header. */
+  lp->loophead->finish_time = lp->loopsink->finish_time;
+
+  /* If the loop was not executed at all, set all loop blocks to have the same
+   * finish time as the loop header. */
   if ( lp->loopbound <= 0 ) {
-    /* See header.h:num_chmc for further details about CHMC contexts. */
-    const uint inner_context = getInnerLoopContext( lp, context, 1 );
-
-    /* Compute time for header evaluation. */
-    computeWCET_block( lp->loophead, proc, lp, inner_context );
-
     /* Set finish time for all other loop blocks. */
     for ( j = lp->num_topo - 1; j >= 0; j-- ) {
       block * const bb = lp->topo[j];
@@ -97,6 +103,8 @@ static void computeWCET_loop( loop* lp, procedure* proc, uint context )
         bb->finish_time = lp->loophead->finish_time;
       }
     }
+    DOUT( "Loop %u.%u is not executed at all, finish time = %Lu\n",
+        lp->pid, lp->lpid, lp->loophead->finish_time );
   }
 
   DEND();
