@@ -4,11 +4,10 @@
  * This compilation unit provides a modular representation for TDMA offsets.
  * The user of the header can switch between offset ranges, delimited by a lower
  * and an upper bound and offset sets, which explicitly list the offsets. The
- * former is the default, while the latter is only activated when
+ * objects can be created via special createXY functions. There is no need to
+ * free them, as they have no dynamic data structures.
  *
- * CHRONOS_USE_TDMA_OFFSET_SETS
- *
- * is defined. The resulting datatype is called 'offset_data' in any case.
+ * ALWAYS call "setOffsetDataMaxOffset" before using this data type!
  */
 
 #ifndef __CHRONOS_OFFSET_DATA_H
@@ -19,11 +18,33 @@
 // ######### Macros #########
 
 
+/* Technical offset limit (storage limitation). */
+#define TECHNICAL_OFFSET_MAXIMUM 100
+
+
 /* A convenience macro to iterate over the offsets in an offset data object. */
-#define ITERATE_OFFSET_BOUND( bound, iteration_variable ) \
-  for ( iteration_variable  = bound.lower_bound; \
-        iteration_variable <= bound.upper_bound; \
-        iteration_variable++ )
+#define ITERATE_OFFSETS( offset_data_ptr, iteration_variable, loop_body_stmts ) \
+  { uint iteration_variable; \
+    if ( offset_data_ptr->type == OFFSET_DATA_TYPE_RANGE ) { \
+      for ( iteration_variable  = offset_data_ptr->content.lower_bound; \
+            iteration_variable <= offset_data_ptr->content.upper_bound; \
+            iteration_variable++ ) { \
+        loop_body_stmts \
+      } \
+    } else \
+    if ( bound->type == OFFSET_DATA_TYPE_SET ) { \
+      const uint max_offset = getOffsetDataMaxOffset(); \
+      for ( iteration_variable = 0; \
+            iteration_variable <= max_offset; \
+            iteration_variable++ ) { \
+        if ( offset_data_ptr->content.offset_set.offsets[iteration_variable] ) { \
+          loop_body_stmts \
+        } \
+      } \
+    } else  {\
+      assert( 0 && "Unknown offset data object type!" ); \
+    } \
+  }
 
 
 // ######### Datatype declarations  ###########
@@ -32,8 +53,8 @@
 /* A data type to represent an offset set. The offsets are measured from the
  * beginning of the TDMA slot of the first core. */
 typedef struct {
-  uint *offsets;
-  uint num_offsets;
+  /* If the set contains offset i, then offsets[i] is 1 else it is 0. */
+  _Bool offsets[TECHNICAL_OFFSET_MAXIMUM];
 } tdma_offset_set;
 
 /* A data type to represent an offset range. The offsets are measured from the
@@ -43,38 +64,104 @@ typedef struct {
   uint upper_bound;
 } tdma_offset_bounds;
 
+/* The type of an abstract offset representation. */
+enum OffsetDataType {
+  OFFSET_DATA_TYPE_SET,
+  OFFSET_DATA_TYPE_RANGE
+};
 
-/* Publish the selected data type. */
-#ifdef CHRONOS_USE_TDMA_OFFSET_SETS
-typedef tdma_offset_set offset_data;
-#else
-typedef tdma_offset_bounds offset_data;
-#endif
+/* The datatype which represents an abstract amount of offsets. */
+typedef struct {
+  /* Which of the two fields is active at the moment is given
+   * by the value of the 'type' field. */
+  union {
+    tdma_offset_set offset_set;
+    tdma_offset_bounds offset_range;
+  } content;
+  enum OffsetDataType type;
+} offset_data;
 
 
 // ######### Function declarations  ###########
 
 
-/* Verifies that the bound information is valid. */
-_Bool checkOffsetBound( const tdma_offset_bounds *b );
+/* Creates an empty set-type offset data object. */
+offset_data createOffsetDataSet( void );
 
-/* Returns the union of the given offset bounds. */
-tdma_offset_bounds mergeOffsetBounds( const tdma_offset_bounds *b1, const tdma_offset_bounds *b2 );
+/* Creates an offset data object of given type which
+ * represents the given offset interval. */
+offset_data createOffsetDataFromOffsetBounds( enum OffsetDataType type,
+    uint lower_bound, uint upper_bound );
+
+/* Creates an offset data object of given type which
+ * represents the given time interval. */
+offset_data createOffsetDataFromTimeBounds( enum OffsetDataType type,
+    ull minTime, ull maxTime );
+
+/* Returns the currently used maximum offset. The offset
+ * representation will not be able to deal with offsets bigger
+ * than this. */
+uint getOffsetDataMaxOffset( void );
+/* Sets the currently used maximum offsets. All offset
+ * data objects which are created after this function has
+ * been called will use the new maximum offset. */
+void setOffsetDataMaxOffset( uint new_max_offset );
+
+/* Adds the given offset to the given offset data object,
+ * regardless of its type. */
+void addOffsetDataOffset( offset_data * const d, uint offset );
+
+/* Adds the given offset range to the given offset data object,
+ * regardless of its type. */
+void addOffsetDataOffsetRange( offset_data * const d,
+                               uint lower_bound, uint upper_bound );
+
+/* Sets the given offset data's contents such that it contains the most
+ * unprecise offset information possible. */
+void setOffsetDataMaximal( offset_data * const d );
+
+/* Returns the union of 'd1' nad 'd2'. */
+offset_data mergeOffsetData( const offset_data * const d1,
+                             const offset_data * const d2 );
+
+/* Updated the offset representation, such that it represents the
+ * offsets after [minTimeElasped,maxTimeElapsed] time units have
+ * passed. */
+void updateOffsetData( offset_data * const d,
+    uint minTimeElasped, uint maxTimeElapsed );
 
 /* Returns
  * - a negative number : if 'lhs' is no subset of 'rhs', nor are they equal
  * - 0                 : if 'lhs' == 'rhs'
  * - a positive number : if 'lhs' is a subset of 'rhs' */
-int isOffsetBoundSubsetOrEqual( const tdma_offset_bounds *lhs, const tdma_offset_bounds *rhs );
+int isOffsetDataSubsetOrEqual( const offset_data * const lhs,
+                               const offset_data * const rhs );
 
 /* Returns
  * - 1 : if 'lhs' == 'rhs'
  * - 0 : if 'lhs' != 'rhs' */
-_Bool isOffsetBoundEqual( const tdma_offset_bounds *lhs, const tdma_offset_bounds *rhs );
+_Bool isOffsetDataBoundEqual( const offset_data * const lhs,
+                              const offset_data * const rhs );
 
-/* Returns '1' if the given offset bounds represent the maximal offset range,
- * else return '0'. */
-_Bool isMaximalOffsetRange( const tdma_offset_bounds *b );
+/* Returns '1' if the given offset data represent the maximal offset
+ * range, else return '0'. */
+_Bool isOffsetDataMaximal( const offset_data * const d );
+
+/* Verifies that the offset data information is valid. */
+_Bool isOffsetDataValid( const offset_data * const d );
+
+/* Returns the minimum offset which is included in the given data object.
+ * If there is no minimum, because the offset object is empty, then this
+ * functions throws an assertion. */
+uint getOffsetDataMinimumOffset( const offset_data * const d );
+
+/* Returns the maximum offset which is included in the given data object.
+ * If there is no maximum, because the offset object is empty, then this
+ * functions throws an assertion. */
+uint getOffsetDataMaximumOffset( const offset_data * const d );
+
+/* Prints the offset data into an internal string and returns this string. */
+char *getOffsetDataString( const offset_data * const d );
 
 
 #endif

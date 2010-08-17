@@ -842,9 +842,11 @@ static ull solveET_ILP( const offset_graph *og, const char *ilp_file,
 }
 
 
-/* Solves a given ilp with lp_solve. */
-static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
-    const char *ilp_file, enum ILPSolver solver )
+/* Solves a given ilp with lp_solve. The result is returned in the given
+ * offset data representation. */
+static offset_data solveOffset_ILP( const offset_graph *og,
+    const char *ilp_file, enum ILPSolver solver,
+    enum OffsetDataType offsetType )
 {
   DSTART( "solveOffset_ILP" );
 
@@ -852,14 +854,17 @@ static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
 
   // Parse result file
   FILE *result_file = fopen( output_file, "r" );
-  tdma_offset_bounds result;
+
   const uint line_size = 500;
   char result_file_line[line_size];
   char var_name[50];
   uint var_value;
+
   _Bool skipped = 0;
   _Bool foundMin = 0;
   _Bool foundMax = 0;
+
+  uint minOffset, maxOffset;
 
   if ( solver == ILP_LPSOLVE ) {
     // Skip first 4 lines
@@ -884,6 +889,10 @@ static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
     assert( 0 && "Unknown ILP solver!" );
   }
 
+  // TODO: Create smarter ILP that can obtain the possible offsets
+  //       as a set instead of as a range. The range is always
+  //       deducible from the set representation then.
+
   char *lastLine = NULL;
   if ( skipped ) {
     // Read until the bound variables were found
@@ -893,11 +902,11 @@ static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
       lastLine = result_file_line;
       sscanf( result_file_line, "%s %u", var_name, &var_value );
       if ( strcmp( var_name, min_offset_var ) == 0 ) {
-        result.lower_bound = var_value;
+        minOffset = var_value;
         foundMin = 1;
       } else
       if ( strcmp( var_name, max_offset_var ) == 0 ) {
-        result.upper_bound = var_value;
+        maxOffset = var_value;
         foundMax = 1;
       }
     }
@@ -912,9 +921,9 @@ static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
     if ( lastLine &&
          sscanf( lastLine, "All other variables in the range %*s are %u.",
              &rest_result ) ) {
-      result.lower_bound = rest_result;
+      minOffset = rest_result;
       foundMin = 1;
-      result.upper_bound = rest_result;
+      maxOffset = rest_result;
       foundMax = 1;
     }
   }
@@ -928,11 +937,13 @@ static tdma_offset_bounds solveOffset_ILP( const offset_graph *og,
   free( (void*)output_file );
 
   if ( foundMax && foundMin ) {
-    DOUT( "Result was: [%u, %u]\n", result.lower_bound, result.upper_bound );
-    DRETURN( result );
+    DOUT( "Result was: [%u, %u]\n", minOffset, maxOffset );
+    DRETURN( createOffsetDataFromOffsetBounds( offsetType, minOffset,
+                                               maxOffset ) );
   } else {
     prerr( "Could not read offset ILP output file!" );
-    DRETURN( result );
+    DRETURN( createOffsetDataFromOffsetBounds( offsetType, minOffset,
+                                               maxOffset ) );
   }
 }
 
@@ -1101,6 +1112,8 @@ ull computeOffsetGraphLoopBCET( const offset_graph *og, uint loopbound_min )
 
   return result;
 }
+
+
 /* Solves a maximum cost flow problem to obtain the final WCET.
  *
  * 'loopbound_max' specifies the maximum number of iterations of the loop.
@@ -1120,18 +1133,22 @@ ull computeOffsetGraphLoopWCET( const offset_graph *og, uint loopbound_max )
 
   return result;
 }
-/* Solves a flow problem to obtain the final offsets.
+
+
+/* Solves a flow problem to obtain the final offsets. The result is
+ * returned in the given offset data type.
  *
  * 'loopbound_max' specifies the maximum number of iterations of the loop.
  */
-tdma_offset_bounds computeOffsetGraphLoopOffsets( const offset_graph *og,
-    uint loopbound_max )
+offset_data computeOffsetGraphLoopOffsets( const offset_graph *og,
+    uint loopbound_max, enum OffsetDataType offsetType )
 {
   assert( og && "Invalid arguments!" );
 
-  char * const tmpfile = generateOffsetGraphILP( og,
-      loopbound_max, ILP_COMP_TYPE_OFFSETS, ilpSolver );
-  const tdma_offset_bounds result = solveOffset_ILP( og, tmpfile, ilpSolver );
+  char * const tmpfile = generateOffsetGraphILP( og, loopbound_max,
+      ILP_COMP_TYPE_OFFSETS, ilpSolver );
+  const offset_data result = solveOffset_ILP( og, tmpfile, ilpSolver,
+                                              offsetType );
 
   if ( !keepTemporaryFiles ) {
     remove( tmpfile );

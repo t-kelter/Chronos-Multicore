@@ -105,11 +105,13 @@ ull computeOffsetGraphLoopBCET( const offset_graph *og, uint loopbound_min );
  */
 ull computeOffsetGraphLoopWCET( const offset_graph *og, uint loopbound_max );
 
-/* Solves a flow problem to obtain the final offsets.
+/* Solves a flow problem to obtain the final offsets. The result is
+ * returned in the given offset data type.
  *
  * 'loopbound_max' specifies the maximum number of iterations of the loop.
  */
-tdma_offset_bounds computeOffsetGraphLoopOffsets( const offset_graph *og, uint loopbound_max );
+offset_data computeOffsetGraphLoopOffsets( const offset_graph *og,
+    uint loopbound_max, enum OffsetDataType offsetType );
 
 /* Deallocates an offset graph. */
 void freeOffsetGraph( offset_graph *og );
