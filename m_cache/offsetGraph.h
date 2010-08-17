@@ -10,6 +10,7 @@
 
 #include "header.h"
 #include "analysisDAG_ET_alignment.h"
+#include "offsetData.h"
 
 // ######### Macros #########
 

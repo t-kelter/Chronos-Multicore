@@ -20,6 +20,7 @@
 #include "busSchedule.h"
 #include "dump.h"
 #include "loopdetect.h"
+#include "offsetData.h"
 #include "offsetGraph.h"
 
 
@@ -102,94 +103,11 @@ static combined_result analyze_proc( procedure* proc,
 // #########################################
 
 
-/* A convenience macro to iterate over the offsets in an offset bound. */
-#define ITERATE_OFFSET_BOUND( bound, iteration_variable ) \
-  for ( iteration_variable  = bound.lower_bound; \
-        iteration_variable <= bound.upper_bound; \
-        iteration_variable++ )
-
-
-/* Verifies that the bound information is valid. */
-static _Bool checkOffsetBound( const tdma_offset_bounds *b )
-{
-  // TODO: This won't work correctly for segmented schedules
-  const uint interval = getCoreSchedule( ncore, 0 )->interval;
-  return b->lower_bound <= b->upper_bound &&
-         b->lower_bound >= 0 && b->lower_bound < interval &&
-         b->upper_bound >= 0 && b->upper_bound < interval;
-}
-
 
 /* Verifies that the result information is valid. */
 static _Bool checkResult( const combined_result *r )
 {
   return r->bcet <= r->wcet && checkOffsetBound( &r->offsets );
-}
-
-
-/* Returns the union of the given offset bounds. */
-static tdma_offset_bounds mergeOffsetBounds( const tdma_offset_bounds *b1, const tdma_offset_bounds *b2 )
-{
-  assert( b1 && checkOffsetBound( b1 ) && b2 && checkOffsetBound( b2 ) && 
-          "Invalid arguments!" );
-
-  tdma_offset_bounds result;
-  result.lower_bound = MIN( b1->lower_bound, b2->lower_bound );
-  result.upper_bound = MAX( b1->upper_bound, b2->upper_bound );
-  
-  assert( checkOffsetBound( &result ) && "Invalid result!" );
-  return result;
-}
-
-
-/* Returns
- * - a negative number : if 'lhs' is no subset of 'rhs', nor are they equal
- * - 0                 : if 'lhs' == 'rhs'
- * - a positive number : if 'lhs' is a subset of 'rhs' */
-static int isOffsetBoundSubsetOrEqual( const tdma_offset_bounds *lhs, const tdma_offset_bounds *rhs )
-{
-  assert( lhs && checkOffsetBound( lhs ) && rhs && checkOffsetBound( rhs ) && 
-          "Invalid arguments!" );
-
-  // Check equality
-  if ( lhs->lower_bound == rhs->lower_bound &&
-       lhs->upper_bound == rhs->upper_bound ) {
-    return 0;
-  } else {
-    // Check for subset
-    if ( lhs->lower_bound >= rhs->lower_bound &&
-         lhs->upper_bound <= rhs->upper_bound ) {
-      return 1;
-    } else {
-      return -1;
-    }
-  }
-}
-
-
-/* Returns
- * - 1 : if 'lhs' == 'rhs'
- * - 0 : if 'lhs' != 'rhs' */
-static _Bool isOffsetBoundEqual( const tdma_offset_bounds *lhs, const tdma_offset_bounds *rhs )
-{
-  assert( lhs && checkOffsetBound( lhs ) && rhs && checkOffsetBound( rhs ) &&
-          "Invalid arguments!" );
-
-  return lhs->lower_bound == rhs->lower_bound &&
-         lhs->upper_bound == rhs->upper_bound;
-}
-
-/* Returns '1' if the given offset bounds represent the maximal offset range,
- * else return '0'. */
-static _Bool isMaximalOffsetRange( const tdma_offset_bounds *b )
-{
-  assert( b && checkOffsetBound( b ) && "Invalid arguments!" );
-
-  // TODO: This won't work correctly for segmented schedules
-  const uint interval = getCoreSchedule( ncore, 0 )->interval;
-
-  return b->lower_bound == 0 &&
-         b->upper_bound == interval - 1;
 }
 
 
@@ -1395,7 +1313,7 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
     /* First get the earliest and latest start time of the current task. */
     const ull earliest_start = get_earliest_task_start_time( cur_task, ncore );
     const ull latest_start   = get_latest_task_start_time( cur_task, ncore );
-    const tdma_offset_bounds initial_bounds = 
+    const tdma_offset_bounds initial_bounds =
       getOffsetBounds( earliest_start, latest_start );
     DOUT( "Initial offset bounds: [%u,%u]\n",
         initial_bounds.lower_bound, initial_bounds.upper_bound );
