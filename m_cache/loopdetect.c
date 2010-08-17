@@ -384,11 +384,11 @@ static int read_loop_annotation()
     }
 
     procedure * const p = procs[pid];
-    if ( !p || pid > num_procs )
+    if ( !p || pid >= num_procs )
       printf( "Invalid procedure id %d\n", pid ), exit( 1 );
 
     loop * const lp = p->loops[lpid];
-    if ( !lp || lpid > p->num_loops )
+    if ( !lp || lpid >= p->num_loops )
       printf( "Invalid loop id [%d] %d\n", pid, lpid ), exit( 1 );
 
     if ( lb < 0 )
