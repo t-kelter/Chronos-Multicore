@@ -541,20 +541,34 @@ static combined_result analyze_block( const block * const bb,
     // TODO: This won't work correctly for segmented schedules
     const uint tdma_interval = getCoreSchedule( ncore, 0 )->interval;
 
-    // TODO: Make use of new offset data structure here, instead of just
-    //       computing min and max values
     int i;
     for ( i = 0; i < bb->num_instr; i++ ) {
 
       instr * const inst = bb->instrlist[i];
-      assert(inst);
+      assert( inst && "Missing instruction!" );
+
+      // TODO: Assert, that the fixed offset is on the current offset range
+      assert( !isOffsetDataEmpty( &result.offsets ) && "Invalid offset information!" );
 
       /* Backup BCET/ WCET results at the beginning of each new instruction. */
       const ull old_bcet = result.bcet;
       const ull old_wcet = result.wcet;
+      const _Bool usedFixedBCOffset = useFixedBCOffset;
+      const _Bool usedFixedWCOffset = useFixedWCOffset;
 
       /* Some temporaries. */
       _Bool waitedForNextTDMASlot;
+
+      /* This will hold the offset results in case we are analyzing
+       * with the set representation. */
+      offset_data offsetSetResults = createOffsetDataSet();
+
+      /* TODO: The access latencies and the instruction BCET/WCET
+       *       are currently just given as a single value. For the
+       *       offset set data type we need more information,
+       *       i.e. all possible execution times of the access / the
+       *       instruction and not just the worst / best one.
+       */
 
       /* Compute instruction cache access duration. */
       const acc_type best_acc  = check_hit_miss( bb, inst, loop_context,
@@ -564,6 +578,12 @@ static combined_result analyze_block( const block * const bb,
       if ( useFixedBCOffset ) {
         const uint latency = determine_latency( bb, fixedBCOffset, best_acc, NULL );
         result.bcet += latency;
+
+        // Add the resulting offset if we analyze with offset sets
+        if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ) {
+          updateOffsetData( &offsetSetResults, &result.offsets,
+                            latency, latency, TRUE );
+        }
       } else {
         /* Iterate over the current offset range and determine minimum latency. */
         uint min_latency = UINT_MAX;
@@ -589,6 +609,12 @@ static combined_result analyze_block( const block * const bb,
       if ( useFixedWCOffset ) {
         const uint latency = determine_latency( bb, fixedWCOffset, worst_acc, NULL );
         result.wcet += latency;
+
+        // Add the resulting offset if we analyze with offset sets
+        if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ) {
+          updateOffsetData( &offsetSetResults, &result.offsets,
+                            latency, latency, TRUE );
+        }
       } else {
         /* Iterate over the current offset range and determine maximum latency. */
         uint max_latency = 0;
@@ -608,31 +634,62 @@ static combined_result analyze_block( const block * const bb,
         result.wcet += max_latency;
       }
 
+      /* Compute the offset results if in set analysis mode. */
+      if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET &&
+           ( !usedFixedBCOffset || !usedFixedWCOffset ) ) {
+        ITERATE_OFFSETS( result.offsets, j,
+          const uint best_latency  = determine_latency( bb, j, best_acc,  NULL );
+          const uint worst_latency = determine_latency( bb, j, worst_acc, NULL );
+          updateOffsetData( &offsetSetResults, &result.offsets, best_latency,
+              best_latency, TRUE );
+          updateOffsetData( &offsetSetResults, &result.offsets, worst_latency,
+              worst_latency, TRUE );
+        );
+      }
+
       /* Then add cost for executing the instruction. */
-      result.bcet += getInstructionBCET( inst );
-      result.wcet += getInstructionWCET( inst );
+      const uint execution_bcet = getInstructionBCET( inst );
+      const uint execution_wcet = getInstructionWCET( inst );
+      result.bcet += execution_bcet;
+      result.wcet += execution_wcet;
+
+      /* Update the offset results if in set analysis mode. */
+      if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ) {
+        assert( !isOffsetDataEmpty( &offsetSetResults ) && "Internal error!" );
+        updateOffsetData( &offsetSetResults, &offsetSetResults, execution_bcet,
+            execution_wcet, FALSE );
+      }
 
       /* Update the offset information. */
       const uint bcTimePassed = result.bcet - old_bcet;
       const uint wcTimePassed = result.wcet - old_wcet;
-      const uint bcOffset = getOffsetDataMinimumOffset( &result.offsets ) + bcTimePassed;
-      const uint wcOffset = getOffsetDataMaximumOffset( &result.offsets ) + wcTimePassed;
-      if ( bcTimePassed > wcTimePassed ) {
-        assert( ( useFixedBCOffset || useFixedWCOffset ) &&
-            "In normal offset mode the local bcet may never exceed the local wcet" );
-        if ( bcOffset > wcOffset ) {
-          setOffsetDataMaximal( &result.offsets );
-        } else {
-          updateOffsetData( &result.offsets, &result.offsets, wcTimePassed, bcTimePassed, FALSE );
-        }
-      } else {
-        updateOffsetData( &result.offsets, &result.offsets, bcTimePassed, wcTimePassed, FALSE );
-      }
       if ( useFixedBCOffset ) {
         fixedBCOffset = ( fixedBCOffset + bcTimePassed ) % tdma_interval;
       }
       if ( useFixedWCOffset ) {
         fixedWCOffset = ( fixedWCOffset + wcTimePassed ) % tdma_interval;
+      }
+
+      /* For the set representation the offsets are computed during
+       * the timing computation above. */
+      if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ) {
+        result.offsets = offsetSetResults;
+      } else {
+        const uint bcOffset = getOffsetDataMinimumOffset( &result.offsets ) + bcTimePassed;
+        const uint wcOffset = getOffsetDataMaximumOffset( &result.offsets ) + wcTimePassed;
+        if ( bcTimePassed > wcTimePassed ) {
+          assert( ( useFixedBCOffset || useFixedWCOffset ) &&
+              "In normal offset mode the local bcet may never exceed the local wcet" );
+          if ( bcOffset > wcOffset ) {
+            setOffsetDataMaximal( &result.offsets );
+          } else {
+            updateOffsetData( &result.offsets, &result.offsets,
+                              wcTimePassed, bcTimePassed, FALSE );
+          }
+        } else {
+          updateOffsetData( &result.offsets, &result.offsets,
+                            bcTimePassed, wcTimePassed, FALSE );
+        }
       }
 
       /* Handle procedure call instruction */

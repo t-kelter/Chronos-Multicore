@@ -158,6 +158,9 @@ _Bool isOffsetDataMaximal( const offset_data * const d );
 /* Verifies that the offset data information is valid. */
 _Bool isOffsetDataValid( const offset_data * const d );
 
+/* Returns whether the offset data information is empty. */
+_Bool isOffsetDataEmpty( const offset_data * const d );
+
 /* Returns the minimum offset which is included in the given data object.
  * If there is no minimum, because the offset object is empty, then this
  * functions throws an assertion. */

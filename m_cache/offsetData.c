@@ -500,6 +500,30 @@ _Bool isOffsetDataValid( const offset_data * const d )
 }
 
 
+/* Returns whether the offset data information is empty. */
+_Bool isOffsetDataEmpty( const offset_data * const d )
+{
+  assert( d && "Invalid argument!" );
+
+  if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
+    return 0;
+  } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
+    const tdma_offset_set * const s = &d->content.offset_set;
+
+    uint i;
+    for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
+      if ( s->offsets[i] ) {
+        return 0;
+      }
+    }
+    return 1;
+  } else {
+    assert( 0 && "Unsupported offset data type!" );
+    return 0;
+  }
+}
+
+
 /* Returns the minimum offset which is included in the given data object.
  * If there is no minimum, because the offset object is empty, then this
  * functions throws an assertion. */
