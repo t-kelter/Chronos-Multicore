@@ -20,6 +20,52 @@
 #include "handler.h"
 
 
+static uint get_hex( const char * const hex_string )
+{
+  DSTART( "get_hex" );
+
+   int len,i;
+   char dig;
+   uint value = 0;
+
+   len = strlen(hex_string);
+
+   DOUT( "hex string = %s\n", hex_string);
+
+   for(i = 0; i < len; i++)
+   {
+      dig = hex_string[len-i-1];
+
+      switch(dig)
+      {
+        case 'a':
+          value += 10 * pow(16,i);
+          break;
+        case 'b':
+          value += 11 * pow(16,i);
+          break;
+        case 'c':
+          value += 12 * pow(16,i);
+          break;
+        case 'd':
+          value += 13 * pow(16,i);
+          break;
+        case 'e':
+          value += 14 * pow(16,i);
+          break;
+        case 'f':
+          value += 15 * pow(16,i);
+          break;
+        default:
+          value += (dig - 48) * pow(16,i);
+      };
+   }
+
+   DOUT( "hex value = %x\n", value);
+
+   DRETURN( value );
+}
+
 
 /* This function returns a context id for the iterations an inner loop inside a
  * surrounding loop.
@@ -424,55 +470,8 @@ static procedure* get_task_callee(uint startaddr)
 }
 
 
-uint get_hex(char* hex_string)
-{
-  DSTART( "get_hex" );
-
-   int len,i;
-   char dig;
-   uint value = 0;
-
-   len = strlen(hex_string);
-
-   DOUT( "hex string = %s\n", hex_string);
-
-   for(i = 0; i < len; i++)
-   {
-      dig = hex_string[len-i-1];
-
-      switch(dig)
-      {
-        case 'a':
-          value += 10 * pow(16,i);  
-          break; 
-        case 'b':
-          value += 11 * pow(16,i);  
-          break; 
-        case 'c':
-          value += 12 * pow(16,i);  
-          break; 
-        case 'd':
-          value += 13 * pow(16,i);  
-          break; 
-        case 'e':
-          value += 14 * pow(16,i);  
-          break; 
-        case 'f':
-          value += 15 * pow(16,i);  
-          break;
-        default:
-          value += (dig - 48) * pow(16,i);   
-      };
-   }
-
-   DOUT( "hex value = %x\n", value);
-
-   DRETURN( value );
-}
-
-
 /* Returns the callee procedure for a procedure call instruction */
-procedure* getCallee(instr* inst, procedure* proc)
+procedure *getCallee( const instr * const inst, const procedure * const proc)
 {
   DSTART( "getCallee" );
 
@@ -638,7 +637,7 @@ acc_type check_hit_miss( const block *bb, const instr *inst,
 
 /* Check whether the block specified in the header "bb"
  * is header of some loop in the procedure "proc" */
-loop* check_loop(block* bb, procedure* proc)
+loop* check_loop( const block * const bb, const procedure * const proc )
 {
   int i;
 

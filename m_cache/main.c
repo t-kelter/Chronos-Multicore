@@ -78,7 +78,8 @@ static _Bool firstDebugmacroInit = 1;
 static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
                       enum AnalysisMethod method,
                       enum LoopAnalysisType alignmentAnalysisLAType,
-                      _Bool alignmentAnalysisTryStructural );
+                      _Bool alignmentAnalysisTryStructural,
+                      enum OffsetDataType offsetDataType );
 static void readMSCfromFile( const char *interferFileName, int msc_index,
                              _Bool *interference_changed );
 static void writeWCETandCacheInfoFiles( int num_msc );
@@ -128,6 +129,7 @@ int main(int argc, char **argv )
   /* Set the analysis method to use. */
   enum AnalysisMethod current_analysis_method = ANALYSIS_ALIGNMENT;
   enum LoopAnalysisType alignmentLAType = LOOP_ANALYSIS_GLOBAL_CONVERGENCE;
+  enum OffsetDataType offsetDataType = OFFSET_DATA_TYPE_RANGE;
   _Bool alignmentTryStructural = 0;
   switch( argv[6][0] ) {
     case 'a':
@@ -137,6 +139,8 @@ int main(int argc, char **argv )
         switch( option_char ) {
           case 'c': alignmentLAType = LOOP_ANALYSIS_GLOBAL_CONVERGENCE; break;
           case 'g': alignmentLAType = LOOP_ANALYSIS_GRAPH_TRACKING; break;
+          case 'r': offsetDataType = OFFSET_DATA_TYPE_RANGE; break;
+          case 's': offsetDataType = OFFSET_DATA_TYPE_SET; break;
           case '+': alignmentTryStructural = 1; break;
           default: assert( 0 && "Unknown option!" );
         }
@@ -290,7 +294,7 @@ int main(int argc, char **argv )
      * to account for the bus delay */
     start = getticks();
     analysis( currentMSC, tdma_bus_schedule_file, current_analysis_method,
-        alignmentLAType, alignmentTryStructural );
+        alignmentLAType, alignmentTryStructural, offsetDataType );
     end = getticks();
 
     /* FIXME: What's this function doing here ? */ 	  
@@ -378,7 +382,7 @@ int main(int argc, char **argv )
 
         /* Compute WCET and BCET of each task. */
         analysis( msc[i], tdma_bus_schedule_file, current_analysis_method,
-            alignmentLAType, alignmentTryStructural  );
+            alignmentLAType, alignmentTryStructural, offsetDataType );
 
         /* FIXME: What's this function doing here ? */
         resetHitMiss_L2(msc[i]);
@@ -482,7 +486,8 @@ int main(int argc, char **argv )
 static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
                       enum AnalysisMethod method,
                       enum LoopAnalysisType alignmentAnalysisLAType,
-                      _Bool alignmentAnalysisTryStructural )
+                      _Bool alignmentAnalysisTryStructural,
+                      enum OffsetDataType offsetDataType )
 {
   DSTART( "analysis" );
 
@@ -501,7 +506,8 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
     case ANALYSIS_ALIGNMENT:
       // Computes BCET and WCET together
       compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file,
-          alignmentAnalysisLAType, alignmentAnalysisTryStructural);
+          alignmentAnalysisLAType, alignmentAnalysisTryStructural,
+          offsetDataType );
       break;
 
     default:

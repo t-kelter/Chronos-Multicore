@@ -23,24 +23,27 @@
 
 
 /* A convenience macro to iterate over the offsets in an offset data object. */
-#define ITERATE_OFFSETS( offset_data_ptr, iteration_variable, loop_body_stmts ) \
+#define ITERATE_OFFSETS( offset_data, iteration_variable, loop_body_stmts ) \
   { uint iteration_variable; \
-    if ( offset_data_ptr->type == OFFSET_DATA_TYPE_RANGE ) { \
-      for ( iteration_variable  = offset_data_ptr->content.lower_bound; \
-            iteration_variable <= offset_data_ptr->content.upper_bound; \
+    if ( offset_data.type == OFFSET_DATA_TYPE_RANGE ) { \
+      for ( iteration_variable  = offset_data.content.offset_range.lower_bound; \
+            iteration_variable <= offset_data.content.offset_range.upper_bound; \
             iteration_variable++ ) { \
         loop_body_stmts \
       } \
     } else \
-    if ( bound->type == OFFSET_DATA_TYPE_SET ) { \
+    if ( offset_data.type == OFFSET_DATA_TYPE_SET ) { \
       const uint max_offset = getOffsetDataMaxOffset(); \
+      _Bool hadHit = 0; \
       for ( iteration_variable = 0; \
             iteration_variable <= max_offset; \
             iteration_variable++ ) { \
-        if ( offset_data_ptr->content.offset_set.offsets[iteration_variable] ) { \
+        if ( offset_data.content.offset_set.offsets[iteration_variable] ) { \
+          hadHit = 1; \
           loop_body_stmts \
         } \
       } \
+      assert( hadHit && "Offset set was empty!" ); \
     } else  {\
       assert( 0 && "Unknown offset data object type!" ); \
     } \
@@ -140,8 +143,8 @@ int isOffsetDataSubsetOrEqual( const offset_data * const lhs,
 /* Returns
  * - 1 : if 'lhs' == 'rhs'
  * - 0 : if 'lhs' != 'rhs' */
-_Bool isOffsetDataBoundEqual( const offset_data * const lhs,
-                              const offset_data * const rhs );
+_Bool isOffsetDataEqual( const offset_data * const lhs,
+                         const offset_data * const rhs );
 
 /* Returns '1' if the given offset data represent the maximal offset
  * range, else return '0'. */

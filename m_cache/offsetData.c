@@ -66,8 +66,8 @@ offset_data createOffsetDataSet( void )
 offset_data createOffsetDataFromOffsetBounds( enum OffsetDataType type,
     uint lower_bound, uint upper_bound )
 {
-  assert( lower_bound < MAXIMUM_OFFSET &&
-          upper_bound < MAXIMUM_OFFSET &&
+  assert( lower_bound <= MAXIMUM_OFFSET &&
+          upper_bound <= MAXIMUM_OFFSET &&
           lower_bound <= upper_bound &&
           "Invalid arguments!" );
 
@@ -145,6 +145,26 @@ offset_data createOffsetDataFromTimeBounds( enum OffsetDataType type,
     return createOffsetDataFromOffsetBounds( type,
         minTime_remainder, maxTime_remainder );
   }
+}
+
+
+/* Returns the currently used maximum offset. The offset
+ * representation will not be able to deal with offsets bigger
+ * than this. */
+uint getOffsetDataMaxOffset( void )
+{
+  return MAXIMUM_OFFSET;
+}
+
+
+/* Sets the currently used maximum offsets. All offset
+ * data objects which are created after this function has
+ * been called will use the new maximum offset. */
+void setOffsetDataMaxOffset( uint new_max_offset )
+{
+  assert( new_max_offset <= TECHNICAL_OFFSET_MAXIMUM &&
+      "Maximum offset exceeeds technical maximum!" );
+  MAXIMUM_OFFSET = new_max_offset;
 }
 
 
@@ -252,22 +272,23 @@ void updateOffsetData( offset_data * const d,
   if ( factorDifference > 1 ) {
     setOffsetDataMaximal( d );
 
-  /* b) The interval [newLowerBound, newUpperBound] crosses exactly one
-   *    TDMA interval boundary
-   *    --> Not all offsets may be possible (depending on the remainders) but
-   *        offset MINIMUM_OFFSET and MAXIMUM_OFFSET are definitely possible and
-   *        thus our offset range representation does not allow a tighter bound
-   *        than [MINIMUM_OFFSET, MAXIMUM_OFFSET]. The offset sets may provide
-   *        better results here. */
+    /* b) The interval [newLowerBound, newUpperBound] crosses at most one
+     *    TDMA interval boundary. */
   } else {
 
     if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
       tdma_offset_bounds * const b = &d->content.offset_range;
 
+      /* b1) The interval [newLowerBound, newUpperBound] crosses exactly one
+       *     TDMA interval boundary
+       *     --> Not all offsets may be possible (depending on the remainders) but
+       *         offset MINIMUM_OFFSET and MAXIMUM_OFFSET are definitely possible and
+       *         thus our offset range representation does not allow a tighter bound
+       *         than [MINIMUM_OFFSET, MAXIMUM_OFFSET]. */
       if ( factorDifference == 1 ) {
         setOffsetDataMaximal( d );
 
-      /* c) The interval [newLowerBound, newUpperBound] lies inside a single
+      /* b2) The interval [newLowerBound, newUpperBound] lies inside a single
        *    TDMA interval
        *    --> Use the remainders as the offset bounds */
       } else {
@@ -279,17 +300,28 @@ void updateOffsetData( offset_data * const d,
       }
 
     } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
+
+      /* For sets we can immediately compute the resulting offsets. We could
+       * do it with this algorithm in all cases (also a)), but it is
+       * time-consuming, and therefore we only do it if we can achieve better
+       * precision which is the case here, when there are offsets which are
+       * potentially NOT in the result set. */
       tdma_offset_set * const s = &d->content.offset_set;
       _Bool *newOffsets;
       CALLOC( newOffsets, _Bool*, MAXIMUM_OFFSET + 1,
               sizeof( _Bool ), "newOffsets" );
 
+      // For debugging
+      _Bool inputSetWasNonempty = 0;
+      _Bool resultSetIsNonempty = 0;
+
       // Compute the new offsets in temporary array
       uint i, j;
       for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
         if ( s->offsets[i] ) {
-          for ( j = minTimeElasped; j < maxTimeElapsed; j++ ) {
-            newOffsets[i + j] = 1;
+          inputSetWasNonempty = 1;
+          for ( j = minTimeElasped; j <= maxTimeElapsed; j++ ) {
+            newOffsets[ (i + j) % (MAXIMUM_OFFSET + 1) ] = 1;
           }
         }
       }
@@ -297,9 +329,14 @@ void updateOffsetData( offset_data * const d,
       // Copy from temporary array to the offset object
       for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
         s->offsets[i] = newOffsets[i];
+        if ( s->offsets[i] ) {
+          resultSetIsNonempty = 1;
+        }
       }
       free( newOffsets );
 
+      assert( ( !inputSetWasNonempty || resultSetIsNonempty ) &&
+          "Internal error during offset set update!" );
     } else {
       assert( 0 && "Unsupported offset data type!" );
     }
@@ -394,8 +431,8 @@ int isOffsetDataSubsetOrEqual( const offset_data * const lhs,
 /* Returns
  * - 1 : if 'lhs' == 'rhs'
  * - 0 : if 'lhs' != 'rhs' */
-_Bool isOffsetDataBoundEqual( const offset_data * const lhs,
-                              const offset_data * const rhs )
+_Bool isOffsetDataEqual( const offset_data * const lhs,
+                         const offset_data * const rhs )
 {
   return isOffsetDataSubsetOrEqual( lhs, rhs ) == 0;
 }
@@ -435,8 +472,8 @@ _Bool isOffsetDataValid( const offset_data * const d )
   if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
     const tdma_offset_bounds * const b = &d->content.offset_range;
     return b->lower_bound <= b->upper_bound &&
-           b->lower_bound >= MINIMUM_OFFSET && b->lower_bound < MAXIMUM_OFFSET &&
-           b->upper_bound >= MINIMUM_OFFSET && b->upper_bound < MAXIMUM_OFFSET;
+           b->lower_bound >= MINIMUM_OFFSET && b->lower_bound <= MAXIMUM_OFFSET &&
+           b->upper_bound >= MINIMUM_OFFSET && b->upper_bound <= MAXIMUM_OFFSET;
   } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
     return 1;
   } else {
@@ -460,11 +497,11 @@ uint getOffsetDataMinimumOffset( const offset_data * const d )
 
     uint i;
     for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
-      if ( !s->offsets[i] ) {
+      if ( s->offsets[i] ) {
         return i;
       }
     }
-    prerr( "Offset set was empty!" );
+    assert( 0 && "Offset set was empty!" );
     return 0; // To make compiler happy
   } else {
     assert( 0 && "Unsupported offset data type!" );
@@ -488,11 +525,11 @@ uint getOffsetDataMaximumOffset( const offset_data * const d )
 
     uint i;
     for ( i = MAXIMUM_OFFSET; i >= MINIMUM_OFFSET; i-- ) {
-      if ( !s->offsets[i] ) {
+      if ( s->offsets[i] ) {
         return i;
       }
     }
-    prerr( "Offset set was empty!" );
+    assert( 0 && "Offset set was empty!" );
     return 0; // To make compiler happy
   } else {
     assert( 0 && "Unsupported offset data type!" );

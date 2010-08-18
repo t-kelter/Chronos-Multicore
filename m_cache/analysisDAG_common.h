@@ -69,10 +69,10 @@ acc_type check_hit_miss(const block *bb, const instr *inst,
 /* #### Structural analysis helper functions #### */
 
 /* Returns the callee procedure for a procedure call instruction */
-procedure* getCallee(instr* inst, procedure* proc);
+procedure *getCallee( const instr * const inst, const procedure * const proc);
 /* Check whether the block specified in the header "bb"
  * is header of some loop in the procedure "proc" */
-loop* check_loop(block* bb, procedure* proc);
+loop* check_loop( const block * const bb, const procedure * const proc);
 
 /* #### WCET/BCET analysis helper functions #### */
 
@@ -146,8 +146,6 @@ ull get_latest_task_start_time( task_t* cur_task, uint core );
  * the task is assigned to. Assignment to cores to individual
  * tasks are done statically before any analysis took place */
 uint get_core(task_t* cur_task);
-
-uint get_hex(char* hex_string);
 
 
 #endif
