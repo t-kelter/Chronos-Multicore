@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
 
 // Include local library headers
 #ifdef HAVE_CONFIG_H
@@ -43,14 +45,10 @@ enum ILPSolver {
 
 
 // Whether to keep the temporary files generated during the analysis
-static _Bool keepTemporaryFiles = 1;
+static _Bool keepTemporaryFiles = 0;
 
 /* The ILP solver to use. */
 static enum ILPSolver ilpSolver = ILP_CPLEX;
-
-/* Two variable names for the offset ILP. */
-static const char * const min_offset_var = "x_min";
-static const char * const max_offset_var = "x_max";
 
 
 // #########################################
@@ -99,13 +97,16 @@ static inline void fprintILPEdgeName( FILE *f, const offset_graph_edge *edge,
 }
 
 
+/* The prefix used for the x_active variables. */
+#define X_ACTIVE_PREFIX "x_active_"
+
 /* Prints the ILP-name of 'x_active(e)' variable which indicates whether
  * x(e,num_time_steps - runtime(e)) is bigger than zero. 'e' must be an edge
  * which ends at the supersink.
  * */
 static inline void fprintILPXActive( FILE *f, const offset_graph_edge *edge )
 {
-  fprintf( f, "x_active_%u", edge->edge_id );
+  fprintf( f, "%s%u", X_ACTIVE_PREFIX, edge->edge_id );
 }
 
 
@@ -160,6 +161,9 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
    *   latter in the ILP for clarification.
    */
 
+  const offset_graph_node * const suso = &( og->supersource );
+  const offset_graph_node * const susi = &( og->supersink );
+
   /* We have two extra time steps in the dynamic flow, one for the
    * transition from the supersource and one for the transition to
    * the supersink. */
@@ -209,10 +213,20 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
       break;
 
     case ILP_COMP_TYPE_OFFSETS:
-      /* This ILP has a different objective function. It emits two flow units
-       * from the supersource and tries to maximize the difference between the
-       * offsets from which the flow units arrive at the supersink. */
-      fprintf( f, "MAXIMIZE\n\n\n  %s - %s", max_offset_var, min_offset_var );
+      /* This ILP has a different objective function. It emits (number_of_nodes)
+       * flow units from the supersource and tries to reach as many offsets as
+       * possible when the loop ends. */
+      fprintf( f, "MAXIMIZE\n\n\n  " );
+
+      for ( i = 0; i < susi->num_incoming_edges; i++ ) {
+        const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[i]];
+
+        if ( i != 0 ) {
+          fprintf( f, " + " );
+        }
+        fprintILPXActive( f, edge );
+      }
+
       break;
 
     default:
@@ -306,7 +320,8 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
 
 
   /* The number of flow units in transit. */
-  const uint flow_units = ( computation_type == ILP_COMP_TYPE_OFFSETS ? 2 : 1 );
+  const uint flow_units = ( computation_type == ILP_COMP_TYPE_OFFSETS
+                            ? og->num_nodes : 1 );
 
   /* Write out demand / supply values
    *
@@ -314,7 +329,6 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
    * only the supersink consumes 'flow_units' units at time 'num_time_steps'.
    */
   fprintf( f, "\n  \\ Demand / supply constraints\n" );
-  const offset_graph_node * const suso = &( og->supersource );
   for ( j = 0; j < num_time_steps; j++ ) {
     firstTerm = 1;
     for ( k = 0; k < suso->num_outgoing_edges; k++ ) {
@@ -333,7 +347,6 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
     fprintf( f, " = %u\n", ( j == 0 ? flow_units : 0 ) );
   }
 
-  const offset_graph_node * const susi = &( og->supersink );
   for ( j = 0; j <= num_time_steps; j++ ) {
     firstTerm = 1;
     for ( k = 0; k < susi->num_incoming_edges; k++ ) {
@@ -359,8 +372,7 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
   }
 
 
-  /* For the offset ILP write out the definitions of the min_offset
-   * and max_offset variables. */
+  /* For the offset ILP write out the definitions of the active exit edges. */
   if ( computation_type == ILP_COMP_TYPE_OFFSETS ) {
     /* \forall_{e=(o,supersink) \in Edges}:
      *   x_active(e) = 1 <=> x(e,num_time_steps - runtime(e)) > 0  */
@@ -413,136 +425,6 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
       fprintILPXActiveHelper( f, edge );
       fprintf( f, " >= 0\n" );
     }
-
-    /* The normal minimum condition would be:
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     x_active(e) = 1 --> min_offset <= offset(o)
-     * \land
-     * \exists_{e=(o,supersink) \in Edges}:
-     *     x_active(e) = 1 \land min_offset = offset(o)
-     *
-     * but the objective will try to make min_offset as
-     * small as possible, therefore we can simplify this to:
-     *
-     * \exists_exactly_one_{e=(o,supersink) \in Edges}:
-     *     x_active(e) = 1 \land min_offset \geq offset(o)
-     * <=>
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     min_offset + og->num_nodes * ( 1 - min_selector(e) ) \geq offset(o)
-     *     x_active(e) = 0 --> min_selector(e) = 0
-     * \sum_{e=(o,supersink) \in Edges} min_selector(e) = 1
-     * <=>
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     min_offset + og->num_nodes * ( 1 - min_selector(e) ) \geq offset(o)
-     *     x_active(e) > 0 \lor min_selector(e) = 0
-     * \sum_{e=(o,supersink) \in Edges} min_selector(e) = 1
-     * <=>
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     min_offset + og->num_nodes * ( 1 - min_selector(e) ) \geq offset(o)
-     *     x_active(e) + ( 1 - min_selector(e) ) > 0
-     * \sum_{e=(o,supersink) \in Edges} min_selector(e) = 1
-     * <=>
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     min_offset - og->num_nodes * min_selector(e) \geq offset(o) - og->num_nodes
-     *     x_active(e) - min_selector(e) > - 1
-     * \sum_{e=(o,supersink) \in Edges} min_selector(e) = 1
-     * <=>
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     og->num_nodes * min_selector(e) - min_offset \leq og->num_nodes - offset(o)
-     *     min_selector(e) - x_active(e) \leq 0
-     * \sum_{e=(o,supersink) \in Edges} min_selector(e) = 1
-     *
-     * The min_selectors are one for exactly one condition which must have
-     * its x_active bit set to 1, and at the same time they deactivate the
-     * other conditions by rendering them always true.
-     */
-    for ( k = 0; k < susi->num_incoming_edges; k++ ) {
-      const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
-
-      fprintf( f, "  %u ", og->num_nodes );
-      fprintILPMinSelector( f, edge );
-      fprintf( f, " - %s <= %u\n", min_offset_var, og->num_nodes - edge->start->offset );
-
-      fprintf( f, "  " );
-      fprintILPMinSelector( f, edge );
-      fprintf( f, " - " );
-      fprintILPXActive( f, edge );
-      fprintf( f, " <= 0\n" );
-    }
-
-    fprintf( f, "  " );
-    for ( k = 0; k < susi->num_incoming_edges; k++ ) {
-      const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
-
-      if ( k != 0 ) {
-        fprintf( f, " + " );
-      }
-      fprintILPMinSelector( f, edge );
-    }
-    fprintf( f, " = 1\n" );
-
-    /* The normal maximum condition would be:
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     x_active(e) = 1 --> max_offset >= offset(o)
-     * \land
-     * \exists_{e=(o,supersink) \in Edges}:
-     *     x_active(e) = 1 \land max_offset = offset(o)
-     *
-     * but the objective will try to make max_offset as
-     * big as possible, therefore we can simplify this to:
-     *
-     *\exists_exactly_one_{e=(o,supersink) \in Edges}:
-     *     x_active(e) = 1 \land max_offset \leq offset(o)
-     * <=>
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     max_offset - og->num_nodes * ( 1 - max_selector(e) ) \leq offset(o)
-     *     x_active(e) = 0 --> min_selector(e) = 0
-     * \sum_{e=(o,supersink) \in Edges} max_selector(e) = 1
-     * <=>
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     max_offset - og->num_nodes * ( 1 - max_selector(e) ) \leq offset(o)
-     *     x_active(e) > 0 \lor max_selector(e) = 0
-     * \sum_{e=(o,supersink) \in Edges} max_selector(e) = 1
-     * <=>
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     max_offset - og->num_nodes * ( 1 - max_selector(e) ) \leq offset(o)
-     *     x_active(e) + ( 1 - max_selector(e) ) > 0
-     * \sum_{e=(o,supersink) \in Edges} max_selector(e) = 1
-     * <=>
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     max_offset + og->num_nodes * max_selector(e) \leq og->num_nodes + offset(o)
-     *     x_active(e) - max_selector(e) > - 1
-     * \sum_{e=(o,supersink) \in Edges} max_selector(e) = 1
-     * <=>
-     * \forall_{e=(o,supersink) \in Edges}:
-     *     og->num_nodes * max_selector(e) + max_offset \leq og->num_nodes + offset(o)
-     *     max_selector(e) - x_active(e) \leq 0
-     * \sum_{e=(o,supersink) \in Edges} max_selector(e) = 1
-     */
-    for ( k = 0; k < susi->num_incoming_edges; k++ ) {
-      const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
-
-      fprintf( f, "  %u ", og->num_nodes );
-      fprintILPMaxSelector( f, edge );
-      fprintf( f, " + %s <= %u\n", max_offset_var, og->num_nodes + edge->start->offset );
-
-      fprintf( f, "  " );
-      fprintILPMaxSelector( f, edge );
-      fprintf( f, " - " );
-      fprintILPXActive( f, edge );
-      fprintf( f, " <= 0\n" );
-    }
-
-    fprintf( f, "  " );
-    for ( k = 0; k < susi->num_incoming_edges; k++ ) {
-      const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
-
-      if ( k != 0 ) {
-        fprintf( f, " + " );
-      }
-      fprintILPMaxSelector( f, edge );
-    }
-    fprintf( f, " = 1\n" );
   }
 
 
@@ -585,14 +467,7 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
   // Offset-mode specific declarations
   if ( computation_type == ILP_COMP_TYPE_OFFSETS ) {
 
-    fprintf( f, "  \\ Minimum final offset.\n" );
-    fprintf( f, "  %s\n", min_offset_var );
-    fprintf( f, "  \\ Maximum final offset.\n" );
-    fprintf( f, "  %s\n", max_offset_var );
-
-
     fprintf( f, "\n\nBINARY\n\n\n" );
-
 
     for ( k = 0; k < susi->num_incoming_edges; k++ ) {
       const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
@@ -610,16 +485,6 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
       fprintf( f, "\n" );
       fprintf( f, "  " );
       fprintILPXActiveHelper( f, edge );
-      fprintf( f, "\n");
-
-      fprintf( f, "  \\ Helper variable for determining %s\n", min_offset_var );
-      fprintf( f, "  " );
-      fprintILPMinSelector( f, edge );
-      fprintf( f, "\n");
-
-      fprintf( f, "  \\ Helper variable for determining %s\n", max_offset_var );
-      fprintf( f, "  " );
-      fprintILPMaxSelector( f, edge );
       fprintf( f, "\n");
     }
   }
@@ -649,7 +514,13 @@ static char *generateOffsetGraphILP( const offset_graph *og, uint loopbound,
     f = fopen( tmpfilename, "w" );
   } else {
     strcpy( tmpfilename, "/tmp/chronos_ilp_XXXXXX" );
-    f = (FILE*)mkstemp( tmpfilename );
+    int posix_file_descriptor = mkstemp( tmpfilename );
+    // Yes, this allows race conditions again, but I have no
+    // idea about the POSIX I/O functions, therefore this is okay.
+    if ( posix_file_descriptor != -1 ) {
+      close( posix_file_descriptor );
+      f = fopen( tmpfilename, "w" );
+    }
   }
   if ( !f ) {
     prerr( "Unable to write to ILP file '%s'\n", tmpfilename );
@@ -685,12 +556,14 @@ static char* invokeILPSolver( const char *ilp_file,
   MALLOC( output_file, char*, 100 * sizeof( char ), "output_file" );
   if ( keepTemporaryFiles ) {
     strcpy( output_file, "offsetGraph.result" );
-    remove( output_file );
   } else {
     strcpy( output_file, "/tmp/chronos_ilp_result_XXXXXX" );
-    FILE *f = (FILE*)mkstemp( output_file );
-    fclose( f );
+    int posix_file_descriptor = mkstemp( output_file );
+    if ( posix_file_descriptor != -1 ) {
+      close( posix_file_descriptor );
+    }
   }
+  remove( output_file );
 
   if ( solver == ILP_LPSOLVE ) {
     sprintf( commandline, "LD_LIBRARY_PATH=%s:$LD_LIBRARY_PATH %s/lp_solve"
@@ -844,9 +717,8 @@ static ull solveET_ILP( const offset_graph *og, const char *ilp_file,
 
 /* Solves a given ilp with lp_solve. The result is returned in the given
  * offset data representation. */
-static offset_data solveOffset_ILP( const offset_graph *og,
-    const char *ilp_file, enum ILPSolver solver,
-    enum OffsetDataType offsetType )
+static offset_data solveOffset_ILP( const offset_graph *og, const char *ilp_file,
+    enum ILPSolver solver, enum OffsetDataType offsetType )
 {
   DSTART( "solveOffset_ILP" );
 
@@ -858,13 +730,9 @@ static offset_data solveOffset_ILP( const offset_graph *og,
   const uint line_size = 500;
   char result_file_line[line_size];
   char var_name[50];
+  uint var_num;
   uint var_value;
-
   _Bool skipped = 0;
-  _Bool foundMin = 0;
-  _Bool foundMax = 0;
-
-  uint minOffset, maxOffset;
 
   if ( solver == ILP_LPSOLVE ) {
     // Skip first 4 lines
@@ -889,42 +757,27 @@ static offset_data solveOffset_ILP( const offset_graph *og,
     assert( 0 && "Unknown ILP solver!" );
   }
 
-  // TODO: Create smarter ILP that can obtain the possible offsets
-  //       as a set instead of as a range. The range is always
-  //       deducible from the set representation then.
+  offset_data result;
+  _Bool foundAnyOffset = FALSE;
 
-  char *lastLine = NULL;
   if ( skipped ) {
-    // Read until the bound variables were found
-    while( fgets( result_file_line, line_size, result_file ) &&
-           ( !foundMax || !foundMin ) ) {
-
-      lastLine = result_file_line;
+    // Read until all offset variables were found
+    while( fgets( result_file_line, line_size, result_file ) ) {
       sscanf( result_file_line, "%s %u", var_name, &var_value );
-      if ( strcmp( var_name, min_offset_var ) == 0 ) {
-        minOffset = var_value;
-        foundMin = 1;
-      } else
-      if ( strcmp( var_name, max_offset_var ) == 0 ) {
-        maxOffset = var_value;
-        foundMax = 1;
-      }
-    }
-  }
+      if ( sscanf( var_name, X_ACTIVE_PREFIX "%u", &var_num ) == 1 ) {
+        const uint edge_index = var_num - 1;
+        const uint active_offset = og->edges[edge_index].start->offset;
 
-  /* CPLEX speciality: All variables which had a value of zero
-   * are not explicitly listed. Check if the last line indicates
-   * that all other variables are zero and set result offsets
-   * then. */
-  if ( solver == ILP_CPLEX ) {
-    uint rest_result;
-    if ( lastLine &&
-         sscanf( lastLine, "All other variables in the range %*s are %u.",
-             &rest_result ) ) {
-      minOffset = rest_result;
-      foundMin = 1;
-      maxOffset = rest_result;
-      foundMax = 1;
+        // Update the result object with the new offset
+        if ( !foundAnyOffset ) {
+          result = createOffsetDataFromOffsetBounds( offsetType,
+                     active_offset, active_offset );
+          foundAnyOffset = TRUE;
+        } else {
+          updateOffsetData( &result, &result, active_offset,
+                            active_offset, TRUE );
+        }
+      }
     }
   }
 
@@ -936,14 +789,12 @@ static offset_data solveOffset_ILP( const offset_graph *og,
   }
   free( (void*)output_file );
 
-  if ( foundMax && foundMin ) {
-    DOUT( "Result was: [%u, %u]\n", minOffset, maxOffset );
-    DRETURN( createOffsetDataFromOffsetBounds( offsetType, minOffset,
-                                               maxOffset ) );
+  if ( foundAnyOffset ) {
+    DOUT( "Result was: %s\n", getOffsetDataString( &result ) );
+    DRETURN( result );
   } else {
     prerr( "Could not read offset ILP output file!" );
-    DRETURN( createOffsetDataFromOffsetBounds( offsetType, minOffset,
-                                               maxOffset ) );
+    DRETURN( result );
   }
 }
 
