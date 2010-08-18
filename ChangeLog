@@ -1,3 +1,6 @@
+2010-08-18:
+* The data type that is used for the analyses is now configurable: It can be an offset range of the form [min,max], but also an offset set which lists individual offsets, which is much more expensive, but might yields results which are more precise.
+
 2010-08-16:
 * Added more possibilities for the alignment analysis, to make use of the penalized alignment, i.e. to analyze single loop iterations using a fixed zero-alignment like in the structural analysis. In contrast to the structural analysis this is then done selectively, and one when needed.
 

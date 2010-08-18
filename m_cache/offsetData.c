@@ -245,17 +245,24 @@ void setOffsetDataMaximal( offset_data * const d )
 }
 
 
-/* Updated the offset representation, such that it represents the
- * offsets after [minTimeElasped,maxTimeElapsed] time units have
- * passed. */
-void updateOffsetData( offset_data * const d,
-    uint minTimeElasped, uint maxTimeElapsed )
+/* Computes new offsets which would be reached from "startOffsets" after
+ * [minTimeElasped,maxTimeElapsed] time units have passed and writes those
+ * offsets to "targetOffsets". If "append" is true, then the new offsets
+ * will be merged with those in "targetOffsets", else they will overwrite
+ * the previous content of "targetOffsets".
+ *
+ * "sourceOffsets" may be equal to "targetOffsets" */
+void updateOffsetData( offset_data * const targetOffsets,
+    const offset_data * const sourceOffsets, const uint minTimeElasped,
+    const uint maxTimeElapsed, const _Bool append )
 {
-  assert( d && isOffsetDataValid( d ) &&
+  assert( targetOffsets && isOffsetDataValid( targetOffsets ) &&
+          sourceOffsets && isOffsetDataValid( sourceOffsets ) &&
           minTimeElasped <= maxTimeElapsed && "Invalid arguments!" );
+  assert( targetOffsets->type == sourceOffsets->type && "Unsupported operation!" );
 
-  const uint newLowerBound = getOffsetDataMinimumOffset( d ) + minTimeElasped;
-  const uint newUpperBound = getOffsetDataMaximumOffset( d ) + maxTimeElapsed;
+  const uint newLowerBound = getOffsetDataMinimumOffset( sourceOffsets ) + minTimeElasped;
+  const uint newUpperBound = getOffsetDataMaximumOffset( sourceOffsets ) + maxTimeElapsed;
 
   // Split up the time values into multiplier and remainder
   const uint minTime_factor    = newLowerBound / ( MAXIMUM_OFFSET + 1 );
@@ -270,14 +277,14 @@ void updateOffsetData( offset_data * const d,
    *    --> all offsets are possible */
   const uint factorDifference = maxTime_factor - minTime_factor;
   if ( factorDifference > 1 ) {
-    setOffsetDataMaximal( d );
+    setOffsetDataMaximal( targetOffsets );
 
     /* b) The interval [newLowerBound, newUpperBound] crosses at most one
      *    TDMA interval boundary. */
   } else {
 
-    if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
-      tdma_offset_bounds * const b = &d->content.offset_range;
+    if ( sourceOffsets->type == OFFSET_DATA_TYPE_RANGE ) {
+      tdma_offset_bounds * const b = &targetOffsets->content.offset_range;
 
       /* b1) The interval [newLowerBound, newUpperBound] crosses exactly one
        *     TDMA interval boundary
@@ -286,7 +293,7 @@ void updateOffsetData( offset_data * const d,
        *         thus our offset range representation does not allow a tighter bound
        *         than [MINIMUM_OFFSET, MAXIMUM_OFFSET]. */
       if ( factorDifference == 1 ) {
-        setOffsetDataMaximal( d );
+        setOffsetDataMaximal( targetOffsets );
 
       /* b2) The interval [newLowerBound, newUpperBound] lies inside a single
        *    TDMA interval
@@ -299,44 +306,55 @@ void updateOffsetData( offset_data * const d,
         b->upper_bound = maxTime_remainder;
       }
 
-    } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
+    } else if ( sourceOffsets->type == OFFSET_DATA_TYPE_SET ) {
 
       /* For sets we can immediately compute the resulting offsets. We could
        * do it with this algorithm in all cases (also a)), but it is
        * time-consuming, and therefore we only do it if we can achieve better
        * precision which is the case here, when there are offsets which are
        * potentially NOT in the result set. */
-      tdma_offset_set * const s = &d->content.offset_set;
-      _Bool *newOffsets;
-      CALLOC( newOffsets, _Bool*, MAXIMUM_OFFSET + 1,
+
+      /* Determines whether we must first buffer the results. */
+      _Bool bufferResultsFirst = ( sourceOffsets == targetOffsets );
+      const _Bool * const inputPointer = sourceOffsets->content.offset_set.offsets;
+            _Bool * const finalOutputPointer = targetOffsets->content.offset_set.offsets;
+      _Bool *preliminaryOutputPointer;
+
+      /* Determine and prepare the output area. */
+      const int output_area_size = ( MAXIMUM_OFFSET + 1 ) * sizeof( _Bool );
+      _Bool *offsetResultBuffer;
+      if ( bufferResultsFirst ) {
+        CALLOC( offsetResultBuffer, _Bool*, MAXIMUM_OFFSET + 1,
               sizeof( _Bool ), "newOffsets" );
+        preliminaryOutputPointer = offsetResultBuffer;
+        if ( append ) {
+          memcpy( preliminaryOutputPointer, inputPointer,
+              output_area_size );
+        }
+      } else {
+        preliminaryOutputPointer = finalOutputPointer;
+        if ( !append ) {
+          memset( preliminaryOutputPointer, 0, output_area_size );
+        }
+      }
 
-      // For debugging
-      _Bool inputSetWasNonempty = 0;
-      _Bool resultSetIsNonempty = 0;
-
-      // Compute the new offsets in temporary array
+      // Compute the new offsets
       uint i, j;
       for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
-        if ( s->offsets[i] ) {
-          inputSetWasNonempty = 1;
+        if ( inputPointer[i] ) {
           for ( j = minTimeElasped; j <= maxTimeElapsed; j++ ) {
-            newOffsets[ (i + j) % (MAXIMUM_OFFSET + 1) ] = 1;
+            preliminaryOutputPointer[ (i + j) % (MAXIMUM_OFFSET + 1) ] = 1;
           }
         }
       }
 
-      // Copy from temporary array to the offset object
-      for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
-        s->offsets[i] = newOffsets[i];
-        if ( s->offsets[i] ) {
-          resultSetIsNonempty = 1;
+      // Copy from temporary array to the offset object if needed
+      if ( preliminaryOutputPointer != finalOutputPointer ) {
+        for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
+          finalOutputPointer[i] = preliminaryOutputPointer[i];
         }
+        free( offsetResultBuffer );
       }
-      free( newOffsets );
-
-      assert( ( !inputSetWasNonempty || resultSetIsNonempty ) &&
-          "Internal error during offset set update!" );
     } else {
       assert( 0 && "Unsupported offset data type!" );
     }

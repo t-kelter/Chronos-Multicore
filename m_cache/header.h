@@ -15,6 +15,9 @@
 
 // ######### Macros #########
 
+#define TRUE 1
+#define FALSE 0
+
 #define OP_LEN 9  // length of assembly token
 #define INSN_SIZE 8
 #define UNROLL 2

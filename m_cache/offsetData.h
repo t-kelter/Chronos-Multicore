@@ -127,11 +127,16 @@ void setOffsetDataMaximal( offset_data * const d );
 offset_data mergeOffsetData( const offset_data * const d1,
                              const offset_data * const d2 );
 
-/* Updated the offset representation, such that it represents the
- * offsets after [minTimeElasped,maxTimeElapsed] time units have
- * passed. */
-void updateOffsetData( offset_data * const d,
-    uint minTimeElasped, uint maxTimeElapsed );
+/* Computes new offsets which would be reached from "startOffsets" after
+ * [minTimeElasped,maxTimeElapsed] time units have passed and writes those
+ * offsets to "targetOffsets". If "append" is true, then the new offsets
+ * will be merged with those in "targetOffsets", else they will overwrite
+ * the previous content of "targetOffsets".
+ *
+ * "sourceOffsets" may be equal to "targetOffsets" */
+void updateOffsetData( offset_data * const targetOffsets,
+    const offset_data * const sourceOffsets, const uint minTimeElasped,
+    const uint maxTimeElapsed, const _Bool append );
 
 /* Returns
  * - a negative number : if 'lhs' is no subset of 'rhs', nor are they equal

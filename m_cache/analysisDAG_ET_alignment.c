@@ -556,11 +556,14 @@ static combined_result analyze_block( const block * const bb,
       /* Some temporaries. */
       _Bool waitedForNextTDMASlot;
 
-      /* Compute instruction cache access duration for best case. */
+      /* Compute instruction cache access duration. */
       const acc_type best_acc  = check_hit_miss( bb, inst, loop_context,
                                                  ACCESS_SCENARIO_BCET );
+      const acc_type worst_acc = check_hit_miss( bb, inst, loop_context,
+                                                 ACCESS_SCENARIO_WCET );
       if ( useFixedBCOffset ) {
-        result.bcet += determine_latency( bb, fixedBCOffset, best_acc, NULL );
+        const uint latency = determine_latency( bb, fixedBCOffset, best_acc, NULL );
+        result.bcet += latency;
       } else {
         /* Iterate over the current offset range and determine minimum latency. */
         uint min_latency = UINT_MAX;
@@ -583,10 +586,9 @@ static combined_result analyze_block( const block * const bb,
       }
 
       /* Compute instruction cache access duration for worst case. */
-      const acc_type worst_acc = check_hit_miss( bb, inst, loop_context,
-                                                 ACCESS_SCENARIO_WCET );
       if ( useFixedWCOffset ) {
-        result.wcet += determine_latency( bb, fixedWCOffset, worst_acc, NULL );
+        const uint latency = determine_latency( bb, fixedWCOffset, worst_acc, NULL );
+        result.wcet += latency;
       } else {
         /* Iterate over the current offset range and determine maximum latency. */
         uint max_latency = 0;
@@ -621,10 +623,10 @@ static combined_result analyze_block( const block * const bb,
         if ( bcOffset > wcOffset ) {
           setOffsetDataMaximal( &result.offsets );
         } else {
-          updateOffsetData( &result.offsets, wcTimePassed, bcTimePassed );
+          updateOffsetData( &result.offsets, &result.offsets, wcTimePassed, bcTimePassed, FALSE );
         }
       } else {
-        updateOffsetData( &result.offsets, bcTimePassed, wcTimePassed );
+        updateOffsetData( &result.offsets, &result.offsets, bcTimePassed, wcTimePassed, FALSE );
       }
       if ( useFixedBCOffset ) {
         fixedBCOffset = ( fixedBCOffset + bcTimePassed ) % tdma_interval;
