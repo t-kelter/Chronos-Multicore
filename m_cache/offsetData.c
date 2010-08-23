@@ -611,12 +611,24 @@ char *getOffsetDataString( const offset_data * const d )
     _Bool firstEntry = 1;
     for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
       if ( s->offsets[i] ) {
-        if ( !firstEntry ) {
-          PRINT_TO_STRING( ", " );
+
+        /* Slash mode. */
+        if ( i >= MINIMUM_OFFSET+1 && s->offsets[i-1] ) {
+          if ( i < MINIMUM_OFFSET+2 || !s->offsets[i-2] ) {
+            PRINT_TO_STRING( "-" );
+          }
+          if ( i+1 > MAXIMUM_OFFSET || !s->offsets[i+1] ) {
+            PRINT_TO_STRING( "%u", i );
+          }
+        /* Normal mode. */
         } else {
-          firstEntry = 0;
+          if ( !firstEntry ) {
+            PRINT_TO_STRING( ", " );
+          } else {
+            firstEntry = 0;
+          }
+          PRINT_TO_STRING( "%u", i );
         }
-        PRINT_TO_STRING( "%u", i );
       }
     }
     PRINT_TO_STRING( " }" );
