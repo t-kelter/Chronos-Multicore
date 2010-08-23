@@ -610,7 +610,7 @@ char *getOffsetDataString( const offset_data * const d )
     uint i;
     _Bool firstEntry = 1;
     for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
-      if ( !s->offsets[i] ) {
+      if ( s->offsets[i] ) {
         if ( !firstEntry ) {
           PRINT_TO_STRING( ", " );
         } else {
