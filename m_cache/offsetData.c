@@ -1,5 +1,6 @@
 // Include standard library headers
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -583,14 +584,22 @@ uint getOffsetDataMaximumOffset( const offset_data * const d )
 /* Prints the offset data into an internal string and returns this string. */
 char *getOffsetDataString( const offset_data * const d )
 {
-  assert( d && "Invalid argument!" );
+  assert( d && isOffsetDataValid( d ) && "Invalid argument!" );
 
-  #define PRINT_STRING_SIZE 200
-  static char output_string[ PRINT_STRING_SIZE ];
-  #define PRINT_TO_STRING( format, ... ) \
-    output_ptr += snprintf( output_ptr, PRINT_STRING_SIZE, format, ## __VA_ARGS__ )
-
+  const uint string_size = 100 + ( max_offset + 1 ) *
+                                 ( log( max_offset ) / log( 2 ) );
+  uint printed_chars = 0;
+  static char *output_string = NULL;
+  REALLOC( output_string, char*, string_size, "output_string" );
   char *output_ptr = output_string;
+
+  #define PRINT_TO_STRING( format, ... ) \
+    { \
+      const uint printed = snprintf( output_ptr, string_size - printed_chars, \
+                                     format, ## __VA_ARGS__ ); \
+      output_ptr += printed; \
+      printed_chars += printed; \
+    }
 
   if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
     const tdma_offset_bounds * const b = &d->content.offset_range;
@@ -615,7 +624,6 @@ char *getOffsetDataString( const offset_data * const d )
     assert( 0 && "Unsupported offset data type!" );
   }
 
-  #undef PRINT_STRING_SIZE
   #undef PRINT_TO_STRING
 
   return output_string;
