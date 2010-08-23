@@ -118,7 +118,7 @@ int main(int argc, char **argv )
   /* Compute with shared bus */
   g_shared_bus = 1;
   /* For independent tasks running on multiple cores */
-  g_independent_task = 0;
+  g_independent_task = 1;
   /* For no bus modelling */
   g_no_bus_modeling = 0;
   /* For private L2 cache analysis */
@@ -556,7 +556,7 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
   strcpy(msc[msc_index]->msc_name, interferFileName);
   msc[msc_index]->num_task = num_task;
 
-  /* Allocate memory for all tasks in the MSC and intereference data
+  /* Allocate memory for all tasks in the MSC and interference data
    * structure */
   CALLOC_IF_NULL(msc[msc_index]->taskList, task_t*,
       num_task * sizeof(task_t), "taskList");
