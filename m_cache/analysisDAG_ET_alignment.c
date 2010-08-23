@@ -1013,6 +1013,8 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
   combined_result iteration_result;   // Result from the last iteration analysis
   uint iteration_number = 1;          // The number of the currently analyzed iteration
                                       // (iteration 0 was peeled off above)
+  _Bool allIterationsAreEqual = TRUE; // Whether the BCET/WCET results are the same for all iterations
+
   do {
     // Get the current offsets
     if ( iteration_number == 1 ) {
@@ -1023,11 +1025,17 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
 
     // Analyze the iteration
     const uint inner_context = getInnerLoopContext( lp, loop_context, 0 );
+    const combined_result previous_result = iteration_result;
     iteration_result = analyze_single_loop_iteration( lp, proc, inner_context,
                                                       current_offsets );
     DOUT( "Analyzed new iteration: BCET %llu, WCET %llu, offsets %s "
         "(context %u)\n", iteration_result.bcet, iteration_result.wcet,
         getOffsetDataString( &iteration_result.offsets ), inner_context );
+    if ( iteration_number > 1 &&
+         ( previous_result.bcet != iteration_result.bcet ||
+           previous_result.wcet != iteration_result.wcet ) ) {
+      allIterationsAreEqual = FALSE;
+    }
 
     /* If the user selected this, then try to analyze the same iteration using
      * a fixed alignment and use the better one of the two results. */
@@ -1123,14 +1131,13 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
   }
   addOffsetGraphEdge( graph, &graph->unknown_offset_node, &graph->supersink, 0, 0 );
 
-  // TODO: Use some new heuristic to determine when not to use the
+  // TODO: Improve the heuristic to determine when not to use the
   //       graph-tracking because of its high complexity
-  /*if ( iteration_result.offsets.lower_bound == 0 &&
-       iteration_result.offsets.upper_bound == tdma_interval - 1 ) {
+  if ( allIterationsAreEqual ) {
     result = analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
     DOUT( "Took over convergence result: BCET %llu, WCET %llu, offsets %s\n", result.bcet,
         result.wcet, getOffsetDataString( &result.offsets ) );
-  } else */ {
+  } else {
     // Solve flow problems
     // (Mind the peeled-off iteration of the loop, see beginning o this function)
     result.bcet += computeOffsetGraphLoopBCET( graph, lp->loopbound - 1 );
