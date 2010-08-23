@@ -582,10 +582,10 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
   int i;
   for(i = 0; i < num_task; i ++) {
 
-    fscanf(interferFile, "%s\n", (char*)&(msc[msc_index]->taskList[i].task_name));
+    fscanf(interferFile, "%s", (char*)&(msc[msc_index]->taskList[i].task_name));
     /* sudiptac ::: Read also the successor info. Needed for WCET analysis
      * in presence of shared bus */
-    fscanf(interferFile, "%d", &(msc[msc_index]->taskList[i].numSuccs));
+    fscanf(interferFile, " %d", &(msc[msc_index]->taskList[i].numSuccs));
     uint nSuccs = msc[msc_index]->taskList[i].numSuccs;
 
     /* Allocate memory for successor List */
@@ -616,7 +616,12 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
     int j;
     for(j = 0; j < num_task; j++) {
       const int old_value = msc[msc_index]->interferInfo[i][j];
-      fscanf(interferFile, "%d ", &(msc[msc_index]->interferInfo[i][j]));
+      const int readIn = fscanf(interferFile, "%d ",
+                          &(msc[msc_index]->interferInfo[i][j]));
+      // If there is no interference info, then quit reading
+      if ( readIn != 1 ) {
+        break;
+      }
 
       // Set flag if given and interference changed
       if ( msc[msc_index]->interferInfo[i][j] != old_value ) {
