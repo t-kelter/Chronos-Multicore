@@ -12,6 +12,8 @@
 // ######### Datatype declarations  ###########
 
 
+typedef long milliseconds;
+
 
 // ######### Function declarations  ###########
 
@@ -33,6 +35,10 @@
  * start_end == 1: end counting the time and return the time elapsed (in cycles)
  */
 double cycle_time(int start_end);
+
+
+/* Returns the current time in milliseconds. */
+milliseconds getmsecs(void);
 
 
 #endif

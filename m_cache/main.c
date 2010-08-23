@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <time.h>
 
 // Include local library headers
 #ifdef HAVE_CONFIG_H
@@ -57,8 +56,6 @@ enum AnalysisMethod {
     ANALYSIS_STRUCTURAL,
     ANALYSIS_ALIGNMENT
 };
-typedef unsigned long long ticks;
-#define CPU_MHZ 3000000000
 
 
 // #########################################
@@ -83,7 +80,6 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
 static void readMSCfromFile( const char *interferFileName, int msc_index,
                              _Bool *interference_changed );
 static void writeWCETandCacheInfoFiles( int num_msc );
-static __inline__ ticks getticks(void);;
 
 #ifdef WITH_WEI_COMPARISON
 static void writeWeiComparison( int num_msc, const char *finalStatsBasename );
@@ -107,7 +103,6 @@ int main(int argc, char **argv )
   int num_msc = 0;
   float sum;
   char interferFileName[MAX_LEN];
-  ticks start,end;
 
   times_iteration = 0;
 
@@ -180,7 +175,7 @@ int main(int argc, char **argv )
   }
 
   /* Monitor time from this point */
-  STARTTIME;
+  const milliseconds time_start = getmsecs();
 
   /* Start reading the interference file and build the interference
    * information */
@@ -288,10 +283,8 @@ int main(int argc, char **argv )
      * so we need to compute WCET/BCET of each task in the MSC */
     /* CAUTION: In presence of shared bus these two function changes
      * to account for the bus delay */
-    start = getticks();
     analysis( currentMSC, tdma_bus_schedule_file, current_analysis_method,
         alignmentLAType, alignmentTryStructural, offsetDataType );
-    end = getticks();
 
     /* Initializing conflicting information */
     for(n = 0; n < cache_L2.ns; n++) {
@@ -299,6 +292,7 @@ int main(int argc, char **argv )
     }
   }
   /* Done with timing analysis of all the MSC-s */
+  const milliseconds time_end = getmsecs();
   fclose(interferPath);
 
   /* Assert correct function of debug macros. */
@@ -309,7 +303,7 @@ int main(int argc, char **argv )
    * needed and the WCRT module is not called */
   if(g_independent_task) {
     printf("===================================================\n");
-    printf("WCET computation time = %lf secs\n", (end - start)/((1.0) * CPU_MHZ));
+    printf("Total analysis time = %lf secs\n", (time_end - time_start)/1000.0);
     printf("===================================================\n");
     DRETURN( 0 );
   }	 
@@ -384,9 +378,8 @@ int main(int argc, char **argv )
     }
   }
 
-  STOPTIME;
-
   /* DONE: All Analysis */
+  const milliseconds time_iterative_end = getmsecs();
 
   // The base path of all final output files. Individual files only add a suffix
   char *finalStatsBasename = "simple_test";
@@ -447,7 +440,7 @@ int main(int argc, char **argv )
   fscanf(file, "%Lu", &wcet_wei);
   fprintf(wcrt,"wei %Lu\n", wcet_wei);
   fprintf(wcrt,"differ %Lu\n", wcet_wei - wcet_our);
-  fprintf(wcrt,"runtime %f s\n", t/(CYCLES_PER_MSEC * 1000.0));
+  fprintf(wcrt,"runtime %f s\n", (time_iterative_end - time_start)/1000.0);
 
   fprintf(wcrt,"average conflict tasks/set  %f\n", sum/cache_L2.ns);
 
@@ -514,8 +507,10 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
   DACTION(
       for ( i = 0; i < msc->num_task; i++ ) {
         task_t * const t = &( msc->taskList[i] );
-        DOUT( "Results for task %s : BCET %llu \tWCET %llu (jitter %u%%)\n",
-            t->task_name, t->bcet, t->wcet,
+        DOUT( "Results for task %s : BCET %llu (time %fs) \tWCET %llu "
+            "(time %fs) \t(jitter %u%%)\n", t->task_name,
+            t->bcet, t->bcet_analysis_time / ( 1.0 * 1000 ),
+            t->wcet, t->wcet_analysis_time / ( 1.0 * 1000 ),
             ( ( t->wcet - t->bcet ) * 100 ) / t->wcet );
       }
   );
@@ -800,12 +795,3 @@ static void writeWeiComparison( int num_msc, const char *finalStatsBasename )
    fclose(hitmiss_statistic);
 }
 #endif
-
-
-/* sudiptac:: For performance measurement */
-static __inline__ ticks getticks(void)
-{
-  unsigned a, d;
-  __asm__ __volatile__("rdtsc" : "=a" (a), "=d" (d));
-  return ((ticks)a) | (((ticks)d) << 32);
-}

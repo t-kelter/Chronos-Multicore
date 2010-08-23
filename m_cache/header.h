@@ -13,6 +13,9 @@
 #include <time.h>
 #include <stdio.h>
 
+#include "wcrt/cycle_time.h"
+
+
 // ######### Macros #########
 
 #define TRUE 1
@@ -371,6 +374,10 @@ typedef struct
   /* sudiptac :: For bus aware WCET analysis */
   ull earliest_start_time;
   ull latest_start_time;
+
+  milliseconds bcet_analysis_time;
+  milliseconds wcet_analysis_time;
+
 } task_t;
 
 typedef struct

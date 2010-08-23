@@ -21,6 +21,7 @@
 #include "dump.h"
 #include "loopdetect.h"
 #include "offsetGraph.h"
+#include "wcrt/cycle_time.h"
 
 
 // ############################################################
@@ -1367,6 +1368,7 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
   for ( k = 0; k < msc->num_task; k++ ) {
 
     DOUT( "Analyzing Task WCET %s (alignment-aware) ......\n", msc->taskList[k].task_name );
+    const milliseconds analysis_start = getmsecs();
 
     /* Get needed inputs. */
     cur_task = &( msc->taskList[k] );
@@ -1402,6 +1404,11 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
 
     /* Free the result buffers. */
     freeResultBuffers( cur_task );
+
+    /* Measure time needed for single-task analysis. */
+    const milliseconds analysis_end = getmsecs();
+    cur_task->bcet_analysis_time = analysis_end - analysis_start;
+    cur_task->wcet_analysis_time = analysis_end - analysis_start;
 
     DOUT( "**************************************************************\n" );
     DOUT( "Earliest / Latest start time of the program = %Lu / %Lu cycles\n",

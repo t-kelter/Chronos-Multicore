@@ -2,7 +2,7 @@ SUBDIRS=wcrt
 
 noinst_PROGRAMS=opt
 
-# Settings for both programs
+# Settings
 AM_CPPFLAGS=-D_GNU_SOURCE -I@chronos_path@
 
 # First program to build: The analyzer/optimizer for the user
@@ -43,4 +43,4 @@ dummy.cpp:
 
 CLEANFILES = dummy.cpp
 						
-opt_LDADD=wcrt/libwcrt.a ../debugmacros/libdebugmacros.a
+opt_LDADD=wcrt/libwcrt.a ../debugmacros/libdebugmacros.a -lrt

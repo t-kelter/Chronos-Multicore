@@ -1,6 +1,7 @@
 noinst_LIBRARIES=libwcrt.a
 
-AM_CPPFLAGS=-D_DEBUG
+# Settings
+AM_CPPFLAGS=-D_GNU_SOURCE -I@chronos_path@ -D_DEBUG
 
 # Only program to build here
 libwcrt_a_SOURCES=alloc.c alloc.h \

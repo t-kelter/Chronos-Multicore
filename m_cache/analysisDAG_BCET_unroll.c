@@ -8,12 +8,13 @@
 #include <config.h>
 #endif
 
+#include <debugmacros/debugmacros.h>
+
 #include "analysisDAG_BCET_unroll.h"
 #include "analysisDAG_common.h"
 #include "busSchedule.h"
 #include "dump.h"
-
-#include <debugmacros/debugmacros.h>
+#include "wcrt/cycle_time.h"
 
 
 // Forward declarations of static functions
@@ -233,6 +234,7 @@ void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
   for ( k = 0; k < msc->num_task; k++ ) {
 
     DOUT( "Analyzing Task BCET %s......\n", msc->taskList[k].task_name);
+    const milliseconds analysis_start = getmsecs();
 
     /* Get needed inputs. */
     cur_task = &( msc->taskList[k] );
@@ -255,6 +257,10 @@ void compute_bus_BCET_MSC_unroll( MSC *msc, const char *tdma_bus_schedule_file )
      * predecessors have been analyzed. Thus After analyzing one task
      * update all its successor tasks' latest time */
     update_succ_task_earliest_start_time( msc, cur_task );
+
+    /* Measure time needed for single-task analysis. */
+    const milliseconds analysis_end = getmsecs();
+    cur_task->bcet_analysis_time = analysis_end - analysis_start;
 
     DOUT("**************************************************************\n");
     DOUT("Earliest start time of the task = %Lu cycles\n", start_time);
