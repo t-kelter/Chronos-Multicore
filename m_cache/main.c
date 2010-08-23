@@ -505,10 +505,30 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
 
   // Output the results if desired
   DACTION(
+      const char * statfile_name = "wcet.log";
+      FILE * const wcet_log = fopen( statfile_name, "a" );
+      if ( wcet_log == NULL ) {
+        DOUT( "Could not write output file %s!\n", statfile_name );
+      } else {
+        fprintf( wcet_log, "##################################\n" );
+        fprintf( wcet_log, "Results for MSC '%s'\n", msc->msc_name );
+        fprintf( wcet_log, "##################################\n\n\n" );
+
+        fprintf( wcet_log, "task;BCET;BCET_analysis_time;"
+            "WCET;WCET_analysis_time;Jitter\n" );
+        for ( i = 0; i < msc->num_task; i++ ) {
+          task_t * const t = &( msc->taskList[i] );
+          fprintf( wcet_log, "%s;%llu;%ld;%llu;%ld;%llu%%\n", t->task_name,
+              t->bcet, t->bcet_analysis_time,
+              t->wcet, t->wcet_analysis_time,
+              ( ( t->wcet - t->bcet ) * 100 ) / t->wcet );
+        }
+      }
+
       for ( i = 0; i < msc->num_task; i++ ) {
         task_t * const t = &( msc->taskList[i] );
         DOUT( "Results for task %s : BCET %llu (time %fs) \tWCET %llu "
-            "(time %fs) \t(jitter %u%%)\n", t->task_name,
+            "(time %fs) \t(jitter %llu%%)\n", t->task_name,
             t->bcet, t->bcet_analysis_time / ( 1.0 * 1000 ),
             t->wcet, t->wcet_analysis_time / ( 1.0 * 1000 ),
             ( ( t->wcet - t->bcet ) * 100 ) / t->wcet );

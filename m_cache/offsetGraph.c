@@ -156,38 +156,42 @@ static void writeFlowConservationConstraint( FILE * const f,
     const offset_graph * const og, const offset_graph_node * const node,
     const uint num_time_steps )
 {
+  DSTART( "writeFlowConservationConstraint" );
+
   uint j, k;
 
   // Skip empty restrictions
   if ( node->num_incoming_edges == 0 &&
        node->num_outgoing_edges == 0 ) {
-    return;
+    DRETURN();
   }
 
   // Write comment
-  fprintf( f, "  \\ Node %u: incoming edges from ", node->offset );
-  if ( node->num_incoming_edges == 0 ) {
-    fprintf( f, "nowhere" );
-  } else {
-    for ( k = 0; k < node->num_incoming_edges; k++ ) {
-      fprintf( f, "%u", og->edges[node->incoming_edges[k]].start->offset );
-      if ( k != node->num_incoming_edges - 1 ) {
-        fprintf( f, ", " );
+  DACTION(
+    fprintf( f, "  \\ Node %u: incoming edges from ", node->offset );
+    if ( node->num_incoming_edges == 0 ) {
+      fprintf( f, "nowhere" );
+    } else {
+      for ( k = 0; k < node->num_incoming_edges; k++ ) {
+        fprintf( f, "%u", og->edges[node->incoming_edges[k]].start->offset );
+        if ( k != node->num_incoming_edges - 1 ) {
+          fprintf( f, ", " );
+        }
       }
     }
-  }
-  fprintf( f, " - outgoing edges to " );
-  if ( node->num_outgoing_edges == 0 ) {
-    fprintf( f, "nowhere" );
-  } else {
-    for ( k = 0; k < node->num_outgoing_edges; k++ ) {
-      fprintf( f, "%u", og->edges[node->outgoing_edges[k]].end->offset );
-      if ( k != node->num_outgoing_edges - 1 ) {
-        fprintf( f, ", " );
+    fprintf( f, " - outgoing edges to " );
+    if ( node->num_outgoing_edges == 0 ) {
+      fprintf( f, "nowhere" );
+    } else {
+      for ( k = 0; k < node->num_outgoing_edges; k++ ) {
+        fprintf( f, "%u", og->edges[node->outgoing_edges[k]].end->offset );
+        if ( k != node->num_outgoing_edges - 1 ) {
+          fprintf( f, ", " );
+        }
       }
     }
-  }
-  fprintf( f, "\n" );
+    fprintf( f, "\n" );
+  );
 
   // Write conservation constraints (1 per time instant)
   for ( j = 0; j < num_time_steps; j++ ) {
@@ -220,6 +224,8 @@ static void writeFlowConservationConstraint( FILE * const f,
     /* ... must be zero to conserve the flow (no buffering). */
     fprintf( f, " = 0\n" );
   }
+
+  DEND();
 }
 
 
@@ -227,6 +233,8 @@ static void writeFlowConservationConstraint( FILE * const f,
 static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
     enum ILPComputationType computation_type )
 {
+  DSTART( "writeCPLEXILP" );
+
   /* ASSUMPTION: Some constraints in the ILP build upon the assumption,
    *             that the number of nodes in the graph is equal to the
    *             TDMA cycle length.
@@ -477,8 +485,10 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
     offset_graph_edge * const edge = &og->edges[i];
 
     for ( j = 0; j < num_time_steps; j++ ) {
-      fprintf( f, "  \\ Edge from %u to %u (time %u)\n",
-          edge->start->offset, edge->end->offset, j );
+      DACTION(
+          fprintf( f, "  \\ Edge from %u to %u (time %u)\n",
+            edge->start->offset, edge->end->offset, j );
+      );
       fprintf( f, "  " );
       fprintILPEdgeName( f, edge, j );
       fprintf( f, "\n");
@@ -494,16 +504,20 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
       const offset_graph_edge * const edge = &og->edges[susi->incoming_edges[k]];
       const uint runtime = getOffsetGraphEdgeRuntime( og, edge );
 
-      fprintf( f, "  \\ Indicator whether " );
-      fprintILPEdgeName( f, edge, num_time_steps - runtime );
-      fprintf( f, " > 0\n" );
+      DACTION(
+          fprintf( f, "  \\ Indicator whether " );
+          fprintILPEdgeName( f, edge, num_time_steps - runtime );
+          fprintf( f, " > 0\n" );
+      );
       fprintf( f, "  " );
       fprintILPXActive( f, edge );
       fprintf( f, "\n");
 
-      fprintf( f, "  \\ Helper variable for determining " );
-      fprintILPXActive( f, edge );
-      fprintf( f, "\n" );
+      DACTION(
+          fprintf( f, "  \\ Helper variable for determining " );
+          fprintILPXActive( f, edge );
+          fprintf( f, "\n" );
+      );
       fprintf( f, "  " );
       fprintILPXActiveHelper( f, edge );
       fprintf( f, "\n");
@@ -511,6 +525,8 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
   }
 
   fprintf( f, "\n\nEND\n" );
+
+  DEND();
 }
 
 
