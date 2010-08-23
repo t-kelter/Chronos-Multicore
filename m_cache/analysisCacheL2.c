@@ -2375,32 +2375,34 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 			//L1 fm
 			else if(bb->chmc[cnt]->hitmiss_addr[ n ] == FIRST_MISS)
 			{
-				if(loop_level_arr[lp_level] == FIRST_ITERATION)
-				{
-					if(current_chmc->hitmiss_addr[ n ] == ALWAYS_HIT)
-					{
-						current_chmc->wcost += IC_HIT_L2;
-						current_chmc->bcost += IC_HIT_L2;
-					}
-					
-					else if(current_chmc->hitmiss_addr[ n ] == ALWAYS_MISS ||current_chmc->hitmiss_addr[ n ] == FIRST_MISS )
-					{
-						current_chmc->wcost += IC_MISS_L2;
-						current_chmc->bcost += IC_MISS_L2;
-					}
-					
-					else
-					{
-						current_chmc->wcost += IC_MISS_L2;
-						current_chmc->bcost += IC_HIT_L2;
-					}
-				}
-				
-				else if(loop_level_arr[lp_level] == NEXT_ITERATION)
-				{
-					current_chmc->wcost += IC_HIT;
-					current_chmc->bcost += IC_HIT;
-				}
+			  if ( lp_level >= 0 ) {
+          if(loop_level_arr[lp_level] == FIRST_ITERATION)
+          {
+            if(current_chmc->hitmiss_addr[ n ] == ALWAYS_HIT)
+            {
+              current_chmc->wcost += IC_HIT_L2;
+              current_chmc->bcost += IC_HIT_L2;
+            }
+
+            else if(current_chmc->hitmiss_addr[ n ] == ALWAYS_MISS ||current_chmc->hitmiss_addr[ n ] == FIRST_MISS )
+            {
+              current_chmc->wcost += IC_MISS_L2;
+              current_chmc->bcost += IC_MISS_L2;
+            }
+
+            else
+            {
+              current_chmc->wcost += IC_MISS_L2;
+              current_chmc->bcost += IC_HIT_L2;
+            }
+          }
+
+          else if(loop_level_arr[lp_level] == NEXT_ITERATION)
+          {
+            current_chmc->wcost += IC_HIT;
+            current_chmc->bcost += IC_HIT;
+          }
+			  }
 					
 			}
 			
@@ -2415,16 +2417,18 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 
 				else if(current_chmc->hitmiss_addr[ n ] == FIRST_MISS)
 				{
-					if(loop_level_arr[lp_level] == FIRST_ITERATION)
-					{
-						current_chmc->wcost += IC_MISS_L2;
-						current_chmc->bcost += IC_MISS_L2;
-					}
-					else if(loop_level_arr[lp_level] == NEXT_ITERATION)
-					{
-						current_chmc->wcost += IC_HIT_L2;
-						current_chmc->bcost += IC_HIT_L2;
-					}
+				  if ( lp_level >= 0 ) {
+            if(loop_level_arr[lp_level] == FIRST_ITERATION)
+            {
+              current_chmc->wcost += IC_MISS_L2;
+              current_chmc->bcost += IC_MISS_L2;
+            }
+            else if(loop_level_arr[lp_level] == NEXT_ITERATION)
+            {
+              current_chmc->wcost += IC_HIT_L2;
+              current_chmc->bcost += IC_HIT_L2;
+            }
+				  }
 				}
 				
 				else if(current_chmc->hitmiss_addr[ n ] == ALWAYS_MISS)
@@ -2450,16 +2454,18 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 
 				else if(current_chmc->hitmiss_addr[ n ] == FIRST_MISS)
 				{
-					if(loop_level_arr[lp_level] == FIRST_ITERATION)
-					{
-						current_chmc->wcost += IC_MISS_L2;
-						current_chmc->bcost += IC_HIT;
-					}
-					else if(loop_level_arr[lp_level] == NEXT_ITERATION)
-					{
-						current_chmc->wcost += IC_HIT;
-						current_chmc->bcost += IC_HIT_L2;
-					}
+				  if ( lp_level >= 0 ) {
+            if(loop_level_arr[lp_level] == FIRST_ITERATION)
+            {
+              current_chmc->wcost += IC_MISS_L2;
+              current_chmc->bcost += IC_HIT;
+            }
+            else if(loop_level_arr[lp_level] == NEXT_ITERATION)
+            {
+              current_chmc->wcost += IC_HIT;
+              current_chmc->bcost += IC_HIT_L2;
+            }
+				  }
 				}
 
 				else if(current_chmc->hitmiss_addr[ n ] == ALWAYS_MISS)
