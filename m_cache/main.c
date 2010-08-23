@@ -111,14 +111,18 @@ int main(int argc, char **argv )
 
   times_iteration = 0;
 
+  /* TODO: All of the following should be covered by a new
+           input format for the input files. */
   /* sudiptac :: Reset debugging mode */
   g_testing_mode = 0;
   /* Compute with shared bus */
   g_shared_bus = 1;
   /* For independent tasks running on multiple cores */
-  g_independent_task = 1;
+  g_independent_task = 0;
   /* For no bus modelling */
   g_no_bus_modeling = 0;
+  /* For private L2 cache analysis */
+  g_private = 0;
 
   /* also read conflict info and tasks info */
   interferePathName = argv[1];
@@ -156,14 +160,6 @@ int main(int argc, char **argv )
       assert( 0 && "Unknown analysis method!" );
   }
 
-  /* For private L2 cache analysis */		  
-  // TODO: This should be covered by a new input format for the input files
-  if(argc > 7) {
-    g_private = atoi(argv[7]);  
-  } else {
-    g_private = 0;
-  }
-
   /* sudiptac :: Allocate the earliest/latest start time structure for
    * all the cores */
   CALLOC( earliest_core_time, ull *, num_core, sizeof(ull), "earliest_core_time" );
@@ -186,7 +182,7 @@ int main(int argc, char **argv )
   /* Monitor time from this point */
   STARTTIME;
 
-  /* Start reading the interference file and build the intereference 
+  /* Start reading the interference file and build the interference
    * information */
   /* TODO: The input files for Chronos are relatively complicated to read and at
    *       the moment the bus analysis and the wcrt computation use different input
@@ -297,11 +293,6 @@ int main(int argc, char **argv )
         alignmentLAType, alignmentTryStructural, offsetDataType );
     end = getticks();
 
-    /* FIXME: What's this function doing here ? */ 	  
-    /* If private L2 cache analysis .... no update of interference */	  
-    if(!g_private)
-      resetHitMiss_L2(currentMSC);
-
     /* Initializing conflicting information */
     for(n = 0; n < cache_L2.ns; n++) {
       numConflictMSC[n] = 0;
@@ -383,9 +374,6 @@ int main(int argc, char **argv )
         /* Compute WCET and BCET of each task. */
         analysis( msc[i], tdma_bus_schedule_file, current_analysis_method,
             alignmentLAType, alignmentTryStructural, offsetDataType );
-
-        /* FIXME: What's this function doing here ? */
-        resetHitMiss_L2(msc[i]);
       }
 
       /* Iteration increased */
@@ -607,8 +595,8 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
     CALLOC_IF_NULL(msc[msc_index]->interferInfo[i], int*,
         num_task * sizeof(int), "interferInfo");
 
-    /* Set the intereference info of task "i" i.e. all ("j" < num_task)
-     * are set to "1" if task "i" interefere with "j" in this msc in the
+    /* Set the interference info of task "i" i.e. all ("j" < num_task)
+     * are set to "1" if task "i" interferes with "j" in this msc in the
      * timeline */
     int j;
     for(j = 0; j < num_task; j++) {
