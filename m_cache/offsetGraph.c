@@ -1,5 +1,6 @@
 // Include standard library headers
 #include <assert.h>
+#include <limits.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -25,6 +26,11 @@
 // ############################################################
 
 
+/* IDs of the built-in nodes. */
+#define SUPERSINK_ID ( UINT_MAX - 10U )
+#define SUPERSOURCE_ID ( UINT_MAX - 9U )
+#define UNKOWN_OFFSET_NODE_ID ( UINT_MAX - 8U )
+
 /* Indicates which type of timing analysis to perform. */
 enum ILPComputationType {
   ILP_COMP_TYPE_BCET,    /* An ILP for determining the final BCET of the loop. */
@@ -45,7 +51,7 @@ enum ILPSolver {
 
 
 // Whether to keep the temporary files generated during the analysis
-static _Bool keepTemporaryFiles = 0;
+static _Bool keepTemporaryFiles = 1;
 
 /* The ILP solver to use. */
 static enum ILPSolver ilpSolver = ILP_CPLEX;
@@ -145,6 +151,78 @@ static inline uint getOffsetGraphEdgeRuntime( const offset_graph *og,
 }
 
 
+/* Writes out a flow conservation constraint for the given node the the given file. */
+static void writeFlowConservationConstraint( FILE * const f,
+    const offset_graph * const og, const offset_graph_node * const node,
+    const uint num_time_steps )
+{
+  uint j, k;
+
+  // Skip empty restrictions
+  if ( node->num_incoming_edges == 0 &&
+       node->num_outgoing_edges == 0 ) {
+    return;
+  }
+
+  // Write comment
+  fprintf( f, "  \\ Node %u: incoming edges from ", node->offset );
+  if ( node->num_incoming_edges == 0 ) {
+    fprintf( f, "nowhere" );
+  } else {
+    for ( k = 0; k < node->num_incoming_edges; k++ ) {
+      fprintf( f, "%u", og->edges[node->incoming_edges[k]].start->offset );
+      if ( k != node->num_incoming_edges - 1 ) {
+        fprintf( f, ", " );
+      }
+    }
+  }
+  fprintf( f, " - outgoing edges to " );
+  if ( node->num_outgoing_edges == 0 ) {
+    fprintf( f, "nowhere" );
+  } else {
+    for ( k = 0; k < node->num_outgoing_edges; k++ ) {
+      fprintf( f, "%u", og->edges[node->outgoing_edges[k]].end->offset );
+      if ( k != node->num_outgoing_edges - 1 ) {
+        fprintf( f, ", " );
+      }
+    }
+  }
+  fprintf( f, "\n" );
+
+  // Write conservation constraints (1 per time instant)
+  for ( j = 0; j < num_time_steps; j++ ) {
+    fprintf( f, "  " );
+    /* The flow that enters the edges at 'j - runtime(edge)'
+     * arrives at our current node at time 'j' ... */
+    _Bool firstTerm = 1;
+    for ( k = 0; k < node->num_incoming_edges; k++ ) {
+      const offset_graph_edge * const edge = &og->edges[node->incoming_edges[k]];
+      const uint runtime = getOffsetGraphEdgeRuntime( og, edge );
+
+      if ( j >= runtime ) {
+        if ( !firstTerm ) {
+          fprintf( f, " + " );
+        } else {
+          firstTerm = 0;
+        }
+        fprintILPEdgeName( f, edge, j - runtime );
+      }
+    }
+
+    /* ... minus the flow which leaves the node .... */
+    for ( k = 0; k < node->num_outgoing_edges; k++ ) {
+      const offset_graph_edge * const edge = &og->edges[node->outgoing_edges[k]];
+
+      fprintf( f, " - " );
+      fprintILPEdgeName( f, edge, j );
+    }
+
+    /* ... must be zero to conserve the flow (no buffering). */
+    fprintf( f, " = 0\n" );
+  }
+}
+
+
 /* Writes the ILP in CPLEX format. */
 static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
     enum ILPComputationType computation_type )
@@ -161,6 +239,10 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
    *   latter in the ILP for clarification.
    */
 
+  /* Helper variables. */
+  uint i, j, k;
+  _Bool firstTerm = 1;
+
   const offset_graph_node * const suso = &( og->supersource );
   const offset_graph_node * const susi = &( og->supersink );
 
@@ -168,9 +250,6 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
    * transition from the supersource and one for the transition to
    * the supersink. */
   const uint num_time_steps = loopbound + 2;
-
-  uint i, j, k;
-  _Bool firstTerm = 1;
 
   /* Write objective function. */
   switch ( computation_type ) {
@@ -224,6 +303,9 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
         if ( i != 0 ) {
           fprintf( f, " + " );
         }
+        if ( edge->start->offset == UNKOWN_OFFSET_NODE_ID ) {
+          fprintf( f, "%u ", og->num_nodes );
+        }
         fprintILPXActive( f, edge );
       }
 
@@ -253,71 +335,10 @@ static void writeCPLEXILP( FILE *f, const offset_graph *og, uint loopbound,
   fprintf( f, "  \\ Flow conservation constraints\n" );
   for ( i = 0; i < og->num_nodes; i++ ) {
     offset_graph_node * const node = &og->nodes[i];
-
-    // Skip empty restrictions
-    if ( node->num_incoming_edges == 0 &&
-         node->num_outgoing_edges == 0 ) {
-      continue;
-    }
-
-    // Write comment
-    fprintf( f, "  \\ Node %u: incoming edges from ", node->offset );
-    if ( node->num_incoming_edges == 0 ) {
-      fprintf( f, "nowhere" );
-    } else {
-      for ( k = 0; k < node->num_incoming_edges; k++ ) {
-        fprintf( f, "%u", og->edges[node->incoming_edges[k]].start->offset );
-        if ( k != node->num_incoming_edges - 1 ) {
-          fprintf( f, ", " );
-        }
-      }
-    }
-    fprintf( f, " - outgoing edges to " );
-    if ( node->num_outgoing_edges == 0 ) {
-      fprintf( f, "nowhere" );
-    } else {
-      for ( k = 0; k < node->num_outgoing_edges; k++ ) {
-        fprintf( f, "%u", og->edges[node->outgoing_edges[k]].end->offset );
-        if ( k != node->num_outgoing_edges - 1 ) {
-          fprintf( f, ", " );
-        }
-      }
-    }
-    fprintf( f, "\n" );
-
-    // Write conservation constraints (1 per time instant)
-    for ( j = 0; j < num_time_steps; j++ ) {
-      fprintf( f, "  " );
-      /* The flow that enters the edges at 'j - runtime(edge)'
-       * arrives at our current node at time 'j' ... */
-      firstTerm = 1;
-      for ( k = 0; k < node->num_incoming_edges; k++ ) {
-        const offset_graph_edge * const edge = &og->edges[node->incoming_edges[k]];
-        const uint runtime = getOffsetGraphEdgeRuntime( og, edge );
-
-        if ( j >= runtime ) {
-          if ( !firstTerm ) {
-            fprintf( f, " + " );
-          } else {
-            firstTerm = 0;
-          }
-          fprintILPEdgeName( f, edge, j - runtime );
-        }
-      }
-
-      /* ... minus the flow which leaves the node .... */
-      for ( k = 0; k < node->num_outgoing_edges; k++ ) {
-        const offset_graph_edge * const edge = &og->edges[node->outgoing_edges[k]];
-
-        fprintf( f, " - " );
-        fprintILPEdgeName( f, edge, j );
-      }
-
-      /* ... must be zero to conserve the flow (no buffering). */
-      fprintf( f, " = 0\n" );
-    }
+    writeFlowConservationConstraint( f, og, node, num_time_steps );
   }
-
+  writeFlowConservationConstraint( f, og, &og->unknown_offset_node,
+                                   num_time_steps );
 
   /* The number of flow units in transit. */
   const uint flow_units = ( computation_type == ILP_COMP_TYPE_OFFSETS
@@ -770,12 +791,17 @@ static offset_data solveOffset_ILP( const offset_graph *og, const char *ilp_file
 
         // Update the result object with the new offset
         if ( !foundAnyOffset ) {
-          result = createOffsetDataFromOffsetBounds( offsetType,
-                     active_offset, active_offset );
+          if ( active_offset != UNKOWN_OFFSET_NODE_ID ) {
+            result = createOffsetDataFromOffsetBounds( offsetType,
+                       active_offset, active_offset );
+          } else {
+            setOffsetDataMaximal( &result );
+          }
           foundAnyOffset = TRUE;
         } else {
+          assert( active_offset != UNKOWN_OFFSET_NODE_ID && "Invalid result!" );
           updateOffsetData( &result, &result, active_offset,
-                            active_offset, TRUE );
+                              active_offset, TRUE );
         }
       }
     }
@@ -811,8 +837,9 @@ offset_graph *createOffsetGraph( uint number_of_nodes )
   offset_graph *result;
   CALLOC( result, offset_graph*, 1, sizeof( offset_graph ), "result" );
 
-  result->supersource.offset = 4000000;
-  result->supersink.offset = 3000000;
+  result->supersource.offset = SUPERSOURCE_ID;
+  result->supersink.offset = SUPERSINK_ID;
+  result->unknown_offset_node.offset = UNKOWN_OFFSET_NODE_ID;
 
   // Create the nodes
   CALLOC( result->nodes, offset_graph_node*, number_of_nodes, 
@@ -926,6 +953,7 @@ void dumpOffsetGraph( const offset_graph *og, FILE *out )
   fprintf( out, "Nodes: \n" );
   dumpOffsetGraphNode( og, &og->supersource, out );
   dumpOffsetGraphNode( og, &og->supersink, out );
+  dumpOffsetGraphNode( og, &og->unknown_offset_node, out );
   for ( i = 0; i < og->num_nodes; i++ ) {
     const offset_graph_node * const node = &og->nodes[i];
     dumpOffsetGraphNode( og, node, out );
@@ -1020,6 +1048,13 @@ void freeOffsetGraph( offset_graph *og )
   og->edges = NULL;
 
   // Free the nodes
+  free( og->supersource.incoming_edges );
+  free( og->supersource.outgoing_edges );
+  free( og->supersink.incoming_edges );
+  free( og->supersink.outgoing_edges );
+  free( og->unknown_offset_node.incoming_edges );
+  free( og->unknown_offset_node.outgoing_edges );
+
   uint i;
   for ( i = 0; i < og->num_nodes; i++ ) {
     const offset_graph_node * const node = &og->nodes[i];

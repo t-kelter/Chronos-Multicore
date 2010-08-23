@@ -63,6 +63,11 @@ struct og {
   uint num_edges;
   offset_graph_node supersource;
   offset_graph_node supersink;
+
+  /* Represents a loop execution with unknown offset. This can speed up
+   * the ILP computation, because the graph has much fewer edges when
+   * this node is used. */
+  offset_graph_node unknown_offset_node;
 };
 
 // ######### Function declarations  ###########

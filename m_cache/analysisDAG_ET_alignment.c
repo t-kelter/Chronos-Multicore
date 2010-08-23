@@ -998,9 +998,13 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
   // Create the offset graph with edges from the supersource to all initial offsets
   offset_graph *graph = createOffsetGraph( tdma_interval );
   uint i;
-  ITERATE_OFFSETS( result.offsets, i,
-    addOffsetGraphEdge( graph, &graph->supersource, getOffsetGraphNode( graph, i ), 0, 0 );
-  );
+  if ( isOffsetDataMaximal( &result.offsets ) ) {
+    addOffsetGraphEdge( graph, &graph->supersource, &graph->unknown_offset_node, 0, 0 );
+  } else {
+    ITERATE_OFFSETS( result.offsets, i,
+      addOffsetGraphEdge( graph, &graph->supersource, getOffsetGraphNode( graph, i ), 0, 0 );
+    );
+  }
   DOUT( "Created initial offset graph with %u nodes\n", tdma_interval );
 
   _Bool graphChanged = 0;             // Whether we changed any graph part in the current iteration
@@ -1055,13 +1059,19 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
     graphChanged = 0;
 
     // 'j' is the starting offset
+    const _Bool source_is_imprecise = isOffsetDataMaximal( &current_offsets );
+    const _Bool target_is_imprecise = isOffsetDataMaximal( &iteration_result.offsets );
     ITERATE_OFFSETS( current_offsets, j,
-      offset_graph_node * const start = getOffsetGraphNode( graph, j );
+      offset_graph_node * const start = ( source_is_imprecise ?
+                                          &graph->unknown_offset_node :
+                                          getOffsetGraphNode( graph, j ) );
 
       // Add the missing edges
       // 'k' indexes the target offset
       ITERATE_OFFSETS( iteration_result.offsets, k,
-        offset_graph_node * const end = getOffsetGraphNode( graph, k );
+        offset_graph_node * const end = ( target_is_imprecise ?
+                                          &graph->unknown_offset_node :
+                                          getOffsetGraphNode( graph, k ) );
         offset_graph_edge * const edge = getOffsetGraphEdge( graph, start, end );
 
         if ( edge == NULL ) {
@@ -1081,7 +1091,15 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
             graphChanged = 1;
           }
         }
+
+        if ( target_is_imprecise ) {
+          break;
+        }
       );
+
+      if ( source_is_imprecise ) {
+        break;
+      }
     );
 
     // Update iteration number
@@ -1102,6 +1120,7 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
   for ( i = 0; i < tdma_interval; i++ ) {
     addOffsetGraphEdge( graph, getOffsetGraphNode( graph, i ), &graph->supersink, 0, 0 );
   }
+  addOffsetGraphEdge( graph, &graph->unknown_offset_node, &graph->supersink, 0, 0 );
 
   // TODO: Use some new heuristic to determine when not to use the
   //       graph-tracking because of its high complexity
