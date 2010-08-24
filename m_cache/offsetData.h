@@ -171,7 +171,8 @@ _Bool isOffsetDataSingleValue( const offset_data * const d,
 
 /* Returns whether the given offset data represents a range value.
  * For offset range representations this is always true, for sets
- * it may be true.
+ * it may be true. Empty offset data objects are not considered to
+ * be range values.
  *
  * If TRUE is returned, then the offset range is written into
  * '*rangeValue' is 'rangeValue' is not NULL:

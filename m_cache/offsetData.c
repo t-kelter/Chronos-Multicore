@@ -553,7 +553,8 @@ _Bool isOffsetDataSingleValue( const offset_data * const d,
 
 /* Returns whether the given offset data represents a range value.
  * For offset range representations this is always true, for sets
- * it may be true.
+ * it may be true. Empty offset data objects are not considered to
+ * be range values.
  *
  * If TRUE is returned, then the offset range is written into
  * '*rangeValue' is 'rangeValue' is not NULL:
@@ -596,10 +597,22 @@ _Bool isOffsetDataRangeValue( const offset_data * const d,
       }
     }
 
-    if ( rangeValue ) {
-      *rangeValue = result;
+    // Offset set may be empty
+    if ( !foundFirstOffset ) {
+      return FALSE;
+    } else {
+      // If the set represents a range [x, max_offset], then
+      // we must detect this here, because the loop will not
+      // do so.
+      if ( !foundLastOffset ) {
+        result.upper_bound = MAXIMUM_OFFSET;
+      }
+
+      if ( rangeValue ) {
+        *rangeValue = result;
+      }
+      return TRUE;
     }
-    return TRUE;
   } else {
     assert( 0 && "Unsupported offset data type!" );
     return FALSE;
