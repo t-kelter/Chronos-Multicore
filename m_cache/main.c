@@ -198,6 +198,7 @@ int main(int argc, char **argv )
       CALLOC(msc, MSC**, 1, sizeof(MSC*), "MSC*");
     } else {
       REALLOC(msc, MSC**, (num_msc + 1) * sizeof(MSC*), "MSC*");
+      msc[num_msc] = NULL;
     }
     num_msc++;
 
