@@ -96,17 +96,14 @@ core_sched_p getCoreSchedule( uint core_index, ull time )
 /* Set core specific TDMA bus schedule data in a segment */
 static void set_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
 {
+  assert(head_core);
+
 	int i;	  
 	int delimiter;
 
-	assert(head_core);
-
-	for(i = 0; i < ncore; i++)
-	{
-		 head_core[i] = (core_sched_p)malloc(sizeof(core_sched_s));
-		 if(!head_core[i])
-			prerr("Error: Out of memory");
-		 memset(head_core[i], 0, sizeof(core_sched_s));
+	for(i = 0; i < ncore; i++) {
+		 CALLOC( head_core[i], core_sched_p, 1, sizeof(core_sched_s),
+             "head_core[i]" );
 		 fscanf(fp, "%Lu", &(head_core[i]->start_time));
 		 fscanf(fp, "%u", &(head_core[i]->interval));
 		 fscanf(fp, "%u", &(head_core[i]->slot_len));
@@ -116,17 +113,30 @@ static void set_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
 	}
 }
 
+
+static void freeScheduleData( sched_p schedule )
+{
+  uint i;
+  for( i = 0; i < schedule->n_segments; i++ ) {
+    segment_p const seg = schedule->seg_list[i];
+
+    uint j;
+    for ( j = 0; j < schedule->n_cores; j++ ) {
+      free( seg->per_core_sched[j] );
+    }
+    free( seg->per_core_sched );
+    free( seg );
+  }
+  free( schedule->seg_list );
+  free( schedule );
+}
+
+
 void setSchedule(const char* sched_file)
 {
   DSTART( "setSchedule" );
 
-	FILE* fp;
-	uint getdata;
-	uint ncore;
-	uint n_segs, cur_seg = 0;
-	segment_p seg;
-
-	fp = fopen(sched_file, "r");
+	FILE * const fp = fopen(sched_file, "r");
   if (fp == NULL) {
     fprintf(stderr, "Failed to open file: %s (busSchedule.c:108)\n", sched_file);
     exit (1);
@@ -145,59 +155,51 @@ void setSchedule(const char* sched_file)
 	/* (Schedule for different cores are separated by a "-1" number)					*/
 	/******************************************************************************/
 
-	global_sched_data = (sched_p)malloc(sizeof(sched_s));
-	if(!global_sched_data)
-		prerr("Error: Out of memory");
-	memset(global_sched_data, 0, sizeof(sched_s));	
+  if ( global_sched_data ) {
+    freeScheduleData( global_sched_data );
+  }
+  CALLOC( global_sched_data, sched_p, 1, sizeof(sched_s), "global_schedule_data" );
 
 	/* Read the type of the schedule */
+  uint getdata;
 	fscanf(fp, "%u", &getdata);
 	global_sched_data->type = getdata;
 	
 	/* Set the number of segments in the schedule. If it is type 0
 	 * schedule then number of segment is 1 , otherwise read the 
 	 * number of segments from the TDMA schedule file */
-	if(getdata == 0)
-	{ 
+  uint n_segs;
+	if(getdata == 0) {
 	  n_segs = 1;	  
-	  global_sched_data->n_segments = 1;	  
-	}  
-	else
-	{
+	} else {
 	  fscanf(fp, "%u", &n_segs);
-	  global_sched_data->n_segments = n_segs; 	  
-	}  
+	}
+  global_sched_data->n_segments = n_segs;
 	/* Now allocate data for all segments in the schedule here */
-	global_sched_data->seg_list = (segment_p *)malloc(n_segs * sizeof(segment_p));
-	if(!(global_sched_data->seg_list))
-		prerr("Error: Out of memory");  
-	memset(global_sched_data->seg_list, 0, n_segs * sizeof(segment_p));
+	CALLOC( global_sched_data->seg_list, segment_p*, n_segs, sizeof(segment_p),
+	        "global_sched_data->seg_list" );
 
 	/* Read total number of cores */
+  uint ncore;
 	fscanf(fp, "%u", &ncore);
 	global_sched_data->n_cores = ncore;
 
 	/* Now here read all information about different segments and core
     * specific schedule */
-	while(1)
-	{
+	uint cur_seg = 0;
+	while(1) {
 		 /* Allocate a segment */ 
-		 seg = (segment_p)malloc(sizeof(segment_s)); 
-		 if(!seg)
-			prerr("Error: Out of memory");
-		 memset(seg, 0, sizeof(segment_s));	
+		 segment_p seg;
+		 CALLOC( seg, segment_p, 1, sizeof(segment_s), "seg" );
 		 global_sched_data->seg_list[cur_seg++] = seg;
-		 if(n_segs > 1)
-		 {
+		 if(n_segs > 1) {
 			 /* Now read the start time and end time of the segment */
 			 fscanf(fp, "%Lu", &(seg->seg_start));
 			 fscanf(fp, "%Lu", &(seg->seg_end));
 		 } 		
 		 /* Allocate the memory for core specific data */
-		 seg->per_core_sched = (core_sched_p *)malloc(ncore * sizeof(core_sched_p));
-		 if(!(seg->per_core_sched))
-			 prerr("Error: Out of memory");
-		 memset(seg->per_core_sched, 0, ncore * sizeof(core_sched_p));
+		 CALLOC( seg->per_core_sched, core_sched_p*, ncore,
+             sizeof(core_sched_p), "seg->per_core_sched" );
 		 set_core_specific_data(seg->per_core_sched, ncore, fp);
 
 		 /* Traversal of all segments done. Terminate the loop */
