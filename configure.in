@@ -10,30 +10,6 @@ chronos_path=$(pwd)
 AC_SUBST(chronos_path)
 AC_DEFINE_UNQUOTED([chronos_path], ["$chronos_path"], [Define to the path where Chronos is built.])
 
-# Enabling Debug mode
-AC_ARG_ENABLE(debug,
-        AC_HELP_STRING([--enable-debug],
-               [enable debug mode (default=yes)]),
-                ac_cv_debug="$enableval", ac_cv_debug=yes)
-
-if test "$ac_cv_debug" = yes; then
-  AC_DEFINE(DEBUGMACROS, 1, [Define to 1 if you want to enable debugmacros.])
-  ac_cv_debugmacros=yes
-else
-  ac_cv_debugmacros=no
-fi
-
-AM_CONDITIONAL([DEBUGMACROS], [test $ac_cv_debugmacros = yes])
-
-# Prefix to debug configuration
-AC_ARG_WITH(debugmacro-configuration,
-        AC_HELP_STRING([--with-debugmacro-configuration=PATH],
-               [Prefix where the debug macro configuration files reside (default=${srcdir}/debugmacros/)]),
-                debugmacro_prefix="$withval", debugmacro_prefix="${chronos_path}/debugmacros")
-debugmacro_prefix+="/"
-
-AC_DEFINE_UNQUOTED([DEBUGMACRO_CONF], ["$debugmacro_prefix"], [Defines the path to the debug conf files.])
-
 
 ##### Check external dependencies (User supplied) ##### 
 
@@ -160,6 +136,32 @@ fi
 # Set common flags
 CFLAGS+=" -Wall -std=c99 -m32"
 CXXFLAGS+=" -Wall -m32"
+
+# Enabling Debug mode
+AC_ARG_ENABLE(debug,
+        AC_HELP_STRING([--enable-debug],
+               [enable debug mode (default=yes)]),
+                ac_cv_debug="$enableval", ac_cv_debug=yes)
+
+if test "$ac_cv_debug" = yes; then
+  AC_DEFINE(DEBUGMACROS, 1, [Define to 1 if you want to enable debugmacros.])
+  ac_cv_debugmacros=yes
+else
+  ac_cv_debugmacros=no
+  CFLAGS+=" -DNDEBUG"
+  CXXFLAGS+=" -DNDEBUG"
+fi
+
+AM_CONDITIONAL([DEBUGMACROS], [test $ac_cv_debugmacros = yes])
+
+# Prefix to debug configuration
+AC_ARG_WITH(debugmacro-configuration,
+        AC_HELP_STRING([--with-debugmacro-configuration=PATH],
+               [Prefix where the debug macro configuration files reside (default=${srcdir}/debugmacros/)]),
+                debugmacro_prefix="$withval", debugmacro_prefix="${chronos_path}/debugmacros")
+debugmacro_prefix+="/"
+
+AC_DEFINE_UNQUOTED([DEBUGMACRO_CONF], ["$debugmacro_prefix"], [Defines the path to the debug conf files.])
 
 # Specify which Makefiles to construct
 AC_CONFIG_FILES([
