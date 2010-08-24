@@ -775,7 +775,7 @@ copyCacheState(cache_state *cs)
 
 	for(j = 0; j < cache.ns; j++)
 	{
-			CALLOC(copy->must[j], cache_line_way_t**, cache.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
+     CALLOC(copy->must[j], cache_line_way_t**, cache.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 		 CALLOC(copy->may[j], cache_line_way_t**, cache.na, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 		 CALLOC(copy->persist[j], cache_line_way_t**, cache.na + 1, sizeof(cache_line_way_t*), "NO assoc cache_line_way_t");
 
@@ -1436,13 +1436,10 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 
 	procedure *p = proc;
 	block *bb, *incoming_bb;
-	cache_state *cs_ptr;
 	cache_line_way_t **clw;
 	CHMC *current_chmc;
 
-	cs_ptr = copyCacheState(cs);
-	//freeCacheState(cs);
-	//cs = NULL;
+	cache_state *cs_ptr = copyCacheState(cs);
 	
 	int  num_blk = p->num_topo;	
 
@@ -1967,14 +1964,12 @@ cacheAnalysis()
 		loop_level_arr[i] = INVALID;
 
 	//set initial cache state for main precedure
-	cache_state *start_CS;
-	//CALLOC(start, cache_state*, 1, sizeof(cache_state), "cache_state");
-	start_CS = allocCacheState();
-
-	start_CS = mapFunctionCall(main_copy, start_CS);
+	cache_state *start_CS = allocCacheState();
+	cache_state *final_CS = mapFunctionCall(main_copy, start_CS);
+	freeCacheState( start_CS );
 
 	DOUT("\nThis the Cache State for main\n");
-	DACTION( dumpCacheState(start_CS); );
+	DACTION( dumpCacheState( final_CS ); );
 
 	DEND();
 }
@@ -2176,37 +2171,32 @@ freeCacheState(cache_state *cs)
 {
 	int i, j;
 	
-	for(i = 0; i < cache.ns; i++ )
-	{
-		for(j = 0; j < cache.na; j++)
-		{
-			if(cs->must[i][j]->num_entry)
+	for(i = 0; i < cache.ns; i++ ) {
+		for(j = 0; j < cache.na; j++) {
+			if(cs->must[i][j]->entry != NULL)
 				free(cs->must[i][j]->entry);
 
-			if(cs->may[i][j]->num_entry)
+			if(cs->may[i][j]->entry != NULL)
 				free(cs->may[i][j]->entry);
 
-			if(cs->persist[i][j]->num_entry)
+			if(cs->persist[i][j]->entry != NULL)
 				free(cs->persist[i][j]->entry);
 
 			free(cs->must[i][j]);
 			free(cs->may[i][j]);
 			free(cs->persist[i][j]);
-	
 		}
 
-		if(cs->persist[i][cache.na]->num_entry)
+		if(cs->persist[i][cache.na]->entry != NULL)
 			free(cs->persist[i][cache.na]->entry);
 
 		free(cs->persist[i][cache.na]);
-	}
 		
-	for(i = 0; i < cache.ns; i++ )
-	{
 		free(cs->must[i]);
 		free(cs->may[i]);
 		free(cs->persist[i]);
 	}
+
 	free(cs->must);
 	free(cs->may);
 	free(cs->persist);

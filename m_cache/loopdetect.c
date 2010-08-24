@@ -411,6 +411,7 @@ static int read_loop_annotation()
           i, loopbounds_read[i], procs[i]->num_loops );
     }
   }
+  free( loopbounds_read );
 
   return 0;
 }
