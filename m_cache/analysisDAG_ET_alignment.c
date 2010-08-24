@@ -556,8 +556,10 @@ static combined_result analyze_block( const block * const bb,
 
       instr * const inst = bb->instrlist[i];
       assert( inst && "Missing instruction!" );
-
-      // TODO: Assert, that the fixed offset is on the current offset range
+      assert( ( !useFixedBCOffset || doesOffsetDataContainOffset(
+          &result.offsets, fixedBCOffset ) ) && "Invalid fixed offset!" );
+      assert( ( !useFixedWCOffset || doesOffsetDataContainOffset(
+          &result.offsets, fixedWCOffset ) ) && "Invalid fixed offset!" );
       assert( !isOffsetDataEmpty( &result.offsets ) && "Invalid offset information!" );
 
       /* Backup BCET/ WCET results at the beginning of each new instruction. */

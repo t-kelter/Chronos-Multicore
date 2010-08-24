@@ -180,6 +180,10 @@ _Bool isOffsetDataSingleValue( const offset_data * const d,
 _Bool isOffsetDataRangeValue( const offset_data * const d,
     tdma_offset_bounds * const rangeValue );
 
+/* Returns whether 'd' contains 'offset'. */
+_Bool doesOffsetDataContainOffset( const offset_data * const d,
+    const uint offset );
+
 /* Returns the minimum offset which is included in the given data object.
  * If there is no minimum, because the offset object is empty, then this
  * functions throws an assertion. */

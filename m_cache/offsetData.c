@@ -620,6 +620,26 @@ _Bool isOffsetDataRangeValue( const offset_data * const d,
 }
 
 
+/* Returns whether 'd' contains 'offset'. */
+_Bool doesOffsetDataContainOffset( const offset_data * const d,
+    const uint offset )
+{
+  assert( d && isOffsetDataValid( d ) && "Invalid arguments!" );
+
+  if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
+    const tdma_offset_bounds * const b = &d->content.offset_range;
+    return offset >= b->lower_bound &&
+           offset <= b->upper_bound;
+  } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
+    const tdma_offset_set * const s = &d->content.offset_set;
+    return s->offsets[offset];
+  } else {
+    assert( 0 && "Unsupported offset data type!" );
+    return 0; // To make compiler happy
+  }
+}
+
+
 /* Returns the minimum offset which is included in the given data object.
  * If there is no minimum, because the offset object is empty, then this
  * functions throws an assertion. */
