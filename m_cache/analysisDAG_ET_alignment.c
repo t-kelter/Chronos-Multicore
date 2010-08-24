@@ -187,7 +187,7 @@ static void freeResultBuffers( const task_t * const task )
 
     FREE_TDMA_GRID( proc_results[i] );
 
-    const int maxLoopContext = getMaximumLoopContext( proc );
+    const int maxLoopContext = getMaximumLoopContext( proc ) + 1;
 
     for ( j = 0; j < proc->num_bb; j++ ) {
       for ( k = 0; k < maxLoopContext; k++ ) {
@@ -500,7 +500,11 @@ static combined_result analyze_block( const block * const bb,
     if ( isOffsetDataRangeValue( &start_offsets, &range ) ) {
       bufferLocation = &block_results[proc->pid][bb->bbid]
         [loop_context][range.lower_bound][range.upper_bound];
+    } else {
+      bufferLocation = NULL;
     }
+  } else {
+    bufferLocation = NULL;
   }
   if ( bufferLocation != NULL && *bufferLocation != NULL ) {
     DRETURN( **bufferLocation );
@@ -741,20 +745,25 @@ static combined_result analyze_block( const block * const bb,
 
   /* Insert result into result buffer. */
   if ( bufferLocation != NULL ) {
-    MALLOC( *bufferLocation, combined_result*,
-        sizeof( combined_result ), "*bufferLocation" );
+    /* This function will be entered twice for loop headers, one time from the outside
+     * and one time from inside the loop. Therefore the buffer will have been filled
+     * during the loop header analysis which comes from the outside.
+     */
+    const _Bool nested_loopheader = ( inlp && cur_lp != inlp );
+    if ( nested_loopheader ) {
+      assert( *bufferLocation != NULL &&
+          "Nested loop header information should have been computed!" );
+    } else {
+      assert( *bufferLocation == NULL &&  "Tried to overwrite buffered result!" );
+      MALLOC( *bufferLocation, combined_result*,
+          sizeof( combined_result ), "*bufferLocation" );
+    }
     **bufferLocation = result;
   }
 
   DACTION(
-    char block_name[10];
-    if ( bb->loopid >= 0 ) {
-      sprintf( block_name, "%u.%u.%u", bb->pid, bb->loopid, bb->bbid );
-    } else {
-      sprintf( block_name, "%u.%u", bb->pid, bb->bbid );
-    }
-    DOUT( "Accounting BCET %llu, WCET %llu for block %s 0x%s - 0x%s\n",
-      result.bcet, result.wcet, block_name,
+    DOUT( "Accounting BCET %llu, WCET %llu for block %u.%u 0x%s - 0x%s\n",
+      result.bcet, result.wcet, bb->pid, bb->bbid,
         bb->num_instr > 0 ? bb->instrlist[0]->addr                 : "0x0",
         bb->num_instr > 0 ? bb->instrlist[bb->num_instr - 1]->addr : "0x0" );
   );
@@ -783,7 +792,11 @@ static combined_result analyze_single_loop_iteration( const loop * const lp,
     if ( isOffsetDataRangeValue( &start_offsets, &range ) ) {
       bufferLocation = &loop_results[proc->pid][lp->lpid]
         [loop_context][range.lower_bound][range.upper_bound];
+    } else {
+      bufferLocation = NULL;
     }
+  } else {
+    bufferLocation = NULL;
   }
   if ( bufferLocation != NULL && *bufferLocation != NULL ) {
     DRETURN( **bufferLocation );
@@ -822,6 +835,7 @@ static combined_result analyze_single_loop_iteration( const loop * const lp,
 
   /* Insert result into result buffer. */
   if ( bufferLocation != NULL ) {
+    assert( *bufferLocation == NULL && "Tried to overwrite buffered result!" );
     MALLOC( *bufferLocation, combined_result*,
         sizeof( combined_result ), "*bufferLocation" );
     **bufferLocation = result;
@@ -1255,7 +1269,11 @@ static combined_result analyze_proc_alignment_aware( const procedure * const pro
     if ( isOffsetDataRangeValue( &start_offsets, &range ) ) {
       bufferLocation = &proc_results[proc->pid]
         [range.lower_bound][range.upper_bound];
+    } else {
+      bufferLocation = NULL;
     }
+  } else {
+    bufferLocation = NULL;
   }
   if ( bufferLocation != NULL && *bufferLocation != NULL ) {
     DRETURN( **bufferLocation );
@@ -1294,6 +1312,7 @@ static combined_result analyze_proc_alignment_aware( const procedure * const pro
 
   /* Insert result into result buffer. */
   if ( bufferLocation != NULL ) {
+    assert( *bufferLocation == NULL && "Tried to overwrite buffered result!" );
     MALLOC( *bufferLocation, combined_result*,
         sizeof( combined_result ), "*bufferLocation" );
     **bufferLocation = result;
