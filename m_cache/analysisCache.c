@@ -485,10 +485,11 @@ calculateMust(cache_line_way_t **must, int instr_addr)
 						if(j != must[i]->num_entry -1)
 							must[i]->entry[j] = must[i]->entry[must[i]->num_entry -1];
 						must[i]->num_entry --;
-						if(must[i]->num_entry == 0)
-              free(must[i]->entry);
-						else
+						if(must[i]->num_entry == 0) {
+              FREE(must[i]->entry);
+						} else {
               REALLOC(must[i]->entry, int*, must[i]->num_entry * sizeof(int), "entry");
+						}
 	 				}
 				} // end for(j)
 			}	// 	end if(i!=0)
@@ -503,7 +504,7 @@ calculateMust(cache_line_way_t **must, int instr_addr)
 	for(i = cache.na - 1; i > 0 ; i--)
 		must[i] = must[i -1];
 
-	free(tmp);
+	FREE(tmp);
 	
 	CALLOC(head, cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t");
 	CALLOC(head->entry, int*, 1, sizeof(int), "in head->entry");
@@ -545,7 +546,7 @@ calculateMay(cache_line_way_t **may, int instr_addr)
 						may[i]->num_entry --;
 						if(may[i]->num_entry == 0)
 						{
-							free(may[i]->entry);
+							FREE(may[i]->entry);
 						}
 						else
 						{
@@ -563,7 +564,7 @@ calculateMay(cache_line_way_t **may, int instr_addr)
 	
 	for(i = cache.na - 1; i > 0 ; i--)
 		may[i]  = may [i -1];		
-	free(tmp);
+	FREE(tmp);
 
 
 	CALLOC(head, cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t");
@@ -608,7 +609,7 @@ calculatePersist(cache_line_way_t **persist, int instr_addr)
 						persist[i]->num_entry --;
 						if(persist[i]->num_entry == 0)
 						{
-							free(persist[i]->entry);
+							FREE(persist[i]->entry);
 						}
 						else
 						{
@@ -626,7 +627,7 @@ calculatePersist(cache_line_way_t **persist, int instr_addr)
 	
 	for(i = cache.na; i > 0 ; i--)
 		persist[i]  = persist [i -1];		
-	free(tmp);
+	FREE(tmp);
 
 
 	CALLOC(head, cache_line_way_t *, 1, sizeof(cache_line_way_t), "cache_line_way_t");
@@ -1043,15 +1044,15 @@ mapLoop(procedure *proc, loop *lp)
 					{
 						clw = bb->bb_cache_state_result->must[k][n];
 						bb->bb_cache_state_result->must[k][n] = intersectCacheState(clw, cs_ptr->must[k][n]);
-						free(clw);
+						FREE(clw);
 
 						clw = bb->bb_cache_state_result->may[k][n];
 						bb->bb_cache_state_result->may[k][n] = unionCacheState(clw,  cs_ptr->may[k][n]);
-						free(clw);
+						FREE(clw);
 					}
 
 				p->bblist[lp->topo[0]->bbid]->num_cache_state = 0;
-				free(p->bblist[lp->topo[0]->bbid]->bb_cache_state);
+				FREE(p->bblist[lp->topo[0]->bbid]->bb_cache_state);
 				p->bblist[lp->topo[0]->bbid]->bb_cache_state = NULL;
 			*/
 			}
@@ -1409,17 +1410,17 @@ mapLoop(procedure *proc, loop *lp)
 			{
 				clw = bb->bb_cache_state_result->must[k][n];
 				bb->bb_cache_state_result->must[k][n] = intersectCacheState(clw, cs_ptr->must[k][n]);
-				free(clw);
+				FREE(clw);
 
 				clw = bb->bb_cache_state_result->may[k][n];
 				bb->bb_cache_state_result->may[k][n] = unionCacheState(clw,  cs_ptr->may[k][n]);
-				free(clw);
+				FREE(clw);
 			}
 			
-		free(cs_ptr);
+		FREE(cs_ptr);
 		cs_ptr = bb->bb_cache_state;
 		bb->bb_cache_state = bb->bb_cache_state_result;
-		free(cs_ptr);
+		FREE(cs_ptr);
 	}
 */	
 	DRETURN( NULL );
@@ -1506,7 +1507,7 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 			
       DOUT("\nThe first time go into loop\n");
 			mapLoop(p, p->loops[bb->loopid]);
-			//free(cs_ptr);
+			//FREE(cs_ptr);
 			//cs_ptr = bb->bb_cache_state;
 
 			//cs_temp = bb->bb_cache_state;
@@ -1516,8 +1517,8 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 			//get the cache state of the first iteration as the input of the second
 			loop_level_arr[lp_level +1] = NEXT_ITERATION;
 			mapLoop(p, p->loops[bb->loopid]);
-			//free(cs_temp);
-			//free(cs_ptr);
+			//FREE(cs_temp);
+			//FREE(cs_ptr);
 			//cs_ptr = copyCacheState(bb->bb_cache_state);
 
 			loop_level_arr[lp_level +1] = INVALID;
@@ -1931,7 +1932,7 @@ mapFunctionCall(procedure *proc, cache_state *cs)
 				addr = addr + INSN_SIZE;
 			}
 			
-			//free(cs_ptr);
+			//FREE(cs_ptr);
 			//cs_ptr = bb->bb_cache_state;
 			//cs_ptr = copyCacheState(bb->bb_cache_state);
 			//cs_ptr->source_bb = bb;
@@ -2156,13 +2157,13 @@ freeCacheSet(cache_line_way_t **cache_set)
 	int i;
 	for(i = 0; i < cache.na; i++)
 	{
-		if(cache_set[i]->num_entry)
-			free(cache_set[i]->entry);
-		free(cache_set[i]);
+		if(cache_set[i]->entry != NULL) {
+			FREE(cache_set[i]->entry);
+		}
+		FREE(cache_set[i]);
 	}
 
-	free(cache_set);
-
+	FREE(cache_set);
 }
 
 
@@ -2174,35 +2175,34 @@ freeCacheState(cache_state *cs)
 	for(i = 0; i < cache.ns; i++ ) {
 		for(j = 0; j < cache.na; j++) {
 			if(cs->must[i][j]->entry != NULL)
-				free(cs->must[i][j]->entry);
+				FREE(cs->must[i][j]->entry);
 
 			if(cs->may[i][j]->entry != NULL)
-				free(cs->may[i][j]->entry);
+				FREE(cs->may[i][j]->entry);
 
 			if(cs->persist[i][j]->entry != NULL)
-				free(cs->persist[i][j]->entry);
+				FREE(cs->persist[i][j]->entry);
 
-			free(cs->must[i][j]);
-			free(cs->may[i][j]);
-			free(cs->persist[i][j]);
+			FREE(cs->must[i][j]);
+			FREE(cs->may[i][j]);
+			FREE(cs->persist[i][j]);
 		}
 
 		if(cs->persist[i][cache.na]->entry != NULL)
-			free(cs->persist[i][cache.na]->entry);
+			FREE(cs->persist[i][cache.na]->entry);
 
-		free(cs->persist[i][cache.na]);
+		FREE(cs->persist[i][cache.na]);
 		
-		free(cs->must[i]);
-		free(cs->may[i]);
-		free(cs->persist[i]);
+		FREE(cs->must[i]);
+		FREE(cs->may[i]);
+		FREE(cs->persist[i]);
 	}
 
-	free(cs->must);
-	free(cs->may);
-	free(cs->persist);
+	FREE(cs->must);
+	FREE(cs->may);
+	FREE(cs->persist);
 	
-	free(cs);
-	cs = NULL;	
+	FREE(cs);
 }
 
 /*static void
@@ -2275,7 +2275,8 @@ freeAllFunction(procedure *proc)
 		bb = p ->topo[i];
 		bb = p->bblist[ bb->bbid ];
 
-		if(bb->is_loophead)  freeAllLoop(p, p->loops[bb->loopid]);
+		if(bb->is_loophead)
+		  freeAllLoop(p, p->loops[bb->loopid]);
 		else if(bb->callpid != -1)
 		{
 			bb->num_cache_state = 0;
@@ -2291,7 +2292,7 @@ freeAllFunction(procedure *proc)
 			bb->num_cache_state = 0;
 			if(bb->bb_cache_state != NULL)
 			{
-				free(bb->bb_cache_state);
+				FREE(bb->bb_cache_state);
 				bb->bb_cache_state = NULL;
 			}
 		}
@@ -2314,7 +2315,8 @@ freeAllLoop(procedure *proc, loop *lp)
 		bb = lp_ptr ->topo[i];
 		bb = p->bblist[ bb->bbid ];
 
-		if(bb->is_loophead && i!= num_blk -1)  freeAllLoop(p, p->loops[bb->loopid]);
+		if(bb->is_loophead && i!= num_blk -1)
+		  freeAllLoop(p, p->loops[bb->loopid]);
 		else if(bb->callpid != -1)
 		{
 			bb->num_cache_state = 0;

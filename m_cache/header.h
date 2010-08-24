@@ -64,6 +64,9 @@
     if( !(ptr) ) { printf( "\nError: CALLOC_OR_REALLOC failed for %s.\n\n", (msg) ); exit(1); } \
   }
 
+#define FREE( ptr ) \
+    { free( ptr ); ptr = NULL; }
+
 // MIN / MAX macros
 
 #define MIN(a,b) ( (a < b) ? a : b )
