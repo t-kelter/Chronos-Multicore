@@ -489,16 +489,21 @@ static combined_result analyze_block( const block * const bb,
       "offsets %s\n", proc->pid, bb->bbid, loop_context,
       getOffsetDataString( &start_offsets ) );
 
-  /* Buffering currently only works for the "RANGE" data type. */
+  /* Check whether we have already computed the requested result. */
   combined_result **bufferLocation = NULL;
   if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_RANGE ) {
-    /* Check whether we have already computed the requested result. */
     bufferLocation = &block_results[proc->pid][bb->bbid]
       [loop_context][getOffsetDataMinimumOffset( &start_offsets )]
                     [getOffsetDataMaximumOffset( &start_offsets )];
-    if ( *bufferLocation != NULL ) {
-      DRETURN( **bufferLocation );
+  } else if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ) {
+    tdma_offset_bounds range;
+    if ( isOffsetDataRangeValue( &start_offsets, &range ) ) {
+      bufferLocation = &block_results[proc->pid][bb->bbid]
+        [loop_context][range.lower_bound][range.upper_bound];
     }
+  }
+  if ( bufferLocation != NULL && *bufferLocation != NULL ) {
+    DRETURN( **bufferLocation );
   }
 
   combined_result result;
@@ -767,16 +772,21 @@ static combined_result analyze_single_loop_iteration( const loop * const lp,
   assert( lp && proc && isOffsetDataValid( &start_offsets ) &&
           "Invalid arguments!" );
 
-  /* Buffering currently only works for the "RANGE" data type. */
+  /* Check whether we have already computed the requested result. */
   combined_result **bufferLocation = NULL;
   if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_RANGE ) {
-    /* Check whether we have already computed the requested result. */
     bufferLocation = &loop_results[proc->pid][lp->lpid]
       [loop_context][getOffsetDataMinimumOffset( &start_offsets )]
                     [getOffsetDataMaximumOffset( &start_offsets )];
-    if ( *bufferLocation != NULL ) {
-      DRETURN( **bufferLocation );
+  } else if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ) {
+    tdma_offset_bounds range;
+    if ( isOffsetDataRangeValue( &start_offsets, &range ) ) {
+      bufferLocation = &loop_results[proc->pid][lp->lpid]
+        [loop_context][range.lower_bound][range.upper_bound];
     }
+  }
+  if ( bufferLocation != NULL && *bufferLocation != NULL ) {
+    DRETURN( **bufferLocation );
   }
 
   DOUT( "Loop iteration analysis starts with offsets %s\n",
@@ -862,7 +872,8 @@ static combined_result analyze_loop_global_convergence( const loop * const lp,
     MALLOC( results[current_iteration], combined_result*, sizeof( combined_result ), 
         "results[current_iteration]" );
     combined_result * const current_result = results[current_iteration];
-    combined_result * const last_result = results[current_iteration - 1];
+    combined_result * const last_result = ( current_iteration > 0
+        ? results[current_iteration - 1] : NULL );
 
     // Analyze the iteration
     const uint inner_context = getInnerLoopContext( lp, loop_context, 
@@ -1233,16 +1244,21 @@ static combined_result analyze_proc_alignment_aware( const procedure * const pro
   assert( proc && isOffsetDataValid( &start_offsets ) &&
           "Invalid arguments!" );
 
-  /* Buffering currently only works for the "RANGE" data type. */
+  /* Check whether we have already computed the requested result. */
   combined_result **bufferLocation = NULL;
   if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_RANGE ) {
-    /* Check whether we have already computed the requested result. */
     bufferLocation = &proc_results[proc->pid]
       [getOffsetDataMinimumOffset( &start_offsets )]
       [getOffsetDataMaximumOffset( &start_offsets )];
-    if ( *bufferLocation != NULL ) {
-      DRETURN( **bufferLocation );
+  } else if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ) {
+    tdma_offset_bounds range;
+    if ( isOffsetDataRangeValue( &start_offsets, &range ) ) {
+      bufferLocation = &proc_results[proc->pid]
+        [range.lower_bound][range.upper_bound];
     }
+  }
+  if ( bufferLocation != NULL && *bufferLocation != NULL ) {
+    DRETURN( **bufferLocation );
   }
 
   DOUT( "Analyzing procedure %d with offsets %s\n",

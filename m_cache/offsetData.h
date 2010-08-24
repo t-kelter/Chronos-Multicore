@@ -161,6 +161,24 @@ _Bool isOffsetDataValid( const offset_data * const d );
 /* Returns whether the offset data information is empty. */
 _Bool isOffsetDataEmpty( const offset_data * const d );
 
+/* Returns whether the given offset data represents a single value.
+ *
+ * If TRUE is returned, then the single value is written into
+ * '*singleValue' is 'singleValue' is not NULL:
+ * */
+_Bool isOffsetDataSingleValue( const offset_data * const d,
+    uint * const singleValue );
+
+/* Returns whether the given offset data represents a range value.
+ * For offset range representations this is always true, for sets
+ * it may be true.
+ *
+ * If TRUE is returned, then the offset range is written into
+ * '*rangeValue' is 'rangeValue' is not NULL:
+ * */
+_Bool isOffsetDataRangeValue( const offset_data * const d,
+    tdma_offset_bounds * const rangeValue );
+
 /* Returns the minimum offset which is included in the given data object.
  * If there is no minimum, because the offset object is empty, then this
  * functions throws an assertion. */

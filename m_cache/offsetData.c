@@ -504,7 +504,7 @@ _Bool isOffsetDataValid( const offset_data * const d )
 /* Returns whether the offset data information is empty. */
 _Bool isOffsetDataEmpty( const offset_data * const d )
 {
-  assert( d && "Invalid argument!" );
+  assert( d && isOffsetDataValid( d ) &&  "Invalid argument!" );
 
   if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
     return 0;
@@ -521,6 +521,88 @@ _Bool isOffsetDataEmpty( const offset_data * const d )
   } else {
     assert( 0 && "Unsupported offset data type!" );
     return 0;
+  }
+}
+
+
+/* Returns whether the given offset data represents a single value.
+ *
+ * If TRUE is returned, then the single value is written into
+ * '*singleValue' is 'singleValue' is not NULL:
+ * */
+_Bool isOffsetDataSingleValue( const offset_data * const d,
+    uint * const singleValue )
+{
+  assert( d && isOffsetDataValid( d ) &&  "Invalid argument!" );
+
+  tdma_offset_bounds result;
+  if ( isOffsetDataRangeValue( d, &result ) ) {
+    if ( result.lower_bound == result.upper_bound ) {
+      if ( singleValue != NULL ) {
+        *singleValue = result.lower_bound;
+      }
+      return TRUE;
+    } else {
+      return FALSE;
+    }
+  } else {
+    return FALSE;
+  }
+}
+
+
+/* Returns whether the given offset data represents a range value.
+ * For offset range representations this is always true, for sets
+ * it may be true.
+ *
+ * If TRUE is returned, then the offset range is written into
+ * '*rangeValue' is 'rangeValue' is not NULL:
+ * */
+_Bool isOffsetDataRangeValue( const offset_data * const d,
+    tdma_offset_bounds * const rangeValue )
+{
+  assert( d && isOffsetDataValid( d ) && "Invalid argument!" );
+
+  if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
+    if ( rangeValue != NULL ) {
+      *rangeValue = d->content.offset_range;
+    }
+    return TRUE;
+  } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
+    const tdma_offset_set * const s = &d->content.offset_set;
+    tdma_offset_bounds result;
+    _Bool foundFirstOffset = FALSE;
+    _Bool foundLastOffset  = FALSE;
+
+    uint i;
+    for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
+
+      // Current offset is in set
+      if ( s->offsets[i] ) {
+        if ( !foundFirstOffset ) {
+          result.lower_bound = i;
+          foundFirstOffset = TRUE;
+        }
+        if ( foundLastOffset ) {
+          return FALSE;
+        }
+
+      // Current offset is not in set
+      } else {
+        if ( foundFirstOffset && !foundLastOffset ) {
+          result.upper_bound = i - 1;
+          foundLastOffset = TRUE;
+        }
+      }
+    }
+
+    if ( rangeValue ) {
+      *rangeValue = result;
+    }
+    return TRUE;
+  } else {
+    assert( 0 && "Unsupported offset data type!" );
+    return FALSE;
   }
 }
 
