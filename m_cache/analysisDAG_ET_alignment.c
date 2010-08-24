@@ -837,9 +837,6 @@ static combined_result analyze_single_loop_iteration( const loop * const lp,
   /* Compute final procedure BCET and WCET by propagating the values through the DAG. */
   combined_result result = summarizeDAGResults( lp->num_topo, lp->topo,
                                                 block_results, proc );
-  // TODO: recompute offset results here, to overcome the fact, that during block
-  //       offset computation in range mode we may get [0,max_offset] ranges, though
-  //       in the end the offset range is representable.
 
   free( block_results );
 
