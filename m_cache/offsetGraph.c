@@ -51,7 +51,7 @@ enum ILPSolver {
 
 
 // Whether to keep the temporary files generated during the analysis
-static _Bool keepTemporaryFiles = 1;
+static _Bool keepTemporaryFiles = 0;
 
 /* The ILP solver to use. */
 static enum ILPSolver ilpSolver = ILP_CPLEX;
