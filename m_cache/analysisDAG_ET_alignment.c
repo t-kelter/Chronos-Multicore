@@ -745,12 +745,13 @@ static combined_result analyze_block( const block * const bb,
 
   /* Insert result into result buffer. */
   if ( bufferLocation != NULL ) {
-    /* This function will be entered twice for loop headers, one time from the outside
-     * and one time from inside the loop. Therefore the buffer will have been filled
-     * during the loop header analysis which comes from the outside.
+    /* This function will be entered twice for loop headers, one time from
+     * the outside and one time from inside the loop. Therefore the buffer
+     * will have been filled during the loop header analysis which comes
+     * from the outside.
      */
     const _Bool nested_loopheader = ( inlp && cur_lp != inlp );
-    if ( nested_loopheader ) {
+    if ( nested_loopheader && inlp->loopbound != 0 ) {
       assert( *bufferLocation != NULL &&
           "Nested loop header information should have been computed!" );
     } else {
@@ -781,6 +782,9 @@ static combined_result analyze_single_loop_iteration( const loop * const lp,
   assert( lp && proc && isOffsetDataValid( &start_offsets ) &&
           "Invalid arguments!" );
 
+  DOUT( "Loop iteration analysis starts with offsets %s\n",
+      getOffsetDataString( &start_offsets ) );
+
   /* Check whether we have already computed the requested result. */
   combined_result **bufferLocation = NULL;
   if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_RANGE ) {
@@ -799,11 +803,12 @@ static combined_result analyze_single_loop_iteration( const loop * const lp,
     bufferLocation = NULL;
   }
   if ( bufferLocation != NULL && *bufferLocation != NULL ) {
+    DOUT( "Returned result from buffer!\n" );
+    DOUT( "Loop iteration analysis BCET / WCET result is %llu / %llu"
+        " with offsets %s\n", (*bufferLocation)->bcet, (*bufferLocation)->wcet,
+        getOffsetDataString( &(*bufferLocation)->offsets ) );
     DRETURN( **bufferLocation );
   }
-
-  DOUT( "Loop iteration analysis starts with offsets %s\n",
-      getOffsetDataString( &start_offsets ) );
 
   /* Get an array for the result values per basic block. */
   combined_result *block_results;
@@ -830,6 +835,9 @@ static combined_result analyze_single_loop_iteration( const loop * const lp,
   /* Compute final procedure BCET and WCET by propagating the values through the DAG. */
   combined_result result = summarizeDAGResults( lp->num_topo, lp->topo,
                                                 block_results, proc );
+  // TODO: recompute offset results here, to overcome the fact, that during block
+  //       offset computation in range mode we may get [0,max_offset] ranges, though
+  //       in the end the offset range is representable.
 
   free( block_results );
 
