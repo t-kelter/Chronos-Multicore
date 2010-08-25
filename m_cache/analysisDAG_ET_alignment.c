@@ -109,9 +109,25 @@ static combined_result analyze_proc( const procedure * const proc,
 
 
 /* Verifies that the result information is valid. */
-static _Bool checkResult( const combined_result *r )
+static _Bool isResultValid( const offset_data * const start_offsets,
+                          const combined_result *r )
 {
-  return r->bcet <= r->wcet && isOffsetDataValid( &r->offsets );
+  if ( start_offsets != NULL ) {
+    if ( start_offsets->type == OFFSET_DATA_TYPE_RANGE ||
+         start_offsets->type == OFFSET_DATA_TYPE_SET ) {
+      if ( r->bcet > r->wcet ) {
+        return FALSE;
+      }
+    } else if ( start_offsets->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+      if ( start_offsets->content.time_range.lower_bound + r->bcet >
+           start_offsets->content.time_range.upper_bound + r->wcet ) {
+        return FALSE;
+      }
+    } else {
+      assert( 0 && "Unsupported offset representation!" );
+    }
+  }
+  return isOffsetDataValid( &r->offsets );
 }
 
 
@@ -471,7 +487,7 @@ static combined_result summarizeDAGResults( uint number_of_blocks,
   free( block_bcet_propagation_values );
   free( block_wcet_propagation_values );
 
-  assert( checkResult( &result ) && "Invalid result!" );
+  assert( isResultValid( NULL, &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -548,6 +564,13 @@ static combined_result analyze_block( const block * const bb,
     _Bool useFixedWCOffset = 0;
     uint fixedWCOffset = 0;
 
+    const _Bool haveExplicitTime =
+        currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_RANGE ||
+        currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_SET;
+    const _Bool haveSetRepresentation =
+        currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ||
+        currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_SET;
+
     // TODO: This won't work correctly for segmented schedules
     const uint tdma_interval = getCoreSchedule( ncore, 0 )->interval;
 
@@ -565,8 +588,8 @@ static combined_result analyze_block( const block * const bb,
       /* Backup BCET/ WCET results at the beginning of each new instruction. */
       const ull old_bcet = result.bcet;
       const ull old_wcet = result.wcet;
-      const _Bool usedFixedBCOffset = useFixedBCOffset;
-      const _Bool usedFixedWCOffset = useFixedWCOffset;
+      _Bool usedFixedBCOffset = FALSE;
+      _Bool usedFixedWCOffset = FALSE;
 
       /* Some temporaries. */
       _Bool waitedForNextTDMASlot;
@@ -585,14 +608,25 @@ static combined_result analyze_block( const block * const bb,
       /* Compute instruction cache access duration. */
       const acc_type best_acc  = check_hit_miss( bb, inst, loop_context,
                                                  ACCESS_SCENARIO_BCET );
-      const acc_type worst_acc = check_hit_miss( bb, inst, loop_context,
-                                                 ACCESS_SCENARIO_WCET );
-      if ( useFixedBCOffset ) {
-        const uint latency = determine_latency( bb, fixedBCOffset, best_acc, NULL );
+      if ( useFixedBCOffset || haveExplicitTime ) {
+        /* Update with fixed offset. */
+        uint bcOffset;
+        if ( useFixedBCOffset ) {
+          bcOffset = fixedBCOffset;
+        } else {
+          if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_RANGE ) {
+            bcOffset = result.offsets.content.time_range.lower_bound;
+          } else {
+            assert( 0 && "Unsupported offset representation!" );
+          }
+        }
+        const uint latency = determine_latency( bb, bcOffset,
+                                                best_acc, NULL );
         result.bcet += latency;
+        usedFixedBCOffset = TRUE;
 
         // Add the resulting offset if we analyze with offset sets
-        if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ) {
+        if ( haveSetRepresentation ) {
           updateOffsetData( &offsetSetResults, &result.offsets,
                             latency, latency, TRUE );
         }
@@ -618,12 +652,27 @@ static combined_result analyze_block( const block * const bb,
       }
 
       /* Compute instruction cache access duration for worst case. */
-      if ( useFixedWCOffset ) {
-        const uint latency = determine_latency( bb, fixedWCOffset, worst_acc, NULL );
+      const acc_type worst_acc = check_hit_miss( bb, inst, loop_context,
+                                                 ACCESS_SCENARIO_WCET );
+      if ( useFixedWCOffset || haveExplicitTime ) {
+        /* Update with fixed offset. */
+        uint wcOffset;
+        if ( useFixedWCOffset ) {
+          wcOffset = fixedWCOffset;
+        } else {
+          if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_RANGE ) {
+            wcOffset = result.offsets.content.time_range.upper_bound;
+          } else {
+            assert( 0 && "Unsupported offset representation!" );
+          }
+        }
+        const uint latency = determine_latency( bb, wcOffset,
+                                                worst_acc, NULL );
         result.wcet += latency;
+        usedFixedWCOffset = TRUE;
 
         // Add the resulting offset if we analyze with offset sets
-        if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ) {
+        if ( haveSetRepresentation ) {
           updateOffsetData( &offsetSetResults, &result.offsets,
                             latency, latency, TRUE );
         }
@@ -647,7 +696,7 @@ static combined_result analyze_block( const block * const bb,
       }
 
       /* Compute the offset results if in set analysis mode. */
-      if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET &&
+      if ( haveSetRepresentation &&
            ( !usedFixedBCOffset || !usedFixedWCOffset ) ) {
         ITERATE_OFFSETS( result.offsets, j,
           const uint best_latency  = determine_latency( bb, j, best_acc,  NULL );
@@ -666,7 +715,7 @@ static combined_result analyze_block( const block * const bb,
       result.wcet += execution_wcet;
 
       /* Update the offset results if in set analysis mode. */
-      if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ) {
+      if ( haveSetRepresentation ) {
         assert( !isOffsetDataEmpty( &offsetSetResults ) && "Internal error!" );
         updateOffsetData( &offsetSetResults, &offsetSetResults, execution_bcet,
             execution_wcet, FALSE );
@@ -684,24 +733,15 @@ static combined_result analyze_block( const block * const bb,
 
       /* For the set representation the offsets are computed during
        * the timing computation above. */
-      if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ) {
+      if ( haveSetRepresentation ) {
+        assert( result.offsets.type == offsetSetResults.type && "Type mismatch!" );
         result.offsets = offsetSetResults;
       } else {
-        const uint bcOffset = getOffsetDataMinimumOffset( &result.offsets ) + bcTimePassed;
-        const uint wcOffset = getOffsetDataMaximumOffset( &result.offsets ) + wcTimePassed;
-        if ( bcTimePassed > wcTimePassed ) {
-          assert( ( useFixedBCOffset || useFixedWCOffset ) &&
-              "In normal offset mode the local bcet may never exceed the local wcet" );
-          if ( bcOffset > wcOffset ) {
-            setOffsetDataMaximal( &result.offsets );
-          } else {
-            updateOffsetData( &result.offsets, &result.offsets,
-                              wcTimePassed, bcTimePassed, FALSE );
-          }
-        } else {
-          updateOffsetData( &result.offsets, &result.offsets,
-                            bcTimePassed, wcTimePassed, FALSE );
-        }
+        assert( ( ( bcTimePassed <= wcTimePassed ) ||
+                  ( usedFixedBCOffset || usedFixedWCOffset ) ) &&
+          "In normal offset mode the local bcet may never exceed the local wcet" );
+        updateOffsetData( &result.offsets, &result.offsets,
+                          bcTimePassed, wcTimePassed, FALSE );
       }
 
       /* Handle procedure call instruction */
@@ -771,7 +811,7 @@ static combined_result analyze_block( const block * const bb,
         bb->num_instr > 0 ? bb->instrlist[bb->num_instr - 1]->addr : "0x0" );
   );
 
-  assert( checkResult( &result ) && "Invalid result!" );
+  assert( isResultValid( &start_offsets, &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -852,7 +892,7 @@ static combined_result analyze_single_loop_iteration( const loop * const lp,
       " with offsets %s\n", result.bcet, result.wcet,
       getOffsetDataString( &result.offsets ) );
 
-  assert( checkResult( &result ) && "Invalid result!" );
+  assert( isResultValid( &start_offsets, &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -871,12 +911,13 @@ static combined_result analyze_loop_global_convergence( const loop * const lp,
   DSTART( "analyze_loop_global_convergence" );
   assert( lp && proc && isOffsetDataValid( &start_offsets ) &&
           "Invalid arguments!" );
-
-  DOUT( "Loop %d.%d [lb %d] starts analysis with offsets %s\n",
-      lp->pid, lp->lpid, lp->loopbound, getOffsetDataString( &start_offsets ) );
+  assert( currentOffsetRepresentation != OFFSET_DATA_TYPE_TIME_RANGE &&
+          currentOffsetRepresentation != OFFSET_DATA_TYPE_TIME_SET &&
+          "Global convergence is incompatible to absolute time data!" );
 
   // This will store the offsets during convergence
   offset_data current_offsets = start_offsets;
+  convertOffsetDataToExplicitOffsets( &current_offsets );
   // Specifies the index of the currently analyzed iteration
   unsigned int current_iteration;
   // Holds the result from the iterations (if they were done)
@@ -884,6 +925,9 @@ static combined_result analyze_loop_global_convergence( const loop * const lp,
   CALLOC( results, combined_result**, lp->loopbound, sizeof( combined_result* ), "results" );
   // Whether the last iteration used a zero-alignment
   _Bool lastIterationWasAligned = 0;
+
+  DOUT( "Loop %d.%d [lb %d] starts analysis with offsets %s\n",
+      lp->pid, lp->lpid, lp->loopbound, getOffsetDataString( &current_offsets ) );
 
   // Perform single-iteration-analyses until the offset bound converges
   _Bool brokeOut = 0;
@@ -901,6 +945,7 @@ static combined_result analyze_loop_global_convergence( const loop * const lp,
                                    current_iteration == 0 );
     *current_result = analyze_single_loop_iteration( lp, proc, 
                        inner_context, current_offsets );
+    convertOffsetDataToExplicitOffsets( &current_result->offsets );
     DOUT( "Analyzed new iteration: BCET %llu, WCET %llu, offsets %s (context %u)\n",
         current_result->bcet, current_result->wcet,
         getOffsetDataString( &current_result->offsets ), inner_context );
@@ -979,7 +1024,7 @@ static combined_result analyze_loop_global_convergence( const loop * const lp,
       lp->pid, lp->lpid, result.bcet, result.wcet, getOffsetDataString(
           &result.offsets ) );
 
-  assert( checkResult( &result ) && "Invalid result!" );
+  assert( isResultValid( &start_offsets, &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -1017,8 +1062,10 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
     result.offsets = start_offsets;
     DRETURN( result );
   } else {
+    offset_data first_iteration_offsets = start_offsets;
+    convertOffsetDataToExplicitOffsets( &first_iteration_offsets );
     const uint first_context = getInnerLoopContext( lp, loop_context, 1 );
-    result = analyze_single_loop_iteration( lp, proc, first_context, start_offsets );
+    result = analyze_single_loop_iteration( lp, proc, first_context, first_iteration_offsets );
     DOUT( "Analyzed first iteration: BCET %llu, WCET %llu, offsets %s "
         "(context %u)\n", result.bcet, result.wcet,
         getOffsetDataString( &result.offsets ), first_context );
@@ -1027,6 +1074,7 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
       DRETURN( result );
     }
   }
+  convertOffsetDataToExplicitOffsets( &result.offsets );
 
   // Create the offset graph with edges from the supersource to all initial offsets
   offset_graph *graph = createOffsetGraph( tdma_interval );
@@ -1055,11 +1103,15 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
       current_offsets = iteration_result.offsets;
     }
 
-    // Analyze the iteration
+    /* Analyze the iteration. Note that we analyze each iteration with the current
+     * offset representation type. This type may represent the offsets only implicitly
+     * as f.e. the time bound representation does. Therefore we must extract explicit
+     * offset representations here. */
     const uint inner_context = getInnerLoopContext( lp, loop_context, 0 );
     const combined_result previous_result = iteration_result;
     iteration_result = analyze_single_loop_iteration( lp, proc, inner_context,
                                                       current_offsets );
+    convertOffsetDataToExplicitOffsets( &iteration_result.offsets );
     DOUT( "Analyzed new iteration: BCET %llu, WCET %llu, offsets %s "
         "(context %u)\n", iteration_result.bcet, iteration_result.wcet,
         getOffsetDataString( &iteration_result.offsets ), inner_context );
@@ -1165,24 +1217,26 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
 
   // TODO: Improve the heuristic to determine when not to use the
   //       graph-tracking because of its high complexity
+  const uint remaining_iterations = lp->loopbound - 1;
   if ( allIterationsAreEqual ) {
-    result = analyze_loop_global_convergence( lp, proc, loop_context, start_offsets );
-    DOUT( "Took over convergence result: BCET %llu, WCET %llu, offsets %s\n", result.bcet,
-        result.wcet, getOffsetDataString( &result.offsets ) );
+    result.bcet += remaining_iterations * iteration_result.bcet;
+    result.wcet += remaining_iterations * iteration_result.wcet;
+    result.offsets = start_offsets;
+    updateOffsetData( &result.offsets, &result.offsets, result.bcet, result.wcet, FALSE );
   } else {
     // Solve flow problems
     // (Mind the peeled-off iteration of the loop, see beginning o this function)
-    result.bcet += computeOffsetGraphLoopBCET( graph, lp->loopbound - 1 );
-    result.wcet += computeOffsetGraphLoopWCET( graph, lp->loopbound - 1 );
-    result.offsets = computeOffsetGraphLoopOffsets( graph, lp->loopbound - 1,
+    result.bcet += computeOffsetGraphLoopBCET( graph, remaining_iterations );
+    result.wcet += computeOffsetGraphLoopWCET( graph, remaining_iterations );
+    result.offsets = computeOffsetGraphLoopOffsets( graph, remaining_iterations,
                        currentOffsetRepresentation );
-    DOUT( "Loop results: BCET %llu, WCET %llu, offsets %s\n", result.bcet,
-            result.wcet, getOffsetDataString( &result.offsets ) );
   }
+  DOUT( "Loop results: BCET %llu, WCET %llu, offsets %s\n", result.bcet,
+        result.wcet, getOffsetDataString( &result.offsets ) );
 
   freeOffsetGraph( graph );
 
-  assert( checkResult( &result ) && "Invalid result!" );
+  assert( isResultValid( &start_offsets, &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -1265,6 +1319,8 @@ static combined_result analyze_proc_alignment_aware( const procedure * const pro
   assert( proc && isOffsetDataValid( &start_offsets ) &&
           "Invalid arguments!" );
 
+  // TODO: Implement buffering for the TIME representation
+
   /* Check whether we have already computed the requested result. */
   combined_result **bufferLocation = NULL;
   if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_RANGE ) {
@@ -1329,7 +1385,7 @@ static combined_result analyze_proc_alignment_aware( const procedure * const pro
       " with offsets %s\n", proc->pid, result.bcet, result.wcet,
       getOffsetDataString( &result.offsets ) );
 
-  assert( checkResult( &result ) && "Invalid result!" );
+  assert( isResultValid( &start_offsets, &result ) && "Invalid result!" );
   DRETURN( result );
 }
 
@@ -1402,8 +1458,8 @@ void compute_bus_ET_MSC_alignment( MSC *msc, const char *tdma_bus_schedule_file,
   setOffsetDataMaxOffset( getCoreSchedule( 0, 0 )->interval - 1 );
 
   /* Set the analysis options to use. */
-  currentLoopAnalysisType = analysis_type;
-  tryPenalizedAlignment = try_penalized_alignment;
+  currentLoopAnalysisType     = analysis_type;
+  tryPenalizedAlignment       = try_penalized_alignment;
   currentOffsetRepresentation = offset_representation;
 
   /* Reset the earliest/latest time of all cores */
