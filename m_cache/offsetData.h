@@ -67,10 +67,17 @@ typedef struct {
   uint upper_bound;
 } tdma_offset_bounds;
 
+/* A data type to represent an absolute time range. */
+typedef struct {
+  ull lower_bound;
+  ull upper_bound;
+} time_bounds;
+
 /* The type of an abstract offset representation. */
 enum OffsetDataType {
   OFFSET_DATA_TYPE_SET,
-  OFFSET_DATA_TYPE_RANGE
+  OFFSET_DATA_TYPE_RANGE,
+  OFFSET_DATA_TYPE_TIME
 };
 
 /* The datatype which represents an abstract amount of offsets. */
@@ -80,6 +87,7 @@ typedef struct {
   union {
     tdma_offset_set offset_set;
     tdma_offset_bounds offset_range;
+    time_bounds time_range;
   } content;
   enum OffsetDataType type;
 } offset_data;
@@ -109,10 +117,6 @@ uint getOffsetDataMaxOffset( void );
  * data objects which are created after this function has
  * been called will use the new maximum offset. */
 void setOffsetDataMaxOffset( uint new_max_offset );
-
-/* Adds the given offset to the given offset data object,
- * regardless of its type. */
-void addOffsetDataOffset( offset_data * const d, uint offset );
 
 /* Adds the given offset range to the given offset data object,
  * regardless of its type. */
