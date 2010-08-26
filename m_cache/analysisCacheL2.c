@@ -1671,9 +1671,9 @@ mapLoop_L2(procedure *pro, loop *lp)
 
 					/* } */
 
-					freeCacheSet(cache_set_must);
-					freeCacheSet(cache_set_may);
-					freeCacheSet(cache_set_persist);
+					freeCacheSet_L2(cache_set_must);
+					freeCacheSet_L2(cache_set_may);
+					freeCacheSet_L2(cache_set_persist);
 				}
 				else
 				{
@@ -1719,9 +1719,9 @@ mapLoop_L2(procedure *pro, loop *lp)
 						bb->bb_cache_state_L2->persist[set_no] = unionMaxCacheState_L2(cache_set_persist, bb->bb_cache_state_L2->persist[set_no]);
 
 				/*	} */
-					freeCacheSet(cache_set_must);
-					freeCacheSet(cache_set_may);
-					freeCacheSet(cache_set_persist);
+					freeCacheSet_L2(cache_set_must);
+					freeCacheSet_L2(cache_set_may);
+					freeCacheSet_L2(cache_set_persist);
 					
 				}
 				else
@@ -2542,8 +2542,8 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 						bb->bb_cache_state_L2->may[set_no] = unionCacheState_L2(cache_set_may, bb->bb_cache_state_L2->may[set_no]);
 
 					/*}*/
-					freeCacheSet(cache_set_must);
-					freeCacheSet(cache_set_may);
+					freeCacheSet_L2(cache_set_must);
+					freeCacheSet_L2(cache_set_may);
 				}
 				else
 				{
@@ -2590,8 +2590,8 @@ mapFunctionCall_L2(procedure *proc, cache_state *cs)
 						bb->bb_cache_state_L2->may[set_no] = unionCacheState_L2(cache_set_may, bb->bb_cache_state_L2->may[set_no]);
 
 					/*}*/
-					freeCacheSet(cache_set_must);
-					freeCacheSet(cache_set_may);
+					freeCacheSet_L2(cache_set_must);
+					freeCacheSet_L2(cache_set_may);
 				}
 				//miss in L1
 				else
