@@ -10,8 +10,9 @@
 
 // Include local headers
 #include "updateCacheL2.h"
-#include "analysisCache.h"
-#include "analysisCacheL2.h"
+#include "analysisCache_L1.h"
+#include "analysisCache_L2.h"
+#include "analysisCache_common.h"
 
 
 // Forward declarations of static functions

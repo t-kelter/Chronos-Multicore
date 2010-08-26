@@ -6,8 +6,9 @@ noinst_PROGRAMS=opt
 AM_CPPFLAGS=-D_GNU_SOURCE -I@chronos_path@
 
 # First program to build: The analyzer/optimizer for the user
-opt_SOURCES=analysisCache.c analysisCache.h \
-						analysisCacheL2.c analysisCacheL2.h \
+opt_SOURCES=analysisCache_L1.c analysisCache_L1.h \
+						analysisCache_L2.c analysisCache_L2.h \
+						analysisCache_common.c analysisCache_common.h \
 						analysisDAG_BCET_structural.c analysisDAG_BCET_structural.h \
 						analysisDAG_BCET_unroll.c analysisDAG_BCET_unroll.h \
 						analysisDAG_ET_alignment.c analysisDAG_ET_alignment.h \

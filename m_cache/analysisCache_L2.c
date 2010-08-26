@@ -10,8 +10,8 @@
 #include <debugmacros/debugmacros.h>
 
 // Include local headers
-#include "analysisCache.h"
-#include "analysisCacheL2.h"
+#include "analysisCache_L2.h"
+#include "analysisCache_common.h"
 #include "dump.h"
 
 

@@ -35,8 +35,9 @@ m_cache/.deps/
 m_cache/DAG_WCET.o
 m_cache/Makefile
 m_cache/Makefile.in
-m_cache/analysisCache.o
-m_cache/analysisCacheL2.o
+m_cache/analysisCache_L1.o
+m_cache/analysisCache_L2.o
+m_cache/analysisCache_common.o
 m_cache/analysisDAG_BCET_structural.o
 m_cache/analysisDAG_BCET_unroll.o
 m_cache/analysisDAG_ET_alignment.o

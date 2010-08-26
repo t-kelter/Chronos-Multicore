@@ -14,7 +14,8 @@
 
 // Include local headers
 #include "analysisDAG_common.h"
-#include "analysisCache.h"
+#include "analysisCache_L1.h"
+#include "analysisCache_common.h"
 #include "block.h"
 #include "busSchedule.h"
 #include "handler.h"

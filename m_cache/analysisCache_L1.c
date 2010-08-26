@@ -10,7 +10,8 @@
 #include <debugmacros/debugmacros.h>
 
 // Include local headers
-#include "analysisCache.h"
+#include "analysisCache_L1.h"
+#include "analysisCache_common.h"
 #include "handler.h"
 #include "dump.h"
 
@@ -89,25 +90,6 @@ freeAllLoop(procedure *proc, loop *lp);
 
 static cache_line_way_t **
 intersectCacheState(cache_line_way_t **clw_a, cache_line_way_t **clw_b);
-
-
-int
-logBase2(int n)
-{
-  DSTART( "logBase2" );
-
-  int power = 0;
-
-  if (n <= 0 || (n & (n-1)) != 0)
-    {
-    DOUT("log2() only works for positive power of two values\n");
-    DRETURN( -1 );
-    }
-  while (n >>= 1)
-    power++;
-
-  DRETURN( power );
-}
 
 
 //read basic cache configuration from configFile and then
@@ -1973,17 +1955,6 @@ cacheAnalysis()
 	DACTION( dumpCacheState( final_CS ); );
 
 	DEND();
-}
-
-char 
-isInWay(int entry, int *entries, int num_entry)
-{
-	int i;
-	for(i = 0; i < num_entry; i++)
-		if(entry == entries[i]) 
-			return 1;
-
-	return 0;
 }
 
 
