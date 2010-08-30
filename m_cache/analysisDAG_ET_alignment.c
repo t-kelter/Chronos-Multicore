@@ -119,10 +119,14 @@ static _Bool isResultValid( const offset_data * const start_offsets,
         return FALSE;
       }
     } else if ( start_offsets->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
-      if ( start_offsets->content.time_range.lower_bound + r->bcet >
-           start_offsets->content.time_range.upper_bound + r->wcet ) {
-        return FALSE;
-      }
+      // We may have a violation of the following
+      // condition during loop analysis.
+
+      //if ( start_offsets->content.time_range.bcet_time + r->bcet >
+      //     start_offsets->content.time_range.wcet_time + r->wcet ) {
+      //  return FALSE;
+      //}
+      return TRUE;
     } else {
       assert( 0 && "Unsupported offset representation!" );
     }
@@ -613,7 +617,7 @@ static combined_result analyze_block( const block * const bb,
           bcOffset = fixedBCOffset;
         } else {
           if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_RANGE ) {
-            bcOffset = result.offsets.content.time_range.lower_bound;
+            bcOffset = result.offsets.content.time_range.bcet_time;
           } else {
             assert( 0 && "Unsupported offset representation!" );
           }
@@ -659,7 +663,7 @@ static combined_result analyze_block( const block * const bb,
           wcOffset = fixedWCOffset;
         } else {
           if ( currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_RANGE ) {
-            wcOffset = result.offsets.content.time_range.upper_bound;
+            wcOffset = result.offsets.content.time_range.wcet_time;
           } else {
             assert( 0 && "Unsupported offset representation!" );
           }
@@ -914,7 +918,6 @@ static combined_result analyze_loop_global_convergence( const loop * const lp,
 
   // This will store the offsets during convergence
   offset_data current_offsets = start_offsets;
-  convertOffsetDataToExplicitOffsets( &current_offsets );
   // Specifies the index of the currently analyzed iteration
   unsigned int current_iteration;
   // Holds the result from the iterations (if they were done)
@@ -942,7 +945,6 @@ static combined_result analyze_loop_global_convergence( const loop * const lp,
                                    current_iteration == 0 );
     *current_result = analyze_single_loop_iteration( lp, proc, 
                        inner_context, current_offsets );
-    convertOffsetDataToExplicitOffsets( &current_result->offsets );
     DOUT( "Analyzed new iteration: BCET %llu, WCET %llu, offsets %s (context %u)\n",
         current_result->bcet, current_result->wcet,
         getOffsetDataString( &current_result->offsets ), inner_context );
@@ -1060,7 +1062,6 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
     DRETURN( result );
   } else {
     offset_data first_iteration_offsets = start_offsets;
-    convertOffsetDataToExplicitOffsets( &first_iteration_offsets );
     const uint first_context = getInnerLoopContext( lp, loop_context, 1 );
     result = analyze_single_loop_iteration( lp, proc, first_context, first_iteration_offsets );
     DOUT( "Analyzed first iteration: BCET %llu, WCET %llu, offsets %s "
@@ -1071,17 +1072,29 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
       DRETURN( result );
     }
   }
-  convertOffsetDataToExplicitOffsets( &result.offsets );
 
   // Create the offset graph with edges from the supersource to all initial offsets
+  const _Bool haveExplicitTime = currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_RANGE;
   offset_graph *graph = createOffsetGraph( tdma_interval );
+  offset_graph *bcet_graph = ( haveExplicitTime ? createOffsetGraph( tdma_interval ) : NULL );
+  offset_graph *wcet_graph = ( haveExplicitTime ? graph : NULL );
   uint i;
-  if ( isOffsetDataMaximal( &result.offsets ) ) {
-    addOffsetGraphEdge( graph, &graph->supersource, &graph->unknown_offset_node, 0, 0 );
+  if ( haveExplicitTime ) {
+    result.offsets.content.time_range.bcet_time %= tdma_interval;
+    result.offsets.content.time_range.wcet_time %= tdma_interval;
+
+    addOffsetGraphEdge( bcet_graph, &bcet_graph->supersource, getOffsetGraphNode(
+        bcet_graph, result.offsets.content.time_range.bcet_time ), 0, 0 );
+    addOffsetGraphEdge( wcet_graph, &wcet_graph->supersource, getOffsetGraphNode(
+        wcet_graph, result.offsets.content.time_range.wcet_time ), 0, 0 );
   } else {
-    ITERATE_OFFSETS( result.offsets, i,
-      addOffsetGraphEdge( graph, &graph->supersource, getOffsetGraphNode( graph, i ), 0, 0 );
-    );
+    if ( isOffsetDataMaximal( &result.offsets ) ) {
+      addOffsetGraphEdge( graph, &graph->supersource, &graph->unknown_offset_node, 0, 0 );
+    } else {
+      ITERATE_OFFSETS( result.offsets, i,
+        addOffsetGraphEdge( graph, &graph->supersource, getOffsetGraphNode( graph, i ), 0, 0 );
+      );
+    }
   }
   DOUT( "Created initial offset graph with %u nodes\n", tdma_interval );
 
@@ -1108,7 +1121,10 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
     const combined_result previous_result = iteration_result;
     iteration_result = analyze_single_loop_iteration( lp, proc, inner_context,
                                                       current_offsets );
-    convertOffsetDataToExplicitOffsets( &iteration_result.offsets );
+    if ( haveExplicitTime ) {
+      iteration_result.offsets.content.time_range.bcet_time %= tdma_interval;
+      iteration_result.offsets.content.time_range.wcet_time %= tdma_interval;
+    }
     DOUT( "Analyzed new iteration: BCET %llu, WCET %llu, offsets %s "
         "(context %u)\n", iteration_result.bcet, iteration_result.wcet,
         getOffsetDataString( &iteration_result.offsets ), inner_context );
@@ -1148,49 +1164,87 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
     // Apply the needed changes to the graph
     graphChanged = 0;
 
-    // 'j' is the starting offset
-    const _Bool source_is_imprecise = isOffsetDataMaximal( &current_offsets );
-    const _Bool target_is_imprecise = isOffsetDataMaximal( &iteration_result.offsets );
-    ITERATE_OFFSETS( current_offsets, j,
-      offset_graph_node * const start = ( source_is_imprecise ?
-                                          &graph->unknown_offset_node :
-                                          getOffsetGraphNode( graph, j ) );
+    /* In offset analysis mode we must add edges from all
+     * starting offsets to all end offsets. */
+    if ( !haveExplicitTime ) {
 
-      // Add the missing edges
-      // 'k' indexes the target offset
-      ITERATE_OFFSETS( iteration_result.offsets, k,
-        offset_graph_node * const end = ( target_is_imprecise ?
-                                          &graph->unknown_offset_node :
-                                          getOffsetGraphNode( graph, k ) );
-        offset_graph_edge * const edge = getOffsetGraphEdge( graph, start, end );
+      // 'j' is the starting offset
+      const _Bool source_is_imprecise = isOffsetDataMaximal( &current_offsets );
+      const _Bool target_is_imprecise = isOffsetDataMaximal( &iteration_result.offsets );
+      ITERATE_OFFSETS( current_offsets, j,
+        offset_graph_node * const start = ( source_is_imprecise ?
+                                            &graph->unknown_offset_node :
+                                            getOffsetGraphNode( graph, j ) );
 
-        if ( edge == NULL ) {
-          addOffsetGraphEdge( graph, start, end,
-              iteration_result.bcet, iteration_result.wcet );
-          graphChanged = 1;
+        // Add the missing edges
+        // 'k' indexes the target offset
+        ITERATE_OFFSETS( iteration_result.offsets, k,
+          offset_graph_node * const end = ( target_is_imprecise ?
+                                            &graph->unknown_offset_node :
+                                            getOffsetGraphNode( graph, k ) );
+          offset_graph_edge * const edge = getOffsetGraphEdge( graph, start, end );
 
-          assert( getOffsetGraphEdge( graph, start, end ) &&
-                  "Internal error!" );
-        } else {
-          if ( edge->bcet > iteration_result.bcet ) {
-            edge->bcet = iteration_result.bcet;
+          if ( edge == NULL ) {
+            addOffsetGraphEdge( graph, start, end,
+                iteration_result.bcet, iteration_result.wcet );
             graphChanged = 1;
+          } else {
+            if ( edge->bcet > iteration_result.bcet ) {
+              edge->bcet = iteration_result.bcet;
+              graphChanged = 1;
+            }
+            if ( edge->wcet < iteration_result.wcet ) {
+              edge->wcet = iteration_result.wcet;
+              graphChanged = 1;
+            }
           }
-          if ( edge->wcet < iteration_result.wcet ) {
-            edge->wcet = iteration_result.wcet;
-            graphChanged = 1;
-          }
-        }
 
-        if ( target_is_imprecise ) {
-          break;
-        }
+          if ( target_is_imprecise ) { break; }
+        );
+
+        if ( source_is_imprecise ) { break; }
       );
 
-      if ( source_is_imprecise ) {
-        break;
+    /* In absolute time analysis mode we must only add edges from the best-case time
+     * to the new best-case time-offset, and the same for the worst-case scenario.
+     */
+    } else {
+
+      offset_graph_node * const bcStart = getOffsetGraphNode( bcet_graph,
+          current_offsets.content.time_range.bcet_time );
+      offset_graph_node * const bcEnd = getOffsetGraphNode( bcet_graph,
+          iteration_result.offsets.content.time_range.bcet_time );
+      offset_graph_edge * const bcEdge = getOffsetGraphEdge( bcet_graph,
+                                                             bcStart, bcEnd );
+
+      if ( bcEdge == NULL ) {
+        addOffsetGraphEdge( bcet_graph, bcStart, bcEnd,
+            iteration_result.bcet, iteration_result.bcet );
+        graphChanged = 1;
+      } else {
+        assert( bcEdge->bcet == bcEdge->wcet &&
+                bcEdge->bcet == iteration_result.bcet &&
+                "Invalid internal state!" );
       }
-    );
+
+      offset_graph_node * const wcStart = getOffsetGraphNode( wcet_graph,
+          current_offsets.content.time_range.wcet_time );
+      offset_graph_node * const wcEnd = getOffsetGraphNode( wcet_graph,
+          iteration_result.offsets.content.time_range.wcet_time );
+      offset_graph_edge * const wcEdge = getOffsetGraphEdge( wcet_graph,
+                                                             wcStart, wcEnd );
+
+      if ( wcEdge == NULL ) {
+        addOffsetGraphEdge( wcet_graph, wcStart, wcEnd,
+            iteration_result.wcet, iteration_result.wcet );
+        graphChanged = 1;
+      } else {
+        assert( wcEdge->wcet == wcEdge->bcet &&
+                wcEdge->wcet == iteration_result.wcet &&
+                "Invalid internal state!" );
+      }
+
+    }
 
     // Update iteration number
     iteration_number++;
@@ -1207,14 +1261,26 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
   DOUT( "Analyzed %u iterations\n", iteration_number );
 
   // Add the edges from all offsets to the supersink
-  for ( i = 0; i < tdma_interval; i++ ) {
-    addOffsetGraphEdge( graph, getOffsetGraphNode( graph, i ), &graph->supersink, 0, 0 );
+  if ( haveExplicitTime ) {
+    for ( i = 0; i < tdma_interval; i++ ) {
+      addOffsetGraphEdge( bcet_graph, getOffsetGraphNode( bcet_graph, i ),
+          &bcet_graph->supersink, 0, 0 );
+      addOffsetGraphEdge( wcet_graph, getOffsetGraphNode( wcet_graph, i ),
+                &wcet_graph->supersink, 0, 0 );
+    }
+  } else {
+    for ( i = 0; i < tdma_interval; i++ ) {
+      addOffsetGraphEdge( graph, getOffsetGraphNode( graph, i ), &graph->supersink, 0, 0 );
+    }
+    addOffsetGraphEdge( graph, &graph->unknown_offset_node, &graph->supersink, 0, 0 );
   }
-  addOffsetGraphEdge( graph, &graph->unknown_offset_node, &graph->supersink, 0, 0 );
 
-  // TODO: Improve the heuristic to determine when not to use the
-  //       graph-tracking because of its high complexity
+  /* If we note that all iterations have the same BCET/WCET, then we determine the loop
+   * WCET without invoking the ILP solver, because these instances are trivial and
+   * particularly hard to solve for the ILP solver, because no branch in the branch & bound
+   * algorithm can be pruned. */
   const uint remaining_iterations = lp->loopbound - 1;
+  // TODO: Don't call ILP when all iterations were analyzed.
   if ( allIterationsAreEqual ) {
     result.bcet += remaining_iterations * iteration_result.bcet;
     result.wcet += remaining_iterations * iteration_result.wcet;
@@ -1223,15 +1289,29 @@ static combined_result analyze_loop_graph_tracking( const loop * const lp,
   } else {
     // Solve flow problems
     // (Mind the peeled-off iteration of the loop, see beginning o this function)
-    result.bcet += computeOffsetGraphLoopBCET( graph, remaining_iterations );
-    result.wcet += computeOffsetGraphLoopWCET( graph, remaining_iterations );
-    result.offsets = computeOffsetGraphLoopOffsets( graph, remaining_iterations,
-                       currentOffsetRepresentation );
+    if ( haveExplicitTime ) {
+      result.bcet += computeOffsetGraphLoopBCET( bcet_graph, remaining_iterations );
+      result.wcet += computeOffsetGraphLoopWCET( wcet_graph, remaining_iterations );
+      result.offsets.content.time_range.bcet_time =
+        start_offsets.content.time_range.bcet_time + result.bcet;
+      result.offsets.content.time_range.wcet_time =
+        start_offsets.content.time_range.wcet_time + result.wcet;
+    } else {
+      result.bcet += computeOffsetGraphLoopBCET( graph, remaining_iterations );
+      result.wcet += computeOffsetGraphLoopWCET( graph, remaining_iterations );
+      result.offsets = computeOffsetGraphLoopOffsets( graph, remaining_iterations,
+                         currentOffsetRepresentation );
+    }
   }
   DOUT( "Loop results: BCET %llu, WCET %llu, offsets %s\n", result.bcet,
         result.wcet, getOffsetDataString( &result.offsets ) );
 
-  freeOffsetGraph( graph );
+  if ( haveExplicitTime ) {
+    freeOffsetGraph( bcet_graph );
+    freeOffsetGraph( wcet_graph );
+  } else {
+    freeOffsetGraph( graph );
+  }
 
   assert( isResultValid( &start_offsets, &result ) && "Invalid result!" );
   DRETURN( result );

@@ -47,7 +47,9 @@
       assert( hadHit && "Offset set was empty!" ); \
     }
 
-/* A convenience macro to iterate over the offsets in an offset data object. */
+/* A convenience macro to iterate over the offsets in an offset data object.
+ * For absolute time representations, this macro only iterates over the
+ * minimum and maximum time values. */
 #define ITERATE_OFFSETS( offset_object, iteration_variable, loop_body_stmts ) \
   { \
     uint iteration_variable; \
@@ -56,11 +58,15 @@
           iteration_variable, loop_body_stmts ); \
     } else \
     if ( offset_object.type == OFFSET_DATA_TYPE_TIME_RANGE ) { \
-      const offset_data rangedata = createOffsetDataFromTimeBounds( \
-          OFFSET_DATA_TYPE_RANGE, offset_object.content.time_range.lower_bound, \
-          offset_object.content.time_range.upper_bound ); \
-      ITERATE_OFFSET_RANGE( rangedata.content.offset_range, \
-          iteration_variable, loop_body_stmts ); \
+      iteration_variable  = offset_object.content.time_range.bcet_time; \
+      do { \
+        loop_body_stmts; \
+        if ( iteration_variable != offset_object.content.time_range.wcet_time ) { \
+          iteration_variable = offset_object.content.time_range.wcet_time; \
+        } else { \
+          break; \
+        } \
+      } while( TRUE ); \
     } else \
     if ( offset_object.type == OFFSET_DATA_TYPE_SET ) { \
       ITERATE_OFFSET_SET( offset_object.content.offset_set, \
@@ -90,8 +96,8 @@ typedef struct {
 
 /* A data type to represent an absolute time range. */
 typedef struct {
-  ull lower_bound;
-  ull upper_bound;
+  ull bcet_time;
+  ull wcet_time;
 } time_bounds;
 
 /* The type of an abstract offset representation. */
@@ -129,23 +135,6 @@ offset_data createOffsetDataFromOffsetBounds( enum OffsetDataType type,
  * represents the given time interval. */
 offset_data createOffsetDataFromTimeBounds( enum OffsetDataType type,
     ull minTime, ull maxTime );
-
-/* If 'd' is of a type which represents the offsets only implicitly,
- * then this function will convert the contents of 'd' such that it
- * only contains the represented offsets, and no other information.
- * For the time representations this means, that the absolute times
- * are taken modulo the TDMA interval to get the offsets. These are
- * then stored in 'd'. For explicit offset representations, this
- * function does nothing.
- *
- * Explicit offset representations:
- * - OFFSET_DATA_TYPE_RANGE
- * - OFFSET_DATA_TYPE_SET
- *
- * Implicit offset representations:
- * - OFFSET_DATA_TYPE_TIME_RANGE
- */
-void convertOffsetDataToExplicitOffsets( offset_data * const d );
 
 /* Returns the currently used maximum offset. The offset
  * representation will not be able to deal with offsets bigger
