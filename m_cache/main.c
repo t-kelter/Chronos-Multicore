@@ -36,8 +36,8 @@
 #include "analysisDAG_WCET_structural.h"
 #include "analysisDAG_WCET_unroll.h"
 //#include "analysisEnum.h"
-#include "analysisCache.h"
-#include "analysisCacheL2.h"
+#include "analysisCache_L1.h"
+#include "analysisCache_L2.h"
 #include "updateCacheL2.h"
 #include "pathDAG.h"
 #include "busSchedule.h"
@@ -52,6 +52,7 @@
 
 // List of analysis methods
 enum AnalysisMethod {
+    ANALYSIS_NONE,
     ANALYSIS_UNROLL,
     ANALYSIS_STRUCTURAL,
     ANALYSIS_ALIGNMENT
@@ -147,6 +148,9 @@ int main(int argc, char **argv )
           default: assert( 0 && "Unknown option!" );
         }
       }
+      break;
+    case 'n':
+      current_analysis_method = ANALYSIS_NONE;
       break;
     case 's':
       current_analysis_method = ANALYSIS_STRUCTURAL;
@@ -479,8 +483,18 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
                       enum OffsetDataType offsetDataType )
 {
   DSTART( "analysis" );
+  const uint old_bus_modeling_value = g_no_bus_modeling;
 
   switch ( method ) {
+
+    case ANALYSIS_NONE:
+      g_no_bus_modeling = 1;
+      // Computes BCET and WCET together
+      compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file,
+          LOOP_ANALYSIS_GLOBAL_CONVERGENCE, FALSE,
+          OFFSET_DATA_TYPE_RANGE );
+      g_no_bus_modeling = old_bus_modeling_value;
+      break;
 
     case ANALYSIS_UNROLL:
       compute_bus_WCET_MSC_unroll(msc, tdma_bus_schedule_file);
