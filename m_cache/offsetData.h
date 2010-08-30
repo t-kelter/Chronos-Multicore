@@ -65,9 +65,6 @@
     if ( offset_object.type == OFFSET_DATA_TYPE_SET ) { \
       ITERATE_OFFSET_SET( offset_object.content.offset_set, \
           iteration_variable, loop_body_stmts ); \
-    } else \
-    if ( offset_object.type == OFFSET_DATA_TYPE_TIME_SET ) { \
-      assert( 0 && "Not implemented!" ); \
     } else { \
       assert( 0 && "Unknown offset data object type!" ); \
     } \
@@ -101,8 +98,7 @@ typedef struct {
 enum OffsetDataType {
   OFFSET_DATA_TYPE_SET,
   OFFSET_DATA_TYPE_RANGE,
-  OFFSET_DATA_TYPE_TIME_RANGE,
-  OFFSET_DATA_TYPE_TIME_SET
+  OFFSET_DATA_TYPE_TIME_RANGE
 };
 
 /* The datatype which represents an abstract amount of offsets. */
@@ -148,7 +144,6 @@ offset_data createOffsetDataFromTimeBounds( enum OffsetDataType type,
  *
  * Implicit offset representations:
  * - OFFSET_DATA_TYPE_TIME_RANGE
- * - OFFSET_DATA_TYPE_TIME_SET
  */
 void convertOffsetDataToExplicitOffsets( offset_data * const d );
 

@@ -565,11 +565,9 @@ static combined_result analyze_block( const block * const bb,
     uint fixedWCOffset = 0;
 
     const _Bool haveExplicitTime =
-        currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_RANGE ||
-        currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_SET;
+        currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_RANGE;
     const _Bool haveSetRepresentation =
-        currentOffsetRepresentation == OFFSET_DATA_TYPE_SET ||
-        currentOffsetRepresentation == OFFSET_DATA_TYPE_TIME_SET;
+        currentOffsetRepresentation == OFFSET_DATA_TYPE_SET;
 
     // TODO: This won't work correctly for segmented schedules
     const uint tdma_interval = getCoreSchedule( ncore, 0 )->interval;
@@ -912,7 +910,6 @@ static combined_result analyze_loop_global_convergence( const loop * const lp,
   assert( lp && proc && isOffsetDataValid( &start_offsets ) &&
           "Invalid arguments!" );
   assert( currentOffsetRepresentation != OFFSET_DATA_TYPE_TIME_RANGE &&
-          currentOffsetRepresentation != OFFSET_DATA_TYPE_TIME_SET &&
           "Global convergence is incompatible to absolute time data!" );
 
   // This will store the offsets during convergence
