@@ -21,30 +21,57 @@
 /* Technical offset limit (storage limitation). */
 #define TECHNICAL_OFFSET_MAXIMUM 100
 
-
-/* A convenience macro to iterate over the offsets in an offset data object. */
-#define ITERATE_OFFSETS( offset_data, iteration_variable, loop_body_stmts ) \
-  { uint iteration_variable; \
-    if ( offset_data.type == OFFSET_DATA_TYPE_RANGE ) { \
-      for ( iteration_variable  = offset_data.content.offset_range.lower_bound; \
-            iteration_variable <= offset_data.content.offset_range.upper_bound; \
+/* Don't use this directly, use ITERATE_OFFSETS. */
+#define ITERATE_OFFSET_RANGE( offset_range, iteration_variable, loop_body_stmts ) \
+    { \
+      for ( iteration_variable  = offset_range.lower_bound; \
+            iteration_variable <= offset_range.upper_bound; \
             iteration_variable++ ) { \
         loop_body_stmts \
       } \
-    } else \
-    if ( offset_data.type == OFFSET_DATA_TYPE_SET ) { \
+    }
+
+/* Don't use this directly, use ITERATE_OFFSETS. */
+#define ITERATE_OFFSET_SET( offset_set, iteration_variable, loop_body_stmts ) \
+    { \
       const uint max_offset = getOffsetDataMaxOffset(); \
       _Bool hadHit = 0; \
       for ( iteration_variable = 0; \
             iteration_variable <= max_offset; \
             iteration_variable++ ) { \
-        if ( offset_data.content.offset_set.offsets[iteration_variable] ) { \
+        if ( offset_set.offsets[iteration_variable] ) { \
           hadHit = 1; \
           loop_body_stmts \
         } \
       } \
       assert( hadHit && "Offset set was empty!" ); \
-    } else  {\
+    }
+
+/* A convenience macro to iterate over the offsets in an offset data object.
+ * For absolute time representations, this macro only iterates over the
+ * minimum and maximum time values. */
+#define ITERATE_OFFSETS( offset_object, iteration_variable, loop_body_stmts ) \
+  { \
+    uint iteration_variable; \
+    if ( offset_object.type == OFFSET_DATA_TYPE_RANGE ) { \
+      ITERATE_OFFSET_RANGE( offset_object.content.offset_range, \
+          iteration_variable, loop_body_stmts ); \
+    } else \
+    if ( offset_object.type == OFFSET_DATA_TYPE_TIME_RANGE ) { \
+      iteration_variable  = offset_object.content.time_range.bcet_time; \
+      do { \
+        loop_body_stmts; \
+        if ( iteration_variable != offset_object.content.time_range.wcet_time ) { \
+          iteration_variable = offset_object.content.time_range.wcet_time; \
+        } else { \
+          break; \
+        } \
+      } while( TRUE ); \
+    } else \
+    if ( offset_object.type == OFFSET_DATA_TYPE_SET ) { \
+      ITERATE_OFFSET_SET( offset_object.content.offset_set, \
+          iteration_variable, loop_body_stmts ); \
+    } else { \
       assert( 0 && "Unknown offset data object type!" ); \
     } \
   }
@@ -67,10 +94,17 @@ typedef struct {
   uint upper_bound;
 } tdma_offset_bounds;
 
+/* A data type to represent an absolute time range. */
+typedef struct {
+  ull bcet_time;
+  ull wcet_time;
+} time_bounds;
+
 /* The type of an abstract offset representation. */
 enum OffsetDataType {
   OFFSET_DATA_TYPE_SET,
-  OFFSET_DATA_TYPE_RANGE
+  OFFSET_DATA_TYPE_RANGE,
+  OFFSET_DATA_TYPE_TIME_RANGE
 };
 
 /* The datatype which represents an abstract amount of offsets. */
@@ -80,6 +114,7 @@ typedef struct {
   union {
     tdma_offset_set offset_set;
     tdma_offset_bounds offset_range;
+    time_bounds time_range;
   } content;
   enum OffsetDataType type;
 } offset_data;
@@ -110,10 +145,6 @@ uint getOffsetDataMaxOffset( void );
  * been called will use the new maximum offset. */
 void setOffsetDataMaxOffset( uint new_max_offset );
 
-/* Adds the given offset to the given offset data object,
- * regardless of its type. */
-void addOffsetDataOffset( offset_data * const d, uint offset );
-
 /* Adds the given offset range to the given offset data object,
  * regardless of its type. */
 void addOffsetDataOffsetRange( offset_data * const d,
@@ -128,15 +159,17 @@ offset_data mergeOffsetData( const offset_data * const d1,
                              const offset_data * const d2 );
 
 /* Computes new offsets which would be reached from "startOffsets" after
- * [minTimeElasped,maxTimeElapsed] time units have passed and writes those
+ * 'bcTimeElapsed' time units have passed in the best case and 'wcTimeElapsed'
+ * time units have passed in the worst case. The function writes the resulting
  * offsets to "targetOffsets". If "append" is true, then the new offsets
  * will be merged with those in "targetOffsets", else they will overwrite
  * the previous content of "targetOffsets".
  *
- * "sourceOffsets" may be equal to "targetOffsets" */
+ * "sourceOffsets" may be equal to "targetOffsets"
+ * "bcTimeElapsed" may be bigger than "wcTimeElapsed" */
 void updateOffsetData( offset_data * const targetOffsets,
-    const offset_data * const sourceOffsets, const uint minTimeElasped,
-    const uint maxTimeElapsed, const _Bool append );
+    const offset_data * const sourceOffsets, const uint bcTimeElasped,
+    const uint wcTimeElapsed, const _Bool append );
 
 /* Returns
  * - a negative number : if 'lhs' is no subset of 'rhs', nor are they equal

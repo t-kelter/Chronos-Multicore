@@ -78,6 +78,9 @@ offset_data createOffsetDataFromOffsetBounds( enum OffsetDataType type,
   if ( type == OFFSET_DATA_TYPE_RANGE ) {
     result.content.offset_range.lower_bound = lower_bound;
     result.content.offset_range.upper_bound = upper_bound;
+  } else if ( type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    result.content.time_range.bcet_time = lower_bound;
+    result.content.time_range.wcet_time = upper_bound;
   } else if ( type == OFFSET_DATA_TYPE_SET ) {
     memset( result.content.offset_set.offsets, 0,
         TECHNICAL_OFFSET_MAXIMUM * sizeof( _Bool ) );
@@ -100,6 +103,15 @@ offset_data createOffsetDataFromTimeBounds( enum OffsetDataType type,
     ull minTime, ull maxTime )
 {
   assert( minTime <= maxTime && "Invalid arguments" );
+
+  /* Very simple for time range type. */
+  if ( type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    offset_data result;
+    result.type = type;
+    result.content.time_range.bcet_time = minTime;
+    result.content.time_range.wcet_time = maxTime;
+    return result;
+  }
 
   // TODO: This won't work for segmented schedules
 
@@ -169,30 +181,6 @@ void setOffsetDataMaxOffset( uint new_max_offset )
 }
 
 
-/* Adds the given offset to the given offset data object,
- * regardless of its type. */
-void addOffsetDataOffset( offset_data * const d, uint offset )
-{
-  assert( d && isOffsetDataValid( d ) &&
-          offset <= MAXIMUM_OFFSET && "Invalid arguments!" );
-
-  if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
-    tdma_offset_bounds * const b = &d->content.offset_range;
-    if ( offset < b->lower_bound ) {
-      b->lower_bound = offset;
-    } else
-    if ( offset > b->upper_bound ) {
-      b->upper_bound = offset;
-    }
-  } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
-    tdma_offset_set * const s = &d->content.offset_set;
-    s->offsets[offset] = 1;
-  } else {
-    assert( 0 && "Unsupported offset data type!" );
-  }
-}
-
-
 /* Adds the given offset range to the given offset data object,
  * regardless of its type. */
 void addOffsetDataOffsetRange( offset_data * const d,
@@ -202,6 +190,7 @@ void addOffsetDataOffsetRange( offset_data * const d,
           lower_bound <= MAXIMUM_OFFSET &&
           upper_bound <= MAXIMUM_OFFSET &&
           lower_bound <= upper_bound && "Invalid arguments!" );
+  assert( d->type != OFFSET_DATA_TYPE_TIME_RANGE && "Unsupported operation!" );
 
   if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
     tdma_offset_bounds * const b = &d->content.offset_range;
@@ -228,6 +217,7 @@ void addOffsetDataOffsetRange( offset_data * const d,
 void setOffsetDataMaximal( offset_data * const d )
 {
   assert( d && isOffsetDataValid( d ) && "Invalid arguments!" );
+  assert( d->type != OFFSET_DATA_TYPE_TIME_RANGE && "Unsupported operation!" );
 
   if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
     tdma_offset_bounds * const b = &d->content.offset_range;
@@ -247,118 +237,136 @@ void setOffsetDataMaximal( offset_data * const d )
 
 
 /* Computes new offsets which would be reached from "startOffsets" after
- * [minTimeElasped,maxTimeElapsed] time units have passed and writes those
+ * 'bcTimeElapsed' time units have passed in the best case and 'wcTimeElapsed'
+ * time units have passed in the worst case. The function writes the resulting
  * offsets to "targetOffsets". If "append" is true, then the new offsets
  * will be merged with those in "targetOffsets", else they will overwrite
  * the previous content of "targetOffsets".
  *
- * "sourceOffsets" may be equal to "targetOffsets" */
+ * "sourceOffsets" may be equal to "targetOffsets"
+ * "bcTimeElapsed" may be bigger than "wcTimeElapsed" */
 void updateOffsetData( offset_data * const targetOffsets,
-    const offset_data * const sourceOffsets, const uint minTimeElasped,
-    const uint maxTimeElapsed, const _Bool append )
+    const offset_data * const sourceOffsets, const uint bcTimeElasped,
+    const uint wcTimeElapsed, const _Bool append )
 {
   assert( targetOffsets && isOffsetDataValid( targetOffsets ) &&
           sourceOffsets && isOffsetDataValid( sourceOffsets ) &&
-          minTimeElasped <= maxTimeElapsed && "Invalid arguments!" );
+          "Invalid arguments!" );
   assert( targetOffsets->type == sourceOffsets->type && "Unsupported operation!" );
 
-  const uint newLowerBound = getOffsetDataMinimumOffset( sourceOffsets ) + minTimeElasped;
-  const uint newUpperBound = getOffsetDataMaximumOffset( sourceOffsets ) + maxTimeElapsed;
+  /* For time representations this is absolutely trivial. */
+  if ( sourceOffsets->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
 
-  // Split up the time values into multiplier and remainder
-  const uint minTime_factor    = newLowerBound / ( MAXIMUM_OFFSET + 1 );
-  const uint minTime_remainder = newLowerBound % ( MAXIMUM_OFFSET + 1 );
-  const uint maxTime_factor    = newUpperBound / ( MAXIMUM_OFFSET + 1 );
-  const uint maxTime_remainder = newUpperBound % ( MAXIMUM_OFFSET + 1 );
+    const time_bounds * const sourceTime = &sourceOffsets->content.time_range;
+    time_bounds       * const targetTime = &targetOffsets->content.time_range;
+    targetTime->bcet_time = sourceTime->bcet_time + bcTimeElasped;
+    targetTime->wcet_time = sourceTime->wcet_time + wcTimeElapsed;
 
-  /* We want to find the offsets in the interval [newLowerBound, newUpperBound]
-   * To do that efficiently we must consider multiple cases:
-   *
-   * a) Between the two time values lies a full TDMA iteration
-   *    --> all offsets are possible */
-  const uint factorDifference = maxTime_factor - minTime_factor;
-  if ( factorDifference > 1 ) {
-    setOffsetDataMaximal( targetOffsets );
-
-    /* b) The interval [newLowerBound, newUpperBound] crosses at most one
-     *    TDMA interval boundary. */
   } else {
 
-    if ( sourceOffsets->type == OFFSET_DATA_TYPE_RANGE ) {
-      tdma_offset_bounds * const b = &targetOffsets->content.offset_range;
+    const uint newLowerBound = getOffsetDataMinimumOffset( sourceOffsets ) + bcTimeElasped;
+    const uint newUpperBound = getOffsetDataMaximumOffset( sourceOffsets ) + wcTimeElapsed;
 
-      /* b1) The interval [newLowerBound, newUpperBound] crosses exactly one
-       *     TDMA interval boundary
-       *     --> Not all offsets may be possible (depending on the remainders) but
-       *         offset MINIMUM_OFFSET and MAXIMUM_OFFSET are definitely possible and
-       *         thus our offset range representation does not allow a tighter bound
-       *         than [MINIMUM_OFFSET, MAXIMUM_OFFSET]. */
-      if ( factorDifference == 1 ) {
-        setOffsetDataMaximal( targetOffsets );
+    // Split up the time values into multiplier and remainder
+    const uint bcTime_factor    = newLowerBound / ( MAXIMUM_OFFSET + 1 );
+    const uint bcTime_remainder = newLowerBound % ( MAXIMUM_OFFSET + 1 );
+    const uint wcTime_factor    = newUpperBound / ( MAXIMUM_OFFSET + 1 );
+    const uint wcTime_remainder = newUpperBound % ( MAXIMUM_OFFSET + 1 );
 
-      /* b2) The interval [newLowerBound, newUpperBound] lies inside a single
-       *    TDMA interval
-       *    --> Use the remainders as the offset bounds */
-      } else {
-        assert( minTime_factor == maxTime_factor &&
-                minTime_remainder <= maxTime_remainder &&
-                "Invalid internal state!" );
-        b->lower_bound = minTime_remainder;
-        b->upper_bound = maxTime_remainder;
-      }
+    /* We want to find the offsets in the interval [newLowerBound, newUpperBound]
+     * To do that efficiently we must consider multiple cases:
+     *
+     * a) Between the two time values lies a full TDMA iteration
+     *    --> all offsets are possible */
+    const uint factorDifference = abs( (signed int)wcTime_factor -
+                                       (signed int)bcTime_factor );
+    if ( factorDifference > 1 ) {
+      setOffsetDataMaximal( targetOffsets );
 
-    } else if ( sourceOffsets->type == OFFSET_DATA_TYPE_SET ) {
+      /* b) The interval [newLowerBound, newUpperBound] crosses at most one
+       *    TDMA interval boundary. */
+    } else {
 
-      /* For sets we can immediately compute the resulting offsets. We could
-       * do it with this algorithm in all cases (also a)), but it is
-       * time-consuming, and therefore we only do it if we can achieve better
-       * precision which is the case here, when there are offsets which are
-       * potentially NOT in the result set. */
+      if ( sourceOffsets->type == OFFSET_DATA_TYPE_RANGE ) {
+        tdma_offset_bounds * const b = &targetOffsets->content.offset_range;
 
-      /* Determines whether we must first buffer the results. */
-      _Bool bufferResultsFirst = ( sourceOffsets == targetOffsets );
-      const _Bool * const inputPointer = sourceOffsets->content.offset_set.offsets;
-            _Bool * const finalOutputPointer = targetOffsets->content.offset_set.offsets;
-      _Bool *preliminaryOutputPointer;
+        /* b1) The interval [newLowerBound, newUpperBound] crosses exactly one
+         *     TDMA interval boundary
+         *     --> Not all offsets may be possible (depending on the remainders) but
+         *         offset MINIMUM_OFFSET and MAXIMUM_OFFSET are definitely possible and
+         *         thus our offset range representation does not allow a tighter bound
+         *         than [MINIMUM_OFFSET, MAXIMUM_OFFSET]. */
+        if ( factorDifference == 1 ||
+             bcTime_factor > wcTime_factor ) {
+          setOffsetDataMaximal( targetOffsets );
 
-      /* Determine and prepare the output area. */
-      const int output_area_size = ( MAXIMUM_OFFSET + 1 ) * sizeof( _Bool );
-      _Bool *offsetResultBuffer;
-      if ( bufferResultsFirst ) {
-        CALLOC( offsetResultBuffer, _Bool*, MAXIMUM_OFFSET + 1,
-              sizeof( _Bool ), "newOffsets" );
-        preliminaryOutputPointer = offsetResultBuffer;
-        if ( append ) {
-          memcpy( preliminaryOutputPointer, inputPointer,
-              output_area_size );
-        }
-      } else {
-        preliminaryOutputPointer = finalOutputPointer;
-        if ( !append ) {
-          memset( preliminaryOutputPointer, 0, output_area_size );
-        }
-      }
-
-      // Compute the new offsets
-      uint i, j;
-      for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
-        if ( inputPointer[i] ) {
-          for ( j = minTimeElasped; j <= maxTimeElapsed; j++ ) {
-            preliminaryOutputPointer[ (i + j) % (MAXIMUM_OFFSET + 1) ] = 1;
+        /* b2) The interval [newLowerBound, newUpperBound] lies inside a single
+         *    TDMA interval
+         *    --> Use the remainders as the offset bounds */
+        } else {
+          assert( bcTime_factor == wcTime_factor && "Invalid internal state!" );
+          if ( bcTime_remainder <= wcTime_remainder ) {
+            b->lower_bound = bcTime_remainder;
+            b->upper_bound = wcTime_remainder;
+          } else {
+            setOffsetDataMaximal( targetOffsets );
           }
         }
-      }
 
-      // Copy from temporary array to the offset object if needed
-      if ( preliminaryOutputPointer != finalOutputPointer ) {
-        for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
-          finalOutputPointer[i] = preliminaryOutputPointer[i];
+      } else if ( sourceOffsets->type == OFFSET_DATA_TYPE_SET ) {
+
+        /* For sets we can immediately compute the resulting offsets. We could
+         * do it with this algorithm in all cases (also a)), but it is
+         * time-consuming, and therefore we only do it if we can achieve better
+         * precision which is the case here, when there are offsets which are
+         * potentially NOT in the result set. */
+
+        /* Determines whether we must first buffer the results. */
+        _Bool bufferResultsFirst = ( sourceOffsets == targetOffsets );
+        const _Bool * const inputPointer = sourceOffsets->content.offset_set.offsets;
+              _Bool * const finalOutputPointer = targetOffsets->content.offset_set.offsets;
+        _Bool *preliminaryOutputPointer;
+
+        /* Determine and prepare the output area. */
+        const int output_area_size = ( MAXIMUM_OFFSET + 1 ) * sizeof( _Bool );
+        _Bool *offsetResultBuffer;
+        if ( bufferResultsFirst ) {
+          CALLOC( offsetResultBuffer, _Bool*, MAXIMUM_OFFSET + 1,
+                sizeof( _Bool ), "newOffsets" );
+          preliminaryOutputPointer = offsetResultBuffer;
+          if ( append ) {
+            memcpy( preliminaryOutputPointer, inputPointer,
+                output_area_size );
+          }
+        } else {
+          preliminaryOutputPointer = finalOutputPointer;
+          if ( !append ) {
+            memset( preliminaryOutputPointer, 0, output_area_size );
+          }
         }
-        free( offsetResultBuffer );
+
+        // Compute the new offsets
+        uint i, j;
+        for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
+          if ( inputPointer[i] ) {
+            for ( j = bcTimeElasped; j <= wcTimeElapsed; j++ ) {
+              preliminaryOutputPointer[ (i + j) % (MAXIMUM_OFFSET + 1) ] = 1;
+            }
+          }
+        }
+
+        // Copy from temporary array to the offset object if needed
+        if ( preliminaryOutputPointer != finalOutputPointer ) {
+          for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
+            finalOutputPointer[i] = preliminaryOutputPointer[i];
+          }
+          free( offsetResultBuffer );
+        }
+      } else {
+        assert( 0 && "Unsupported offset data type!" );
       }
-    } else {
-      assert( 0 && "Unsupported offset data type!" );
     }
+
   }
 }
 
@@ -371,19 +379,24 @@ offset_data mergeOffsetData( const offset_data * const d1,
           d2 && isOffsetDataValid( d2 ) && "Invalid arguments!" );
   assert( d1->type == d2->type && "Unsupported operation!" );
   offset_data result;
+  result.type = d1->type;
 
   if ( d1->type == OFFSET_DATA_TYPE_RANGE ) {
     const tdma_offset_bounds * const b1 = &d1->content.offset_range;
     const tdma_offset_bounds * const b2 = &d2->content.offset_range;
 
-    result.type = OFFSET_DATA_TYPE_RANGE;
     result.content.offset_range.lower_bound = MIN( b1->lower_bound, b2->lower_bound );
     result.content.offset_range.upper_bound = MAX( b1->upper_bound, b2->upper_bound );
+  } else if ( d1->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    const time_bounds * const b1 = &d1->content.time_range;
+    const time_bounds * const b2 = &d2->content.time_range;
+
+    result.content.time_range.bcet_time = MIN( b1->bcet_time, b2->bcet_time );
+    result.content.time_range.wcet_time = MAX( b1->wcet_time, b2->wcet_time );
   } else if ( d1->type == OFFSET_DATA_TYPE_SET ) {
     const tdma_offset_set * const s1 = &d1->content.offset_set;
     const tdma_offset_set * const s2 = &d2->content.offset_set;
 
-    result.type = OFFSET_DATA_TYPE_SET;
     uint i;
     for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
       const _Bool newValue = s1->offsets[i] | s2->offsets[i];
@@ -421,6 +434,23 @@ int isOffsetDataSubsetOrEqual( const offset_data * const lhs,
       // Check for subset
       if ( b1->lower_bound >= b2->lower_bound &&
            b1->upper_bound <= b2->upper_bound ) {
+        return 1;
+      } else {
+        return -1;
+      }
+    }
+  } else if ( lhs->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    const time_bounds * const b1 = &lhs->content.time_range;
+    const time_bounds * const b2 = &rhs->content.time_range;
+
+    // Check equality
+    if ( b1->bcet_time == b2->bcet_time &&
+         b1->wcet_time == b2->wcet_time ) {
+      return 0;
+    } else {
+      // Check for subset
+      if ( b1->bcet_time >= b2->bcet_time &&
+           b1->wcet_time <= b2->wcet_time ) {
         return 1;
       } else {
         return -1;
@@ -467,16 +497,18 @@ _Bool isOffsetDataMaximal( const offset_data * const d )
     const tdma_offset_bounds * const b = &d->content.offset_range;
     return b->lower_bound == MINIMUM_OFFSET &&
            b->upper_bound == MAXIMUM_OFFSET;
+  } else if ( d->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    return FALSE;
   } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
     const tdma_offset_set * const s = &d->content.offset_set;
 
     uint i;
     for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
       if ( !s->offsets[i] ) {
-        return 0;
+        return FALSE;
       }
     }
-    return 1;
+    return TRUE;
   } else {
     assert( 0 && "Unsupported offset data type!" );
   }
@@ -493,8 +525,13 @@ _Bool isOffsetDataValid( const offset_data * const d )
     return b->lower_bound <= b->upper_bound &&
            b->lower_bound >= MINIMUM_OFFSET && b->lower_bound <= MAXIMUM_OFFSET &&
            b->upper_bound >= MINIMUM_OFFSET && b->upper_bound <= MAXIMUM_OFFSET;
+  } else if ( d->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    // During loop analysis we may have bcet_time > wcet_time
+    // temporarily.
+    //      return b->bcet_time <= b->wcet_time;
+    return TRUE;
   } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
-    return 1;
+    return TRUE;
   } else {
     assert( 0 && "Unsupported offset data type!" );
   }
@@ -507,20 +544,22 @@ _Bool isOffsetDataEmpty( const offset_data * const d )
   assert( d && isOffsetDataValid( d ) &&  "Invalid argument!" );
 
   if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
-    return 0;
+    return FALSE;
+  } else if ( d->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    return FALSE;
   } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
     const tdma_offset_set * const s = &d->content.offset_set;
 
     uint i;
     for ( i = MINIMUM_OFFSET; i <= MAXIMUM_OFFSET; i++ ) {
       if ( s->offsets[i] ) {
-        return 0;
+        return FALSE;
       }
     }
-    return 1;
+    return TRUE;
   } else {
     assert( 0 && "Unsupported offset data type!" );
-    return 0;
+    return FALSE;
   }
 }
 
@@ -567,6 +606,14 @@ _Bool isOffsetDataRangeValue( const offset_data * const d,
   if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
     if ( rangeValue != NULL ) {
       *rangeValue = d->content.offset_range;
+    }
+    return TRUE;
+  } else if ( d->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    const time_bounds * const b = &d->content.time_range;
+    if ( rangeValue != NULL ) {
+      *rangeValue = createOffsetDataFromTimeBounds(
+          OFFSET_DATA_TYPE_RANGE, b->bcet_time,
+          b->wcet_time ).content.offset_range;
     }
     return TRUE;
   } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
@@ -630,6 +677,11 @@ _Bool doesOffsetDataContainOffset( const offset_data * const d,
     const tdma_offset_bounds * const b = &d->content.offset_range;
     return offset >= b->lower_bound &&
            offset <= b->upper_bound;
+  } else if ( d->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    const time_bounds * const b = &d->content.time_range;
+    offset_data rangedata = createOffsetDataFromTimeBounds(
+        OFFSET_DATA_TYPE_RANGE, b->bcet_time, b->wcet_time );
+    return doesOffsetDataContainOffset( &rangedata, offset );
   } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
     const tdma_offset_set * const s = &d->content.offset_set;
     return s->offsets[offset];
@@ -650,6 +702,11 @@ uint getOffsetDataMinimumOffset( const offset_data * const d )
   if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
     const tdma_offset_bounds * const b = &d->content.offset_range;
     return b->lower_bound;
+  } else if ( d->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    const time_bounds * const b = &d->content.time_range;
+    offset_data rangedata = createOffsetDataFromTimeBounds(
+        OFFSET_DATA_TYPE_RANGE, b->bcet_time, b->wcet_time );
+    return getOffsetDataMinimumOffset( &rangedata );
   } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
     const tdma_offset_set * const s = &d->content.offset_set;
 
@@ -678,6 +735,11 @@ uint getOffsetDataMaximumOffset( const offset_data * const d )
   if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
     const tdma_offset_bounds * const b = &d->content.offset_range;
     return b->upper_bound;
+  } else if ( d->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    const time_bounds * const b = &d->content.time_range;
+    offset_data rangedata = createOffsetDataFromTimeBounds(
+        OFFSET_DATA_TYPE_RANGE, b->bcet_time, b->wcet_time );
+    return getOffsetDataMaximumOffset( &rangedata );
   } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
     const tdma_offset_set * const s = &d->content.offset_set;
 
@@ -719,6 +781,9 @@ char *getOffsetDataString( const offset_data * const d )
   if ( d->type == OFFSET_DATA_TYPE_RANGE ) {
     const tdma_offset_bounds * const b = &d->content.offset_range;
     PRINT_TO_STRING( "[%u,%u]", b->lower_bound, b->upper_bound );
+  } else if ( d->type == OFFSET_DATA_TYPE_TIME_RANGE ) {
+    const time_bounds * const b = &d->content.time_range;
+    PRINT_TO_STRING( "[%llu,%llu]", b->bcet_time, b->wcet_time );
   } else if ( d->type == OFFSET_DATA_TYPE_SET ) {
     const tdma_offset_set * const s = &d->content.offset_set;
     PRINT_TO_STRING( "{ " );

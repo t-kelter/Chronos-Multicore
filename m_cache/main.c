@@ -144,6 +144,7 @@ int main(int argc, char **argv )
           case 'g': alignmentLAType = LOOP_ANALYSIS_GRAPH_TRACKING; break;
           case 'r': offsetDataType = OFFSET_DATA_TYPE_RANGE; break;
           case 's': offsetDataType = OFFSET_DATA_TYPE_SET; break;
+          case 't': offsetDataType = OFFSET_DATA_TYPE_TIME_RANGE; break;
           case '+': alignmentTryStructural = 1; break;
           default: assert( 0 && "Unknown option!" );
         }
