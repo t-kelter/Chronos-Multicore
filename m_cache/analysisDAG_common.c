@@ -238,10 +238,10 @@ ull get_earliest_task_start_time( task_t* cur_task, uint core )
   /* A task in the MSC can be delayed because of two reasons. Either
    * the tasks it is dependent upon has not finished executing or
    * since we consider a non-preemptive scheduling policy the task can
-   * also be delayed because of some other processe's execution in the
-   * same core. Thus we need to consider the minimum of two
-   * possibilities */
-  ull start = MIN( cur_task->earliest_start_time, earliest_core_time[core] );
+   * also be delayed because of some other process' execution in the
+   * same core. Thus we need to consider the maximum of the two
+   * possibilities. */
+  ull start = MAX( cur_task->earliest_start_time, earliest_core_time[core] );
 
   DOUT( "Assigning the earliest starting time of the task = %Lu\n", start);
 
