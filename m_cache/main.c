@@ -522,8 +522,15 @@ static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
   // Assert that all results are sound
   int i;
   for ( i = 0; i < msc->num_task; i++ ) {
-    assert( msc->taskList[i].bcet <= msc->taskList[i].wcet &&
-        "Invalid BCET/WCET results for task" );
+    // If the tasks are executed in order, only the assertion
+    // earliest_start_time + bcet <= latest_start_time + WCET
+    // holds. Unfortunately, the start times which are used in
+    // the analyses are not conserved, therefore we cannot assert
+    // this here.
+    if ( g_independent_task ) {
+      assert( msc->taskList[i].bcet <= msc->taskList[i].wcet &&
+          "Invalid BCET/WCET results for task" );
+    }
   }
 
   // Output the results if desired
