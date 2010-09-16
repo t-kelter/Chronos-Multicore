@@ -1,5 +1,10 @@
 *.swp
 
+.tags
+.tags_options
+m_cache/.tags
+m_cache/.tags_options
+
 .cproject
 .metadata/
 .project
