@@ -104,9 +104,11 @@ void reset_all_task(MSC* msc);
  *                                 will contain the information whether the
  *                                 current access had to wait for the next
  *                                 TDMA slot
+ * 'accessScenario' should indicate whether we are analyzing WCET or BCET
  */
 uint determine_latency( const block * const bb, const ull access_time,
-    const acc_type type, _Bool * const has_waited_for_next_tdma_slot );
+    const acc_type type, _Bool * const has_waited_for_next_tdma_slot,
+    enum AccessScenario accessScenario );
 
 
 /* Computes the end alignment cost of a loop iteration which ends at 'fin_time'.

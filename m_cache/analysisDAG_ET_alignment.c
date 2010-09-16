@@ -622,8 +622,8 @@ static combined_result analyze_block( const block * const bb,
             assert( 0 && "Unsupported offset representation!" );
           }
         }
-        const uint latency = determine_latency( bb, bcOffset,
-                                                best_acc, NULL );
+        const uint latency = determine_latency( bb, bcOffset, best_acc,
+                                                NULL, ACCESS_SCENARIO_BCET );
         result.bcet += latency;
         usedFixedBCOffset = TRUE;
 
@@ -638,7 +638,8 @@ static combined_result analyze_block( const block * const bb,
 
         ITERATE_OFFSETS( result.offsets, j,
           const uint latency = determine_latency( bb, j, best_acc,
-                                                  &waitedForNextTDMASlot );
+                                                  &waitedForNextTDMASlot,
+                                                  ACCESS_SCENARIO_BCET );
           if ( latency < min_latency ) {
             min_latency = latency;
 
@@ -668,8 +669,8 @@ static combined_result analyze_block( const block * const bb,
             assert( 0 && "Unsupported offset representation!" );
           }
         }
-        const uint latency = determine_latency( bb, wcOffset,
-                                                worst_acc, NULL );
+        const uint latency = determine_latency( bb, wcOffset, worst_acc,
+                                                NULL, ACCESS_SCENARIO_WCET );
         result.wcet += latency;
         usedFixedWCOffset = TRUE;
 
@@ -683,7 +684,8 @@ static combined_result analyze_block( const block * const bb,
         uint max_latency = 0;
         ITERATE_OFFSETS( result.offsets, j,
           const uint latency = determine_latency( bb, j, worst_acc,
-                                                  &waitedForNextTDMASlot );
+                                                  &waitedForNextTDMASlot,
+                                                  ACCESS_SCENARIO_WCET );
           if ( latency > max_latency ) {
             max_latency = latency;
 
@@ -701,12 +703,14 @@ static combined_result analyze_block( const block * const bb,
       if ( haveSetRepresentation &&
            ( !usedFixedBCOffset || !usedFixedWCOffset ) ) {
         ITERATE_OFFSETS( result.offsets, j,
-          const uint best_latency  = determine_latency( bb, j, best_acc,  NULL );
-          const uint worst_latency = determine_latency( bb, j, worst_acc, NULL );
+          const uint best_latency  = determine_latency( bb, j, best_acc,  NULL,
+                                                        ACCESS_SCENARIO_BCET );
+          const uint worst_latency = determine_latency( bb, j, worst_acc, NULL,
+                                                        ACCESS_SCENARIO_WCET );
           updateOffsetData( &offsetSetResults, &result.offsets, best_latency,
-              best_latency, TRUE );
+                            best_latency, TRUE );
           updateOffsetData( &offsetSetResults, &result.offsets, worst_latency,
-              worst_latency, TRUE );
+                            worst_latency, TRUE );
         );
       }
 

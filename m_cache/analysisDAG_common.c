@@ -348,9 +348,11 @@ static uint getAccessLatency( acc_type type )
  *                                 will contain the information whether the
  *                                 current access had to wait for the next
  *                                 TDMA slot
+ * 'accessScenario' should indicate whether we are analyzing WCET or BCET
  */
 uint determine_latency( const block * const bb, const ull access_time,
-    const acc_type type, _Bool * const has_waited_for_next_tdma_slot )
+    const acc_type type, _Bool * const has_waited_for_next_tdma_slot,
+    enum AccessScenario accessScenario )
 {
   DSTART( "determine_latency" );
 
@@ -391,7 +393,8 @@ uint determine_latency( const block * const bb, const ull access_time,
      * */
     if ( g_no_bus_modeling ) {
 
-      result = ( num_core - 1 ) * slot_len + 2 * getAccessLatency( type );
+      result = ( accessScenario == ACCESS_SCENARIO_BCET ? 0 :
+                 ( num_core - 1 ) * slot_len + 2 * getAccessLatency( type ) );
 
     } else {
 

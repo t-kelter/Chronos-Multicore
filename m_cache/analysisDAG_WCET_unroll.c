@@ -143,7 +143,7 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp, uint co
       const acc_type acc_t = check_hit_miss( bb, inst, context,
                                              ACCESS_SCENARIO_WCET );
       bb_cost += determine_latency( bb, bb->start_time + bb_cost,
-                                    acc_t, NULL );
+                                    acc_t, NULL, ACCESS_SCENARIO_WCET );
 
       /* Then add cost for executing the instruction. */
       bb_cost += getInstructionWCET( inst );
