@@ -286,6 +286,9 @@ typedef struct
   block *loopsink; // pointer to the block that is the sink of the loop
   block *loopexit; // pointer to the (normal) exit block of the loop
 
+  int num_exits; // length of 'exits'
+  block **exits; // full list of loop exit blocks
+
   int loopbound; // max. number of loop iterations
   int level; // nesting level of the loop, outmost being 0
   int nest; // id of the loop that this loop is immediately nested in (-1 if not nested)

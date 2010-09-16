@@ -338,7 +338,12 @@ static int determineLoopExits( loop **loops, int num_loops, block **bblist, int 
         lp->loopexit = promptLoopExit( lp, exits, num_exits );
     }
 
-    free( exits );
+    // Take over the exit list
+    if ( lp->exits != NULL ) {
+      free( lp->exits );
+    }
+    lp->num_exits = num_exits;
+    lp->exits = exits;
   }
 
   return 0;

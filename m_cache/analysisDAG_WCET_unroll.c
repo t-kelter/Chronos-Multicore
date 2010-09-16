@@ -81,6 +81,8 @@ static void computeWCET_loop( loop* lp, procedure* proc, uint context )
       computeWCET_block( bb, proc, lp, inner_context );
     }
 
+    assert( lp->loopsink->finish_time >= lp->loophead->start_time &&
+        "Computed negative loop runtime!" );
     DOUT( "Setting loop %u.%u iteration %d finish time = %llu "
         "(iteration wcet %llu, context %u)\n", lp->pid, lp->lpid, i,
         lp->loopsink->finish_time,
@@ -161,7 +163,7 @@ static void computeWCET_block( block* bb, procedure* proc, loop* cur_lp, uint co
         }
       }
 
-      DOUT( "  Instruction 0x%s: BCET %u\n", inst->addr, bb_cost );
+      //DOUT( "  Instruction 0x%s: BCET %u\n", inst->addr, bb_cost );
     }
     /* The accumulated cost is computed. Now set the latest finish
      * time of this block */
@@ -208,6 +210,7 @@ static void computeWCET_proc( procedure* proc, ull start_time )
   proc->running_finish_time = max_f_time;
   proc->running_cost = max_f_time - start_time;
 
+  assert( max_f_time >= start_time && "Computed negative procedure runtime!" );
   DOUT( "Set worst case cost of the procedure %d = %Lu\n", proc->pid, proc->running_cost );
   DEND();
 }

@@ -73,6 +73,8 @@ int createLoop( loop *lp, int pid, int lpid, int level, block *loophead ) {
   lp->loophead     = loophead;
   lp->loopsink     = NULL;
   lp->loopexit     = NULL;
+  lp->num_exits    = 0;
+  lp->exits        = NULL;
   lp->level        = level;
   lp->nest         = -1;
   lp->is_dowhile   = 0;

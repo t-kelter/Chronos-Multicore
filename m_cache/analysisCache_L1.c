@@ -285,6 +285,12 @@ copyLoop(procedure *proc, procedure* copy_proc, loop *lp)
 	//copy->loopexit = proc->bblist[i];
 	copy->loopexit = copy_proc->bblist[i];
 	
+	copy->num_exits = src->num_exits;
+	CALLOC( copy->exits, block**, src->num_exits, sizeof( block* ), "exits" );
+	for ( i = 0; i < src->num_exits; i++ ) {
+	  copy->exits[i] = copy_proc->bblist[src->exits[i]->bbid];
+	}
+
 	copy->level = src->level;
 	copy->nest = src->nest;
 	copy->is_dowhile= src->is_dowhile;

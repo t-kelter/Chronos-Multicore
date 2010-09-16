@@ -127,6 +127,41 @@ uint getMaximumLoopContext( const procedure * const proc )
 }
 
 
+/* The result type of 'isLoopExit'. */
+enum LoopExitBlockType {
+  LEBT_MAIN_EXIT,
+  LEBT_SECONDARY_EXIT,
+  LEBT_NO_EXIT
+};
+
+/* Determines whether 'bb' is the exit of any loop in 'proc'.
+ * Only read stored data, does not perform computations. */
+static enum LoopExitBlockType getLoopExitType( block* bb, procedure* proc )
+{
+  uint i;
+  for ( i = 0; i < proc->num_loops; i++ ) {
+    const loop * const lp = proc->loops[i];
+    if ( lp->loopexit == bb ) {
+      return LEBT_MAIN_EXIT;
+    } else if ( getblock( bb->bbid, lp->exits, 0, lp->num_exits - 1 ) >= 0 ) {
+      return LEBT_SECONDARY_EXIT;
+    }
+  }
+  return LEBT_NO_EXIT;
+}
+
+/* Self-explanatory. */
+static _Bool allPredecessorsAreLoopExits( block* bb, procedure* proc )
+{
+  uint i;
+  for ( i = 0; i < bb->num_incoming; i++ ) {
+    if ( getLoopExitType( proc->bblist[bb->incoming[i]], proc ) == LEBT_NO_EXIT ) {
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
 /* This sets the latest starting time of a block during WCET calculation.
  * (Not context-aware) */
 void set_start_time_WCET( block* bb, procedure* proc )
@@ -134,7 +169,7 @@ void set_start_time_WCET( block* bb, procedure* proc )
   DSTART( "set_start_time_WCET" );
 
   ull max_start = bb->start_time;
-
+  const _Bool allPredsAreLoopExits = allPredecessorsAreLoopExits( bb, proc );
   assert(bb);
 
   int i;
@@ -142,6 +177,13 @@ void set_start_time_WCET( block* bb, procedure* proc )
 
     block * const predecessor = proc->bblist[bb->incoming[i]];
     assert( predecessor && "Missing basic block!" );
+
+    /* If all predecessors are loop exits, use only the main loop exits
+     * as predecessors, because the finish time of side exits may not
+     * have been updated in some cases. */
+    if ( allPredsAreLoopExits && getLoopExitType( predecessor, proc ) != LEBT_MAIN_EXIT ) {
+      continue;
+    }
 
     /* Determine the predecessors' latest finish time */
     max_start = MAX( max_start, predecessor->finish_time );
@@ -155,7 +197,6 @@ void set_start_time_WCET( block* bb, procedure* proc )
   DEND();
 }
 
-
 /* This sets the earliest starting time of a block during BCET calculation
  * (Not context-aware) */
 void set_start_time_BCET( block* bb, procedure* proc )
@@ -163,7 +204,7 @@ void set_start_time_BCET( block* bb, procedure* proc )
   DSTART( "set_start_time_BCET" );
 
   ull min_start = 0;
-
+  const _Bool allPredsAreLoopExits = allPredecessorsAreLoopExits( bb, proc );
   assert(bb);
 
   int i;
@@ -171,6 +212,13 @@ void set_start_time_BCET( block* bb, procedure* proc )
 
     block * const predecessor = proc->bblist[bb->incoming[i]];
     assert( predecessor && "Missing basic block!" );
+
+    /* If all predecessors are loop exits, use only the main loop exits
+     * as predecessors, because the finish time of side exits may not
+     * have been updated in some cases. */
+    if ( allPredsAreLoopExits && getLoopExitType( predecessor, proc ) != LEBT_MAIN_EXIT ) {
+      continue;
+    }
 
     /* Determine the predecessors' earliest finish time */
     if ( i == 0 ) {
