@@ -170,6 +170,7 @@ void set_start_time_WCET( block* bb, procedure* proc )
 
   ull max_start = bb->start_time;
   const _Bool allPredsAreLoopExits = allPredecessorsAreLoopExits( bb, proc );
+  const _Bool currentBBIsMainExit  = getLoopExitType( bb, proc ) == LEBT_MAIN_EXIT;
   assert(bb);
 
   int i;
@@ -181,7 +182,14 @@ void set_start_time_WCET( block* bb, procedure* proc )
     /* If all predecessors are loop exits, use only the main loop exits
      * as predecessors, because the finish time of side exits may not
      * have been updated in some cases. */
-    if ( allPredsAreLoopExits && getLoopExitType( predecessor, proc ) != LEBT_MAIN_EXIT ) {
+    if ( ( allPredsAreLoopExits &&
+           getLoopExitType( predecessor, proc ) != LEBT_MAIN_EXIT ) ||
+         /* Also skip the predecessor if it is a secondary exit, and the
+          * current bb is the main exit (chained exits, where the last is
+          * the main exit). The finish time of side exits may not have
+          * been updated in call cases then. */
+         ( currentBBIsMainExit &&
+           getLoopExitType( predecessor, proc ) == LEBT_SECONDARY_EXIT ) ) {
       continue;
     }
 
@@ -205,6 +213,7 @@ void set_start_time_BCET( block* bb, procedure* proc )
 
   ull min_start = 0;
   const _Bool allPredsAreLoopExits = allPredecessorsAreLoopExits( bb, proc );
+  const _Bool currentBBIsMainExit  = getLoopExitType( bb, proc ) == LEBT_MAIN_EXIT;
   assert(bb);
 
   int i;
@@ -216,7 +225,14 @@ void set_start_time_BCET( block* bb, procedure* proc )
     /* If all predecessors are loop exits, use only the main loop exits
      * as predecessors, because the finish time of side exits may not
      * have been updated in some cases. */
-    if ( allPredsAreLoopExits && getLoopExitType( predecessor, proc ) != LEBT_MAIN_EXIT ) {
+    if ( ( allPredsAreLoopExits &&
+           getLoopExitType( predecessor, proc ) != LEBT_MAIN_EXIT ) ||
+         /* Also skip the predecessor if it is a secondary exit, and the
+          * current bb is the main exit (chained exits, where the last is
+          * the main exit). The finish time of side exits may not have
+          * been updated in call cases then. */
+         ( currentBBIsMainExit &&
+           getLoopExitType( predecessor, proc ) == LEBT_SECONDARY_EXIT ) ) {
       continue;
     }
 
