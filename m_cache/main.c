@@ -613,8 +613,15 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
   /* Get/set names of all tasks in the MSC */
   int i;
   for(i = 0; i < num_task; i ++) {
+    task_t * const cur_task = &msc[msc_index]->taskList[i];
 
-    fscanf(interferFile, "%s", (char*)&(msc[msc_index]->taskList[i].task_name));
+    /* Read in task file name and core mapping. */
+    int read_count = fscanf(interferFile, "%u %s", &cur_task->core_index,
+                                      (char*)&cur_task->task_name);
+    if ( read_count != 2 ) {
+      prerr( "Invalid input file format - core mapping or task name missing!" );
+    }
+
     /* sudiptac ::: Read also the successor info. Needed for WCET analysis
      * in presence of shared bus */
     fscanf(interferFile, " %d", &(msc[msc_index]->taskList[i].numSuccs));

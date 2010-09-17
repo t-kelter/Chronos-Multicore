@@ -19,7 +19,7 @@
 
 
 /* Technical offset limit (storage limitation). */
-#define TECHNICAL_OFFSET_MAXIMUM 100
+#define TECHNICAL_OFFSET_MAXIMUM 320
 
 /* Don't use this directly, use ITERATE_OFFSETS. */
 #define ITERATE_OFFSET_RANGE( offset_range, iteration_variable, loop_body_stmts ) \

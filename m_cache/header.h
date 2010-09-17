@@ -384,6 +384,8 @@ typedef struct
   milliseconds bcet_analysis_time;
   milliseconds wcet_analysis_time;
 
+  // The core on which the task shall be executed
+  uint core_index;
 } task_t;
 
 typedef struct

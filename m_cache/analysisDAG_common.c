@@ -741,9 +741,7 @@ void reset_all_task(MSC* msc)
  * tasks are done statically before any analysis took place */
 uint get_core(task_t* cur_task)
 {
-  /* FIXME: Currently returns 0 */
-
-  return 0;
+  return cur_task->core_index;
 }
 
 
