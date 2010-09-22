@@ -41,7 +41,7 @@ cycle_time(int start_end)
 milliseconds getmsecs(void)
 {
   struct timespec time;
-  if ( clock_gettime( CLOCK_PROCESS_CPUTIME_ID, &time ) == 0 ) {
+  if ( clock_gettime( CLOCK_REALTIME, &time ) == 0 ) {
     return time.tv_sec * 1000 + time.tv_nsec / 1000000;
   } else {
     return clock() / ( CLOCKS_PER_SEC / 1000 );
