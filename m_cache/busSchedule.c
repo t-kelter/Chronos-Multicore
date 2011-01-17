@@ -87,9 +87,9 @@ core_sched_p getCoreSchedule( uint core_index, ull time )
   segment_p cur_seg = ( glob_sched->type != SCHED_TYPE_1 )
     ? find_segment( glob_sched->seg_list, glob_sched->n_segments, time )
     : glob_sched->seg_list[0];
+  /* Return the correct schedule entry. */
   const core_sched_p core_schedule = cur_seg->per_core_sched[core_index];
-  assert(core_schedule &&
-      "Internal error: Invalid data structures!" );
+  assert(core_schedule && "Internal error: Invalid data structures!" );
   return core_schedule;
 }
 
@@ -208,6 +208,17 @@ void setSchedule(const char* sched_file)
 	}
 
 	fclose(fp);
+
+  /* Assert that all cores have proper schedule data. */
+  for ( cur_seg = 0; cur_seg < n_segs; cur_seg++ ) {
+		const segment_p cur_seg_p = global_sched_data->seg_list[cur_seg];
+    int cur_core;
+    for ( cur_core = 0; cur_core < num_core; cur_core++ ) {
+      const core_sched_p core_schedule = cur_seg_p->per_core_sched[cur_core];
+      assert( core_schedule->slot_len * num_core == core_schedule->interval &&
+          "Internal error: Invalid schedule data!" );
+    }
+  }
 
 	DACTION( print_TDMA_sched( stdout ); );
 	DEND();
