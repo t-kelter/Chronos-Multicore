@@ -451,10 +451,14 @@ char doTiming( chart_t *msc, char slack ) {
   char changed;
 
   // shadow copy to detect updates
-  time_t *eReq = (time_t*) MALLOC( eReq, numTasks * sizeof(time_t), "eReq" );
-  time_t *lReq = (time_t*) MALLOC( lReq, numTasks * sizeof(time_t), "lReq" );
-  time_t *eFin = (time_t*) MALLOC( eFin, numTasks * sizeof(time_t), "eFin" );
-  time_t *lFin = (time_t*) MALLOC( lFin, numTasks * sizeof(time_t), "lFin" );
+  time_t *eReq;
+  MALLOC( eReq, time_t*, numTasks * sizeof(time_t), "eReq" );
+  time_t *lReq;
+  MALLOC( lReq, time_t*, numTasks * sizeof(time_t), "lReq" );
+  time_t *eFin;
+  MALLOC( eFin, time_t*, numTasks * sizeof(time_t), "eFin" );
+  time_t *lFin;
+  MALLOC( lFin, time_t*, numTasks * sizeof(time_t), "lFin" );
 
   if( slack ) {
 
@@ -462,7 +466,7 @@ char doTiming( chart_t *msc, char slack ) {
     int len = msc->topoListLen;
 
     // topological order
-    msc->timeTopoList = (int*) MALLOC( msc->timeTopoList, len * sizeof(int), "timeTopoList" );
+    MALLOC( msc->timeTopoList, int*, len * sizeof(int), "timeTopoList" );
     for( k = 0; k < len; k++ )
       msc->timeTopoList[k] = msc->topoList[len-k-1];
 
@@ -618,7 +622,7 @@ time_t estGain( task_t *ts, int capacity ) {
   for( i = 0; i < ts->numMemBlocks; i++ ) {
     if( !ts->allocated[i] ) {
       numUnalloc++;
-      sortBlocks = (mem_t**) REALLOC( sortBlocks, numUnalloc * sizeof(mem_t*), "sortBlocks" );
+      REALLOC( sortBlocks, mem_t**, numUnalloc * sizeof(mem_t*), "sortBlocks" );
       sortBlocks[numUnalloc-1] = ts->memBlockList[i];
     }
   }

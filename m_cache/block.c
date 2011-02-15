@@ -1,21 +1,55 @@
+// Include standard library headers
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "block.h"
+#include "handler.h"
+
+
+/*
+ * Returns the index of the instruction 'i' in the instruction list
+ * 'ilist', or -1 if not found. Searches the list from 'start' to 'end'.
+ */
+int getinstruction( const instr *i, const instr **ilist, int start, int end )
+{
+  int j;
+  for( j = end; j >= start; j-- )
+    if( ilist[j] == i )
+      return j;
+  return -1;
+}
+
 
 /*
  * Returns the index of bbid in bblist, -1 if not found.
  * Searches bblist from index start to end, both inclusive.
  * Mostly used to search for successor, which is usually near the end.
  */
-int getblock( int bbid, block **bblist, int start, int end ) {
+int getblock( int bbid, block **bblist, int start, int end )
+{
+  DSTART( "getblock" );
+
+  DOUT( "Searching for block with id %u\n", bbid );
 
   int i;
-  for( i = end; i >= start; i-- )
-    if( bblist[i]->bbid == bbid )
-      return i;
-  return -1;
+  for( i = end; i >= start; i-- ) {
+    DOUT( "Scanned block %u (0x%s)\n", bblist[i]->bbid,
+        bblist[i]->instrlist[0]->addr );
+
+    if( bblist[i]->bbid == bbid ) {
+      DRETURN( i );
+    }
+  }
+
+  DRETURN( -1 );
 }
 
 
@@ -28,7 +62,7 @@ int getblock( int bbid, block **bblist, int start, int end ) {
 int testBlockRange( int addr, block *bb ) {
 
   if( !bb )
-    printf( "Null basic block encountered in search.\n" ), exit(1);
+    prerr( "Null basic block encountered in search.\n" );
 
   if( addr < bb->startaddr )
     return -1;
@@ -173,7 +207,7 @@ char *getJumpDest( instr *insn ) {
       strcmp( insn->op, "beq" ) == 0 )
     return insn->r3;
 
-  printf( "Unrecognized or not a jump instruction: %s\n", insn->op );
+  fprintf( stderr, "Unrecognized or not a jump instruction: %s\n", insn->op );
   return NULL;
 }
 

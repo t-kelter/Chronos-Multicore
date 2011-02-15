@@ -1,25 +1,33 @@
+// Include standard library headers
 #include <stdlib.h>
 #include <stdio.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "updateCacheL2.h"
-#include "analysisCache.h"
+#include "analysisCache_L1.h"
+#include "analysisCache_L2.h"
+#include "analysisCache_common.h"
+
 
 // Forward declarations of static functions
-
 static void
 updateLoop(MSC *msc, int index, procedure *proc, loop *lp);
-
 static void
 updateFunctionCall(MSC *msc, int index, procedure* proc);
 
 
-
-/*static int
+static int
 conflictStatistics(MSC *msc, int index, int set_no, int current_addr)
 {
   int i, j, entry, conflict = 0;
 	int *history = NULL, cnt = 0;
-	history = (int *)CALLOC(history, MAX_LEN * 2, sizeof(int), "history int[]");
+	CALLOC(history, int *, MAX_LEN * 2, sizeof(int), "history int[]");
 	
     for(i = 0; i < msc->num_task; i++)
     {
@@ -39,21 +47,21 @@ conflictStatistics(MSC *msc, int index, int set_no, int current_addr)
     }
 	free(history);
     return conflict;
-}*/
+}
 
 
 static void
 updateLoop(MSC *msc, int index, procedure *proc, loop *lp)
 {
+  DSTART( "updateLoop" );
+
     int i, j, k, n, set_no, cnt, addr, lp_level, num_conflict;
     procedure *p = proc;
     block *bb;
     CHMC * current_chmc;
 	 int offset;
     
-    int  num_blk = lp->num_topo;    
-
-    //printf("updateLoop\n");
+    int  num_blk = lp->num_topo;
 
     for(i = 0; i < MAX_NEST_LOOP; i++)
         if(loop_level_arr[i] == INVALID)
@@ -76,16 +84,16 @@ updateLoop(MSC *msc, int index, procedure *proc, loop *lp)
         //bb is in bblist
         bb = p->bblist[ bb->bbid ];
         
-        DEBUG_ANALYSIS_PRINTF("\nThis is  bb %d in proc %d\n", bb->bbid, proc->pid);
+        DOUT("\nThis is  bb %d in proc %d\n", bb->bbid, proc->pid);
         
         if(bb->is_loophead && i!= num_blk -1)
         {
 
             loop_level_arr[lp_level +1] = FIRST_ITERATION;
 
-            DEBUG_ANALYSIS_PRINTF("\nThe first time go into loop\n");
+            DOUT("\nThe first time go into loop\n");
             updateLoop(msc, index, p, p->loops[bb->loopid]);
-            DEBUG_ANALYSIS_PRINTF("\nThe second time go into loop\n");
+            DOUT("\nThe second time go into loop\n");
 
             loop_level_arr[lp_level +1] = NEXT_ITERATION;
             updateLoop(msc, index, p, p->loops[bb->loopid]);
@@ -114,8 +122,8 @@ updateLoop(MSC *msc, int index, procedure *proc, loop *lp)
 								offset = (addr - bb->startaddr) / INSN_SIZE;
                         if(msc->taskList[k].main_copy->hit_cache_set_L2[set_no] == USED)
                         {
-                            //num_conflict = conflictStatistics(msc, index, set_no, addr);
-                            //printf("num_conflict = %d\n", num_conflict);
+                            num_conflict = conflictStatistics(msc, index, set_no, addr);
+                            DOUT("num_conflict = %d\n", num_conflict);
    
                             if(current_chmc->age[j] + num_conflict >= cache_L2.na)
                             {
@@ -138,34 +146,39 @@ updateLoop(MSC *msc, int index, procedure *proc, loop *lp)
         }
         
 
-        //for(k = 0; k < current_chmc->hitmiss; k++)
-            //printf("L2: %d ", current_chmc->hitmiss_addr[k]);
-        DEBUG_ANALYSIS_PRINTF("\nL2:\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
-        DEBUG_ANALYSIS_PRINTF("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
+        DACTION(
+            for(k = 0; k < current_chmc->hitmiss; k++)
+              DOUT("L2: %d ", current_chmc->hitmiss_addr[k]);
+        );
+        DOUT("\nL2:\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
+        DOUT("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
 
-        DEBUG_ANALYSIS_PRINTF("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
+        DOUT("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
 
-        DEBUG_ANALYSIS_PRINTF("\ncnt = %d, wcost = %d, bcost = %d\n", cnt, current_chmc->wcost, current_chmc->bcost);  
+        DOUT("\ncnt = %d, wcost = %d, bcost = %d\n", cnt, current_chmc->wcost, current_chmc->bcost);
     
-        DEBUG_ANALYSIS_PRINTF("\nL2 Loop:  bb->wcost = %d\n", current_chmc->wcost);    
-        DEBUG_ANALYSIS_PRINTF("\nL2 Loop:  bb->bcost = %d\n", current_chmc->bcost);    
+        DOUT("\nL2 Loop:  bb->wcost = %d\n", current_chmc->wcost);
+        DOUT("\nL2 Loop:  bb->bcost = %d\n", current_chmc->bcost);
 
     
         //check the bb if it is a function call
         
-        if(bb->callpid != -1) updateFunctionCall(msc, index, bb->proc_ptr);
-
+        if(bb->callpid != -1)
+          updateFunctionCall(msc, index, bb->proc_ptr);
     }
 
-    //if(n)
-        //printf("\n%d cache line changed into unknow in proc[%d]->loop[%d]\n", n, p->pid, lp->lpid);
-            
-}// end if else
+    if(n)
+      DOUT("\n%d cache line changed into unknow in proc[%d]->loop[%d]\n", n, p->pid, lp->lpid);
+
+    DEND();
+}
 
 
 static void
 updateFunctionCall(MSC *msc, int index, procedure* proc)
 {
+  DSTART( "updateFunctionCall" );
+
     int i, j, k, n, set_no, cnt, addr, lp_level, num_conflict;
     procedure *p = proc;
     block *bb;
@@ -195,16 +208,16 @@ updateFunctionCall(MSC *msc, int index, procedure* proc)
         //bb is in bblist
         bb = p->bblist[ bb->bbid ];
         
-        DEBUG_ANALYSIS_PRINTF("\nThis is  bb %d in proc %d\n", bb->bbid, proc->pid);
+        DOUT("\nThis is  bb %d in proc %d\n", bb->bbid, proc->pid);
         
         if(bb->is_loophead)
         {
 
             loop_level_arr[lp_level +1] = FIRST_ITERATION;
 
-            DEBUG_ANALYSIS_PRINTF("\nThe first time go into loop\n");
+            DOUT("\nThe first time go into loop\n");
             updateLoop(msc, index, p, p->loops[bb->loopid]);
-            DEBUG_ANALYSIS_PRINTF("\nThe second time go into loop\n");
+            DOUT("\nThe second time go into loop\n");
 
             loop_level_arr[lp_level +1] = NEXT_ITERATION;
             updateLoop(msc, index, p, p->loops[bb->loopid]);
@@ -231,8 +244,8 @@ updateFunctionCall(MSC *msc, int index, procedure* proc)
 								offset = (addr - bb->startaddr) / INSN_SIZE;
                         if(msc->taskList[k].main_copy->hit_cache_set_L2[set_no] == USED)
                         {
-                            //num_conflict = conflictStatistics(msc, index, set_no, addr);
-                            //printf("num_conflict = %d\n", num_conflict);
+                            num_conflict = conflictStatistics(msc, index, set_no, addr);
+                            DOUT("num_conflict = %d\n", num_conflict);
                             
                            if(current_chmc->age[j] + num_conflict >= cache_L2.na)
                             {
@@ -255,31 +268,31 @@ updateFunctionCall(MSC *msc, int index, procedure* proc)
         }
 
 
-        //for(k = 0; k < current_chmc->hitmiss; k++)
-          //printf("L2: %d ", current_chmc->hitmiss_addr[k]);
-        DEBUG_ANALYSIS_PRINTF("\nL2:\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
-        DEBUG_ANALYSIS_PRINTF("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
+        DACTION(
+            for(k = 0; k < current_chmc->hitmiss; k++)
+              DOUT("L2: %d ", current_chmc->hitmiss_addr[k]);
+        );
+        DOUT("\nL2:\nbb->size = %d, bb->startaddr = %d\n", bb->size, bb->startaddr);
+        DOUT("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", current_chmc->hitmiss, current_chmc->hit, current_chmc->miss, current_chmc->unknow);
 
-        DEBUG_ANALYSIS_PRINTF("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
+        DOUT("num of fetch = %d, hit = %d, miss= %d, unknow = %d\n", bb->chmc[cnt]->hitmiss, bb->chmc[cnt]->hit, bb->chmc[cnt]->miss, bb->chmc[cnt]->unknow);
 
-        DEBUG_ANALYSIS_PRINTF("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost); 
+        DOUT("\nwcost = %d, bcost = %d\n", current_chmc->wcost, current_chmc->bcost);
 
-        DEBUG_ANALYSIS_PRINTF("\nL2 function:  bb->wcost = %d\n", current_chmc->wcost);    
-        DEBUG_ANALYSIS_PRINTF("\nL2 function:  bb->bcost = %d\n", current_chmc->bcost);    
+        DOUT("\nL2 function:  bb->wcost = %d\n", current_chmc->wcost);
+        DOUT("\nL2 function:  bb->bcost = %d\n", current_chmc->bcost);
 
         //check the bb if it is a function call
         
         if(bb->callpid != -1)
-        {
             updateFunctionCall(msc, index, bb->proc_ptr);
-        }
-
     }
 
-    //if(n)
-        //printf("\n%d cache line changed into unknow in proc[%d]\n", n, p->pid);
-            
-}// end if else
+    if(n)
+      DOUT("\n%d cache line changed into unknow in proc[%d]\n", n, p->pid);
+
+    DEND();
+}
 
 
 void

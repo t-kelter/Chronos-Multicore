@@ -24,9 +24,9 @@ int initChart( chart_t *cx ) {
   cx->timeTopoList = NULL;
   cx->wcrt = 0;
 
-  cx->PEList = (sched_t**) MALLOC( cx->PEList, numPEs * sizeof(sched_t*), "PEList" );
+  MALLOC( cx->PEList, sched_t**, numPEs * sizeof(sched_t*), "PEList" );
   for( i = 0; i < numPEs; i++ ) {
-    cx->PEList[i] = (sched_t*) MALLOC( cx->PEList[i], sizeof(sched_t), "sched_t" );
+    MALLOC( cx->PEList[i], sched_t*, sizeof(sched_t), "sched_t" );
     initSched( cx->PEList[i] );
   }
   return 0;
@@ -122,7 +122,8 @@ int readTasks() {
 
   while( fscanf( fptr, "%s %d %d %d %Lu", tname, &actor, &pe, &priority, &period ) != EOF ) {
 
-    task_t *tc = (task_t*) MALLOC( tc, sizeof(task_t), "tc" );
+    task_t *tc;
+    MALLOC( tc, task_t*, sizeof(task_t), "tc" );
     strcpy( tc->tname, tname );
     tc->actorID  = actor;
     tc->peID     = pe;
@@ -139,7 +140,7 @@ int readTasks() {
     tc->allocated    = NULL;
 
     numTasks++;
-    taskList = (task_t**) REALLOC( taskList, numTasks * sizeof(task_t*), "taskList" );
+    REALLOC( taskList, task_t**, numTasks * sizeof(task_t*), "taskList" );
     taskList[numTasks-1] = tc;
   }
   fclose( fptr );
@@ -177,7 +178,7 @@ int readMSG() {
   numCharts = 0;
   msg = NULL;
 
-  pChart = (int*) MALLOC( pChart, numTasks * sizeof(int), "pChart" );
+  MALLOC( pChart, int*, numTasks * sizeof(int), "pChart" );
   for( k = 0; k < numTasks; k++ )
     pChart[k] = -1;
 
@@ -185,27 +186,27 @@ int readMSG() {
 
     if( numCharts < gid + 1 )
       numCharts = gid + 1;
-    msg = (chart_t*) REALLOC( msg, numCharts * sizeof(chart_t), "msg" );
+    REALLOC( msg, chart_t*, numCharts * sizeof(chart_t), "msg" );
 
     // successor nodes
     msg[gid].numSuccs = numsuccs;
-    msg[gid].succList = (int*) MALLOC( msg[gid].succList, numsuccs * sizeof(int), "msg succList" );
+    MALLOC( msg[gid].succList, int*, numsuccs * sizeof(int), "msg succList" );
     for( i = 0; i < numsuccs; i++ ) {
       fscanf( fptr, "%d", &sidx );
       msg[gid].succList[i] = sidx;
     }
 
     // PEs
-    msg[gid].PEList = (sched_t**) MALLOC( msg[gid].PEList, numPEs * sizeof(sched_t*), "msg PEList" );
+    MALLOC( msg[gid].PEList, sched_t**, numPEs * sizeof(sched_t*), "msg PEList" );
     for( i = 0; i < numPEs; i++ ) {
-      msg[gid].PEList[i] = (sched_t*) MALLOC( msg[gid].PEList[i], sizeof(sched_t), "sched" );
+      MALLOC( msg[gid].PEList[i], sched_t*, sizeof(sched_t), "sched" );
       initSched( msg[gid].PEList[i] );
     }
 
     // tasks
     fscanf( fptr, "%d", &numtasks );
     msg[gid].topoListLen = numtasks;
-    msg[gid].topoList = (int*) MALLOC( msg[gid].topoList, numtasks * sizeof(int), "msg topoList" );
+    MALLOC( msg[gid].topoList, int*, numtasks * sizeof(int), "msg topoList" );
 
     for( i = 0; i < numtasks; i++ ) {
       fscanf( fptr, "%s %d", tname, &numsuccs );
@@ -228,13 +229,12 @@ int readMSG() {
 	  printf( "Invalid successor %s\n", tname ), exit(1);
 
 	tc->numSuccs++;
-	tc->succList = (int*) REALLOC( tc->succList, tc->numSuccs * sizeof(int), "succList" );
+	REALLOC( tc->succList, int*, tc->numSuccs * sizeof(int), "succList" );
 	tc->succList[tc->numSuccs-1] = sidx;
 	
 	// reverse
 	taskList[sidx]->numPreds++;
-	taskList[sidx]->predList = (int*)
-	  REALLOC( taskList[sidx]->predList, taskList[sidx]->numPreds * sizeof(int), "predList" );
+	REALLOC( taskList[sidx]->predList, int*, taskList[sidx]->numPreds * sizeof(int), "predList" );
 	taskList[sidx]->predList[taskList[sidx]->numPreds-1] = pidx;
       }
 
@@ -245,7 +245,7 @@ int readMSG() {
 
       sc = msg[gid].PEList[pex];
       sc->numAssigned++;
-      sc->assignedList = (int*) REALLOC( sc->assignedList, sc->numAssigned * sizeof(int), "assignedList" );
+      REALLOC( sc->assignedList, int*, sc->numAssigned * sizeof(int), "assignedList" );
       sc->assignedList[sc->numAssigned-1] = pidx;
 
     } // end for tasks
@@ -270,7 +270,7 @@ int readEdgeBounds() {
 
   while( fscanf( fptr, "%d %d %d", &src, &dst, &bound ) != EOF ) {
     numEdgeBounds++;
-    edgeBounds = (edge_t*) REALLOC( edgeBounds, numEdgeBounds * sizeof(edge_t), "edgeBounds" );
+    REALLOC( edgeBounds, edge_t*, numEdgeBounds * sizeof(edge_t), "edgeBounds" );
     edgeBounds[numEdgeBounds-1].src = src;
     edgeBounds[numEdgeBounds-1].dst = dst;
     edgeBounds[numEdgeBounds-1].bound = bound;
@@ -292,14 +292,15 @@ int readTaskMemoryReq( task_t *tc ) {
   fptr = openfext( tc->tname, "cfg", "r" );
 
   while( fscanf( fptr, "%d %d %x %d %d %d", &fn, &bb, &addr, &tb, &nb, &cf ) != EOF ) {
-    mem_t *mt = (mem_t*) MALLOC( mt, sizeof(mem_t), "mt" );
+    mem_t *mt;
+    MALLOC( mt, mem_t*, sizeof(mem_t), "mt" );
     mt->fnid = fn;
     mt->bbid = bb;
     mt->addr = addr;
     mt->freq = 0;
 
     tc->numMemBlocks++;
-    tc->memBlockList = (mem_t**) REALLOC( tc->memBlockList, tc->numMemBlocks * sizeof(mem_t*), "memAddrList" );
+    REALLOC( tc->memBlockList, mem_t**, tc->numMemBlocks * sizeof(mem_t*), "memAddrList" );
     tc->memBlockList[tc->numMemBlocks-1] = mt;
   }
   fclose( fptr );
@@ -314,7 +315,7 @@ int readTaskMemoryReq( task_t *tc ) {
 
   tc->memBlockList[tc->numMemBlocks-1]->size = ea - tc->memBlockList[tc->numMemBlocks-1]->addr + INSN_SIZE;
 
-  tc->allocated = (char*) CALLOC( tc->allocated, tc->numMemBlocks, sizeof(char), "allocated" );
+  CALLOC( tc->allocated, char*, tc->numMemBlocks, sizeof(char), "allocated" );
   for( k = 0; k < tc->numMemBlocks; k++ )
     tc->memBlockList[k]->realsize = tc->memBlockList[k]->size;
 
@@ -352,9 +353,9 @@ int readConfig() {
 
   while( fscanf( fptr, "%d %d", &pe, &capacity ) != EOF ) {
     numPEs++;
-    peID = (int*) REALLOC( peID, numPEs * sizeof(int), "peID" );
+    REALLOC( peID, int*, numPEs * sizeof(int), "peID" );
     peID[numPEs-1] = pe;
-    spmCapacity = (int*) REALLOC( spmCapacity, numPEs * sizeof(int), "spmCapacity" );
+    REALLOC( spmCapacity, int*, numPEs * sizeof(int), "spmCapacity" );
     spmCapacity[numPEs-1] = capacity;
 
     totalcapacity += capacity;

@@ -47,14 +47,14 @@ int createBlock( block *bb, int pid, int bbid, int startaddr, int tb, int nb, in
     bb->num_outgoing++;
     bb->num_outgoing_copy++;
 	
-    bb->outgoing = (int*) REALLOC( bb->outgoing, bb->num_outgoing * sizeof(int), "bb outedge" );
+    REALLOC( bb->outgoing, int*, bb->num_outgoing * sizeof(int), "bb outedge" );
     bb->outgoing[ bb->num_outgoing - 1 ] = tb;
   }
   if( nb != -1 ) {
     bb->num_outgoing++;
     bb->num_outgoing_copy++;
 	
-    bb->outgoing = (int*) REALLOC( bb->outgoing, bb->num_outgoing * sizeof(int), "bb outedge" );
+    REALLOC( bb->outgoing, int*, bb->num_outgoing * sizeof(int), "bb outedge" );
     bb->outgoing[ bb->num_outgoing - 1 ] = nb;
   }
 
@@ -73,10 +73,12 @@ int createLoop( loop *lp, int pid, int lpid, int level, block *loophead ) {
   lp->loophead     = loophead;
   lp->loopsink     = NULL;
   lp->loopexit     = NULL;
+  lp->num_exits    = 0;
+  lp->exits        = NULL;
   lp->level        = level;
   lp->nest         = -1;
   lp->is_dowhile   = 0;
-  lp->topo         = (block**) MALLOC( lp->topo, sizeof(block*), "loop topo" );
+  MALLOC( lp->topo, block**, sizeof(block*), "loop topo" );
   lp->topo[0]      = loophead;
   lp->num_topo     = 1;
   lp->wcet         = 0;
@@ -250,8 +252,8 @@ int topo_call() {
 
   comefrom     = NULL;
   comefromsize = 0;
-  markfin = (char*) CALLOC( markfin, num_procs, sizeof(char), "topo fin array" );
-  proc_cg = (int*) REALLOC( proc_cg, num_procs * sizeof(int), "proc topo" );
+  CALLOC( markfin, char*, num_procs, sizeof(char), "topo fin array" );
+  REALLOC( proc_cg, int*, num_procs * sizeof(int), "proc topo" );
 
   countdone = 0;
 
@@ -278,7 +280,7 @@ int topo_call() {
     }  // end if
 
     markfin[ p->pid ] = 1;
-    comefrom = (procedure**) REALLOC( comefrom, (comefromsize + 1) * sizeof(procedure*), "topo comefrom array" );
+    REALLOC( comefrom, procedure**, (comefromsize + 1) * sizeof(procedure*), "topo comefrom array" );
     comefrom[ comefromsize++ ] = p;
 
     // go to next unvisited procedure call
@@ -318,20 +320,26 @@ int read_cfg() {
   int mainaddr;
 
   fptr = openfile( "cfg", "r" );
+  int scan_result;
 
-  while( fscanf( fptr, "%d %d %x %d %d %d", &pid, &bbid, &bbsa, &tb, &nb, &cpid ) != EOF ) {
+  while( scan_result = fscanf( fptr, "%d %d %x %d %d %d", &pid, &bbid, &bbsa, &tb, &nb, &cpid ),
+         scan_result != EOF ) {
+
+    if ( scan_result != 6 ) {
+      prerr( "CFG file had invalid format!" );
+    }
 
     //pid start at 0; if a new proc
     if( pid >= num_procs ) {
 
       // start a new procedure
-      p = (procedure*) MALLOC( p, sizeof(procedure), "procedure" );
+      MALLOC( p, procedure*, sizeof(procedure), "procedure" );
 		/* FIXME: Always reset memory to zero after allocating a procedure */
 		memset(p, 0, sizeof(procedure));
       createProc( p, pid );
 
       num_procs++;
-      procs = (procedure**) REALLOC( procs, num_procs * sizeof(procedure*), "procedure list" );
+      REALLOC( procs, procedure**, num_procs * sizeof(procedure*), "procedure list" );
       procs[ num_procs - 1 ] = p;
     }
 
@@ -340,18 +348,18 @@ int read_cfg() {
       printf( "Null procedure at %d\n", pid ), exit(1);
 
     // create a new basic block within proc [pid]
-    bb = (block*) MALLOC( bb, sizeof(block), "basic block" );
+    MALLOC( bb, block*, sizeof(block), "basic block" );
 	 memset(bb, 0, sizeof(block));
     createBlock( bb, pid, bbid, bbsa, tb, nb, cpid, -1 );
 
     p->num_bb++;
-    p->bblist = (block**) REALLOC( p->bblist, p->num_bb * sizeof(block*), "bblist" );
+    REALLOC( p->bblist, block**, p->num_bb * sizeof(block*), "bblist" );
     p->bblist[ p->num_bb - 1 ] = bb;
 
     // called procedures
     if( cpid != -1 ) {
       p->num_calls++;
-      p->calls = (int*) REALLOC( p->calls, p->num_calls * sizeof(int), "calls" );
+      REALLOC( p->calls, int*, p->num_calls * sizeof(int), "calls" );
       p->calls[ p->num_calls - 1 ] = cpid;
     }
 
@@ -414,15 +422,15 @@ int readInstr() {
     bb = findBlock( addr );
     if( !bb ) {
       // could be that addr is from a procedure that is never called (thus not in CFG)
-      DEBUG_PRINTF( "Warning: Ignored out-of-range address [%x] %s %s %s %s\n", addr, op, r1, r2, r3 );
+      fprintf( stderr, "Warning: Ignored out-of-range address [%x] %s %s %s %s\n", addr, op, r1, r2, r3 );
       continue;
     }
 
-    insn = (instr*) MALLOC( insn, sizeof(instr), "instruction" );	 
+    MALLOC( insn, instr*, sizeof(instr), "instruction" );	 
     createInstr( insn, addr, op, r1, r2, r3 );
 
     bb->num_instr++;
-    bb->instrlist = (instr**) REALLOC( bb->instrlist, bb->num_instr * sizeof(instr*), "instruction list" );
+    REALLOC( bb->instrlist, instr**, bb->num_instr * sizeof(instr*), "instruction list" );
     bb->instrlist[ bb->num_instr - 1 ] = insn;
   }
   fclose( fptr );
@@ -445,8 +453,7 @@ calculate_incoming()
 		 for( i = 0; i < p->num_bb; i++ )
 		 {
 		 	p->bblist[i]->num_incoming= 0;
-			p->bblist[i]->incoming =
-				(int*)CALLOC(p->bblist[i]->incoming, 1, sizeof(int), "incoming");
+			CALLOC(p->bblist[i]->incoming, int*, 1, sizeof(int), "incoming");
 		 }
 
 		 for( i = 0; i < p->num_bb; i++ )
@@ -457,8 +464,7 @@ calculate_incoming()
 		 		dst_bb = p->bblist[src_bb->outgoing[j]];
 				
 				dst_bb->num_incoming++;
-				dst_bb->incoming =  
-				(int*) REALLOC( dst_bb->incoming, dst_bb->num_incoming * sizeof(int), "bb inedge" );
+				REALLOC( dst_bb->incoming, int*, dst_bb->num_incoming * sizeof(int), "bb inedge" );
 	   			 dst_bb->incoming[ dst_bb->num_incoming - 1 ] = src_bb->bbid;
 			} // end for (j)
 		} // end for(i)

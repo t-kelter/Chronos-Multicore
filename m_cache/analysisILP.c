@@ -1,12 +1,23 @@
+// Include standard library headers
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "analysisILP.h"
 #include "infeasible.h"
 #include "block.h"
 #include "handler.h"
 #include "wcrt/cycle_time.h"
+
+
+static FILE *ilpf;
 
 /*
  * Recursive function.
@@ -47,7 +58,7 @@ int isReachableTopo( block *src, int dest, block **bblist, int start, int end ) 
   if( src->bbid == dest )
     return 1;
 
-  visited = (char*) CALLOC( visited, procs[src->pid]->num_bb, sizeof(char), "visited" );
+  CALLOC( visited, char*, procs[src->pid]->num_bb, sizeof(char), "visited" );
   res = reachableTopo( src, dest, bblist, start, end, visited );
 
   free( visited );
@@ -115,14 +126,15 @@ int ILPconstDAG( char objtype, void *obj ) {
     p            = procs[ lp->pid ];
     topo         = lp->topo;
     num_topo     = lp->num_topo;
+  } else {
+    fprintf( stderr, "Invalid objtype passed to analysisDAG: %d\n", objtype );
+    exit(1);
   }
-  else
-    printf( "Invalid objtype passed to analysisDAG: %d\n", objtype ), exit(1);
 
 
   // collect incoming
-  num_incoming = (char*) CALLOC( num_incoming, p->num_bb, sizeof(char), "num_incoming" );
-  incoming     = (int**) MALLOC( incoming, p->num_bb * sizeof(int*), "incoming" );
+  CALLOC( num_incoming, char*, p->num_bb, sizeof(char), "num_incoming" );
+  MALLOC( incoming, int**, p->num_bb * sizeof(int*), "incoming" );
   for( i = 0; i < p->num_bb; i++ ) {
     num_incoming[i] = 0;
     incoming[i]     = NULL;
@@ -131,8 +143,7 @@ int ILPconstDAG( char objtype, void *obj ) {
     bb = topo[i];
     for( j = 0; j < bb->num_outgoing; j++ ) {
       num_incoming[ bb->outgoing[j] ]++;
-      incoming[ bb->outgoing[j] ] = (int*)
-        REALLOC( incoming[ bb->outgoing[j] ], num_incoming[bb->outgoing[j]] * sizeof(int), "incoming elm" );
+      REALLOC( incoming[ bb->outgoing[j] ], int*, num_incoming[bb->outgoing[j]] * sizeof(int), "incoming elm" );
       incoming[ bb->outgoing[j] ][ num_incoming[bb->outgoing[j]] - 1 ] = bb->bbid;
     }
   }
@@ -343,7 +354,9 @@ int ILPconstProc( procedure *p ) {
 }
 
 
-int analysis_ilp() {
+int analysis_ilp()
+{
+  DSTART( "analysis_ilp" );
 
   int i, j, k, m;
   
@@ -481,7 +494,7 @@ int analysis_ilp() {
     t = cycle_time(1);
     total_t_frm += t;
 
-    // printf( "Time taken (analysis-formulation): %f ms (%f Mcycles)\n", t/CYCLES_PER_MSEC, t/1000000 );
+    DOUT( "Time taken (analysis-formulation): %f ms (%f Mcycles)\n", t/CYCLES_PER_MSEC, t/1000000 );
 
     // solve ilp
     sprintf( proc, "tools/cplex < %s.ailp%d > %s.ais%d", filename, p->pid, filename, p->pid );
@@ -494,7 +507,7 @@ int analysis_ilp() {
     // stop timing for solution
     t = cycle_time(1);
     total_t_sol += t;
-    // printf( "Time taken (analysis-solution): %f ms (%f Mcycles)\n", t/CYCLES_PER_MSEC, t/1000000 );
+    DOUT( "Time taken (analysis-solution): %f ms (%f Mcycles)\n", t/CYCLES_PER_MSEC, t/1000000 );
 
     // read solution: wcet
     sprintf( proc, "grep Objective %s.ais%d | grep solution | awk '{print $NF}' > %s.wcet", 
@@ -507,7 +520,7 @@ int analysis_ilp() {
     fclose( ilpf );
 
     *p->wcet = (ull)wcet;
-    // printf( "objective value: %d\n", p->wcet );
+    DOUT( "objective value: %d\n", p->wcet );
 
     // extract blocks with Y-value of 1
     sprintf( proc, "grep Y %s.ais%d | grep \"1\\.00\" | awk '{print $1}' | sed '/\\~/d' > %s.bp%d", 
@@ -515,7 +528,7 @@ int analysis_ilp() {
     system( proc );
 
     free( p->wpath );
-    p->wpath = (char*) MALLOC( p->wpath, sizeof(char), "proc wpath" );
+    MALLOC( p->wpath, char*, sizeof(char), "proc wpath" );
     p->wpath[0] = '\0';
 
     // Format of file .bp:
@@ -534,7 +547,7 @@ int analysis_ilp() {
       else
 	sprintf( proc, "-%d", j );
 
-      p->wpath = (char*) REALLOC( p->wpath, (strlen(p->wpath) + strlen(proc) + 1) * sizeof(char), "proc wpath" );
+      REALLOC( p->wpath, char*, (strlen(p->wpath) + strlen(proc) + 1) * sizeof(char), "proc wpath" );
       strcat( p->wpath, proc );
 
       // wpvar
@@ -544,7 +557,6 @@ int analysis_ilp() {
       if( bb->startaddr != -1 ) {
 
 	count = getBlockExecCount( bb );
-	// printf( "%d(%d):", j, count );
       }
     }
 
@@ -553,10 +565,10 @@ int analysis_ilp() {
 
   } // end for procs
 
-  printf( "Time taken (analysis-formulation): %f ms\n", total_t_frm/CYCLES_PER_MSEC );
-  printf( "Time taken (analysis-solution): %f ms\n", total_t_sol/CYCLES_PER_MSEC );
+  DOUT( "Time taken (analysis-formulation): %f ms\n", total_t_frm/CYCLES_PER_MSEC );
+  DOUT( "Time taken (analysis-solution): %f ms\n", total_t_sol/CYCLES_PER_MSEC );
 
   //system( "rm -f cplex.log" );
 
-  return 0;
+  DRETURN( 0 );
 }

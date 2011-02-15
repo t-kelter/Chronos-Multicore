@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Check parameters
-declare -r USAGE="\nUsage: $0 <interference config file> <l1 cache config file> <l2 cache config file> <number of cores> <TDMA schedule file>\n\nThis script invokes the Chronos analyzer for the given benchmark and configuration."
+declare -r USAGE="\nUsage: $0 <interference config file> <l1 cache config file> <l2 cache config file> <number of cores> <TDMA schedule file> <DAG analysis type>\n\nThis script invokes the Chronos analyzer for the given benchmark and configuration."
 
-if (( $# != 5 )); then
+if (( $# != 6 )); then
   echo -e $USAGE;
   exit 1;
 fi;
@@ -13,13 +13,24 @@ declare    L1_CACHE_CONFIG=$2
 declare    L2_CACHE_CONFIG=$3
 declare -i NUMBER_OF_CORES=$4
 declare    TDMA_SCHEDULE_FILE=$5
+declare    ANALYSIS_TYPE=$6
+if [ "$ANALYSIS_TYPE" = "all" ]; then
+  ANALYSIS_TYPE="n s u acr acr+ acs acs+ agr agr+ ags ags+ agt"
+fi
 
 # Do the call
-declare -r CALL_STRING="@CHRONOS_PATH@/m_cache/opt $INTERFERENCE_FILE $L1_CACHE_CONFIG $L2_CACHE_CONFIG $NUMBER_OF_CORES $TDMA_SCHEDULE_FILE"
+declare FAILED=0
+for OPT in $ANALYSIS_TYPE; do
+  declare CALL_STRING="@chronos_path@/m_cache/opt $INTERFERENCE_FILE $L1_CACHE_CONFIG $L2_CACHE_CONFIG $NUMBER_OF_CORES $TDMA_SCHEDULE_FILE $OPT"
+  eval $CALL_STRING
+  if (( $? != 0 )); then
+    FAILED=1
+    break;
+  fi;
+done;
 
-eval $CALL_STRING
-if (( $? != 0 )); then
+if (( FAILED != 0 )); then
   echo "";
-  echo "Analyzer failed! Call to reproduce was: ";
-  echo $CALL_STRING;
+  echo "Analyzer failed! Starting GDB ...";
+  eval "gdb -arg $CALL_STRING";
 fi;

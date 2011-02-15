@@ -12,6 +12,8 @@
 // ######### Datatype declarations  ###########
 
 
+typedef long milliseconds;
+
 
 // ######### Function declarations  ###########
 
@@ -24,7 +26,7 @@
 
 #define CYCLES_PER_MSEC 3000000
 #define STARTTIME cycle_time(0)
-#define STOPTIME t = cycle_time(1); printf( "=== %f ms\n", t/CYCLES_PER_MSEC ); fflush( stdout )
+#define STOPTIME double t = cycle_time(1); printf( "=== %f ms\n", t/CYCLES_PER_MSEC ); fflush( stdout )
 
 
 /* This functions starts and ends the time measurement.
@@ -33,6 +35,10 @@
  * start_end == 1: end counting the time and return the time elapsed (in cycles)
  */
 double cycle_time(int start_end);
+
+
+/* Returns the current time in milliseconds. */
+milliseconds getmsecs(void);
 
 
 #endif

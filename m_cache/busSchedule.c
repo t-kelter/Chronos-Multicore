@@ -1,27 +1,22 @@
+// Include standard library headers
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "busSchedule.h"
+#include "handler.h"
 
-// Forward declarations of static functions
-
-static void set_core_specific_data(core_sched_p* head_core, 
-                                   int ncore, FILE* fp);
-
-
-
-/* Improper exit with error message */
-void prerr(char* msg)
-{
-	fprintf(stdout, "%s\n", msg);
-	fflush(stdout);
-	exit(-1);
-}
 
 /* Prints read TDMA bus schedule */
-#ifdef _DEBUG
-void print_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
+
+static void print_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
 {
 	int i;
 
@@ -36,9 +31,8 @@ void print_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
 	}
 }
 
-void print_TDMA_sched()
+static void print_TDMA_sched( FILE* fp )
 {
-	FILE* fp = stdout;
 	int i;
 	segment_p seg;
 
@@ -66,35 +60,50 @@ void print_TDMA_sched()
 	fprintf(fp, "\n****************END TDMA BUS SCHEDULE INFO********************\n\n");
 	fprintf(fp, "\n");
 }
-#endif
 
 /* Find proper segment given a list of segments and a starting time */
-segment_p find_segment(segment_p* head_seg, int nsegs, ull start_time)
+static segment_p find_segment(segment_p* head_seg, int nsegs, ull start_time)
 {
 	/* FIXME*/	  
 	return NULL;	  
 }
 
-/* return the global TDMA bus schedule set previously */
+/* Return the global TDMA bus schedule set previously */
 sched_p getSchedule()
 {
 	return global_sched_data;	  
 }
 
+/* Gets the schedule for the core with index 'core_index' at time 'time'
+ * in the current global TDMA schedule. */
+core_sched_p getCoreSchedule( uint core_index, ull time )
+{
+  const sched_p glob_sched = getSchedule();
+  assert(glob_sched && core_index < glob_sched->n_cores &&
+      "Internal error: Invalid data structures!" );
+
+  /* Find the proper segment for start time in case there are
+   * multiple segments present in the full bus schedule */
+  segment_p cur_seg = ( glob_sched->type != SCHED_TYPE_1 )
+    ? find_segment( glob_sched->seg_list, glob_sched->n_segments, time )
+    : glob_sched->seg_list[0];
+  /* Return the correct schedule entry. */
+  const core_sched_p core_schedule = cur_seg->per_core_sched[core_index];
+  assert(core_schedule && "Internal error: Invalid data structures!" );
+  return core_schedule;
+}
+
 /* Set core specific TDMA bus schedule data in a segment */
 static void set_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
 {
+  assert(head_core);
+
 	int i;	  
 	int delimiter;
 
-	assert(head_core);
-
-	for(i = 0; i < ncore; i++)
-	{
-		 head_core[i] = (core_sched_p)malloc(sizeof(core_sched_s));
-		 if(!head_core[i])
-			prerr("Error: Out of memory");
-		 memset(head_core[i], 0, sizeof(core_sched_s));
+	for(i = 0; i < ncore; i++) {
+		 CALLOC( head_core[i], core_sched_p, 1, sizeof(core_sched_s),
+             "head_core[i]" );
 		 fscanf(fp, "%Lu", &(head_core[i]->start_time));
 		 fscanf(fp, "%u", &(head_core[i]->interval));
 		 fscanf(fp, "%u", &(head_core[i]->slot_len));
@@ -104,15 +113,30 @@ static void set_core_specific_data(core_sched_p* head_core, int ncore, FILE* fp)
 	}
 }
 
+
+static void freeScheduleData( sched_p schedule )
+{
+  uint i;
+  for( i = 0; i < schedule->n_segments; i++ ) {
+    segment_p const seg = schedule->seg_list[i];
+
+    uint j;
+    for ( j = 0; j < schedule->n_cores; j++ ) {
+      free( seg->per_core_sched[j] );
+    }
+    free( seg->per_core_sched );
+    free( seg );
+  }
+  free( schedule->seg_list );
+  free( schedule );
+}
+
+
 void setSchedule(const char* sched_file)
 {
-	FILE* fp;
-	uint getdata;
-	uint ncore;
-	uint n_segs, cur_seg = 0;
-	segment_p seg;
+  DSTART( "setSchedule" );
 
-	fp = fopen(sched_file, "r");
+	FILE * const fp = fopen(sched_file, "r");
   if (fp == NULL) {
     fprintf(stderr, "Failed to open file: %s (busSchedule.c:108)\n", sched_file);
     exit (1);
@@ -131,59 +155,51 @@ void setSchedule(const char* sched_file)
 	/* (Schedule for different cores are separated by a "-1" number)					*/
 	/******************************************************************************/
 
-	global_sched_data = (sched_p)malloc(sizeof(sched_s));
-	if(!global_sched_data)
-		prerr("Error: Out of memory");
-	memset(global_sched_data, 0, sizeof(sched_s));	
+  if ( global_sched_data ) {
+    freeScheduleData( global_sched_data );
+  }
+  CALLOC( global_sched_data, sched_p, 1, sizeof(sched_s), "global_schedule_data" );
 
 	/* Read the type of the schedule */
+  uint getdata;
 	fscanf(fp, "%u", &getdata);
 	global_sched_data->type = getdata;
 	
 	/* Set the number of segments in the schedule. If it is type 0
 	 * schedule then number of segment is 1 , otherwise read the 
 	 * number of segments from the TDMA schedule file */
-	if(getdata == 0)
-	{ 
+  uint n_segs;
+	if(getdata == 0) {
 	  n_segs = 1;	  
-	  global_sched_data->n_segments = 1;	  
-	}  
-	else
-	{
+	} else {
 	  fscanf(fp, "%u", &n_segs);
-	  global_sched_data->n_segments = n_segs; 	  
-	}  
+	}
+  global_sched_data->n_segments = n_segs;
 	/* Now allocate data for all segments in the schedule here */
-	global_sched_data->seg_list = (segment_p *)malloc(n_segs * sizeof(segment_p));
-	if(!(global_sched_data->seg_list))
-		prerr("Error: Out of memory");  
-	memset(global_sched_data->seg_list, 0, n_segs * sizeof(segment_p));
+	CALLOC( global_sched_data->seg_list, segment_p*, n_segs, sizeof(segment_p),
+	        "global_sched_data->seg_list" );
 
 	/* Read total number of cores */
+  uint ncore;
 	fscanf(fp, "%u", &ncore);
 	global_sched_data->n_cores = ncore;
 
 	/* Now here read all information about different segments and core
     * specific schedule */
-	while(1)
-	{
+	uint cur_seg = 0;
+	while(1) {
 		 /* Allocate a segment */ 
-		 seg = (segment_p)malloc(sizeof(segment_s)); 
-		 if(!seg)
-			prerr("Error: Out of memory");
-		 memset(seg, 0, sizeof(segment_s));	
+		 segment_p seg;
+		 CALLOC( seg, segment_p, 1, sizeof(segment_s), "seg" );
 		 global_sched_data->seg_list[cur_seg++] = seg;
-		 if(n_segs > 1)
-		 {
+		 if(n_segs > 1) {
 			 /* Now read the start time and end time of the segment */
 			 fscanf(fp, "%Lu", &(seg->seg_start));
 			 fscanf(fp, "%Lu", &(seg->seg_end));
 		 } 		
 		 /* Allocate the memory for core specific data */
-		 seg->per_core_sched = (core_sched_p *)malloc(ncore * sizeof(core_sched_p));
-		 if(!(seg->per_core_sched))
-			 prerr("Error: Out of memory");
-		 memset(seg->per_core_sched, 0, ncore * sizeof(core_sched_p));
+		 CALLOC( seg->per_core_sched, core_sched_p*, ncore,
+             sizeof(core_sched_p), "seg->per_core_sched" );
 		 set_core_specific_data(seg->per_core_sched, ncore, fp);
 
 		 /* Traversal of all segments done. Terminate the loop */
@@ -193,7 +209,17 @@ void setSchedule(const char* sched_file)
 
 	fclose(fp);
 
-#ifdef _DEBUG
-	print_TDMA_sched();
-#endif
+  /* Assert that all cores have proper schedule data. */
+  for ( cur_seg = 0; cur_seg < n_segs; cur_seg++ ) {
+		const segment_p cur_seg_p = global_sched_data->seg_list[cur_seg];
+    int cur_core;
+    for ( cur_core = 0; cur_core < num_core; cur_core++ ) {
+      const core_sched_p core_schedule = cur_seg_p->per_core_sched[cur_core];
+      assert( core_schedule->slot_len * num_core == core_schedule->interval &&
+          "Internal error: Invalid schedule data!" );
+    }
+  }
+
+	DACTION( print_TDMA_sched( stdout ); );
+	DEND();
 }

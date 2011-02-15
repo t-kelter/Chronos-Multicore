@@ -1,11 +1,20 @@
+// Include standard library headers
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "infeasible.h"
 #include "findConflicts.h"
+
 
 int initRegSet() {
 
@@ -202,25 +211,27 @@ char isBAConflict( assign *A, branch *B, int r ) {
 /*
  * Initializes infeasible path detection.
  */
-int initInfeas() {
+int initInfeas()
+{
+  DSTART( "initInfeas" );
 
   int i, j;
   procedure *p;
 
-  // printf( "\nInitializing register set...\n" ); fflush(stdout);
+  DOUT( "\nInitializing register set...\n" ); fflush(stdout);
   initRegSet();
 
-  // printf( "Allocating data structures...\n" ); fflush( stdout );
-  num_assign = (int**) MALLOC( num_assign, num_procs * sizeof(int*), "num_assign" );
-  assignlist = (assign****) MALLOC( assignlist, num_procs * sizeof(assign***), "assignlist" );
-  branchlist = (branch***)  MALLOC( branchlist, num_procs * sizeof(branch**),  "branchlist" );
+  DOUT( "Allocating data structures...\n" ); fflush( stdout );
+  MALLOC( num_assign, int**, num_procs * sizeof(int*), "num_assign" );
+  MALLOC( assignlist, assign****, num_procs * sizeof(assign***), "assignlist" );
+  MALLOC( branchlist, branch***, num_procs * sizeof(branch**),  "branchlist" );
 
   for( i = 0; i < num_procs; i++ ) {
     p = procs[i];
 
-    num_assign[i] = (int*) CALLOC( num_assign[i], p->num_bb, sizeof(int), "num_assign elm" );
-    assignlist[i] = (assign***) MALLOC( assignlist[i], p->num_bb * sizeof(assign**), "assignlist elm" );
-    branchlist[i] = (branch**)  MALLOC( branchlist[i], p->num_bb * sizeof(branch*),  "branchlist elm" );
+    CALLOC( num_assign[i], int*, p->num_bb, sizeof(int), "num_assign elm" );
+    MALLOC( assignlist[i], assign***, p->num_bb * sizeof(assign**), "assignlist elm" );
+    MALLOC( branchlist[i], branch**, p->num_bb * sizeof(branch*),  "branchlist elm" );
 
     for( j = 0; j < p->num_bb; j++ ) {
       assignlist[i][j] = NULL;
@@ -228,12 +239,12 @@ int initInfeas() {
     }
   }
 
-  // printf( "Detecting effects...\n" ); fflush( stdout );
+  DOUT( "Detecting effects...\n" ); fflush( stdout );
   execute();
 
-  // printf( "\nFinding related effects...\n" ); fflush( stdout );
+  DOUT( "\nFinding related effects...\n" ); fflush( stdout );
   detectConflicts();
 
-  printf( "Detected %d BB and %d BA\n", num_BB, num_BA );
-  return 0;
+  DOUT( "Detected %d BB and %d BA\n", num_BB, num_BA );
+  DRETURN( 0 );
 }

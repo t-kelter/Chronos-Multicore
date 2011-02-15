@@ -1,11 +1,20 @@
+// Include standard library headers
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "analysisEnum.h"
 #include "DAG_WCET.h"
 #include "handler.h"
 #include "block.h"
+
 
 char enum_in_seq_bef( int bbid, int target, ushort *bb_seq, ushort bb_len ) {
 
@@ -77,10 +86,8 @@ char enum_BBconflictInPath( branch *bru, char direction, block *bv,
       id = enum_effectCancelled( br, NULL, bb_seq, len, bblist, num_bb );
 
       if( id == -1 ) {
-        DEBUG_PRINTF( "BB %d:%d~%d - %d(%d)\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res );
         return 1;
       }
-      DEBUG_PRINTF( "BB %d:%d~%d - %d(%d) cancel[%d]\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res, id );
     }
   }
   return 0;
@@ -116,10 +123,8 @@ char enum_BAconflictInPath( block *bu, ushort *bb_seq, ushort len, block **bblis
 	id = enum_effectCancelled( br, assg, bb_seq, len, bblist, num_bb );
 
 	if( id == -1 ) {
-    DEBUG_PRINTF( "BA %d:%d - %d(%d)\n", bu->pid, bu->bbid, br->bb->bbid, res );
 	  return 1;
 	}
-	DEBUG_PRINTF( "BA %d:%d - %d(%d) cancel[%d]\n", bu->pid, bu->bbid, br->bb->bbid, res, id );
       }
     }
   }
@@ -158,15 +163,16 @@ int analyseEnumDAG( char objtype, void *obj ) {
     p            = procs[ lp->pid ];
     topo         = lp->topo;
     num_topo     = lp->num_topo;
+  } else {
+    fprintf( stderr, "Invalid objtype passed to analysisDAG: %d\n", objtype );
+    exit(1);
   }
-  else
-    printf( "Invalid objtype passed to analysisDAG: %d\n", objtype ), exit(1);
 
-  pathcounts = (ull*) CALLOC( pathcounts, p->num_bb, sizeof(ull), "pathcounts" );
+   CALLOC( pathcounts, ull*, p->num_bb, sizeof(ull), "pathcounts" );
 
   if( infeas ) {
     // trace number of incoming blocks, so we can free those that are no longer needed
-    num_incoming = (char*) CALLOC( num_incoming, p->num_bb, sizeof(char), "num_incoming" );
+     CALLOC( num_incoming, char*, p->num_bb, sizeof(char), "num_incoming" );
     for( i = 0; i < p->num_bb; i++ )
       num_incoming[i] = 0;
 
@@ -190,14 +196,11 @@ int analyseEnumDAG( char objtype, void *obj ) {
       pathcounts[ bb->bbid ] = 1;
 
       if( infeas ) {
-	enum_pathlen[p->pid][bb->bbid] = (ushort*)
-	  MALLOC( enum_pathlen[p->pid][bb->bbid], sizeof(ushort), "enum_pathlen[p][b]" );
+	 MALLOC( enum_pathlen[p->pid][bb->bbid], ushort*, sizeof(ushort), "enum_pathlen[p][b]" );
 	enum_pathlen[p->pid][bb->bbid][0] = 1;
 
-	enum_pathlist[p->pid][bb->bbid] = (ushort**)
-	  MALLOC( enum_pathlist[p->pid][bb->bbid], sizeof(ushort*), "enum_pathlist[p][b]" );
-	enum_pathlist[p->pid][bb->bbid][0] = (ushort*)
-	  MALLOC( enum_pathlist[p->pid][bb->bbid][0], sizeof(ushort), "enum_pathlist[p][b][0]" );
+	 MALLOC( enum_pathlist[p->pid][bb->bbid], ushort**, sizeof(ushort*), "enum_pathlist[p][b]" );
+	 MALLOC( enum_pathlist[p->pid][bb->bbid][0], ushort*, sizeof(ushort), "enum_pathlist[p][b][0]" );
 	enum_pathlist[p->pid][bb->bbid][0][0] = bb->bbid;
       }
       continue;
@@ -241,14 +244,11 @@ int analyseEnumDAG( char objtype, void *obj ) {
 	  len = enum_pathlen[p->pid][ bb->outgoing[j] ][k] + 1;
 	
 	  // extend
-	  enum_pathlen[p->pid][bb->bbid] = (ushort*)
-	    REALLOC( enum_pathlen[p->pid][bb->bbid], num * sizeof(ushort), "enum_pathlist[p][b]" );
+	   REALLOC( enum_pathlen[p->pid][bb->bbid], ushort*, num * sizeof(ushort), "enum_pathlist[p][b]" );
 	  enum_pathlen[p->pid][bb->bbid][num-1] = len;
 	
-	  enum_pathlist[p->pid][bb->bbid] = (ushort**)
-	    REALLOC( enum_pathlist[p->pid][bb->bbid], num * sizeof(ushort*), "enum_pathlist[p][b]" );
-	  enum_pathlist[p->pid][bb->bbid][num-1] = (ushort*)
-	    MALLOC( enum_pathlist[p->pid][bb->bbid][num-1], len * sizeof(ushort), "enum_pathlist[p][b][n]" );
+	   REALLOC( enum_pathlist[p->pid][bb->bbid], ushort**, num * sizeof(ushort*), "enum_pathlist[p][b]" );
+	   MALLOC( enum_pathlist[p->pid][bb->bbid][num-1], ushort*, len * sizeof(ushort), "enum_pathlist[p][b][n]" );
 	
 	  // copy from child's bb sequence
 	  for( m = 0; m < len - 1; m++ )
@@ -320,13 +320,11 @@ int analyseEnumProc( procedure *p ) {
   int  i;
   loop *lp;
 
-  enum_paths_loop = (ull*) CALLOC( enum_paths_loop, p->num_loops, sizeof(ull), "enum_paths_loop" );
+   CALLOC( enum_paths_loop, ull*, p->num_loops, sizeof(ull), "enum_paths_loop" );
 
   if( infeas ) {
-    enum_pathlist[p->pid] = (ushort***)
-      MALLOC( enum_pathlist[p->pid], p->num_bb * sizeof(ushort**), "enum_pathlist[p]" );
-    enum_pathlen[p->pid] = (ushort**)
-      MALLOC( enum_pathlen[p->pid], p->num_bb * sizeof(ushort*), "enum_pathlen[p]" );
+     MALLOC( enum_pathlist[p->pid], ushort***, p->num_bb * sizeof(ushort**), "enum_pathlist[p]" );
+     MALLOC( enum_pathlen[p->pid], ushort**, p->num_bb * sizeof(ushort*), "enum_pathlen[p]" );
   }
 
   // analyse each loop from the inmost (reverse order from detection)
@@ -350,27 +348,27 @@ int analyseEnumProc( procedure *p ) {
 }
 
 
-int analysis_enum() {
+int analysis_enum()
+{
+  DSTART( "analysis_enum" );
 
   int i;
 
-  enum_paths_proc = (ull*) CALLOC( enum_paths_proc, num_procs, sizeof(ull), "enum_paths_proc" );
+  CALLOC( enum_paths_proc, ull*, num_procs, sizeof(ull), "enum_paths_proc" );
 
   if( infeas ) {
-    enum_pathlist = (ushort****)
-      MALLOC( enum_pathlist, num_procs * sizeof(ushort***), "enum_pathlist" );
-    enum_pathlen  = (ushort***)
-      MALLOC( enum_pathlen, num_procs * sizeof(ushort**), "enum_pathlen" );
+     MALLOC( enum_pathlist, ushort****, num_procs * sizeof(ushort***), "enum_pathlist" );
+     MALLOC( enum_pathlen, ushort***, num_procs * sizeof(ushort**), "enum_pathlen" );
   }
 
   // analyse each procedure in reverse topological order of call graph
   for( i = 0; i < num_procs; i++ ) {
     analyseEnumProc( procs[ proc_cg[i] ] );
-    printf( "#paths in proc %d: %Lu\n", proc_cg[i], enum_paths_proc[proc_cg[i]] );
+    DOUT( "#paths in proc %d: %Lu\n", proc_cg[i], enum_paths_proc[proc_cg[i]] );
   }
 
   if( do_inline )
-    printf( "\nTotal number of paths: %Lu\n", enum_paths_proc[main_id] );
+    DOUT( "\nTotal number of paths: %Lu\n", enum_paths_proc[main_id] );
 
   free( enum_paths_proc );
 
@@ -378,5 +376,6 @@ int analysis_enum() {
     free( enum_pathlist );
     free( enum_pathlen );
   }
-  return 0;
+
+  DRETURN( 0 );
 }

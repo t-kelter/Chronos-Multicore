@@ -1,10 +1,12 @@
+#include <time.h>
+
 #include "cycle_time.h"
 
 static void 
 access_counter(unsigned *hi, unsigned *lo)
 {
     /* Get cycle counter */
-    asm("rdtsc; movl %%edx,%0; movl %%eax,%1"
+    __asm__("rdtsc; movl %%edx,%0; movl %%eax,%1"
 	    : "=r" (*hi), "=r" (*lo)
 	    : /* No input */
 	    : "%edx", "%eax");
@@ -32,4 +34,19 @@ cycle_time(int start_end)
 	t = (double) uhi * (1 << 30) * 4 + ulo;
 	return t;
     }
+}
+
+
+/* Returns the current process time in milliseconds */
+milliseconds getmsecs(void)
+{
+  struct timespec time;
+  if ( clock_gettime( CLOCK_REALTIME, &time ) == 0 ) {
+    return time.tv_sec * 1000 + time.tv_nsec / 1000000;
+  } else {
+    return clock() / ( CLOCKS_PER_SEC / 1000 );
+  }
+  /*unsigned a, d;
+  __asm__ __volatile__("rdtsc" : "=a" (a), "=d" (d));
+  return ((ticks)a) | (((ticks)d) << 32);*/
 }

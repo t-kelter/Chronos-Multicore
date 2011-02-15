@@ -35,7 +35,7 @@ int getIndexInList( int element, int *arr, int len ) {
 int enqueue( int element, int **arr, int *len ) {
 
   (*len)++;
-  *arr = (int*) REALLOC( *arr, (*len) * sizeof(int), "arr" );
+  REALLOC( *arr, int*, (*len) * sizeof(int), "arr" );
   (*arr)[(*len)-1] = element;
 
   return *len;
@@ -51,7 +51,7 @@ int enqueueUnique( int element, int **arr, int *len ) {
     return *len;
 
   (*len)++;
-  *arr = (int*) REALLOC( *arr, (*len) * sizeof(int), "arr" );
+  REALLOC( *arr, int*, (*len) * sizeof(int), "arr" );
   (*arr)[(*len)-1] = element;
 
   return *len;
@@ -65,10 +65,10 @@ int enqueuePair( int element1, int **arr1, int element2, int **arr2, int *len ) 
 
   (*len)++;
 
-  *arr1 = (int*) REALLOC( *arr1, (*len) * sizeof(int), "arr1" );
+  REALLOC( *arr1, int*, (*len) * sizeof(int), "arr1" );
   (*arr1)[(*len)-1] = element1;
 
-  *arr2 = (int*) REALLOC( *arr2, (*len) * sizeof(int), "arr2" );
+  REALLOC( *arr2, int*, (*len) * sizeof(int), "arr2" );
   (*arr2)[(*len)-1] = element2;
 
   return *len;

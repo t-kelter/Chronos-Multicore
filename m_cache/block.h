@@ -21,6 +21,12 @@
 
 
 /*
+ * Returns the index of the instruction 'i' in the instruction list
+ * 'ilist', or -1 if not found. Searches the list from 'start' to 'end'.
+ */
+int getinstruction( const instr *i, const instr **ilist, int start, int end );
+
+/*
  * Returns the index of bbid in bblist, -1 if not found.
  * Searches bblist from index start to end, both inclusive.
  * Mostly used to search for successor, which is usually near the end.

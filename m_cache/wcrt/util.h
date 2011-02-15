@@ -17,7 +17,6 @@
 
 // ######### Function declarations  ###########
 
-
 /*
  * Tests for membership in an integer array.
  */

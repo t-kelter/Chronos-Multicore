@@ -1,3 +1,58 @@
+2010-08-18:
+* The data type that is used for the analyses is now configurable: It can be an offset range of the form [min,max], but also an offset set which lists individual offsets, which is much more expensive, but might yields results which are more precise.
+
+2010-08-16:
+* Added more possibilities for the alignment analysis, to make use of the penalized alignment, i.e. to analyze single loop iterations using a fixed zero-alignment like in the structural analysis. In contrast to the structural analysis this is then done selectively, and one when needed.
+
+2010-08-12:
+* Improved precision of alignment-sensitive single-block analysis.
+
+2010-08-11:
+* Implemented buffering of result values which speeds up the recursive computations by a factor of 3 or more in some cases.
+
+2010-08-06:
+* Added a BCET analysis, that is based on the structural WCET analysis for better comparison (Full unrolling BCET analysis is more precise)
+
+2010-08-02:
+* Implemented graph-tracking analysis with a dynamic flow problem solved through an ILP (lp_solve)
+
+2010-07-26:
+* Integrated debugmacros into Chronos. The C++ debugmacros library which enables a selective, run-time decided, fully removable (per define) debug output support.
+* All debug output in the main analyzer was switched to debugmacros (The 'wcrt' and 'cfg' modules still use their old debug output)
+
+2010-07-24:
+* First version of global convergence analysis finished
+* Changed cache analysis result evaluation. Instead of statically attaching either a best- or a worst-case classification to each instruction, a new function was introduced that derives the access behaviour from the CHMC dynamically. All the DAG-based analyses were adapted to use that function (check_hit_miss). This enables concurrent BCET/WCET analyses like the alignment analysis. 
+
+2010-07-23:
+* Streamlined different DAG-based WCET analyses
+- All analyses now use the same function for getting the memory access delay + latency
+- The context-handling in the unroll-analyses was corrected
+- All analyses now have a configurable per-instruction WCET and BCET (This was previously 0 or 1 (heterogenous))
+* Switched to C99 in the Makefiles because long long is not supported in older standards
+* BCET analysis now has separate data structures. This enables a parallel BCET and WCET analysis, which would have written to the same struct fields, and thus would have overwritten each	other, previously.
+
+2010-07-22:
+* Simplified the bus delay computation.    
+* Nested loop headers do now get the correct starting time, which was not handled correctly before. Inner loops always got starting time 0 in the outer loop too, which leads to wrong results.
+
+2010-07-21:
+* Restructured loop WCET determination from CHMC contexts
+* Separated the fully-unrolling WCET analysis from the structural WCET analysis (as presented in SCOPES) to be able to more easily switch between the different analyses and to identify which parts of the code belong to which analysis
+
+2010-07-16:
+* In main.c: Moved Wei-Statistics to separate functions and modularized msc reading / wcet-bcet output
+
+2010-07-07:
+* Split up the DAG-analyses into WCET/BCET and independent parts
+* Fixed all warnings in the code
+
+2010-06-06:
+* Added header files for all source files, so that the standard C build system is applicable (compile one source after another and link at the end)
+
+2010-06-18:
+* Changed "wcrt" folder to be a library
+
 2010-06-17:
 * Guarded all fopen calls with an if, to check whether opening was successful and abort otherwise
 

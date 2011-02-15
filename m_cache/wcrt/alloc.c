@@ -21,7 +21,7 @@ int firstAlloc() {
   overlay_t ox;
 
   ox.numOwnerTasks = 1;
-  ox.ownerTaskList = (int*) MALLOC( ox.ownerTaskList, sizeof(int), "ownerTaskList" );
+  MALLOC( ox.ownerTaskList, int*, sizeof(int), "ownerTaskList" );
 
   for( i = 0; i < numTasks; i++ ) {
     pidx = findPE( taskList[i]->peID );
@@ -41,10 +41,11 @@ int resetAllocation( chart_t *msc ) {
 
   int i, k, pidx;
   overlay_t ox;
-  time_t wcet, bcet;
+  time_t wcet = 0;
+  time_t bcet = 0;
 
   ox.numOwnerTasks = 1;
-  ox.ownerTaskList = (int*) MALLOC( ox.ownerTaskList, sizeof(int), "ownerTaskList" );
+  MALLOC( ox.ownerTaskList, int*, sizeof(int), "ownerTaskList" );
 
   for( i = 0; i < msc->topoListLen; i++ ) {
     int ix = msc->topoList[i];
@@ -101,7 +102,7 @@ int updateAllocationGC( sched_t *sc, chart_t *msc, int spmCapacity ) {
 
     if( numMembers == 1 ) {
       ox.numOwnerTasks = 1;
-      ox.ownerTaskList = (int*) MALLOC( ox.ownerTaskList, sizeof(int), "ownerTaskList" );
+      MALLOC( ox.ownerTaskList, int*, sizeof(int), "ownerTaskList" );
       ox.ownerTaskList[0] = memberList[0];
       doAllocation( msc, &ox, spmCapacity );
       free( ox.ownerTaskList );
@@ -109,7 +110,7 @@ int updateAllocationGC( sched_t *sc, chart_t *msc, int spmCapacity ) {
     }
     
     // assign 'colors'
-    colorAssg = (char*) MALLOC( colorAssg, numMembers * sizeof(char), "colorAssg" );
+    MALLOC( colorAssg, char*, numMembers * sizeof(char), "colorAssg" );
     numColors = taskColoring( sc->spm->overlayList[i], &colorAssg );
 
     // do allocation for tasks considering color assignment
@@ -148,11 +149,12 @@ int updateAllocationIC( sched_t *sc, chart_t *msc, int spmCapacity ) {
 int updateAllocationPK( sched_t *sc, chart_t *msc, int spmCapacity ) {
 
   int i;
-  overlay_t *ox = (overlay_t*) MALLOC( ox, sizeof(overlay_t), "ox" );
+  overlay_t *ox;
+  MALLOC( ox, overlay_t*, sizeof(overlay_t), "ox" );
 
   // everyone sharing the SPM
   ox->numOwnerTasks = sc->numAssigned;
-  ox->ownerTaskList = (int*) MALLOC( ox->ownerTaskList, ox->numOwnerTasks * sizeof(int), "ownerTaskList" );
+  MALLOC( ox->ownerTaskList, int*, ox->numOwnerTasks * sizeof(int), "ownerTaskList" );
   for( i = 0; i < sc->numAssigned; i++ )
     ox->ownerTaskList[i] = sc->assignedList[i];
 
@@ -160,7 +162,7 @@ int updateAllocationPK( sched_t *sc, chart_t *msc, int spmCapacity ) {
 
   // single overlay
   sc->spm->numOverlays = 1;
-  sc->spm->overlayList = (overlay_t**) MALLOC( sc->spm->overlayList, sizeof(overlay_t*), "overlayList" );
+  MALLOC( sc->spm->overlayList, overlay_t**, sizeof(overlay_t*), "overlayList" );
   sc->spm->overlayList[0] = ox;
 
   return 0;
@@ -174,8 +176,6 @@ char updateAllocation( int peID, chart_t *msc ) {
   int i;
   char changed;
 
-  double t; // time measurement
-
   if( sc->numAssigned == 0 )
     return 0;
   if( spmCapacity[peID] <= 0 || sc->spm == NULL )
@@ -184,10 +184,10 @@ char updateAllocation( int peID, chart_t *msc ) {
   printf( "\nStart allocation for PE %d\n\n", peID ); fflush( stdout );
 
   switch( allocmethod ) {
-  case 1: STARTTIME; updateAllocationPK( sc, msc, spmCapacity[peID] ); STOPTIME; break;
-  case 2: STARTTIME; updateAllocationIC( sc, msc, spmCapacity[peID] ); STOPTIME; break;
+  case 1: { STARTTIME; updateAllocationPK( sc, msc, spmCapacity[peID] ); STOPTIME; break; }
+  case 2: { STARTTIME; updateAllocationIC( sc, msc, spmCapacity[peID] ); STOPTIME; break; }
   case 3:
-  case 4: STARTTIME; updateAllocationGC( sc, msc, spmCapacity[peID] ); STOPTIME; break;
+  case 4: { STARTTIME; updateAllocationGC( sc, msc, spmCapacity[peID] ); STOPTIME; break; }
   default:
     break;
   }
@@ -197,7 +197,8 @@ char updateAllocation( int peID, chart_t *msc ) {
   changed = 0;
   for( i = 0; i < sc->numAssigned; i++ ) {
 
-    time_t wcet, bcet;
+    time_t wcet = 0;
+    time_t bcet = 0;
     task_t *tc = taskList[sc->assignedList[i]];
 
     //wcet = (int) analysis( tc );
@@ -226,7 +227,7 @@ int initAlloc( chart_t *msc ) {
   for( i = 0; i < numPEs; i++ ) {
     sched_t *sc = msc->PEList[i];
     if( spmCapacity[i] > 0 ) {
-      sc->spm = (alloc_t*) MALLOC( sc->spm, sizeof(alloc_t), "spm" );
+      MALLOC( sc->spm, alloc_t*, sizeof(alloc_t), "spm" );
       sc->spm->numOverlays = 0;
       sc->spm->overlayList = NULL;
     }

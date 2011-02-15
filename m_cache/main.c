@@ -1,10 +1,16 @@
+// Include standard library headers
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <time.h>
 
-#include "config.h"
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
 
+// Include local headers
 #define DEF_GLOBALS
 #include "header.h"
 #undef DEF_GLOBALS
@@ -24,121 +30,151 @@
 //#include "DAG_WCET.h"
 #include "topo.h"
 //#include "analysisILP.h"
-#include "analysisDAG_WCET.h"
-#include "analysisDAG_BCET.h"
+#include "analysisDAG_BCET_structural.h"
+#include "analysisDAG_BCET_unroll.h"
+#include "analysisDAG_ET_alignment.h"
+#include "analysisDAG_WCET_structural.h"
+#include "analysisDAG_WCET_unroll.h"
 //#include "analysisEnum.h"
-#include "analysisCache.h"
-#include "analysisCacheL2.h"
+#include "analysisCache_L1.h"
+#include "analysisCache_L2.h"
 #include "updateCacheL2.h"
 #include "pathDAG.h"
-/* For bus-aware WCET calculation */
 #include "busSchedule.h"
 #include "wcrt/wcrt.h"
 #include "wcrt/cycle_time.h"
 
 
-// List of static helper functions (see bottom)
-static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool *interference_changed );
+// ############################################################
+// #### Local data type definitions (will not be exported) ####
+// ############################################################
 
+
+// List of analysis methods
+enum AnalysisMethod {
+    ANALYSIS_NONE,
+    ANALYSIS_UNROLL,
+    ANALYSIS_STRUCTURAL,
+    ANALYSIS_ALIGNMENT
+};
+
+
+// #########################################
+// #### Declaration of static variables ####
+// #########################################
+
+
+/* Stores whether the debugmacros have already been initialized for this file. */
+static _Bool firstDebugmacroInit = 1;
+
+/* Statistics file to which analysis results will be written. */
+char statfileName[MAX_LEN];
+
+
+// #########################################
+// #### Declaration of static functions ####
+// #########################################
+
+
+static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
+                      enum AnalysisMethod method,
+                      enum LoopAnalysisType alignmentAnalysisLAType,
+                      _Bool alignmentAnalysisTryStructural,
+                      enum OffsetDataType offsetDataType );
+static void readMSCfromFile( const char *interferFileName, int msc_index,
+                             _Bool *interference_changed );
 static void writeWCETandCacheInfoFiles( int num_msc );
 
 #ifdef WITH_WEI_COMPARISON
 static void writeWeiComparison( int num_msc, const char *finalStatsBasename );
-
 static void writeWeiStatistic( int num_msc );
 #endif
 
 
-/* sudiptac:: For performance measurement */
-typedef unsigned long long ticks;
-#define CPU_MHZ 3000000000
-static __inline__ ticks getticks(void)
-{
-  unsigned a, d;
-  asm volatile("rdtsc" : "=a" (a), "=d" (d));
-  return ((ticks)a) | (((ticks)d) << 32);
-}
-
-
-/*
- * Switches between the alternatives of analysis methods.
- */
-
-/*
-int analysis() {
-
-  if( method == ILP )
-    return analysis_ilp();
-
-  if( method == DAG )
-    return analysis_dag();
-
-  if( method == ENUM ) {
-    analysis_dag();
-    return analysis_enum();
-  }
-
-  printf( "Invalid choice of analysis method. Please choose %d:ILP, %d:DAG or %d:ENUM.\n", ILP, DAG, ENUM );
-  exit(1);
-}
-
-*/
+// #########################################
+// #### Definitions of public functions ####
+// #########################################
 
 
 int main(int argc, char **argv )
 {
+  DINITDEBUGMACROS( firstDebugmacroInit, "debugmacros.conf" );
+  DSTART( "main" );
+
   char hitmiss[MAX_LEN];
-  int n, i, j;
+  int n, i;
   _Bool flag;
   int num_msc = 0;
   float sum;
-  char interferFileName[MAX_LEN], proc[2*MAX_LEN];
-  ticks start,end;
+  char interferFileName[MAX_LEN];
 
   times_iteration = 0;
 
+  /* TODO: All of the following should be covered by a new
+           input format for the input files. */
   /* sudiptac :: Reset debugging mode */
   g_testing_mode = 0;
   /* Compute with shared bus */
   g_shared_bus = 1;
   /* For independent tasks running on multiple cores */
-  g_independent_task = 0;
+  g_independent_task = 1;
   /* For no bus modelling */
   g_no_bus_modeling = 0;
-  /* Set whether we fully unroll loops during the analysis. */
-  g_full_unrolling = 0;
+  /* For private L2 cache analysis */
+  g_private = 0;
 
   /* also read conflict info and tasks info */
   interferePathName = argv[1];
   num_core = atoi( argv[4] );
   const char * const tdma_bus_schedule_file = argv[5];
-  infeas   = 0;
-  regionmode = 0;
+  infeas = 0;
 
-  /* For private L2 cache analysis */		  
-  // TODO: This should be covered by a new input format for the input files
-  if(argc > 6) {
-    g_private = atoi(argv[6]);  
-  } else {
-    g_private = 0;
+  /* Set the analysis method to use. */
+  enum AnalysisMethod current_analysis_method = ANALYSIS_ALIGNMENT;
+  enum LoopAnalysisType alignmentLAType = LOOP_ANALYSIS_GLOBAL_CONVERGENCE;
+  enum OffsetDataType offsetDataType = OFFSET_DATA_TYPE_RANGE;
+  _Bool alignmentTryStructural = 0;
+  switch( argv[6][0] ) {
+    case 'a':
+      current_analysis_method = ANALYSIS_ALIGNMENT;
+      for ( i = 1; argv[6][i] != '\0'; i++ ) {
+        char option_char = argv[6][i];
+        switch( option_char ) {
+          case 'c': alignmentLAType = LOOP_ANALYSIS_GLOBAL_CONVERGENCE; break;
+          case 'g': alignmentLAType = LOOP_ANALYSIS_GRAPH_TRACKING; break;
+          case 'r': offsetDataType = OFFSET_DATA_TYPE_RANGE; break;
+          case 's': offsetDataType = OFFSET_DATA_TYPE_SET; break;
+          case 't': offsetDataType = OFFSET_DATA_TYPE_TIME_RANGE; break;
+          case '+': alignmentTryStructural = 1; break;
+          default: assert( 0 && "Unknown option!" );
+        }
+      }
+      break;
+    case 'n':
+      current_analysis_method = ANALYSIS_NONE;
+      break;
+    case 's':
+      current_analysis_method = ANALYSIS_STRUCTURAL;
+      break;
+    case 'u':
+      current_analysis_method = ANALYSIS_UNROLL;
+      break;
+    default:
+      assert( 0 && "Unknown analysis method!" );
   }
 
-  /* sudiptac :: Allocate the latest start time structure for 
+  /* sudiptac :: Allocate the earliest/latest start time structure for
    * all the cores */
-  latest = (ull *)malloc(num_core * sizeof(ull));		  
-  if(!latest)
-    prerr("Error: Out of memory");
-  memset(latest, 0, num_core * sizeof(ull)); 	  
+  CALLOC( earliest_core_time, ull *, num_core, sizeof(ull), "earliest_core_time" );
+  CALLOC( latest_core_time, ull *, num_core, sizeof(ull), "latest_core_time" );
 
   /* Set the basic parameters of L1 and L2 instruction caches */		  
   set_cache_basic( argv[2] );
   set_cache_basic_L2( argv[3] );
 
   /* Allocate memory for capturing conflicting task information */		  
-  numConflictTask = (char *)CALLOC(numConflictTask, cache_L2.ns, sizeof(char),
-      "numConflictTask");
-  numConflictMSC = (char *)CALLOC(numConflictMSC, cache_L2.ns, sizeof(char), 
-      "numConflictMSC");
+  CALLOC(numConflictTask, char *, cache_L2.ns, sizeof(char), "numConflictTask");
+  CALLOC(numConflictMSC, char *, cache_L2.ns, sizeof(char), "numConflictMSC");
 
   /* Reset/initialize allocated memory */ 		  
   for(n = 0; n < cache_L2.ns; n++) {
@@ -146,17 +182,14 @@ int main(int argc, char **argv )
     numConflictMSC[n] = 0;
   }
 
-  /* find out: (1) size of each cache line, (2) number of cache sets,
-   * (3) associativity */
-#ifdef _DEBUG
-    dumpCacheConfig();
-    dumpCacheConfig_L2();
-#endif
+  /* Generate statistics file name & remove  existing file, if any. */
+  sprintf( statfileName, "wcet-%s-%s.log", interferePathName, argv[6] );
+  remove( statfileName );
 
   /* Monitor time from this point */
-  STARTTIME;
+  const milliseconds time_start = getmsecs();
 
-  /* Start reading the interference file and build the intereference 
+  /* Start reading the interference file and build the interference
    * information */
   /* TODO: The input files for Chronos are relatively complicated to read and at
    *       the moment the bus analysis and the wcrt computation use different input
@@ -174,84 +207,59 @@ int main(int argc, char **argv )
   /* Read the entire file containing the interference information */		  
   while(fscanf(interferPath, "%s\n", interferFileName)!= EOF) {
     if(num_msc == 0) {
-      msc = (MSC**)CALLOC(msc, 1, sizeof(MSC*), "MSC*");
+      CALLOC(msc, MSC**, 1, sizeof(MSC*), "MSC*");
     } else {
-      msc = (MSC**)REALLOC(msc, (num_msc + 1) * sizeof(MSC*), "MSC*");
+      REALLOC(msc, MSC**, (num_msc + 1) * sizeof(MSC*), "MSC*");
+      msc[num_msc] = NULL;
     }
     num_msc++;
 
     readMSCfromFile( interferFileName, num_msc - 1, NULL );
+    MSC * const currentMSC = msc[num_msc - 1];
+
+    DOUT( "Reading MSC from '%s'", interferFileName );
 
     /* Now go through all the tasks to read their CFG and build 
      * relevant data structures like loops, basic blocks and so 
      * on */	  
-    for(i = 0; i < msc[num_msc -1]->num_task; i ++) {
+    for(i = 0; i < currentMSC->num_task; i ++) {
 
-      filename = msc[num_msc -1]->taskList[i].task_name;
+      task_t * const currentTask = &currentMSC->taskList[i];
+      currentTask->task_id = i;
+
+      DOUT( "Reading task %s\n", currentTask->task_name );
+
+      filename = currentTask->task_name;
       procs     = NULL;
       num_procs = 0;
       proc_cg   = NULL;
       infeas = 0;
 
-      /* Read the cfg of the task */
+      /* Read the cfg of the task into the global array 'procs' */
       read_cfg();
 
-#ifdef _DEBUG
-        print_cfg();
-#endif
-
-      /* Create the procedure pointer in the task --- just allocate
-       * the memory */
-      msc[num_msc -1]->taskList[i].proc_cg_ptr = (proc_copy *)
-        CALLOC(msc[num_msc -1]->taskList[i].proc_cg_ptr,
-            num_procs, sizeof(proc_copy), "proc_copy");
-
-      /* Initialize pointers for procedures. Each entry means a 
-       * different context ? */
-      for(j = 0; j < num_procs; j ++) {
-        msc[num_msc -1]->taskList[i].proc_cg_ptr[j].num_proc = 0;
-        msc[num_msc -1]->taskList[i].proc_cg_ptr[j].proc = NULL;
-      }
+      /* Allocate memory for the procedure copies. */
+      CALLOC(currentTask->proc_cg_ptr, proc_copy *, num_procs,
+          sizeof(proc_copy), "currentTask->proc_cg_ptr");
 
       readInstr();
-
-#ifdef _DEBUG
-        print_instrlist();
-#endif
 
       /* Detect loops in all procedures of the task */ 
       detect_loops();
 
-#ifdef _DEBUG
-        print_loops();
-
-      /* for dynamic locking in memarchi */
-        dump_callgraph();
-        dump_loops();
-#endif
-
       topo_sort();
-
-#ifdef _DEBUG
-        print_topo();
-#endif
 
       /* compute incoming info for each basic block */
       calculate_incoming();
 
       /* This function allocates memory for all analysis and subsequent WCET
        * computation of the task */
-      constructAll(&(msc[num_msc -1]->taskList[i]));
+      constructAll( currentTask );
 
-      /* Set the main procedure (entry procedure) and total number of 
-       * procedures appearing in this task */
-      msc[num_msc -1]->taskList[i].main_copy = main_copy;
-      msc[num_msc -1]->taskList[i].num_proc= num_procs;
-
-      /* FIXME: Anything IMPORTANT ? */ 
-      /* taskList[0]->task_id = i;
-       * taskList[0]->task_name = filename;
-       * taskList[0]->main_copy = main_copy;*/
+      /* Set the main procedure (entry procedure) in this task */
+      currentTask->main_copy = main_copy;
+      currentTask->procs = procs;
+      currentTask->num_proc= num_procs;
 
       /* Now do L1 cache analysis of the current task and compute 
        * hit-miss-unknown classification of every instruction....
@@ -261,62 +269,35 @@ int main(int argc, char **argv )
        * no longer needed */ 
       freeAllCacheState();
 
-      PRINT_PRINTF("\nL1 cache analysis finished\n");
+      printf("L1 cache analysis finished\n");
 
       /* Now do private L2 cache analysis of this task */
       cacheAnalysis_L2();
       /* Free L2 cache states */
       freeAll_L2();
 
-      PRINT_PRINTF("\nL2 cache analysis finished\n");
+      printf("L2 cache analysis finished\n\n");
     }
 
     /* Private cache analysis for all tasks are done here. But due 
      * to the intereference some of the classification in L2 cache 
      * need to be updated */
-
-    /* read inteference info and update Cache State */
-
-    printf("update CS %s\n", msc[num_msc -1]->msc_name);
-
-    /* If private L2 cache analysis .... no update of interference */	  
-    if(!g_private)	  
-      updateCacheState(msc[num_msc-1]);
+    /* If private L2 cache analysis .... no update of interference */
+    if( !g_private ) {
+      printf("Update cache state in msc '%s'\n\n", currentMSC->msc_name);
+      updateCacheState(currentMSC);
+    }
 
     /* This function allocates all memory required for computing and 
      * storing hit-miss classification */
-    pathDAG(msc[num_msc -1]);
+    pathDAG(currentMSC);
 
     /* Compute WCET and BCET of this MSC. remember MSC... not task
      * so we need to compute WCET/BCET of each task in the MSC */
     /* CAUTION: In presence of shared bus these two function changes
      * to account for the bus delay */
-    start = getticks();
-    compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file); 
-    end = getticks();
-
-    /* FIXME: What's this function doing here ? */ 	  
-    /* If private L2 cache analysis .... no update of interference */	  
-    if(!g_private)
-      resetHitMiss_L2(msc[num_msc -1]);
-
-    /* Now write the interference info to a file which would be
-     * passed to the WCRT module in the next iteration */
-    sprintf(proc, "conflictTaskMSC_%d", num_msc - 1);
-    FILE *conflictMSC = fopen(proc, "w");
-    if( !conflictMSC ) {
-      fprintf(stderr, "Failed to open file: %s (main.c:438)\n", proc);
-      exit(1);
-    }
-
-    sum = 0;
-
-    for(n = 0; n < cache_L2.ns; n++)
-      sum = sum + numConflictMSC[n];
-
-    /* FIXME: Guess this is for debugging */	  
-    fprintf(conflictMSC, "%f", sum/cache_L2.ns);
-    fclose(conflictMSC);
+    analysis( currentMSC, tdma_bus_schedule_file, current_analysis_method,
+        alignmentLAType, alignmentTryStructural, offsetDataType );
 
     /* Initializing conflicting information */
     for(n = 0; n < cache_L2.ns; n++) {
@@ -324,16 +305,20 @@ int main(int argc, char **argv )
     }
   }
   /* Done with timing analysis of all the MSC-s */
+  const milliseconds time_end = getmsecs();
   fclose(interferPath);
+
+  /* Assert correct function of debug macros. */
+  DASSERT( DSIZE() == 1 );
 
   /* sudiptac :::: Return from here in case of independent task running on 
    * multiple cores. Because in that case no timing interval computation is 
    * needed and the WCRT module is not called */
   if(g_independent_task) {
     printf("===================================================\n");
-    printf("WCET computation time = %lf secs\n", (end - start)/((1.0) * CPU_MHZ));
+    printf("Total analysis time = %lf secs\n", (time_end - time_start)/1000.0);
     printf("===================================================\n");
-    return 0;
+    DRETURN( 0 );
   }	 
 
   /* Start of the iterative algorithm */		  
@@ -354,7 +339,7 @@ int main(int argc, char **argv )
   while(flag) {
 
     flag = 0;
-    printf("Call wcrt analysis the %d time\n", times_iteration);
+    printf("\nCall wcrt analysis the %d time\n\n", times_iteration);
 
     if(num_core == 1 || 
        num_core == 2 ||
@@ -392,12 +377,10 @@ int main(int argc, char **argv )
         updateCacheState(msc[i]);
 
         pathDAG(msc[i]);
-        /* Compute WCET and BCET of each task. */
-        compute_bus_WCET_MSC(msc[num_msc -1], tdma_bus_schedule_file);
-        compute_bus_BCET_MSC(msc[num_msc -1]);
 
-        /* FIXME: What's this function doing here ? */
-        resetHitMiss_L2(msc[i]);
+        /* Compute WCET and BCET of each task. */
+        analysis( msc[i], tdma_bus_schedule_file, current_analysis_method,
+            alignmentLAType, alignmentTryStructural, offsetDataType );
       }
 
       /* Iteration increased */
@@ -408,9 +391,8 @@ int main(int argc, char **argv )
     }
   }
 
-  STOPTIME;
-
   /* DONE: All Analysis */
+  const milliseconds time_iterative_end = getmsecs();
 
   // The base path of all final output files. Individual files only add a suffix
   char *finalStatsBasename = "simple_test";
@@ -471,7 +453,7 @@ int main(int argc, char **argv )
   fscanf(file, "%Lu", &wcet_wei);
   fprintf(wcrt,"wei %Lu\n", wcet_wei);
   fprintf(wcrt,"differ %Lu\n", wcet_wei - wcet_our);
-  fprintf(wcrt,"runtime %f s\n", t/(CYCLES_PER_MSEC * 1000.0));
+  fprintf(wcrt,"runtime %f s\n", (time_iterative_end - time_start)/1000.0);
 
   fprintf(wcrt,"average conflict tasks/set  %f\n", sum/cache_L2.ns);
 
@@ -480,7 +462,112 @@ int main(int argc, char **argv )
 
   printf("%d core, No change in interfere now, exit\n", num_core);
 
-  return 0;
+  /* Assert correct function of debug macros. */
+  DASSERT( DSIZE() == 1 );
+
+  DRETURN( 0 );
+}
+
+
+// #########################################
+// #### Definitions of static functions ####
+// #########################################
+
+
+/*
+ * Switches between the alternatives of analysis methods.
+ */
+static void analysis( MSC *msc, const char *tdma_bus_schedule_file,
+                      enum AnalysisMethod method,
+                      enum LoopAnalysisType alignmentAnalysisLAType,
+                      _Bool alignmentAnalysisTryStructural,
+                      enum OffsetDataType offsetDataType )
+{
+  DSTART( "analysis" );
+  const uint old_bus_modeling_value = g_no_bus_modeling;
+
+  switch ( method ) {
+
+    case ANALYSIS_NONE:
+      g_no_bus_modeling = 1;
+      // Computes BCET and WCET together
+      compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file,
+          LOOP_ANALYSIS_GLOBAL_CONVERGENCE, FALSE,
+          OFFSET_DATA_TYPE_RANGE );
+      g_no_bus_modeling = old_bus_modeling_value;
+      break;
+
+    case ANALYSIS_UNROLL:
+      compute_bus_WCET_MSC_unroll(msc, tdma_bus_schedule_file);
+      compute_bus_BCET_MSC_unroll(msc, tdma_bus_schedule_file);
+      break;
+
+    case ANALYSIS_STRUCTURAL:
+      compute_bus_WCET_MSC_structural(msc, tdma_bus_schedule_file);
+      compute_bus_BCET_MSC_structural(msc, tdma_bus_schedule_file);
+      break;
+
+    case ANALYSIS_ALIGNMENT:
+      // Computes BCET and WCET together
+      compute_bus_ET_MSC_alignment(msc, tdma_bus_schedule_file,
+          alignmentAnalysisLAType, alignmentAnalysisTryStructural,
+          offsetDataType );
+      break;
+
+    default:
+      fprintf( stderr, "Invalid choice of analysis method.\n" );
+      exit(1);
+  }
+
+  // Assert that all results are sound
+  int i;
+  for ( i = 0; i < msc->num_task; i++ ) {
+    // If the tasks are executed in order, only the assertion
+    // earliest_start_time + bcet <= latest_start_time + WCET
+    // holds. Unfortunately, the start times which are used in
+    // the analyses are not conserved, therefore we cannot assert
+    // this here.
+    if ( g_independent_task ) {
+      assert( msc->taskList[i].bcet <= msc->taskList[i].wcet &&
+          "Invalid BCET/WCET results for task" );
+    }
+  }
+
+  // Output the results if desired
+  DACTION(
+      FILE * const wcet_log = fopen( statfileName, "a" );
+      if ( wcet_log == NULL ) {
+        DOUT( "Could not write output file %s!\n", statfileName );
+      } else {
+        fprintf( wcet_log, "##################################\n" );
+        fprintf( wcet_log, "Results for MSC '%s'\n", msc->msc_name );
+        fprintf( wcet_log, "##################################\n\n" );
+
+        fprintf( wcet_log, "task;BCET;BCET_analysis_time;"
+            "WCET;WCET_analysis_time;Jitter\n" );
+        for ( i = 0; i < msc->num_task; i++ ) {
+          task_t * const t = &( msc->taskList[i] );
+          fprintf( wcet_log, "%s;%llu;%ld;%llu;%ld;%llu%%\n", t->task_name,
+              t->bcet, t->bcet_analysis_time,
+              t->wcet, t->wcet_analysis_time,
+              ( ( t->wcet - t->bcet ) * 100 ) / t->wcet );
+        }
+
+        fprintf( wcet_log, "\n\n" );
+        fclose( wcet_log );
+      }
+
+      for ( i = 0; i < msc->num_task; i++ ) {
+        task_t * const t = &( msc->taskList[i] );
+        DOUT( "Results for task %s : BCET %llu (time %fs) \tWCET %llu "
+            "(time %fs) \t(jitter %llu%%)\n", t->task_name,
+            t->bcet, t->bcet_analysis_time / ( 1.0 * 1000 ),
+            t->wcet, t->wcet_analysis_time / ( 1.0 * 1000 ),
+            ( ( t->wcet - t->bcet ) * 100 ) / t->wcet );
+      }
+  );
+
+  DEND();
 }
 
 
@@ -516,7 +603,7 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
   strcpy(msc[msc_index]->msc_name, interferFileName);
   msc[msc_index]->num_task = num_task;
 
-  /* Allocate memory for all tasks in the MSC and intereference data
+  /* Allocate memory for all tasks in the MSC and interference data
    * structure */
   CALLOC_IF_NULL(msc[msc_index]->taskList, task_t*,
       num_task * sizeof(task_t), "taskList");
@@ -526,11 +613,18 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
   /* Get/set names of all tasks in the MSC */
   int i;
   for(i = 0; i < num_task; i ++) {
+    task_t * const cur_task = &msc[msc_index]->taskList[i];
 
-    fscanf(interferFile, "%s\n", (char*)&(msc[msc_index]->taskList[i].task_name));
+    /* Read in task file name and core mapping. */
+    int read_count = fscanf(interferFile, "%u %s", &cur_task->core_index,
+                                      (char*)&cur_task->task_name);
+    if ( read_count != 2 ) {
+      prerr( "Invalid input file format - core mapping or task name missing!" );
+    }
+
     /* sudiptac ::: Read also the successor info. Needed for WCET analysis
      * in presence of shared bus */
-    fscanf(interferFile, "%d", &(msc[msc_index]->taskList[i].numSuccs));
+    fscanf(interferFile, " %d", &(msc[msc_index]->taskList[i].numSuccs));
     uint nSuccs = msc[msc_index]->taskList[i].numSuccs;
 
     /* Allocate memory for successor List */
@@ -555,13 +649,18 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
     CALLOC_IF_NULL(msc[msc_index]->interferInfo[i], int*,
         num_task * sizeof(int), "interferInfo");
 
-    /* Set the intereference info of task "i" i.e. all ("j" < num_task)
-     * are set to "1" if task "i" interefere with "j" in this msc in the
+    /* Set the interference info of task "i" i.e. all ("j" < num_task)
+     * are set to "1" if task "i" interferes with "j" in this msc in the
      * timeline */
     int j;
     for(j = 0; j < num_task; j++) {
       const int old_value = msc[msc_index]->interferInfo[i][j];
-      fscanf(interferFile, "%d ", &(msc[msc_index]->interferInfo[i][j]));
+      const int readIn = fscanf(interferFile, "%d ",
+                          &(msc[msc_index]->interferInfo[i][j]));
+      // If there is no interference info, then quit reading
+      if ( readIn != 1 ) {
+        break;
+      }
 
       // Set flag if given and interference changed
       if ( msc[msc_index]->interferInfo[i][j] != old_value ) {
@@ -577,18 +676,17 @@ static void readMSCfromFile( const char *interferFileName, int msc_index, _Bool 
   fclose(interferFile);
 }
 
-/* This is a helper function that prints the results of the WCET, BCET
- * and cache analyses to files, so that the WCRT analysis submodule can
- * read those results.
+/* This is a helper function that prints the results of the WCET and BCET
+ * results to files, so that the WCRT analysis submodule can read them.
  *
  * 'num_msc' should be the current total number of mscs
  */
 static void writeWCETandCacheInfoFiles( int num_msc )
 {
-  int i, j;
-
   /* Go through all the MSC-s */
+  uint i;
   for(i = 1; i <= num_msc; i ++) {
+    const MSC * const current_msc = msc[i-1];
 
     /* Create the WCET and BCET filename */
     char wbcostPath[MAX_LEN];
@@ -599,54 +697,14 @@ static void writeWCETandCacheInfoFiles( int num_msc )
       exit(1);
     }
 
-    char hitmiss[MAX_LEN];
-    sprintf(hitmiss, "msc%d_hitmiss_statistic_%d", i, times_iteration);
-    FILE *hitmiss_statistic = fopen(hitmiss, "w");
-    if( !hitmiss_statistic ) {
-      fprintf(stderr, "Failed to open file: %s (main.c:486)\n", hitmiss);
-      exit(1);
-    }
-
     /* Write WCET of each task in the file */
-    for(j = 0; j < msc[i-1]->num_task; j++) {
-
-      fprintf(file, "%Lu %Lu \n", msc[i-1]->taskList[j].wcet,
-          msc[i-1]->taskList[j].bcet);
-
-      /* Now print hit miss statistics for debugging */
-      fprintf(hitmiss_statistic,"%s\n", msc[i-1]->taskList[j].task_name);
-      fprintf(hitmiss_statistic,"Only L1\n\nWCET:\nHIT    MISS    NC\n");
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n", msc[i-1]->
-          taskList[j].hit_wcet, msc[i-1]->taskList[j].miss_wcet,
-          msc[i-1]->taskList[j].unknow_wcet);
-      fprintf(hitmiss_statistic,"\n%Lu\n",
-          (msc[i-1]->taskList[j].hit_wcet*IC_HIT) +
-          (msc[i-1]->taskList[j].miss_wcet +
-           msc[i-1]->taskList[j].unknow_wcet)* IC_MISS_L2);
-      fprintf(hitmiss_statistic,"\nWith L2\n\nWCET:\nHIT  MISS   \
-          NC  HIT_L2  MISS_L2     NC_L2\n");
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu     ",
-          msc[i-1]->taskList[j].hit_wcet, msc[i-1]->taskList[j].miss_wcet,
-          msc[i-1]->taskList[j].unknow_wcet);
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n",
-          msc[i-1]->taskList[j].hit_wcet_L2, msc[i-1]->taskList[j].miss_wcet_L2,
-          msc[i-1]->taskList[j].unknow_wcet_L2);
-      fprintf(hitmiss_statistic,"\n%Lu\n", msc[i-1]->taskList[j].wcet);
-      fprintf(hitmiss_statistic,"\nBCET:\nHIT MISS    NC  HIT_L2  \
-          MISS_L2     NC_L2\n");
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu     ",
-          msc[i-1]->taskList[j].hit_bcet, msc[i-1]->taskList[j].miss_bcet,
-          msc[i-1]->taskList[j].unknow_bcet);
-      fprintf(hitmiss_statistic,"%Lu  %Lu     %Lu \n",
-          msc[i-1]->taskList[j].hit_bcet_L2, msc[i-1]->taskList[j].miss_bcet_L2,
-          msc[i-1]->taskList[j].unknow_bcet_L2);
-      fprintf(hitmiss_statistic,"\n%Lu\n", msc[i-1]->taskList[j].bcet);
-      fflush(stdout);
+    /* This is read in again, by the WCRT module. */
+    uint j;
+    for(j = 0; j < current_msc->num_task; j++) {
+      const task_t * const task = &current_msc->taskList[j];
+      fprintf(file, "%Lu %Lu \n", task->wcet, task->bcet);
     }
-    /* We are done writing all intereference and hit-miss statistics----
-     * so close all the files */
     fclose(file);
-    fclose(hitmiss_statistic);
   }
 }
 

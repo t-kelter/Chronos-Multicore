@@ -21,7 +21,8 @@ int doAllocationILP( chart_t *msc, overlay_t *ox, int capacity ) {
   task_t *tx;
 
   // for tracking purpose
-  int *taskshare = (int*) CALLOC( taskshare, ox->numOwnerTasks, sizeof(int), "taskshare" );
+  int *taskshare;
+  CALLOC( taskshare, int*, ox->numOwnerTasks, sizeof(int), "taskshare" );
 
   // reset block realsize
   for( i = 0; i < ox->numOwnerTasks; i++ ) {
@@ -123,7 +124,7 @@ int doAllocationILP( chart_t *msc, overlay_t *ox, int capacity ) {
     taskshare[k] += tx->memBlockList[idx]->size;
     
     //ox->numMemBlocks++;
-    //ox->memBlockList = (mem_t**) REALLOC( ox->memBlockList, ox->numMemBlocks * sizeof(mem_t*), "ox->memBlockList" );
+    //REALLOC( ox->memBlockList, mem_t**, ox->numMemBlocks * sizeof(mem_t*), "ox->memBlockList" );
     //ox->memBlockList[ox->numMemBlocks-1] = &(tx->memBlockList[idx]);
   }
   fclose( fptr );
@@ -172,7 +173,8 @@ int doAllocationKnapsack( overlay_t *ox, int capacity ) {
 
   int i, k, last;
 
-  int *startIndex = (int*) MALLOC( startIndex, ox->numOwnerTasks * sizeof(int), "startIndex" );
+  int *startIndex;
+  MALLOC( startIndex, int*, ox->numOwnerTasks * sizeof(int), "startIndex" );
 
   num = 0;
   for( i = 0; i < ox->numOwnerTasks; i++ ) {
@@ -180,9 +182,9 @@ int doAllocationKnapsack( overlay_t *ox, int capacity ) {
     num += taskList[ox->ownerTaskList[i]]->numMemBlocks;
   }
 
-  gain   = (int*) MALLOC( gain, num * sizeof(int), "gain" );
-  weight = (int*) MALLOC( weight, num * sizeof(int), "weight" );
-  alloc  = (char*) CALLOC( alloc, num, sizeof(char), "alloc" );
+  MALLOC( gain, int*, num * sizeof(int), "gain" );
+  MALLOC( weight, int*, num * sizeof(int), "weight" );
+  CALLOC( alloc, char*, num, sizeof(char), "alloc" );
 
   last = 0;
   for( i = 0; i < ox->numOwnerTasks; i++ ) {
@@ -215,7 +217,7 @@ int doAllocationKnapsack( overlay_t *ox, int capacity ) {
       tx->allocated[idx] = 1;
 
       //ox->numMemBlocks++;
-      //ox->memBlockList = (mem_t**) REALLOC( ox->memBlockList, ox->numMemBlocks * sizeof(mem_t*), "ox->memBlockList" );
+      //REALLOC( ox->memBlockList, mem_t**, ox->numMemBlocks * sizeof(mem_t*), "ox->memBlockList" );
       //ox->memBlockList[ox->numMemBlocks-1] = &(tx->memBlockList[idx]);
     }
   }

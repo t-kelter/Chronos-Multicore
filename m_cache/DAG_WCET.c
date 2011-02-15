@@ -1,10 +1,21 @@
+// Include standard library headers
 #include <stdlib.h>
 #include <string.h>
 
+// Include local library headers
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <debugmacros/debugmacros.h>
+
+// Include local headers
 #include "DAG_WCET.h"
 #include "block.h"
-#include "path.h"
 #include "dump.h"
+#include "handler.h"
+#include "path.h"
+
+
 
 int detectDirection( branch *bru, block *bv ) {
 
@@ -93,8 +104,8 @@ int effectCancelled( branch *br, assign *assg, path *pv, block **bblist, int num
 }
 
 
-char BBconflictInPath( branch *bru, char direction, block *bv, path *pv, block **bblist, int num_bb ) {
-
+char BBconflictInPath( branch *bru, char direction, block *bv, path *pv, block **bblist, int num_bb )
+{
   int  cf, id;
   char res;
   branch *br;
@@ -115,10 +126,8 @@ char BBconflictInPath( branch *bru, char direction, block *bv, path *pv, block *
       id = effectCancelled( br, NULL, pv, bblist, num_bb );
 
       if( id == -1 ) {
-	  DEBUG_PRINTF( "BB %d:%d~%d - %d(%d)\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res );
-	return 1;
+        return 1;
       }
-	DEBUG_PRINTF( "BB %d:%d~%d - %d(%d) cancel[%d]\n", bru->bb->pid, bru->bb->bbid, bv->bbid, br->bb->bbid, res, id );
     }
   }
   return 0;
@@ -149,10 +158,8 @@ char BAconflictInPath( block *bu, block *bv, path *pv, block **bblist, int num_b
 	id = effectCancelled( br, assg, pv, bblist, num_bb );
 
 	if( id == -1 ) {
-	    DEBUG_PRINTF( "BA %d:%d - %d(%d)\n", bu->pid, bu->bbid, br->bb->bbid, res );
 	  return 1;
 	}
-	  DEBUG_PRINTF( "BA %d:%d - %d(%d) cancel[%d]\n", bu->pid, bu->bbid, br->bb->bbid, res, id );
       }
     }
   }
@@ -219,7 +226,9 @@ char hasIncomingConflict( branch *br, char dir, block **bblist, int start, int n
  * Traverse CFG in reverse topological order (already given in bblist)
  * to collect cost, eliminating infeasible paths.
  */
-int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) {
+int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost )
+{
+  DSTART( "traverse" );
 
   int  i, j, k, id, pt;
   char direction, extend;
@@ -238,18 +247,17 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) 
     if( !bu->num_outgoing ) {  // bu is a sink
       // cost(bu) = { sum(bu) | sum(bu) is the sum of costs of each instruction in bu };
 
-      pu = (path*) MALLOC( pu, sizeof(path), "path" );
+      MALLOC( pu, path*, sizeof(path), "path" );
       pu->cost       = cost[bu->bbid];
       pu->bb_len     = 1;
-      pu->bb_seq     = (int*) MALLOC( pu->bb_seq, sizeof(int), "path bb_seq" );
+      MALLOC( pu->bb_seq, int*, sizeof(int), "path bb_seq" );
       pu->bb_seq[0]  = bu->bbid;
       pu->branch_len = 0;
       pu->branch_eff = NULL;
       pu->branch_dir = NULL;
 
       num_paths[bu->bbid]++;
-      pathlist[bu->bbid] = (path**)
-	REALLOC( pathlist[bu->bbid], num_paths[bu->bbid] * sizeof(path*), "pathlist elm" );
+      REALLOC( pathlist[bu->bbid], path**, num_paths[bu->bbid] * sizeof(path*), "pathlist elm" );
       pathlist[bu->bbid][ num_paths[bu->bbid]-1 ] = pu;
       continue;
     }
@@ -259,7 +267,7 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) 
 
       id = getblock( bu->outgoing[j], bblist, 0, i-1 );
       if( id == -1 )
-	printf( "Block %d-%d not found.\n", pid, bu->outgoing[j] ), exit(1);
+        prerr( "Block %d-%d not found.\n", pid, bu->outgoing[j] );
     
       bv = bblist[id];
       // printf( "out: " ); printBlock( bv );
@@ -292,7 +300,7 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) 
 
 	// else, include this path for bu
 
-	pu = (path*) MALLOC( pu, sizeof(path), "path" );
+	MALLOC( pu, path*, sizeof(path), "path" );
 	pu->bb_len = pv->bb_len + 1;
 
 	pu->cost = pv->cost + cost[bu->bbid];
@@ -332,11 +340,9 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) 
 	if( extend )
 	  pu->branch_len++;
 	
-	pu->bb_seq = (int*) MALLOC( pu->bb_seq, pu->bb_len * sizeof(int), "path bb_seq" );
-	pu->branch_eff = (branch**)
-	  MALLOC( pu->branch_eff, pu->branch_len * sizeof(branch*), "path branch_eff" );
-	pu->branch_dir = (char*)
-	  MALLOC( pu->branch_dir, pu->branch_len * sizeof(char), "path branch_dir" );
+	MALLOC( pu->bb_seq, int*, pu->bb_len * sizeof(int), "path bb_seq" );
+	MALLOC( pu->branch_eff, branch**, pu->branch_len * sizeof(branch*), "path branch_eff" );
+	MALLOC( pu->branch_dir, char*, pu->branch_len * sizeof(char), "path branch_dir" );
 
 	copySeq( pu, pv );
 	pu->bb_seq[ pu->bb_len - 1 ] = bu->bbid;
@@ -345,8 +351,7 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) 
 	  sortedInsertBranch( pu, bru, direction );
 
 	num_paths[bu->bbid]++;
-	pathlist[bu->bbid] = (path**)
-	  REALLOC( pathlist[bu->bbid], num_paths[bu->bbid] * sizeof(path*), "pathlist elm" );
+	REALLOC( pathlist[bu->bbid], path**, num_paths[bu->bbid] * sizeof(path*), "pathlist elm" );
 	pathlist[bu->bbid][ num_paths[bu->bbid]-1 ] = pu;
 
       } // end for paths of bv
@@ -354,7 +359,7 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) 
     } // end for bu's children
 
     if( num_paths[bu->bbid] <= 0 )
-      printf( "\nNo feasible path at %d-%d!\n\n", pid, bu->bbid ), exit(1);
+      prerr( "\nNo feasible path at %d-%d!\n\n", pid, bu->bbid );
 
 
     // Step 2: Consolidate
@@ -444,16 +449,16 @@ int traverse( int pid, block **bblist, int num_bb, int *in_degree, uint *cost ) 
       }
     }
 
-#ifdef _DEBUG
-  printf( "Paths at %d-%d: %d\n", pid, bu->bbid, num_paths[bu->bbid] );
-	for( pt = 0; pt < num_paths[bu->bbid]; pt++ )
-	  printPath( pathlist[bu->bbid][pt] );
-	printf( "\n" );
-#endif
+    DOUT( "Paths at %d-%d: %d\n", pid, bu->bbid, num_paths[bu->bbid] );
+    DACTION(
+        for( pt = 0; pt < num_paths[bu->bbid]; pt++ )
+          printPath( pathlist[bu->bbid][pt] );
+    );
+    DOUT( "\n" );
 
   } // end for bb
 
-  return 0;
+  DRETURN( 0 );
 }  
 
 
@@ -466,9 +471,9 @@ path* find_WCETPath( int pid, block **bblist, int num_bb, int *in_degree, uint *
 
   num = procs[pid]->num_bb;
 
-  pathFreed = (char*)   CALLOC( pathFreed, num, sizeof(char), "pathFreed" );
-  num_paths = (int*)    CALLOC( num_paths, num, sizeof(int),  "num_paths" );
-  pathlist  = (path***) MALLOC( pathlist, num * sizeof(path**), "pathlist" );
+  CALLOC( pathFreed, char*, num, sizeof(char), "pathFreed" );
+  CALLOC( num_paths, int*, num, sizeof(int),  "num_paths" );
+  MALLOC( pathlist, path***, num * sizeof(path**), "pathlist" );
   for( i = 0; i < num; i++ )
     pathlist[i] = NULL;
 
@@ -491,14 +496,14 @@ path* find_WCETPath( int pid, block **bblist, int num_bb, int *in_degree, uint *
     }
   }
   if( id == -1 )
-    printf( "Error: no wcet path selected.\n" ), exit(1);
+    prerr( "Error: no wcet path selected.\n" );
 
   // copy the longest path, to be returned
-  p = (path*) MALLOC( p, sizeof(path), "path" );
+  MALLOC( p, path*, sizeof(path), "path" );
   p->cost   = pathlist[start][id]->cost;
   p->bb_len = pathlist[start][id]->bb_len;
 
-  p->bb_seq = (int*) MALLOC( p->bb_seq, p->bb_len * sizeof(int), "path bb_seq" );
+  MALLOC( p->bb_seq, int*, p->bb_len * sizeof(int), "path bb_seq" );
   for( i = 0; i < pathlist[start][id]->bb_len; i++ )
     p->bb_seq[i] = pathlist[start][id]->bb_seq[i];
 

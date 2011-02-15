@@ -23,7 +23,7 @@ int graphColoring( int numNodes, int *outdegree, int **outedges, char **colorAss
   int numColored;
 
   // sort in decreasing order of degree
-  sortedIndex = (int*) MALLOC( sortedIndex, numNodes * sizeof(int), "sortedIndex" );
+  MALLOC( sortedIndex, int*, numNodes * sizeof(int), "sortedIndex" );
   for( i = 0; i < numNodes; i++ )
     sortedIndex[i] = i;
 
@@ -105,7 +105,8 @@ int graphColoring( int numNodes, int *outdegree, int **outedges, char **colorAss
 
   /*
   // tweak: if a node has a 'choice', choose a grouping with higher similarity in memory requirement
-  char *freeC = (char*) MALLOC( freeC, numColors * sizeof(char), "color choices" );
+  char *freeC;
+  MALLOC( freeC, char*, numColors * sizeof(char), "color choices" );
 
   for( i = 0; i < numNodes; i++ ) {
     int id = sortedIndex[i];
@@ -144,8 +145,10 @@ int taskColoring( overlay_t *ox, char **colorAssg ) {
   int *memberList = ox->ownerTaskList;
   int numMembers = ox->numOwnerTasks;
 
-  int *outdegree = (int*)  MALLOC( outdegree, numMembers * sizeof(int),  "outdegree" );
-  int **outedges = (int**) MALLOC( outedges,  numMembers * sizeof(int*), "outedges" );
+  int *outdegree;
+  MALLOC( outdegree, int*, numMembers * sizeof(int),  "outdegree" );
+  int **outedges;
+  MALLOC( outedges, int**,  numMembers * sizeof(int*), "outedges" );
   // note: outedges contain the task index in the array, not task id
 
   // printf( "memberList(%d):%x  outdegree:%x  outedges:%x  colorAssg:%x\n", numMembers, memberList, outdegree, outedges, colorAssg ); fflush( stdout );
@@ -163,7 +166,7 @@ int taskColoring( overlay_t *ox, char **colorAssg ) {
 
       if( idx != idj && (canPreempt(idx,idj) || canPreempt(idj,idx)) ) {
 	outdegree[i]++;
-	outedges[i] = (int*) REALLOC( outedges[i], outdegree[i] * sizeof(int), "outedges[i]" );
+	REALLOC( outedges[i], int*, outdegree[i] * sizeof(int), "outedges[i]" );
 	outedges[i][outdegree[i]-1] = j;
 
 	/*
@@ -200,8 +203,6 @@ int colorPartition( int *memberList, int numMembers, char *colorAssg, int **colo
   FILE *fptr;
   int i, k;
   int pid, size;
-
-  double t;
 
   // prepare parameter file
   fptr = wcrt_openfile( "dopartn.par", "w" );
@@ -277,8 +278,10 @@ int colorAllocation( chart_t *msc, overlay_t *ox, char *colorAssg, int numColors
   double res;
 
   // for tracking purpose
-  int *taskshare = (int*) CALLOC( taskshare, ox->numOwnerTasks, sizeof(int), "taskshare" );
-  int *colorshare = (int*) CALLOC( colorshare, numColors, sizeof(int), "colorshare" );
+  int *taskshare;
+  CALLOC( taskshare, int*, ox->numOwnerTasks, sizeof(int), "taskshare" );
+  int *colorshare; 
+  CALLOC( colorshare, int*, numColors, sizeof(int), "colorshare" );
 
   // prepare parameter file
   fptr = wcrt_openfile( "doalloc.par", "w" );
@@ -376,7 +379,7 @@ int colorAllocation( chart_t *msc, overlay_t *ox, char *colorAssg, int numColors
     taskshare[k] += tx->memBlockList[idx]->size;
 
     //ox->numMemBlocks++;
-    //ox->memBlockList = (mem_t**) REALLOC( ox->memBlockList, ox->numMemBlocks * sizeof(mem_t*), "ox->memBlockList" );
+    //REALLOC( ox->memBlockList, mem_t**, ox->numMemBlocks * sizeof(mem_t*), "ox->memBlockList" );
     //ox->memBlockList[ox->numMemBlocks-1] = &(tx->memBlockList[idx]);
   }
   fclose( fptr );
